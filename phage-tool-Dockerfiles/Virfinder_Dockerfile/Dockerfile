@@ -14,8 +14,8 @@ RUN R CMD INSTALL /VirFinder/linux/VirFinder_1.1.tar.gz
 
 
 RUN mkdir virfinder_exec/ && \
-            printf "#!/usr/bin/env Rscript\nlibrary(VirFinder) \n args <- commandArgs(trailingOnly = TRUE) \n filein <- args[1] \n \
-            \n predResult <- VF.pred(filein) \n predResult " > /virfinder_exec/virfinderGO.R && \
+            printf '#!/usr/bin/env Rscript\nlibrary(VirFinder) \n args <- commandArgs(trailingOnly = TRUE) \n filein <- args[1] \n \
+            \n predResult <- VF.pred(filein) \n predResult[order(predResult$pvalue),]' > /virfinder_exec/virfinderGO.R && \
     chmod 777 /virfinder_exec/virfinderGO.R
 
 ENV PATH /virfinder_exec/:$PATH
