@@ -1,0 +1,7 @@
+cfg
+*.log*
+wip/
+db_auto-build/
+work/
+.nextflow/
+results/
