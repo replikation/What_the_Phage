@@ -5,6 +5,14 @@ nextflow.preview.dsl=2
 * Nextflow -- Analysis Pipeline
 * Author: christian.jena@gmail.com
 */
+println " "
+println "\u001B[32mProfile: $workflow.profile\033[0m"
+println " "
+println "\033[2mPipeline-version: $workflow.commitId"
+println "Nextflow-version: $nextflow.version"
+println "Workdir location:"
+println "  $workflow.workDir\u001B[0m"
+println " "
 
 if (params.help) { exit 0, helpMSG() }
 if (params.fasta == '' &&  params.fastq == '' &&  params.dir == '') {
