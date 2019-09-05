@@ -1,4 +1,4 @@
-database/
+nextflow-autodownload-databases/
 cfg
 *.log*
 wip/

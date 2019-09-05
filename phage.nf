@@ -5,6 +5,7 @@ nextflow.preview.dsl=2
 * Nextflow -- Analysis Pipeline
 * Author: christian.jena@gmail.com
 */
+
 println " "
 println "\u001B[32mProfile: $workflow.profile\033[0m"
 println " "
@@ -15,8 +16,8 @@ println "  $workflow.workDir\u001B[0m"
 println " "
 
 if (params.help) { exit 0, helpMSG() }
-if (params.fasta == '' &&  params.fastq == '' &&  params.dir == '') {
-    exit 1, "input missing, use [--fasta] [--fastq] or [--dir]"}
+if (params.fasta == '' ) {
+    exit 1, "input missing, use [--fasta]"}
 
 // fasta input or via csv file
 if (params.fasta && params.list) { fasta_input_ch = Channel
@@ -29,39 +30,20 @@ else if (params.fasta) { fasta_input_ch = Channel
         .map { file -> tuple(file.baseName, file) }
         .view() }
 
-if (params.fastq && params.list) { fastq_input_ch = Channel
-        .fromPath( params.fastq, checkIfExists: true )
-        .splitCsv()
-        .map { row -> ["${row[0]}", file("${row[1]}")] }
-        .view() }
-else if (params.fastq) { fastq_input_ch = Channel
-        .fromPath( params.fastq, checkIfExists: true)
-        .map { file -> tuple(file.baseName, file) }
-        .view() }
-
-if (params.dir && params.list) { dir_input_ch = Channel
-        .fromPath( params.dir, checkIfExists: true, type: 'dir' )
-        .splitCsv()
-        .map { row -> ["${row[0]}", file("${row[1]}")] }
-        .view() }
-if (params.dir) { dir_input_ch = Channel
-        .fromPath( params.dir, checkIfExists: true, type: 'dir')
-        .map { file -> tuple(file.name, file) }
-        .view() }
-
 
 /************* 
 * DATABASES - autoload
 *************/
-/*
-if (params.sourmeta || params.sourclass) {
-    sour_db_preload = file(params.sour_db_present)
-    if (params.sour_db) { database_sourmash = file(params.sour_db) }
-    else if (sour_db_preload.exists()) { database_sourmash = sour_db_preload }
-    else {  include 'modules/sourmashgetdatabase'
-            sourmash_download_db() 
-            database_sourmash = sourmash_download_db.out } }
-*/
+    // get PPR dependencies
+    include 'modules/PPRgetDeps'
+    pprgetdeps() 
+    deps_PPRmeta = pprgetdeps.out
+
+    // get Virsorter Database
+    include 'modules/virsorterGetDB'
+    virsorterGetDB() 
+    database_virsorter = virsorterGetDB.out
+
 /*************  
 * Deepvirfinder
 *************/
@@ -90,6 +72,17 @@ if (params.fasta) { include 'modules/metaphinder' params(output: params.output, 
 if (params.fasta) { include 'modules/virfinder' params(output: params.output, cpus: params.cpus)
     virfinder(fasta_input_ch) }
 
+/*************  
+* Virsorter
+*************/
+if (params.fasta) { include 'modules/virsorter' params(output: params.output, cpus: params.cpus)
+    virsorter(fasta_input_ch, database_virsorter) }
+
+/*************  
+* PPRmeta
+*************/
+if (params.fasta) { include 'modules/PPRmeta' params(output: params.output, cpus: params.cpus)
+    pprmeta(fasta_input_ch, deps_PPRmeta) }
 
 
 /*************  
@@ -111,14 +104,15 @@ def helpMSG() {
 
     ${c_yellow}Input:${c_reset}
     ${c_green} --fasta ${c_reset}            '*.fasta'   -> assembly file(s) - uses filename
-    ${c_green} --fastq ${c_reset}            '*.fastq'   -> read file(s) in fastq, one sample per file - uses filename
-    ${c_green} --dir  ${c_reset}             'foobar*/'  -> a folder(s) as input - uses dirname
     ${c_dim}  ..change above input to csv:${c_reset} ${c_green}--list ${c_reset}            
 
     ${c_yellow}Options:${c_reset}
     --cores             max cores for local use [default: $params.cores]
     --output            name of the result folder [default: $params.output]
 
+    ${c_yellow}Database behaviour:${c_reset}
+    This workflow will automatically download files to ./nextflow-autodownload-databases
+    It will skip this download if the files are present in ./nextflow-autodownload-databases
 
     ${c_dim}Nextflow options:
     -with-report rep.html    cpu / ram usage (may cause errors)
