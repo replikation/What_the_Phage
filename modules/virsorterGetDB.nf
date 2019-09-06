@@ -1,6 +1,6 @@
 process virsorterGetDB {
         storeDir 'nextflow-autodownload-databases/virsorter'
-        label 'virsorter'    
+        label 'ubuntu'    
       output:
         file("virsorter-data")
       script:

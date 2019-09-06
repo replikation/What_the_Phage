@@ -9,11 +9,16 @@ nextflow.preview.dsl=2
 println " "
 println "\u001B[32mProfile: $workflow.profile\033[0m"
 println " "
-println "\033[2mPipeline-version: $workflow.commitId"
+println "\033[2mCurrent User: $workflow.userName"
 println "Nextflow-version: $nextflow.version"
+println "Starting time: $nextflow.timestamp"
 println "Workdir location:"
 println "  $workflow.workDir\u001B[0m"
 println " "
+if (workflow.profile == 'standard') {
+println "\033[2mCPUs to use: $params.cores"
+println "Output dir name: $params.output\u001B[0m"
+println " "}
 
 if (params.help) { exit 0, helpMSG() }
 if (params.fasta == '' ) {

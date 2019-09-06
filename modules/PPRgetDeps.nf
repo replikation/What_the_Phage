@@ -1,6 +1,6 @@
 process pprgetdeps {
         storeDir 'nextflow-autodownload-databases/pprmeta'
-        label 'pprmeta'    
+        label 'ubuntu'    
       output:
         file("PPR-Meta")
       script:
