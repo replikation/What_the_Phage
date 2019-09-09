@@ -1,6 +1,6 @@
-process virsorterGetDB {
+process virsorter_download_DB {
         storeDir 'nextflow-autodownload-databases/virsorter'
-        label 'ubuntu'    
+        label 'noDocker'    
       output:
         file("virsorter-data")
       script:

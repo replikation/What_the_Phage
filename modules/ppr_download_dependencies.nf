@@ -1,6 +1,6 @@
-process pprgetdeps {
+process ppr_download_dependencies {
         storeDir 'nextflow-autodownload-databases/pprmeta'
-        label 'ubuntu'    
+        label 'noDocker'    
       output:
         file("PPR-Meta")
       script:

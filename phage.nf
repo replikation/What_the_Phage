@@ -40,20 +40,22 @@ else if (params.fasta) { fasta_input_ch = Channel
 * DATABASES - autoload
 *************/
     // get PPR dependencies
-    include 'modules/PPRgetDeps'
-    pprgetdeps() 
-    deps_PPRmeta = pprgetdeps.out
+    include 'modules/ppr_download_dependencies'
+    ppr_download_dependencies() 
+    deps_PPRmeta = ppr_download_dependencies.out
 
     // get Virsorter Database
-    include 'modules/virsorterGetDB'
-    virsorterGetDB() 
-    database_virsorter = virsorterGetDB.out
+    include 'modules/virsorter_download_DB'
+    virsorter_download_DB() 
+    database_virsorter = virsorter_download_DB.out
 
 /*************  
 * Deepvirfinder
 *************/
-if (params.fasta) { include 'modules/deepvirfinder' params(output: params.output, cpus: params.cpus)
-    deepvirfinder(fasta_input_ch) }
+if (params.fasta) { 
+    include 'modules/deepvirfinder' params(output: params.output, cpus: params.cpus)
+    include 'modules/filter_deepvirfinder' params(output: params.output)
+    filter_deepvirfinder(deepvirfinder(fasta_input_ch)) }
 
 /*************  
 * Marvel
@@ -68,8 +70,10 @@ if (params.fasta) { include 'modules/marvel' params(output: params.output, cpus:
 /*************  
 * Metaphinder
 *************/
-if (params.fasta) { include 'modules/metaphinder' params(output: params.output, cpus: params.cpus)
-    metaphinder(fasta_input_ch) }
+if (params.fasta) { 
+        include 'modules/metaphinder' params(output: params.output, cpus: params.cpus)
+        include 'modules/filter_metaphinder' params(output: params.output)
+    filter_metaphinder(metaphinder(fasta_input_ch)) }
 
 /*************  
 * Virfinder
