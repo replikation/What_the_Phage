@@ -6,3 +6,4 @@ db_auto-build/
 work/
 .nextflow/
 results/
+.Rhistory

@@ -94,6 +94,20 @@ if (params.fasta) { include 'modules/PPRmeta' params(output: params.output, cpus
     pprmeta(fasta_input_ch, deps_PPRmeta) }
 
 
+/***************************************      
+* JOIN ALL TOOL RESULTS
+***************************************/
+
+rchannel = filter_metaphinder.out.join(filter_deepvirfinder.out)
+
+/*************  
+* R plot
+*************/
+
+if (params.fasta) { include 'modules/r_plot.nf' params(output: params.output, cpus: params.cpus)
+    r_plot(rchannel) }
+
+
 /*************  
 * --help
 *************/
