@@ -13,8 +13,8 @@ RUN Rscript -e "install.packages('dplyr', repos = 'http://cran.us.r-project.org'
 RUN apt-get update && apt install -y procps g++ && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN mkdir /scripts
-COPY heatmap.R /scripts
-COPY convert.sh /scripts
+COPY phage-tool-Dockerfiles/R-docker/heatmap.R /scripts
+COPY phage-tool-Dockerfiles/R-docker/convert.sh /scripts
 RUN chmod +x /scripts/convert.sh /scripts/heatmap.R
 ENV PATH /scripts:$PATH
 ENTRYPOINT ["/bin/bash"]

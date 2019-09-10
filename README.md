@@ -10,7 +10,6 @@
   * [paper](https://link.springer.com/epdf/10.1186/s40168-017-0283-5?)
 * [PPR-Meta: a tool for identifying phages and plasmids from metagenomic fragments using deep learning](https://github.com/zhenchengfang/PPR-Meta)
   * [paper](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6586199/)
-   + [x] Docker file created
 * [VirSorter](https://github.com/simroux/VirSorter)
   * [paper](https://peerj.com/articles/985/)
 * [MetaPhinder](https://github.com/vanessajurtz/MetaPhinder)
