@@ -7,6 +7,6 @@ process virfinder {
       set val(name), file("${name}.txt")
     script:
       """
-      virfinderGO.R ${fasta} > ${name}.txt
+      virfinderGO.R ${fasta} | grep -v "\\[1\\]" > ${name}.txt
       """
 }

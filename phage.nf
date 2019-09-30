@@ -5,6 +5,17 @@ nextflow.preview.dsl=2
 * Nextflow -- Analysis Pipeline
 * Author: christian.jena@gmail.com
 */
+if (params.help) { exit 0, helpMSG() }
+
+/*
+println "  __      _______________________ "
+println " /  \    /  \__    ___/\______   \"
+println " \   \/\/   / |    |    |     ___/"
+println "  \        /  |    |    |    |    "
+println "   \__/\  /   |____|    |____|    "
+println "        \/                        "
+*/
+
 
 println " "
 println "\u001B[32mProfile: $workflow.profile\033[0m"
@@ -20,85 +31,88 @@ println "\033[2mCPUs to use: $params.cores"
 println "Output dir name: $params.output\u001B[0m"
 println " "}
 
-if (params.help) { exit 0, helpMSG() }
-if (params.fasta == '' ) {
-    exit 1, "input missing, use [--fasta]"}
-
-// fasta input or via csv file
-if (params.fasta && params.list) { fasta_input_ch = Channel
-        .fromPath( params.fasta, checkIfExists: true )
-        .splitCsv()
-        .map { row -> ["${row[0]}", file("${row[1]}")] }
-        .view() }
-else if (params.fasta) { fasta_input_ch = Channel
-        .fromPath( params.fasta, checkIfExists: true)
-        .map { file -> tuple(file.baseName, file) }
-        .view() }
-
+/************* 
+* INPUT HANDLING
+*************/
+        if (params.fasta == '' ) {
+            exit 1, "input missing, use [--fasta]"}
+    // fasta input or via csv file
+        if (params.fasta && params.list) { fasta_input_ch = Channel
+                .fromPath( params.fasta, checkIfExists: true )
+                .splitCsv()
+                .map { row -> ["${row[0]}", file("${row[1]}")] }
+                .view() }
+        else if (params.fasta) { fasta_input_ch = Channel
+                .fromPath( params.fasta, checkIfExists: true)
+                .map { file -> tuple(file.baseName, file) }
+                .view() }
+    // check suffixes and correct/unpacuk them
+        include 'modules/input_suffix_check'
+        input_suffix_check(fasta_input_ch)
 
 /************* 
 * DATABASES - autoload
 *************/
     // get PPR dependencies
-    include 'modules/ppr_download_dependencies'
-    ppr_download_dependencies() 
-    deps_PPRmeta = ppr_download_dependencies.out
+        include 'modules/ppr_download_dependencies'
+        ppr_download_dependencies() 
+        deps_PPRmeta = ppr_download_dependencies.out
 
     // get Virsorter Database
-    include 'modules/virsorter_download_DB'
-    virsorter_download_DB() 
-    database_virsorter = virsorter_download_DB.out
+        include 'modules/virsorter_download_DB'
+        virsorter_download_DB() 
+        database_virsorter = virsorter_download_DB.out
 
 /*************  
 * Deepvirfinder
 *************/
-if (params.fasta) { 
-    include 'modules/deepvirfinder' params(output: params.output, cpus: params.cpus)
-    include 'modules/filter_deepvirfinder' params(output: params.output)
-    filter_deepvirfinder(deepvirfinder(fasta_input_ch)) }
-
+    if (params.fasta) { 
+            include 'modules/deepvirfinder' params(output: params.output, cpus: params.cpus)
+            include 'modules/filter_deepvirfinder' params(output: params.output)
+        filter_deepvirfinder(deepvirfinder(input_suffix_check.out)) }
 /*************  
 * Marvel
 *************/
-// Its not finding any thing in the fastas - its looking more for bins...
-// maybe split the contigs of a fasta into "bins" and then start the prediction?
-// otherwise its working
-
-if (params.fasta) { include 'modules/marvel' params(output: params.output, cpus: params.cpus)
-    marvel(fasta_input_ch) }
-
+    if (params.fasta) { 
+            include 'modules/marvel' params(output: params.output, cpus: params.cpus)
+            include 'modules/filter_marvel' params(output: params.output)
+        filter_marvel(marvel(input_suffix_check.out)) }
 /*************  
 * Metaphinder
 *************/
-if (params.fasta) { 
-        include 'modules/metaphinder' params(output: params.output, cpus: params.cpus)
-        include 'modules/filter_metaphinder' params(output: params.output)
-    filter_metaphinder(metaphinder(fasta_input_ch)) }
-
+    if (params.fasta) { 
+            include 'modules/metaphinder' params(output: params.output, cpus: params.cpus)
+            include 'modules/filter_metaphinder' params(output: params.output)
+        filter_metaphinder(metaphinder(input_suffix_check.out)) }
 /*************  
 * Virfinder
 *************/
-if (params.fasta) { include 'modules/virfinder' params(output: params.output, cpus: params.cpus)
-    virfinder(fasta_input_ch) }
-
+    if (params.fasta) { 
+            include 'modules/virfinder' params(output: params.output, cpus: params.cpus)
+            include 'modules/filter_virfinder' params(output: params.output)
+        filter_virfinder(virfinder(input_suffix_check.out)) }
 /*************  
 * Virsorter
 *************/
-if (params.fasta) { include 'modules/virsorter' params(output: params.output, cpus: params.cpus)
-    virsorter(fasta_input_ch, database_virsorter) }
-
+if (params.fasta) { 
+        include 'modules/virsorter' params(output: params.output, cpus: params.cpus)
+        include 'modules/filter_virsorter' params(output: params.output, cpus: params.cpus)
+    filter_virsorter(virsorter(input_suffix_check.out, database_virsorter)) }
 /*************  
 * PPRmeta
 *************/
-if (params.fasta) { include 'modules/PPRmeta' params(output: params.output, cpus: params.cpus)
-    pprmeta(fasta_input_ch, deps_PPRmeta) }
+if (params.fasta) { 
+        include 'modules/PPRmeta' params(output: params.output, cpus: params.cpus)
+        include 'modules/filter_PPRmeta' params(output: params.output)
+    filter_PPRmeta(pprmeta(input_suffix_check.out, deps_PPRmeta)) }
 
 
 /***************************************      
 * JOIN ALL TOOL RESULTS
 ***************************************/
 
-rchannel = filter_metaphinder.out.join(filter_deepvirfinder.out)
+rchannel = filter_metaphinder.out.join(filter_deepvirfinder.out.join(filter_marvel.out.join(filter_virfinder.out.join(filter_virsorter.out.join(filter_PPRmeta.out)))))
+
 
 /*************  
 * R plot
@@ -106,7 +120,6 @@ rchannel = filter_metaphinder.out.join(filter_deepvirfinder.out)
 
 if (params.fasta) { include 'modules/r_plot.nf' params(output: params.output, cpus: params.cpus)
     r_plot(rchannel) }
-
 
 /*************  
 * --help
@@ -120,7 +133,7 @@ def helpMSG() {
     log.info """
     ____________________________________________________________________________________________
     
-    phageME
+    What the Phage (WTP)
     
     ${c_yellow}Usage example:${c_reset}
     nextflow run phage.nf --fasta '*/*.fasta' 
