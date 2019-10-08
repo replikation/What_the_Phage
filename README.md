@@ -1,8 +1,17 @@
-# Phage benchmark Workflow
+# What the Phage (WtP)
+
+![](https://img.shields.io/badge/nextflow-19.07.0-brightgreen)
+![](https://img.shields.io/badge/uses-docker-blue.svg)
+![](https://img.shields.io/badge/licence-GPL--3.0-lightgrey.svg)
 
 * by Christian Brandt & Mike Marquet
 
-## The following Phage-Tools are included
+## What is this Repo?
+
+* an attempt to stream line the useage of various phage identification and prediction tools
+* the main focus is stability an data filtering / analysis for the user
+
+## The following Phage-Tools are currently included
 
 * [MARVEL Metagenomic Analysis and Retrieval of Viral Elements](https://github.com/LaboratorioBioinformatica/MARVEL#metagenomic-analysis-and-retrieval-of-viral-elements)
   * [paper](https://www.frontiersin.org/articles/10.3389/fgene.2018.00304/full)
@@ -19,18 +28,16 @@
 
 ## Installation
 
-* this workflow runs in a workflow manager `nextflow` using `docker`
-* this means it will get all programs and dependencies automatically
+* WtP runs with the workflow manager `nextflow` using `docker`
+* this means all programs are automatically pulled via docker and only docker and nextflow needs to be installed
 
 ### Dependencies
 
-* this are the dependencies for the workflow itself
-    * docker (add docker to your Usergroup, so no sudo is needed)
-    * nextflow + java runtime 
-    * git
-    * wget
-    * tar
-
+>   * docker (add docker to your Usergroup, so no sudo is needed)
+>   * nextflow + java runtime 
+>   * git
+>   * wget
+>   * tar
 
 ## Execution
 
