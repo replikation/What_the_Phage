@@ -8,7 +8,7 @@
 
 ## What is this Repo?
 
-* an attempt to stream line the useage of various phage identification and prediction tools
+* an attempt to streamline the usage of various phage identification and prediction tools
 * the main focus is stability an data filtering / analysis for the user
 
 ## The following Phage-Tools are currently included
