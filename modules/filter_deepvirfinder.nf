@@ -2,9 +2,9 @@ process filter_deepvirfinder {
       publishDir "${params.output}/${name}/deepvirfinder", mode: 'copy', pattern: "deepvirfinder.txt"
       label 'ubuntu'
     input:
-      set val(name), file(results) 
+      tuple val(name), file(results) 
     output:
-      set val(name), file("deepvirfinder.txt")
+      tuple val(name), file("deepvirfinder.txt")
     shell:
       """
       export LC_NUMERIC=en_US.utf-8

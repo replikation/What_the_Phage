@@ -1,10 +1,9 @@
 process input_suffix_check {
         label 'ubuntu'
-        echo true
     input:
-        set val(name), file(file) 
+        tuple val(name), file(file) 
     output:
-        set val(name), file("${name}.fa")
+        tuple val(name), file("${name}.fa")
     script:
         """
         case "${file}" in

@@ -40,86 +40,109 @@ println " "}
         if (params.fasta && params.list) { fasta_input_ch = Channel
                 .fromPath( params.fasta, checkIfExists: true )
                 .splitCsv()
-                .map { row -> ["${row[0]}", file("${row[1]}")] }
+                .map { row -> ["${row[0]}", file("${row[1]}", checkIfExists: true)] }
                 .view() }
         else if (params.fasta) { fasta_input_ch = Channel
                 .fromPath( params.fasta, checkIfExists: true)
                 .map { file -> tuple(file.baseName, file) }
                 .view() }
-    // check suffixes and correct/unpacuk them
-        include 'modules/input_suffix_check'
-        input_suffix_check(fasta_input_ch)
 
 /************* 
-* DATABASES - autoload
-*************/
-    // get PPR dependencies
-        include 'modules/ppr_download_dependencies'
-        ppr_download_dependencies() 
-        deps_PPRmeta = ppr_download_dependencies.out
-
-    // get Virsorter Database
-        include 'modules/virsorter_download_DB'
-        virsorter_download_DB() 
-        database_virsorter = virsorter_download_DB.out
-
-/*************  
-* Deepvirfinder
-*************/
-    if (params.fasta) { 
-            include 'modules/deepvirfinder' params(output: params.output, cpus: params.cpus)
-            include 'modules/filter_deepvirfinder' params(output: params.output)
-        filter_deepvirfinder(deepvirfinder(input_suffix_check.out)) }
-/*************  
-* Marvel
-*************/
-    if (params.fasta) { 
-            include 'modules/marvel' params(output: params.output, cpus: params.cpus)
-            include 'modules/filter_marvel' params(output: params.output)
-        filter_marvel(marvel(input_suffix_check.out)) }
-/*************  
-* Metaphinder
-*************/
-    if (params.fasta) { 
-            include 'modules/metaphinder' params(output: params.output, cpus: params.cpus)
-            include 'modules/filter_metaphinder' params(output: params.output)
-        filter_metaphinder(metaphinder(input_suffix_check.out)) }
-/*************  
-* Virfinder
-*************/
-    if (params.fasta) { 
-            include 'modules/virfinder' params(output: params.output, cpus: params.cpus)
-            include 'modules/filter_virfinder' params(output: params.output)
-        filter_virfinder(virfinder(input_suffix_check.out)) }
-/*************  
-* Virsorter
-*************/
-if (params.fasta) { 
-        include 'modules/virsorter' params(output: params.output, cpus: params.cpus)
-        include 'modules/filter_virsorter' params(output: params.output, cpus: params.cpus)
-    filter_virsorter(virsorter(input_suffix_check.out, database_virsorter)) }
-/*************  
-* PPRmeta
-*************/
-if (params.fasta) { 
-        include 'modules/PPRmeta' params(output: params.output, cpus: params.cpus)
-        include 'modules/filter_PPRmeta' params(output: params.output)
-    filter_PPRmeta(pprmeta(input_suffix_check.out, deps_PPRmeta)) }
-
-
-/***************************************      
-* JOIN ALL TOOL RESULTS
-***************************************/
-
-rchannel = filter_metaphinder.out.join(filter_deepvirfinder.out.join(filter_marvel.out.join(filter_virfinder.out.join(filter_virsorter.out.join(filter_PPRmeta.out)))))
-
-
-/*************  
-* R plot
+* MODULES
 *************/
 
-if (params.fasta) { include 'modules/r_plot.nf' params(output: params.output, cpus: params.cpus)
-    r_plot(rchannel) }
+    include './modules/PPRmeta' params(output: params.output, cpus: params.cpus)
+    include './modules/deepvirfinder' params(output: params.output, cpus: params.cpus)
+    include './modules/filter_PPRmeta' params(output: params.output)
+    include './modules/filter_deepvirfinder' params(output: params.output)
+    include './modules/filter_marvel' params(output: params.output)
+    include './modules/filter_metaphinder' params(output: params.output)
+    include './modules/filter_virfinder' params(output: params.output)
+    include './modules/filter_virsorter' params(output: params.output, cpus: params.cpus)
+    include './modules/marvel' params(output: params.output, cpus: params.cpus)
+    include './modules/metaphinder' params(output: params.output, cpus: params.cpus)
+    include './modules/ppr_download_dependencies'
+    include './modules/r_plot.nf' params(output: params.output, cpus: params.cpus)
+    include './modules/virfinder' params(output: params.output, cpus: params.cpus)
+    include './modules/virsorter' params(output: params.output, cpus: params.cpus)
+    include './modules/virsorter_download_DB'
+    include './modules/input_suffix_check'
+
+
+/************* 
+* DATABASES
+*************/
+workflow ppr_dependecies {
+    main: ppr_download_dependencies()
+    emit: ppr_download_dependencies.out
+}        
+        
+workflow virsorter_database {
+    main: virsorter_download_DB()
+    emit: virsorter_DB = virsorter_download_DB.out
+} 
+
+/************* 
+* SUB WORKFLOWS
+*************/
+
+workflow deepvirfinder_wf {
+    get:    fasta
+    main:   filter_deepvirfinder(deepvirfinder(input_suffix_check(fasta)))
+    emit:   filter_deepvirfinder.out
+} 
+
+workflow marvel_wf {
+    get:    fasta
+    main:   filter_marvel(marvel(input_suffix_check(fasta)))
+    emit:   filter_marvel.out
+} 
+
+workflow metaphinder_wf {
+    get:    fasta
+    main:   filter_metaphinder(metaphinder(input_suffix_check(fasta)))
+    emit:   filter_metaphinder.out
+} 
+
+workflow virfinder_wf {
+    get:    fasta
+    main:   filter_virfinder(virfinder(input_suffix_check(fasta)))
+    emit:   filter_virfinder.out
+} 
+
+workflow virsorter_wf {
+    get:    fasta
+            virsorter_DB
+    main:   filter_virsorter(virsorter(input_suffix_check(fasta), virsorter_DB))
+    emit:   filter_virsorter.out
+} 
+
+workflow pprmeta_wf {
+    get:    fasta
+            ppr_deps
+    main:   filter_PPRmeta(pprmeta(input_suffix_check(fasta), ppr_deps))
+    emit:   filter_PPRmeta.out
+} 
+
+/************* 
+* MAIN WORKFLOWS
+*************/
+
+workflow {
+    rchannel =       virsorter_wf(fasta_input_ch, virsorter_database())
+                    .combine(marvel_wf(fasta_input_ch), by:0)
+                    .join(metaphinder_wf(fasta_input_ch))
+                    .join(deepvirfinder_wf(fasta_input_ch))
+                    .join(virfinder_wf(fasta_input_ch))
+                    .join(pprmeta_wf(fasta_input_ch, ppr_dependecies()))
+                    .transpose(by: 0)
+                    .view()
+    r_plot(rchannel)
+
+//.concat()
+//.groupTuple()
+}
+
 
 /*************  
 * --help

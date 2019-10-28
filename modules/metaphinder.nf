@@ -2,9 +2,9 @@ process metaphinder {
       publishDir "${params.output}/${name}/metaphinder", mode: 'copy', pattern: "${name}.txt"
       label 'metaphinder'
     input:
-      set val(name), file(fasta) 
+      tuple val(name), file(fasta) 
     output:
-      set val(name), file("${name}.txt")
+      tuple val(name), file("${name}.txt")
     script:
       """
       mkdir ${name}

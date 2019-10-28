@@ -2,9 +2,9 @@ process filter_metaphinder {
       publishDir "${params.output}/${name}/metaphinder", mode: 'copy', pattern: "metaphinder.txt"
       label 'ubuntu'
     input:
-      set val(name), file(results) 
+      tuple val(name), file(results) 
     output:
-      set val(name), file("metaphinder.txt")
+      tuple val(name), file("metaphinder.txt")
     shell:
       """
       export LC_NUMERIC=en_US.utf-8

@@ -3,9 +3,9 @@ process marvel {
       label 'marvel'
       echo true
     input:
-      set val(name), file(fasta) 
+      tuple val(name), file(fasta) 
     output:
-      set val(name), file("${name}.txt")
+      tuple val(name), file("${name}.txt")
     shell:
       """
       mkdir fasta_dir_!{name} 
