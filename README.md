@@ -26,6 +26,10 @@
 * [DeepVirFinder](https://github.com/jessieren/DeepVirFinder)
   * [paper](https://arxiv.org/abs/1806.07810)
 
+## Workflow
+
+![chart](figures/chart.png)
+
 ## Installation
 
 * WtP runs with the workflow manager `nextflow` using `docker`
