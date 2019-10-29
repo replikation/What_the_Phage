@@ -7,6 +7,6 @@ process filter_marvel {
       tuple val(name), file("marvel.txt")
     shell:
       """
-        grep '>' !{results} |awk '\$4>=75.0' |awk '{print \$2 }' | cut -f1 -d "_" > marvel.txt
+        grep '>' ${results} | tr -d ">"  > marvel.txt
       """
 }

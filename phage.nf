@@ -41,11 +41,11 @@ println " "}
                 .fromPath( params.fasta, checkIfExists: true )
                 .splitCsv()
                 .map { row -> ["${row[0]}", file("${row[1]}", checkIfExists: true)] }
-                .view() }
+                 }
         else if (params.fasta) { fasta_input_ch = Channel
                 .fromPath( params.fasta, checkIfExists: true)
                 .map { file -> tuple(file.baseName, file) }
-                .view() }
+                 }
 
 /************* 
 * MODULES
@@ -94,7 +94,7 @@ workflow deepvirfinder_wf {
 
 workflow marvel_wf {
     get:    fasta
-    main:   filter_marvel(marvel(input_suffix_check(fasta)))
+    main:   filter_marvel(marvel(input_suffix_check(fasta).splitFasta(by: 1, file: true).groupTuple()))
     emit:   filter_marvel.out
 } 
 
@@ -129,18 +129,13 @@ workflow pprmeta_wf {
 *************/
 
 workflow {
-    rchannel =       virsorter_wf(fasta_input_ch, virsorter_database())
-                    .combine(marvel_wf(fasta_input_ch), by:0)
-                    .join(metaphinder_wf(fasta_input_ch))
-                    .join(deepvirfinder_wf(fasta_input_ch))
-                    .join(virfinder_wf(fasta_input_ch))
-                    .join(pprmeta_wf(fasta_input_ch, ppr_dependecies()))
-                    .transpose(by: 0)
-                    .view()
-    r_plot(rchannel)
-
-//.concat()
-//.groupTuple()
+        r_plot (    virsorter_wf(fasta_input_ch, virsorter_database())
+                    .join(marvel_wf(fasta_input_ch), by:0)
+                    .join(metaphinder_wf(fasta_input_ch), by:0)
+                    .join(deepvirfinder_wf(fasta_input_ch), by:0)
+                    .join(virfinder_wf(fasta_input_ch), by:0)
+                    .join(pprmeta_wf(fasta_input_ch, ppr_dependecies()), by:0)
+                )
 }
 
 

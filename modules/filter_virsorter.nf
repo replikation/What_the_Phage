@@ -7,6 +7,6 @@ process filter_virsorter {
       tuple val(name), file("virsorter.txt")
     shell:
       """
-      cat !{results}/Predicted_viral_sequences/VIRSorter_cat-[1,2].fasta | grep ">" | sed -e s/\\>VIRSorter_//g | sed -e s/-cat_1//g |  sed -e s/-cat_2//g | cut -f1 -d "_" > virsorter.txt
+      cat !{results}/Predicted_viral_sequences/VIRSorter_cat-[1,2].fasta | grep ">" | sed -e s/\\>VIRSorter_//g | sed -e s/-cat_1//g |  sed -e s/-cat_2//g  > virsorter.txt
       """
 }

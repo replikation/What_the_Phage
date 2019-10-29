@@ -7,6 +7,6 @@ process filter_PPRmeta {
       tuple val(name), file("PPRmeta.txt")
     shell:
       """
-       tail -n+2 !{results} | grep 'phage'| cut -d ' ' -f1 > PPRmeta.txt
+       tail -n+2 !{results} | grep 'phage'| cut -d ',' -f1 > PPRmeta.txt
       """
 }

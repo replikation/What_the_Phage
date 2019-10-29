@@ -7,7 +7,6 @@ process filter_deepvirfinder {
       tuple val(name), file("deepvirfinder.txt")
     shell:
       """
-      export LC_NUMERIC=en_US.utf-8
-      sort  -g  -k4,4 *.txt | awk '\$4>=0.995' | awk '{ print \$1 }' | tail -n+2 > deepvirfinder.txt
+      sort  -g  -k4,4 *.txt | awk '\$3>=0.9' | awk '{ print \$1 }' | tail -n+2 > deepvirfinder.txt
       """
 }

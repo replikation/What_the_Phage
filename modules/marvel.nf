@@ -1,26 +1,21 @@
 process marvel {
       publishDir "${params.output}/${name}/marvel", mode: 'copy', pattern: "${name}.txt"
       label 'marvel'
-      echo true
     input:
       tuple val(name), file(fasta) 
     output:
       tuple val(name), file("${name}.txt")
     shell:
       """
-      mkdir fasta_dir_!{name} 
-      
-      cat !{fasta} | awk '{
-            if (substr(\$0, 1, 1)==">") {filename=(substr(\$0,2) ".tmpFile")}
-            print \$0 > filename }' 
-
-      for filefasta in *.tmpFile; do
-        filename=\$(echo "\${filefasta%.tmpFile}" | tr " " "_")
-        mv "\${filefasta}" fasta_dir_!{name}/\${filename}.fa
-      done
-
-      marvel_bins.py -i fasta_dir_!{name} -t !{params.cpus} > results.txt
-      grep "**" results.txt > !{name}.txt
+      mkdir fasta_dir_${name} 
+      cp ${fasta} fasta_dir_${name}/
+      # Marvel
+      marvel_bins.py -i fasta_dir_${name} -t ${params.cpus} > results.txt
+      # getting contig names
+      filenames=\$(grep  "${name}\\." results.txt | cut -f2 -d " ")
+      while IFS= read -r samplename ; do
+       head -1 fasta_dir_${name}/\${samplename}.fa >> ${name}.txt
+      done < <(printf '%s\n' "\${filenames}")
       """
 }
 

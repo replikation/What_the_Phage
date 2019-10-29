@@ -22,5 +22,9 @@ process input_suffix_check {
                 echo "file format not supported...what the phage...(.fa .fasta .fna .gz is supported)"
                 exit 1
         esac
+        # replace spaces with _
+        sed 's, ,_,g' -i ${name}.fa
+        # replace , with _
+        sed 's#,#_#g' -i ${name}.fa
         """
 }
