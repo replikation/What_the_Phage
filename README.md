@@ -54,16 +54,16 @@
 * or execute it directly via 
 
 ```bash
-nextflow run replikation/wf_phage_benchmark --fasta 'your-fasta-files/*.fasta'
+nextflow run replikation/What_the_Phage --fasta 'your-fasta-files/*.fasta'
 # or
-nextflow run replikation/wf_phage_benchmark --fasta your-file.fasta
+nextflow run replikation/What_the_Phage --fasta your-file.fasta
 ```
 
 
 ## Help
 
 ```bash
-nextflow run replikation/wf_phage_benchmark --help
+nextflow run replikation/What_the_Phage --help
 # or
 ./phage.nf --help
 ```
