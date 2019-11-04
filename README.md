@@ -68,7 +68,7 @@ add the docker group to your user via `sudo usermod -a -G docker $USER`
 
 ```
 git clone https://github.com/replikation/What_the_Phage.git
-nextflow run replikation/What_the_Phage --fasta 'What_the_Phage/test-data/*.fasta'
+nextflow run replikation/What_the_Phage --fasta 'What_the_Phage/test-data/*.fa'
 ```
 
 
@@ -77,7 +77,7 @@ nextflow run replikation/What_the_Phage --fasta 'What_the_Phage/test-data/*.fast
 * for local use you could either clone the git and do:
 
 ```bash
-./phage.nf --fasta 'test-data/*.fa'
+./phage.nf --fasta 'test-data/*.fasta'
 ```
 
 * or execute it directly via 
