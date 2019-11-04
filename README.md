@@ -43,6 +43,35 @@
 >   * wget
 >   * tar
 
+
+
+### Install java
+```
+sudo apt install default-jre
+```
+
+
+### Install Nextflow:
+```
+curl -s https://get.nextflow.io | bash 
+mv /path/to/nextflowdownload/nextflow /bin/
+```
+
+### Install Docker
+```
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io
+```
+add the docker group to your user via `sudo usermod -a -G docker $USER`
+
+### Run our example files
+
+```
+git clone https://github.com/replikation/What_the_Phage.git
+nextflow run replikation/What_the_Phage --fasta 'What_the_Phage/test-data/*.fasta'
+
+
+
 ## Execution
 
 * for local use you could either clone the git and do:
