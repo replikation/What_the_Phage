@@ -39,38 +39,47 @@
 
 >   * docker (add docker to your Usergroup, so no sudo is needed)
 >   * nextflow + java runtime 
->   * git
->   * wget
->   * tar
+>   * git (should be allready installed)
+>   * wget (should be allready installed)
+>   * tar (should be allready installed)
 
+### Easy Installation
+* if you dont have experience with bioinformatic tools use this
+* just copy the commands into your terminal to set everything up
 
-
-### Install Java:
-```
-sudo apt install default-jre
-```
-
-
-### Install Nextflow:
-```
-curl -s https://get.nextflow.io | bash 
-mv /path/to/nextflowdownload/nextflow /bin/
-```
-
-### Install Docker:
-```
+```bash
 sudo apt-get update
-sudo apt-get install docker-ce docker-ce-cli containerd.io
-```
-add the docker group to your user via `sudo usermod -a -G docker $USER`
-
-### Run our example files:
-
-```
-git clone https://github.com/replikation/What_the_Phage.git
-nextflow run replikation/What_the_Phage --fasta 'What_the_Phage/test-data/*.fa'
+sudo apt install -y default-jre
+curl -s https://get.nextflow.io | bash 
+sudo mv nextflow /bin/
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io
+sudo usermod -a -G docker $USER
 ```
 
+* try out the installation by entering the following
+
+```bash
+nextflow run replikation/What_the_Phage --fasta ~/.nextflow/assets/$USER/What_the_Phage/test-data/T7_draft.fa
+```
+
+* for your own fasta file called e.g. `sample01.fasta` do:
+
+```bash
+nextflow run replikation/What_the_Phage --fasta sample01.fasta
+```
+
+* for multiple files/samples, e.g. with in one folder do:
+
+```bash
+nextflow run replikation/What_the_Phage --fasta '*.fasta'
+```
+
+### Normal Installation
+
+* Docker installation [here](https://docs.docker.com/v17.09/engine/installation/linux/docker-ce/ubuntu/#install-docker-ce)
+* Nextflow installation [here](https://www.nextflow.io/)
+* move or add the nextflow executable to a bin path
+* add docker to ypur User group via `sudo usermod -a -G docker $USER`
 
 ## Execution
 
