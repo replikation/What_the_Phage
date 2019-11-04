@@ -77,7 +77,7 @@ nextflow run replikation/What_the_Phage --fasta 'What_the_Phage/test-data/*.fast
 * for local use you could either clone the git and do:
 
 ```bash
-./phage.nf --fasta 'test-data/*.fasta'
+./phage.nf --fasta 'test-data/*.fa'
 ```
 
 * or execute it directly via 
