@@ -52,7 +52,7 @@ sudo usermod -a -G docker $USER
 * try out the installation by entering the following
 
 ```bash
-nextflow run replikation/What_the_Phage --fasta ~/.nextflow/assets/$USER/What_the_Phage/test-data/T7_draft.fa
+nextflow run replikation/What_the_Phage --fasta ~/.nextflow/assets/replikation/What_the_Phage/test-data/T7_draft.fa
 ```
 
 * for your own fasta file called e.g. `sample01.fasta` do:
