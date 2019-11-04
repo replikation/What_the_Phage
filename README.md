@@ -33,15 +33,8 @@
 ## Installation
 
 * WtP runs with the workflow manager `nextflow` using `docker`
-* this means all programs are automatically pulled via docker and only docker and nextflow needs to be installed
-
-### Dependencies
-
->   * docker (add docker to your Usergroup, so no sudo is needed)
->   * nextflow + java runtime 
->   * git (should be allready installed)
->   * wget (should be allready installed)
->   * tar (should be allready installed)
+* this means all the other programs are automatically pulled via docker
+* Only `docker` and `nextflow` needs to be installed
 
 ### Easy Installation
 * if you dont have experience with bioinformatic tools use this
@@ -75,6 +68,14 @@ nextflow run replikation/What_the_Phage --fasta '*.fasta'
 ```
 
 ### Normal Installation
+
+**Dependencies**
+
+>   * docker (add docker to your Usergroup, so no sudo is needed)
+>   * nextflow + java runtime 
+>   * git (should be allready installed)
+>   * wget (should be allready installed)
+>   * tar (should be allready installed)
 
 * Docker installation [here](https://docs.docker.com/v17.09/engine/installation/linux/docker-ce/ubuntu/#install-docker-ce)
 * Nextflow installation [here](https://www.nextflow.io/)
