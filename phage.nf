@@ -188,8 +188,8 @@ def helpMSG() {
     For execution of the workflow in the cloud or on a HPC (such as provided with LSF) 
     you might want to adjust the following parameters.
     --databases         defines the path where databases are stored [default: $params.cloudDatabase]
-    --workdir           defines the path where nextflow writes tmp files [default: $params.workDir]
-    --cachedir          defines the path where images (singularity) are cached [default: $params.cacheDir] 
+    --workdir           defines the path where nextflow writes tmp files [default: $params.workdir]
+    --cachedir          defines the path where images (singularity) are cached [default: $params.cachedir] 
 
     ${c_dim}Nextflow options:
     -with-report rep.html    cpu / ram usage (may cause errors)
