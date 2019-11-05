@@ -183,6 +183,13 @@ def helpMSG() {
     ${c_yellow}Database behaviour:${c_reset}
     This workflow will automatically download files to ./nextflow-autodownload-databases
     It will skip this download if the files are present in ./nextflow-autodownload-databases
+    
+    ${c_yellow}HPC or cloud computing:${c_reset}
+    For execution of the workflow in the cloud or on a HPC (such as provided with LSF) 
+    you might want to adjust the following parameters.
+    --databases         defines the path where databases are stored [default: $params.cloudDatabase]
+    --workdir           defines the path where nextflow writes tmp files [default: $params.workDir]
+    --cachedir          defines the path where images (singularity) are cached [default: $params.cacheDir] 
 
     ${c_dim}Nextflow options:
     -with-report rep.html    cpu / ram usage (may cause errors)
@@ -190,6 +197,6 @@ def helpMSG() {
     -with-timeline time.html timeline (may cause errors)
 
     Profile:
-    -profile                 standard [default: standard] ${c_reset}
+    -profile                 standard, lsf [default: standard] ${c_reset}
     """.stripIndent()
 }
