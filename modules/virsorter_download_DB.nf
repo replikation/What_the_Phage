@@ -4,7 +4,8 @@ process virsorter_download_DB {
         }
         else {
            storeDir "nextflow-autodownload-databases/virsorter/"
-        }        label 'noDocker'    
+        }
+       label 'noDocker'    
       output:
         file("virsorter-data")
       script:

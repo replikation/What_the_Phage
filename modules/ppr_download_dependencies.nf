@@ -4,7 +4,8 @@ process ppr_download_dependencies {
       }
       else {
          storeDir "nextflow-autodownload-databases/pprmeta/"
-      }        label 'noDocker'    
+      }
+      label 'noDocker'    
       output:
         file("PPR-Meta")
       script:
