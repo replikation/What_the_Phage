@@ -61,11 +61,11 @@ println " "}
     include './modules/filter_virsorter' params(output: params.output, cpus: params.cpus)
     include './modules/marvel' params(output: params.output, cpus: params.cpus)
     include './modules/metaphinder' params(output: params.output, cpus: params.cpus)
-    include './modules/ppr_download_dependencies'
+    include './modules/ppr_download_dependencies' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/r_plot.nf' params(output: params.output, cpus: params.cpus)
     include './modules/virfinder' params(output: params.output, cpus: params.cpus)
     include './modules/virsorter' params(output: params.output, cpus: params.cpus)
-    include './modules/virsorter_download_DB'
+    include './modules/virsorter_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/input_suffix_check'
 
 
@@ -73,13 +73,29 @@ println " "}
 * DATABASES
 *************/
 workflow ppr_dependecies {
-    main: ppr_download_dependencies()
-    emit: ppr_download_dependencies.out
+    main: 
+        // local storage via storeDir
+        if (!params.cloudProcess) { ppr_download_dependencies(); db = ppr_download_dependencies.out }
+        // cloud storage via db_preload.exists()
+        if (params.cloudProcess) {
+            db_preload = file("${params.cloudDatabase}/pprmeta/PPR-Meta")
+            if (db_preload.exists()) { db = db_preload }
+            else  { ppr_download_dependencies(); db = ppr_download_dependencies.out } 
+        }
+    emit: db
 }        
-        
+
 workflow virsorter_database {
-    main: virsorter_download_DB()
-    emit: virsorter_DB = virsorter_download_DB.out
+    main: 
+        // local storage via storeDir
+        if (!params.cloudProcess) { virsorter_download_DB(); db = virsorter_download_DB.out }
+        // cloud storage via db_preload.exists()
+        if (params.cloudProcess) {
+            db_preload = file("${params.cloudDatabase}/virsorter/virsorter-data")
+            if (db_preload.exists()) { db = db_preload }
+            else  { virsorter_download_DB(); db = virsorter_download_DB.out } 
+        }
+    emit: db
 } 
 
 /************* 

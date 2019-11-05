@@ -1,6 +1,10 @@
 process virsorter_download_DB {
-        storeDir 'nextflow-autodownload-databases/virsorter'
-        label 'noDocker'    
+        if (params.cloudProcess) {
+           publishDir "${params.cloudDatabase}/virsorter/", mode: 'copy', pattern: "virsorter-data"
+        }
+        else {
+           storeDir "nextflow-autodownload-databases/virsorter/"
+        }        label 'noDocker'    
       output:
         file("virsorter-data")
       script:
