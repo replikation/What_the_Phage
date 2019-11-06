@@ -1,0 +1,11 @@
+name: Syntax_check
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Help_test
+      run: curl -s https://get.nextflow.io | bash && ./nextflow run phage.nf --help
