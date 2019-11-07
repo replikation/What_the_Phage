@@ -70,6 +70,8 @@ nextflow run replikation/What_the_Phage --fasta sample01.fasta
 nextflow run replikation/What_the_Phage --fasta '*.fasta'
 ```
 
+* long-read input is supported via `--fastq`
+
 ### Normal Installation
 
 **Dependencies**
@@ -101,6 +103,7 @@ nextflow run replikation/What_the_Phage --fasta 'your-fasta-files/*.fasta'
 nextflow run replikation/What_the_Phage --fasta your-file.fasta
 ```
 
+* long-read input is supported via `--fastq`
 
 ## Help
 

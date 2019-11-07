@@ -1,12 +1,13 @@
 process filter_virsorter {
-      publishDir "${params.output}/${name}/virsorter", mode: 'copy', pattern: "virsorter.txt"
+      publishDir "${params.output}/${name}/virsorter", mode: 'copy', pattern: "virsorter_*.txt"
       label 'ubuntu'
     input:
-      tuple val(name), file(results) 
+      tuple val(name), file(results), file(dir)
     output:
-      tuple val(name), file("virsorter.txt")
+      tuple val(name), file("virsorter_*.txt")
     shell:
       """
-      cat !{results}/Predicted_viral_sequences/VIRSorter_cat-[1,2].fasta | grep ">" | sed -e s/\\>VIRSorter_//g | sed -e s/-cat_1//g |  sed -e s/-cat_2//g  > virsorter.txt
+      rnd=${Math.random()}
+      cat *.list  > virsorter_\${rnd//0.}.txt
       """
 }

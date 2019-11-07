@@ -2,20 +2,21 @@
 nextflow.preview.dsl=2
 
 /*
-* Nextflow -- Analysis Pipeline
+* Nextflow -- What the Phage
 * Author: christian.jena@gmail.com
 */
-if (params.help) { exit 0, helpMSG() }
 
-/*
+
+println "_____ _____ ____ ____ ___ ___ __ __ _ _ "
 println "  __      _______________________ "
-println " /  \    /  \__    ___/\______   \"
-println " \   \/\/   / |    |    |     ___/"
-println "  \        /  |    |    |    |    "
-println "   \__/\  /   |____|    |____|    "
-println "        \/                        "
-*/
+println " /  \\    /  \\__    ___/\\______   \\"
+println " \\   \\/\\/   / |    |    |     ___/"
+println "  \\        /  |    |    |    |    "
+println "   \\__/\\  /   |____|    |____|    "
+println "        \\/                        "
+println "_____ _____ ____ ____ ___ ___ __ __ _ _ "
 
+if (params.help) { exit 0, helpMSG() }
 
 println " "
 println "\u001B[32mProfile: $workflow.profile\033[0m"
@@ -34,8 +35,10 @@ println " "}
 /************* 
 * INPUT HANDLING
 *************/
-        if (params.fasta == '' ) {
-            exit 1, "input missing, use [--fasta]"}
+        if ( !params.fasta && !params.fastq ) {
+            exit 1, "input missing, use [--fasta] or [--fastq]"}
+        if ( params.fasta && params.fastq ) {
+            exit 1, "please use either [--fasta] or [--fastq] as input"}
     // fasta input or via csv file
         if (params.fasta && params.list) { fasta_input_ch = Channel
                 .fromPath( params.fasta, checkIfExists: true )
@@ -46,6 +49,16 @@ println " "}
                 .fromPath( params.fasta, checkIfExists: true)
                 .map { file -> tuple(file.baseName, file) }
                  }
+    // fastq input or via csv file
+        if (params.fastq && params.list) { fastq_input_ch = Channel
+                .fromPath( params.fastq, checkIfExists: true )
+                .splitCsv()
+                .map { row -> ["${row[0]}", file("${row[1]}", checkIfExists: true)] }
+                 }
+        else if (params.fastq) { fastq_input_ch = Channel
+                .fromPath( params.fastq, checkIfExists: true)
+                .map { file -> tuple(file.baseName, file) }
+                 }
 
 /************* 
 * MODULES
@@ -53,20 +66,24 @@ println " "}
 
     include './modules/PPRmeta' params(output: params.output, cpus: params.cpus)
     include './modules/deepvirfinder' params(output: params.output, cpus: params.cpus)
+    include './modules/fastqTofasta' params(output: params.output)
     include './modules/filter_PPRmeta' params(output: params.output)
     include './modules/filter_deepvirfinder' params(output: params.output)
     include './modules/filter_marvel' params(output: params.output)
     include './modules/filter_metaphinder' params(output: params.output)
     include './modules/filter_virfinder' params(output: params.output)
     include './modules/filter_virsorter' params(output: params.output, cpus: params.cpus)
+    include './modules/input_suffix_check' params(fastq: params.fastq)
     include './modules/marvel' params(output: params.output, cpus: params.cpus)
     include './modules/metaphinder' params(output: params.output, cpus: params.cpus)
+    include './modules/parse_reads.nf' params(output: params.output)
     include './modules/ppr_download_dependencies' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-    include './modules/r_plot.nf' params(output: params.output, cpus: params.cpus)
+    include './modules/r_plot.nf' params(output: params.output)
+    include './modules/r_plot_reads.nf' params(output: params.output)
+    include './modules/removeSmallReads' params(output: params.output)
     include './modules/virfinder' params(output: params.output, cpus: params.cpus)
     include './modules/virsorter' params(output: params.output, cpus: params.cpus)
     include './modules/virsorter_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-    include './modules/input_suffix_check'
 
 
 /************* 
@@ -101,42 +118,54 @@ workflow virsorter_database {
 /************* 
 * SUB WORKFLOWS
 *************/
+workflow fasta_validation_wf {
+    get:    fasta
+    main:   input_suffix_check(fasta)
+    emit:   input_suffix_check.out
+}
+
+workflow read_validation_wf {
+    get:    fastq
+    main:   fastqTofasta(removeSmallReads(fastq.splitFastq(by: 10000, file: true)))
+    emit:   fastqTofasta.out
+} 
+
 
 workflow deepvirfinder_wf {
     get:    fasta
-    main:   filter_deepvirfinder(deepvirfinder(input_suffix_check(fasta)))
+    main:   filter_deepvirfinder(deepvirfinder(fasta).groupTuple(remainder: true))
     emit:   filter_deepvirfinder.out
 } 
 
 workflow marvel_wf {
     get:    fasta
-    main:   filter_marvel(marvel(input_suffix_check(fasta).splitFasta(by: 1, file: true).groupTuple()))
+    main:   filter_marvel(marvel(fasta.splitFasta(by: 1, file: true).groupTuple()).groupTuple(remainder: true))
     emit:   filter_marvel.out
 } 
 
 workflow metaphinder_wf {
     get:    fasta
-    main:   filter_metaphinder(metaphinder(input_suffix_check(fasta)))
+    main:   filter_metaphinder(metaphinder(fasta).groupTuple(remainder: true))
     emit:   filter_metaphinder.out
 } 
 
 workflow virfinder_wf {
     get:    fasta
-    main:   filter_virfinder(virfinder(input_suffix_check(fasta)))
+    main:   filter_virfinder(virfinder(fasta).groupTuple(remainder: true))
     emit:   filter_virfinder.out
 } 
 
 workflow virsorter_wf {
     get:    fasta
             virsorter_DB
-    main:   filter_virsorter(virsorter(input_suffix_check(fasta), virsorter_DB))
+    main:   filter_virsorter(virsorter(fasta, virsorter_DB).groupTuple(remainder: true))
     emit:   filter_virsorter.out
 } 
 
 workflow pprmeta_wf {
     get:    fasta
             ppr_deps
-    main:   filter_PPRmeta(pprmeta(input_suffix_check(fasta), ppr_deps))
+    main:   filter_PPRmeta(pprmeta(fasta, ppr_deps).groupTuple(remainder: true))
     emit:   filter_PPRmeta.out
 } 
 
@@ -145,13 +174,31 @@ workflow pprmeta_wf {
 *************/
 
 workflow {
-        r_plot (    virsorter_wf(fasta_input_ch, virsorter_database())
-                    .join(marvel_wf(fasta_input_ch), by:0)
-                    .join(metaphinder_wf(fasta_input_ch), by:0)
-                    .join(deepvirfinder_wf(fasta_input_ch), by:0)
-                    .join(virfinder_wf(fasta_input_ch), by:0)
-                    .join(pprmeta_wf(fasta_input_ch, ppr_dependecies()), by:0)
-                )
+    if (params.fasta && !params.fastq) {
+        
+        fasta_validation_wf(fasta_input_ch)
+
+        r_plot(     virsorter_wf(fasta_validation_wf.out, virsorter_database())
+                    .concat(marvel_wf(fasta_validation_wf.out))
+                    .concat(metaphinder_wf(fasta_validation_wf.out))
+                    .concat(deepvirfinder_wf(fasta_validation_wf.out))
+                    .concat(virfinder_wf(fasta_validation_wf.out))
+                    .concat(pprmeta_wf(fasta_validation_wf.out, ppr_dependecies()))
+                    .groupTuple()
+        )
+    }
+    
+    if (!params.fasta && params.fastq) {
+ 
+        read_validation_wf(fastq_input_ch)
+
+        r_plot_reads(parse_reads(    metaphinder_wf(read_validation_wf.out)
+                                    .concat(virfinder_wf(read_validation_wf.out))
+                                    .concat(pprmeta_wf(read_validation_wf.out, ppr_dependecies()))
+                                    .groupTuple()
+        )   )
+    }
+
 }
 
 
@@ -165,15 +212,13 @@ def helpMSG() {
     c_blue = "\033[0;34m";
     c_dim = "\033[2m";
     log.info """
-    ____________________________________________________________________________________________
-    
-    What the Phage (WTP)
-    
+    .
     ${c_yellow}Usage example:${c_reset}
     nextflow run phage.nf --fasta '*/*.fasta' 
 
     ${c_yellow}Input:${c_reset}
-    ${c_green} --fasta ${c_reset}            '*.fasta'   -> assembly file(s) - uses filename
+    ${c_green} --fasta ${c_reset}            '*.fasta'   -> assembly file(s)
+    ${c_green} --fastq ${c_reset}            '*.fastq'   -> long read file(s)
     ${c_dim}  ..change above input to csv:${c_reset} ${c_green}--list ${c_reset}            
 
     ${c_yellow}Options:${c_reset}
