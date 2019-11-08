@@ -1,6 +1,6 @@
 process r_plot_reads {
       publishDir "${params.output}/${name}", mode: 'copy', pattern: "phage-distribution.pdf"
-      label 'ggplot'
+      label 'ggplot2'
     input:
       tuple val(name), file(results)
     output:
