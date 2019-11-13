@@ -13,6 +13,7 @@
 
 * an attempt to streamline the usage of various phage identification and prediction tools
 * the main focus is stability an data filtering / analysis for the user
+* the tool is intended for fasta and nanopore fastq reads
 
 ## The following Phage-Tools are currently included
 
