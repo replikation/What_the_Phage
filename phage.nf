@@ -179,23 +179,26 @@ workflow {
         
         fasta_validation_wf(fasta_input_ch)
 
-        r_plot(     virsorter_wf(fasta_validation_wf.out, virsorter_database())
-                    .concat(marvel_wf(fasta_validation_wf.out))
-                    .concat(metaphinder_wf(fasta_validation_wf.out))
-                    .concat(deepvirfinder_wf(fasta_validation_wf.out))
-                    .concat(virfinder_wf(fasta_validation_wf.out))
-                    .concat(pprmeta_wf(fasta_validation_wf.out, ppr_dependecies()))
+        virsorter_wf(fasta_validation_wf.out, virsorter_database())
+        marvel_wf(fasta_validation_wf.out)
+        metaphinder_wf(fasta_validation_wf.out)
+        deepvirfinder_wf(fasta_validation_wf.out)
+        virfinder_wf(fasta_validation_wf.out)
+        pprmeta_wf(fasta_validation_wf.out, ppr_dependecies())
+      
+        results = virsorter_wf.out
+                    .concat(marvel_wf.out)
+                    .concat(metaphinder_wf.out)
+                    .concat(deepvirfinder_wf.out)
+                    .concat(virfinder_wf.out)
+                    .concat(pprmeta_wf.out)
                     .groupTuple()
-        )
+
+        results.view()
+        r_plot(results)
 
         script = file('./scripts/upset.R')
-        upsetr_plot(virsorter_wf(fasta_validation_wf.out, virsorter_database())
-                    .concat(marvel_wf(fasta_validation_wf.out))
-                    .concat(metaphinder_wf(fasta_validation_wf.out))
-                    .concat(deepvirfinder_wf(fasta_validation_wf.out))
-                    .concat(virfinder_wf(fasta_validation_wf.out))
-                    .concat(pprmeta_wf(fasta_validation_wf.out, ppr_dependecies()))
-                    .groupTuple(), script
+        upsetr_plot(results, script
         )
 
     }
