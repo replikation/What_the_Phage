@@ -80,6 +80,7 @@ println " "}
     include './modules/ppr_download_dependencies' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/r_plot.nf' params(output: params.output)
     include './modules/r_plot_reads.nf' params(output: params.output)
+    include './modules/upsetr.nf' params(output: params.output)
     include './modules/removeSmallReads' params(output: params.output)
     include './modules/virfinder' params(output: params.output, cpus: params.cpus)
     include './modules/virsorter' params(output: params.output, cpus: params.cpus)
@@ -186,6 +187,17 @@ workflow {
                     .concat(pprmeta_wf(fasta_validation_wf.out, ppr_dependecies()))
                     .groupTuple()
         )
+
+        script = file('./scripts/upset.R')
+        upsetr_plot(virsorter_wf(fasta_validation_wf.out, virsorter_database())
+                    .concat(marvel_wf(fasta_validation_wf.out))
+                    .concat(metaphinder_wf(fasta_validation_wf.out))
+                    .concat(deepvirfinder_wf(fasta_validation_wf.out))
+                    .concat(virfinder_wf(fasta_validation_wf.out))
+                    .concat(pprmeta_wf(fasta_validation_wf.out, ppr_dependecies()))
+                    .groupTuple(), script
+        )
+
     }
     
     if (!params.fasta && params.fastq) {
