@@ -7,11 +7,6 @@ process r_plot {
       tuple val(name), file("phage-distribution.pdf")
     script:
       """
-      # simplify toolnames for R (its a quick fix for now)
-        for x in *.txt; do
-          filename_simple=\$(echo "\${x}" | cut -f 1 -d "_")
-          mv \${x} \${filename_simple}.txt
-        done
       # parser script in xargs
         convert.sh
       # plotting
