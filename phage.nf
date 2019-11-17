@@ -85,6 +85,8 @@ println " "}
     include './modules/virfinder' params(output: params.output, cpus: params.cpus)
     include './modules/virsorter' params(output: params.output, cpus: params.cpus)
     include './modules/virsorter_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+    include './modules/filter_tool_names' params(output: params.output)
+
 
 
 /************* 
@@ -176,30 +178,21 @@ workflow pprmeta_wf {
 
 workflow {
     if (params.fasta && !params.fastq) {
-        
+    // input filter
         fasta_validation_wf(fasta_input_ch)
 
-        virsorter_wf(fasta_validation_wf.out, virsorter_database())
-        marvel_wf(fasta_validation_wf.out)
-        metaphinder_wf(fasta_validation_wf.out)
-        deepvirfinder_wf(fasta_validation_wf.out)
-        virfinder_wf(fasta_validation_wf.out)
-        pprmeta_wf(fasta_validation_wf.out, ppr_dependecies())
-      
-        results = virsorter_wf.out
-                    .concat(marvel_wf.out)
-                    .concat(metaphinder_wf.out)
-                    .concat(deepvirfinder_wf.out)
-                    .concat(virfinder_wf.out)
-                    .concat(pprmeta_wf.out)
+    // gather results
+        results =   virsorter_wf(fasta_validation_wf.out, virsorter_database())
+                    .concat(marvel_wf(fasta_validation_wf.out))
+                    .concat(metaphinder_wf(fasta_validation_wf.out))
+                    .concat(deepvirfinder_wf(fasta_validation_wf.out))
+                    .concat(virfinder_wf(fasta_validation_wf.out))
+                    .concat(pprmeta_wf(fasta_validation_wf.out, ppr_dependecies()))
                     .groupTuple()
-
-        results.view()
-        r_plot(results)
-
-        script = file('./scripts/upset.R')
-        upsetr_plot(results, script
-        )
+        filter_tool_names(results)
+    //plotting results
+        r_plot(filter_tool_names.out)
+        upsetr_plot(filter_tool_names.out)
 
     }
     
