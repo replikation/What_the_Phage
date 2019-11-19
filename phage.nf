@@ -86,6 +86,7 @@ println " "}
     include './modules/virsorter' params(output: params.output, cpus: params.cpus)
     include './modules/virsorter_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/filter_tool_names' params(output: params.output)
+    include './modules/samtools' params(output: params.output)
 
 
 
@@ -193,6 +194,9 @@ workflow {
     //plotting results
         r_plot(filter_tool_names.out)
         upsetr_plot(filter_tool_names.out)
+    //samtools      
+        samtools(fasta_validation_wf.out ,filter_tool_names.out)
+
 
     }
     
