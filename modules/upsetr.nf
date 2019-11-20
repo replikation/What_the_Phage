@@ -1,6 +1,7 @@
 process upsetr_plot {
       publishDir "${params.output}/${name}", mode: 'copy', pattern: "upsetr.svg"
       label 'upsetr'
+      errorStrategy{task.exitStatus=1 ?'ignore':'terminate'}
     input:
       tuple val(name), file(files)
     output:

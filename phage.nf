@@ -194,9 +194,11 @@ workflow {
     //plotting results
         r_plot(filter_tool_names.out)
         upsetr_plot(filter_tool_names.out)
-    //samtools      
-        samtools(fasta_validation_wf.out ,filter_tool_names.out)
-
+    //samtools 
+       samtools(fasta_validation_wf.out.join((filter_tool_names.out), remainder: false))
+       
+       
+              
 
     }
     
@@ -210,7 +212,6 @@ workflow {
                                     .groupTuple()
         )   )
     }
-
 }
 
 
