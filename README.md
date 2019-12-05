@@ -53,6 +53,8 @@ sudo apt-get install -y docker-ce docker-ce-cli containerd.io
 sudo usermod -a -G docker $USER
 ```
 
+* restart your computer
+
 * try out the installation by entering the following
 
 ```bash
@@ -87,6 +89,7 @@ nextflow run replikation/What_the_Phage --fasta '*.fasta'
 * Nextflow installation [here](https://www.nextflow.io/)
 * move or add the nextflow executable to a bin path
 * add docker to ypur User group via `sudo usermod -a -G docker $USER`
+
 
 ## Execution
 
