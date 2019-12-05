@@ -8,6 +8,6 @@ process filter_virfinder {
     script:
       """
       rnd=${Math.random()}
-       cat *.list | sort  -k5,5 | awk '\$5>=0.75' | awk '{ print \$2 }' > virfinder_\${rnd//0.}.txt
+       cat *.list | sed '1d'| sort  -k5,5 | awk '\$4>=0.9' | awk '{ print \$2 }' > virfinder_\${rnd//0.}.txt
       """
 }
