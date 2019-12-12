@@ -8,6 +8,7 @@
 ![](https://github.com/replikation/What_the_Phage/workflows/Syntax_check/badge.svg)
 
 * by Christian Brandt & Mike Marquet
+* **this tool is currently under heavy development, so excpect bugs but feel free to report issues**
 
 ## What is this Repo?
 
