@@ -13,10 +13,16 @@ process marvel {
       # Marvel
       marvel_bins.py -i fasta_dir_${name} -t ${params.cpus} > results.txt
       # getting contig names
-      filenames=\$(grep  "${name}\\." results.txt | cut -f2 -d " ")
-      while IFS= read -r samplename ; do
-       head -1 fasta_dir_${name}/\${samplename}.fa >> ${name}_\${rnd//0.}.list
-      done < <(printf '%s\n' "\${filenames}")
+      
+      if [ -s results.txt ]
+        then
+        touch ${name}_*.list
+      else
+        filenames=\$(grep  "${name}\\." results.txt | cut -f2 -d " ")
+        while IFS= read -r samplename ; do
+          head -1 fasta_dir_${name}/\${samplename}.fa >> ${name}_\${rnd//0.}.list
+        done < <(printf '%s\n' "\${filenames}")
+      fi
       """
 }
 
