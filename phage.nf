@@ -195,7 +195,7 @@ workflow {
         r_plot(filter_tool_names.out)
         upsetr_plot(filter_tool_names.out)
     //samtools 
-       samtools(fasta_validation_wf.out.join((filter_tool_names.out), remainder: false))
+       //samtools(fasta_validation_wf.out.join((filter_tool_names.out), remainder: false))
        
        
               

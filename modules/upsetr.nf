@@ -16,13 +16,12 @@ process upsetr_plot {
 
       sets <- lapply(files_for_upset, readLines)
 
-      #sets_names <- sapply(files_for_upset,function(x){
-      #		 splits <- strsplit(strsplit(x,"//")[[1]][2],"_")[[1]]
-      #	 	 return(paste0(substr(splits[1],1,1),substr(splits[2],1,2)))
-      #})
+      sets_names <- sapply(files_for_upset, function(x){
+        splits <- strsplit(strsplit(x,"//")[[1]][2],".txt")[[1]]
+        return(splits)
+      })
 
-      #names(sets) <- sets_names
-      names(sets) <- files_for_upset
+      names(sets) <- sets_names
 
       svg(filename="upsetr.svg", 
           width=10, 
