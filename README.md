@@ -8,7 +8,7 @@
 ![](https://github.com/replikation/What_the_Phage/workflows/Syntax_check/badge.svg)
 
 * by Christian Brandt & Mike Marquet
-* **this tool is currently under heavy development, so excpect bugs but feel free to report issues**
+* **this tool is currently under heavy development, so expect bugs but feel free to report issues**
 
 ## What is this Repo?
 
@@ -109,6 +109,12 @@ nextflow run replikation/What_the_Phage --fasta your-file.fasta
 ```
 
 * long-read input is supported via `--fastq`
+
+## Results
+
+* example output:
+
+![ploz](figures/plot.png)
 
 ## Help
 
