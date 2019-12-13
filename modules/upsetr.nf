@@ -28,11 +28,10 @@ process upsetr_plot {
           height=8, 
           pointsize=12)
 
-      upset(fromList(sets), nsets = 20, nintersects = 40, sets = names(sets), 
+      upset(fromList(sets), sets = names(sets),
           mainbar.y.label = "No. of common viral contigs", sets.x.label = "No. of identified \\nviral contigs", 
-          order.by = "freq", sets.bar.color = "#56B4E9", keep.order = T, 
-          text.scale = 1.4, point.size = 2.6, line.size = 0.8,
-          set_size.show = TRUE, empty.intersections = "off")
+          order.by = "freq", sets.bar.color = "#56B4E9", keep.order = F, 
+          text.scale = 1.4, point.size = 2.6, line.size = 0.8, set_size.show = TRUE)
 
       dev.off()
       """
