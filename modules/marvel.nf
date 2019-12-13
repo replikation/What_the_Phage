@@ -15,7 +15,7 @@ process marvel {
       # getting contig names     
         if [ -s results.txt ]
           then
-          touch ${name}_*.list
+          touch ${name}_\${rnd//0.}.list
         else
           filenames=\$(grep  "${name}\\." results.txt | cut -f2 -d " ")
           while IFS= read -r samplename ; do
