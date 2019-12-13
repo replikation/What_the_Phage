@@ -12,5 +12,7 @@ process fastqTofasta {
         sed '/^>/ s/ .*//' -i ${name}.fa
       # replace , with _
         sed 's#,#_#g' -i ${name}.fa
+      # replace . with _
+        sed 's#\\.#_#g' -i ${name}.fa
       """
 }

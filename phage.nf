@@ -87,6 +87,7 @@ println " "}
     include './modules/virsorter_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/filter_tool_names' params(output: params.output)
     include './modules/samtools' params(output: params.output)
+    include './modules/split_multi_fasta' params(output: params.output)
 
 
 
@@ -134,7 +135,6 @@ workflow read_validation_wf {
     emit:   fastqTofasta.out
 } 
 
-
 workflow deepvirfinder_wf {
     get:    fasta
     main:   filter_deepvirfinder(deepvirfinder(fasta).groupTuple(remainder: true))
@@ -143,7 +143,7 @@ workflow deepvirfinder_wf {
 
 workflow marvel_wf {
     get:    fasta
-    main:   filter_marvel(marvel(fasta.splitFasta(by: 1, file: true).groupTuple()).groupTuple(remainder: true))
+    main:   filter_marvel(marvel(split_multi_fasta(fasta)).groupTuple(remainder: true))
     emit:   filter_marvel.out
 } 
 
@@ -195,7 +195,7 @@ workflow {
         r_plot(filter_tool_names.out)
         upsetr_plot(filter_tool_names.out)
     //samtools 
-       samtools(fasta_validation_wf.out.join((filter_tool_names.out), remainder: false))
+       samtools(fasta_validation_wf.out.join((filter_tool_names.out)))
        
        
               
