@@ -39,6 +39,9 @@ println " "}
             exit 1, "input missing, use [--fasta] or [--fastq]"}
         if ( params.fasta && params.fastq ) {
             exit 1, "please use either [--fasta] or [--fastq] as input"}
+       if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv ) {
+            exit 0, "You deactivated all the tools, so iam done ;) "}
+
     // fasta input or via csv file
         if (params.fasta && params.list) { fasta_input_ch = Channel
                 .fromPath( params.fasta, checkIfExists: true )
@@ -89,7 +92,10 @@ println " "}
     include './modules/samtools' params(output: params.output)
     include './modules/split_multi_fasta' params(output: params.output)
 
-
+    include './modules/download_references' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+    include './modules/sourmash_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+    include './modules/sourmash' params(output: params.output)
+    include './modules/filter_sourmash' params(output: params.output)
 
 /************* 
 * DATABASES
@@ -118,6 +124,33 @@ workflow virsorter_database {
             else  { virsorter_download_DB(); db = virsorter_download_DB.out } 
         }
     emit: db
+}
+
+workflow sourmash_database {
+    get: references
+    main: 
+        // local storage via storeDir
+        if (!params.cloudProcess) { sourmash_download_DB(references); db = sourmash_download_DB.out }
+        // cloud storage via db_preload.exists()
+        if (params.cloudProcess) {
+            db_preload = file("${params.cloudDatabase}/sourmash/phages.sbt.json")
+            if (db_preload.exists()) { db = db_preload }
+            else  { sourmash_download_DB(phage_references()); db = sourmash_download_DB.out } 
+        }
+    emit: db
+} 
+
+workflow phage_references {
+    main: 
+        // local storage via storeDir
+        if (!params.cloudProcess) { download_references(); db = download_references.out }
+        // cloud storage via db_preload.exists()
+        if (params.cloudProcess) {
+            db_preload = file("${params.cloudDatabase}/references/phage_references.fa")
+            if (db_preload.exists()) { db = db_preload }
+            else  { download_references(); db = download_references.out } 
+        }
+    emit: db
 } 
 
 /************* 
@@ -135,42 +168,79 @@ workflow read_validation_wf {
     emit:   fastqTofasta.out
 } 
 
+workflow sourmash_wf {
+    get:    fasta
+            sourmash_database
+    main:   
+            if (!params.sm) { 
+                        filter_sourmash(sourmash(split_multi_fasta(fasta), sourmash_database).groupTuple(remainder: true)) ; 
+                        sourmash_results = filter_sourmash.out 
+                        }
+            else { sourmash_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+    emit:   sourmash_results
+} 
+
 workflow deepvirfinder_wf {
     get:    fasta
-    main:   filter_deepvirfinder(deepvirfinder(fasta).groupTuple(remainder: true))
-    emit:   filter_deepvirfinder.out
+    main:   
+            if (!params.dv) { 
+                        filter_deepvirfinder(deepvirfinder(fasta).groupTuple(remainder: true)) ; 
+                        deepvirfinder_results = filter_deepvirfinder.out 
+                        }
+            else { deepvirfinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+    emit:   deepvirfinder_results
 } 
 
 workflow marvel_wf {
     get:    fasta
-    main:   filter_marvel(marvel(split_multi_fasta(fasta)).groupTuple(remainder: true))
-    emit:   filter_marvel.out
+    main:   if (!params.ma) { 
+                        filter_marvel(marvel(split_multi_fasta(fasta)).groupTuple(remainder: true)) ; 
+                        marvel_results = filter_marvel.out 
+                        }
+            else { marvel_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+    emit:   marvel_results
 } 
 
 workflow metaphinder_wf {
     get:    fasta
-    main:   filter_metaphinder(metaphinder(fasta).groupTuple(remainder: true))
-    emit:   filter_metaphinder.out
+    main:   if (!params.mp) { 
+                        filter_metaphinder(metaphinder(fasta).groupTuple(remainder: true)) ; 
+                        metaphinder_results = filter_metaphinder.out 
+                        }
+            else { metaphinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+    emit:   metaphinder_results
 } 
 
 workflow virfinder_wf {
     get:    fasta
-    main:   filter_virfinder(virfinder(fasta).groupTuple(remainder: true))
-    emit:   filter_virfinder.out
+    main:   if (!params.vf) { 
+                        filter_virfinder(virfinder(fasta).groupTuple(remainder: true)) ; 
+                        virfinder_results = filter_virfinder.out 
+                        }
+            else { virfinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+    emit:   virfinder_results
 } 
 
 workflow virsorter_wf {
     get:    fasta
             virsorter_DB
-    main:   filter_virsorter(virsorter(fasta, virsorter_DB).groupTuple(remainder: true))
-    emit:   filter_virsorter.out
+    main:   if (!params.vs) { 
+                        filter_virsorter(virsorter(fasta, virsorter_DB).groupTuple(remainder: true)) ; 
+                         virsorter_results = filter_virsorter.out 
+                        }
+            else { virsorter_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+    emit:   virsorter_results
 } 
 
 workflow pprmeta_wf {
     get:    fasta
             ppr_deps
-    main:   filter_PPRmeta(pprmeta(fasta, ppr_deps).groupTuple(remainder: true))
-    emit:   filter_PPRmeta.out
+    main:   if (!params.pp) { 
+                        filter_PPRmeta(pprmeta(fasta, ppr_deps).groupTuple(remainder: true)) ; 
+                         pprmeta_results = filter_PPRmeta.out 
+                        }
+            else { pprmeta_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+    emit:   pprmeta_results
 } 
 
 /************* 
@@ -184,12 +254,15 @@ workflow {
 
     // gather results
         results =   virsorter_wf(fasta_validation_wf.out, virsorter_database())
+                    .concat(sourmash_wf(fasta_validation_wf.out, sourmash_database(phage_references())))
                     .concat(marvel_wf(fasta_validation_wf.out))
                     .concat(metaphinder_wf(fasta_validation_wf.out))
                     .concat(deepvirfinder_wf(fasta_validation_wf.out))
                     .concat(virfinder_wf(fasta_validation_wf.out))
                     .concat(pprmeta_wf(fasta_validation_wf.out, ppr_dependecies()))
+                    .filter { it != 'deactivated' } // removes deactivated tool channels
                     .groupTuple()
+                   
         filter_tool_names(results)
     //plotting results
         r_plot(filter_tool_names.out)
@@ -209,6 +282,7 @@ workflow {
         r_plot_reads(parse_reads(    metaphinder_wf(read_validation_wf.out)
                                     .concat(virfinder_wf(read_validation_wf.out))
                                     .concat(pprmeta_wf(read_validation_wf.out, ppr_dependecies()))
+                                    .filter { it != 'deactivated' } // removes deactivated tool channels
                                     .groupTuple()
         )   )
     }
@@ -237,6 +311,15 @@ def helpMSG() {
     ${c_yellow}Options:${c_reset}
     --cores             max cores for local use [default: $params.cores]
     --output            name of the result folder [default: $params.output]
+
+    ${c_yellow}Tool control (BETA feature - might break the plots):${c_reset}
+    All tools are activated by default, deactivate them by adding one or more flags
+    --dv                deactivates deepvirfinder
+    --ma                deactivates marvel
+    --mp                deactivates metaphinder
+    --vf                deactivates virfinder
+    --vs                deactivates virsorter
+    --pp                deactivates PPRmeta
 
     ${c_yellow}Database behaviour:${c_reset}
     This workflow will automatically download files to ./nextflow-autodownload-databases

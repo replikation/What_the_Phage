@@ -12,7 +12,7 @@ process upsetr_plot {
 
       library(UpSetR)
 
-      files_for_upset <- list.files(path="./",full.names=T)
+      files_for_upset <- list.files(path="./", full.names=T, pattern=".txt")
 
       sets <- lapply(files_for_upset, readLines)
 
@@ -22,6 +22,8 @@ process upsetr_plot {
       })
 
       names(sets) <- sets_names
+
+      sets <- sets[order(sapply(sets,length),decreasing=T)]
 
       svg(filename="upsetr.svg", 
           width=10, 
