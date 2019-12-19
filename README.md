@@ -7,14 +7,17 @@
 
 ![](https://github.com/replikation/What_the_Phage/workflows/Syntax_check/badge.svg)
 
+[![Twitter Follow](https://img.shields.io/twitter/follow/gcloudChris.svg?style=social)](https://twitter.com/gcloudChris) 
+
 * by Christian Brandt & Mike Marquet
-* **this tool is currently under heavy development, so expect bugs but feel free to report issues**
+* **this tool is currently under heavy development, so expect some bugs but feel free to report issues**
 
 ## What is this Repo?
 
 * an attempt to streamline the usage of various phage identification and prediction tools
 * the main focus is stability an data filtering / analysis for the user
-* the tool is intended for fasta and nanopore fastq reads
+* the tool is intended for fasta and nanopore fastq reads to identify phages in contigs/reads
+* prophage detection is not implemented
 
 ## The following Phage-Tools are currently included
 
@@ -30,6 +33,8 @@
   * [paper](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0163111)
 * [DeepVirFinder](https://github.com/jessieren/DeepVirFinder)
   * [paper](https://arxiv.org/abs/1806.07810)
+* [Sourmash](https://github.com/dib-lab/sourmash)
+  * [paper](https://joss.theoj.org/papers/10.21105/joss.00027)
 
 ## Workflow
 
@@ -59,62 +64,61 @@ sudo usermod -a -G docker $USER
 * try out the installation by entering the following
 
 ```bash
-nextflow run replikation/What_the_Phage --fasta ~/.nextflow/assets/replikation/What_the_Phage/test-data/T7_draft.fa
+nextflow run replikation/What_the_Phage -r v0.1 --fasta ~/.nextflow/assets/replikation/What_the_Phage/test-data/T7_draft.fa
 ```
-
-* for your own fasta file called e.g. `sample01.fasta` do:
-
-```bash
-nextflow run replikation/What_the_Phage --fasta sample01.fasta
-```
-
-* for multiple files/samples, e.g. with in one folder do:
-
-```bash
-nextflow run replikation/What_the_Phage --fasta '*.fasta'
-```
-
-* long-read input is supported via `--fastq`
 
 ### Normal Installation
+
+* this is the default choice
 
 **Dependencies**
 
 >   * docker (add docker to your Usergroup, so no sudo is needed)
 >   * nextflow + java runtime 
->   * git (should be allready installed)
->   * wget (should be allready installed)
->   * tar (should be allready installed)
+>   * git (should be already installed)
+>   * wget (should be already installed)
+>   * tar (should be already installed)
 
 * Docker installation [here](https://docs.docker.com/v17.09/engine/installation/linux/docker-ce/ubuntu/#install-docker-ce)
 * Nextflow installation [here](https://www.nextflow.io/)
 * move or add the nextflow executable to a bin path
-* add docker to ypur User group via `sudo usermod -a -G docker $USER`
+* add docker to your User group via `sudo usermod -a -G docker $USER`
 
 
 ## Execution
 
-* for local use you could either clone the git and do:
+* for local use of the `master` branch you could either clone the git and do:
 
 ```bash
 ./phage.nf --fasta 'test-data/*.fasta'
 ```
 
-* or execute it directly via 
+* or execute it directly via a release candidate ( `-r releasenumber` , e.g. `-r v0.1`)
 
 ```bash
-nextflow run replikation/What_the_Phage --fasta 'your-fasta-files/*.fasta'
+nextflow run replikation/What_the_Phage -r v0.1 --fasta 'your-fasta-files/*.fasta'
 # or
-nextflow run replikation/What_the_Phage --fasta your-file.fasta
+nextflow run replikation/What_the_Phage -r v0.1 --fasta your-file.fasta
 ```
 
 * long-read input is supported via `--fastq`
+
+### Tool control
+
+* all the analysis tools included can be separatly turned via adding the option flags
+* do `nextflow run replikation/What_the_Phage -r v0.1 --help` for all options
+
+```bash
+# in this case Marvel (ma) and deepvirfinder (dv) are deactivated
+nextflow run replikation/What_the_Phage -r v0.1 --fasta your-file.fasta --dv --ma
+```
+
 
 ## Results
 
 * example output:
 
-![ploz](figures/plot.png)
+![plot](figures/plot.png)
 
 ## Help
 
