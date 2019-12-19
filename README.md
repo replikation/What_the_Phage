@@ -64,7 +64,7 @@ sudo usermod -a -G docker $USER
 * try out the installation by entering the following
 
 ```bash
-nextflow run replikation/What_the_Phage -r v0.1 --fasta ~/.nextflow/assets/replikation/What_the_Phage/test-data/T7_draft.fa
+nextflow run replikation/What_the_Phage -r v0.2 --fasta ~/.nextflow/assets/replikation/What_the_Phage/test-data/T7_draft.fa
 ```
 
 ### Normal Installation
@@ -93,12 +93,12 @@ nextflow run replikation/What_the_Phage -r v0.1 --fasta ~/.nextflow/assets/repli
 ./phage.nf --fasta 'test-data/*.fasta'
 ```
 
-* or execute it directly via a release candidate ( `-r releasenumber` , e.g. `-r v0.1`)
+* or execute it directly via a release candidate ( `-r releasenumber` , e.g. `-r v0.2`)
 
 ```bash
-nextflow run replikation/What_the_Phage -r v0.1 --fasta 'your-fasta-files/*.fasta'
+nextflow run replikation/What_the_Phage -r v0.2 --fasta 'your-fasta-files/*.fasta'
 # or
-nextflow run replikation/What_the_Phage -r v0.1 --fasta your-file.fasta
+nextflow run replikation/What_the_Phage -r v0.2 --fasta your-file.fasta
 ```
 
 * long-read input is supported via `--fastq`
@@ -106,11 +106,11 @@ nextflow run replikation/What_the_Phage -r v0.1 --fasta your-file.fasta
 ### Tool control
 
 * all the analysis tools included can be separatly turned via adding the option flags
-* do `nextflow run replikation/What_the_Phage -r v0.1 --help` for all options
+* do `nextflow run replikation/What_the_Phage -r v0.2 --help` for all options
 
 ```bash
 # in this case Marvel (ma) and deepvirfinder (dv) are deactivated
-nextflow run replikation/What_the_Phage -r v0.1 --fasta your-file.fasta --dv --ma
+nextflow run replikation/What_the_Phage -r v0.2 --fasta your-file.fasta --dv --ma
 ```
 
 

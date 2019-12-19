@@ -3,19 +3,21 @@ process sourmash {
       label 'sourmash'
     input:
       tuple val(name), file(fasta_dir) 
-      tuple file(database), file(dir) 
+      file(database)
+      //file(database) 
     output:
       tuple val(name), file("${name}_*.list")
     shell:
       """
       rnd=${Math.random()}
-      
+      tar xzf ${database}
+
       for fastafile in ${fasta_dir}/*.fa; do
         sourmash compute -p ${task.cpus} --scaled 100 -k 21 \${fastafile}
       done
 
       for signature in *.sig; do
-        sourmash search -k 21 \${signature} ${database} -o \${signature}.temporary
+        sourmash search -k 21 \${signature} phages.sbt.json -o \${signature}.temporary
       done
     
       touch ${name}_\${rnd//0.}.list

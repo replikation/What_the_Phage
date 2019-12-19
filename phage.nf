@@ -39,7 +39,7 @@ println " "}
             exit 1, "input missing, use [--fasta] or [--fastq]"}
         if ( params.fasta && params.fastq ) {
             exit 1, "please use either [--fasta] or [--fastq] as input"}
-       if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv ) {
+       if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm ) {
             exit 0, "You deactivated all the tools, so iam done ;) "}
 
     // fasta input or via csv file
@@ -69,11 +69,14 @@ println " "}
 
     include './modules/PPRmeta' params(output: params.output, cpus: params.cpus)
     include './modules/deepvirfinder' params(output: params.output, cpus: params.cpus)
+    include './modules/download_references' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/fastqTofasta' params(output: params.output)
     include './modules/filter_PPRmeta' params(output: params.output)
     include './modules/filter_deepvirfinder' params(output: params.output)
     include './modules/filter_marvel' params(output: params.output)
     include './modules/filter_metaphinder' params(output: params.output)
+    include './modules/filter_sourmash' params(output: params.output)
+    include './modules/filter_tool_names' params(output: params.output)
     include './modules/filter_virfinder' params(output: params.output)
     include './modules/filter_virsorter' params(output: params.output, cpus: params.cpus)
     include './modules/input_suffix_check' params(fastq: params.fastq)
@@ -83,19 +86,15 @@ println " "}
     include './modules/ppr_download_dependencies' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/r_plot.nf' params(output: params.output)
     include './modules/r_plot_reads.nf' params(output: params.output)
-    include './modules/upsetr.nf' params(output: params.output)
     include './modules/removeSmallReads' params(output: params.output)
+    include './modules/samtools' params(output: params.output)
+    include './modules/sourmash' params(output: params.output)
+    include './modules/sourmash_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+    include './modules/split_multi_fasta' params(output: params.output)
+    include './modules/upsetr.nf' params(output: params.output)
     include './modules/virfinder' params(output: params.output, cpus: params.cpus)
     include './modules/virsorter' params(output: params.output, cpus: params.cpus)
     include './modules/virsorter_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-    include './modules/filter_tool_names' params(output: params.output)
-    include './modules/samtools' params(output: params.output)
-    include './modules/split_multi_fasta' params(output: params.output)
-
-    include './modules/download_references' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-    include './modules/sourmash_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-    include './modules/sourmash' params(output: params.output)
-    include './modules/filter_sourmash' params(output: params.output)
 
 /************* 
 * DATABASES
@@ -133,7 +132,7 @@ workflow sourmash_database {
         if (!params.cloudProcess) { sourmash_download_DB(references); db = sourmash_download_DB.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.cloudDatabase}/sourmash/phages.sbt.json")
+            db_preload = file("${params.cloudDatabase}/sourmash/phages.sbt.json.tar.gz")
             if (db_preload.exists()) { db = db_preload }
             else  { sourmash_download_DB(phage_references()); db = sourmash_download_DB.out } 
         }

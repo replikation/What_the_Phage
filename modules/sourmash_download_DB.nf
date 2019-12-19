@@ -1,6 +1,6 @@
 process sourmash_download_DB {
         if (params.cloudProcess) {
-           publishDir "${params.cloudDatabase}/sourmash/", mode: 'copy', pattern: "phages.sbt.json"
+           publishDir "${params.cloudDatabase}/sourmash/", mode: 'copy', pattern: "phages.sbt.json.tar.gz"
         }
         else {
            storeDir "nextflow-autodownload-databases/sourmash/"
@@ -9,10 +9,11 @@ process sourmash_download_DB {
       input:
         file(references)
       output:
-        tuple file("phages.sbt.json"), file(".sbt.phages")
+        file("phages.sbt.json.tar.gz")
       script:
         """
          sourmash compute --scaled 100 -k 21 --singleton --seed 42 -p 8 -o phages.sig ${references}
          sourmash index phages phages.sig
+         tar czf phages.sbt.json.tar.gz phages.sbt.json .sbt.phages
         """
     }
