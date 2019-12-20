@@ -68,33 +68,35 @@ println " "}
 *************/
 
     include './modules/PPRmeta' params(output: params.output, cpus: params.cpus)
+    include './modules/databases/download_references' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+    include './modules/databases/phage_references_blastDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+    include './modules/databases/ppr_download_dependencies' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+    include './modules/databases/sourmash_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+    include './modules/databases/virsorter_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/deepvirfinder' params(output: params.output, cpus: params.cpus)
-    include './modules/download_references' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/fastqTofasta' params(output: params.output)
-    include './modules/filter_PPRmeta' params(output: params.output)
-    include './modules/filter_deepvirfinder' params(output: params.output)
-    include './modules/filter_marvel' params(output: params.output)
-    include './modules/filter_metaphinder' params(output: params.output)
-    include './modules/filter_sourmash' params(output: params.output)
-    include './modules/filter_tool_names' params(output: params.output)
-    include './modules/filter_virfinder' params(output: params.output)
-    include './modules/filter_virsorter' params(output: params.output, cpus: params.cpus)
     include './modules/input_suffix_check' params(fastq: params.fastq)
     include './modules/marvel' params(output: params.output, cpus: params.cpus)
     include './modules/metaphinder' params(output: params.output, cpus: params.cpus)
-    include './modules/parse_reads.nf' params(output: params.output)
-    include './modules/ppr_download_dependencies' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+    include './modules/parser/filter_PPRmeta' params(output: params.output)
+    include './modules/parser/filter_deepvirfinder' params(output: params.output)
+    include './modules/parser/filter_marvel' params(output: params.output)
+    include './modules/parser/filter_metaphinder' params(output: params.output)
+    include './modules/parser/filter_sourmash' params(output: params.output)
+    include './modules/parser/filter_tool_names' params(output: params.output)
+    include './modules/parser/filter_virfinder' params(output: params.output)
+    include './modules/parser/filter_virsorter' params(output: params.output, cpus: params.cpus)
+    include './modules/parser/parse_reads.nf' params(output: params.output)
     include './modules/r_plot.nf' params(output: params.output)
     include './modules/r_plot_reads.nf' params(output: params.output)
     include './modules/removeSmallReads' params(output: params.output)
     include './modules/samtools' params(output: params.output)
+    include './modules/shuffle_reads_nts' params(output: params.output)
     include './modules/sourmash' params(output: params.output)
-    include './modules/sourmash_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/split_multi_fasta' params(output: params.output)
     include './modules/upsetr.nf' params(output: params.output)
     include './modules/virfinder' params(output: params.output, cpus: params.cpus)
     include './modules/virsorter' params(output: params.output, cpus: params.cpus)
-    include './modules/virsorter_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 
 /************* 
 * DATABASES
@@ -134,7 +136,7 @@ workflow sourmash_database {
         if (params.cloudProcess) {
             db_preload = file("${params.cloudDatabase}/sourmash/phages.sbt.json.tar.gz")
             if (db_preload.exists()) { db = db_preload }
-            else  { sourmash_download_DB(phage_references()); db = sourmash_download_DB.out } 
+            else  { sourmash_download_DB(references); db = sourmash_download_DB.out } 
         }
     emit: db
 } 
@@ -152,6 +154,20 @@ workflow phage_references {
     emit: db
 } 
 
+workflow phage_blast_DB {
+    get: references
+    main: 
+        // local storage via storeDir
+        if (!params.cloudProcess) { phage_references_blastDB(references); db = phage_references_blastDB.out }
+        // cloud storage via db_preload.exists()
+        if (params.cloudProcess) {
+            db_preload = file("${params.cloudDatabase}/blast_phage_DB")
+            if (db_preload.exists()) { db = db_preload }
+            else  { phage_references_blastDB(references); db = phage_references_blastDB.out } 
+        }
+    emit: db
+} 
+
 /************* 
 * SUB WORKFLOWS
 *************/
@@ -164,6 +180,12 @@ workflow fasta_validation_wf {
 workflow read_validation_wf {
     get:    fastq
     main:   fastqTofasta(removeSmallReads(fastq.splitFastq(by: 10000, file: true)))
+    emit:   fastqTofasta.out
+}
+
+workflow read_shuffling_wf {
+    get:    fastq
+    main:   fastqTofasta(shuffle_reads_nts(removeSmallReads(fastq.splitFastq(by: 10000, file: true))))
     emit:   fastqTofasta.out
 } 
 
@@ -198,13 +220,24 @@ workflow marvel_wf {
                         }
             else { marvel_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
     emit:   marvel_results
-} 
+}
 
 workflow metaphinder_wf {
     get:    fasta
     main:   if (!params.mp) { 
                         filter_metaphinder(metaphinder(fasta).groupTuple(remainder: true)) ; 
                         metaphinder_results = filter_metaphinder.out 
+                        }
+            else { metaphinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+    emit:   metaphinder_results
+} 
+
+workflow metaphinder_own_DB_wf {
+    get:    fasta
+            blast_db
+    main:   if (!params.mp) { 
+                        filter_metaphinder_own_DB(metaphinder_own_DB(fasta, blast_db).groupTuple(remainder: true)) ; 
+                        metaphinder_results = filter_metaphinder_own_DB.out 
                         }
             else { metaphinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
     emit:   metaphinder_results
@@ -251,39 +284,52 @@ workflow {
     // input filter
         fasta_validation_wf(fasta_input_ch)
 
+    // reference phages into DBs creations
+        phage_references() | ( sourmash_database & phage_blast_DB )
+
     // gather results
         results =   virsorter_wf(fasta_validation_wf.out, virsorter_database())
-                    .concat(sourmash_wf(fasta_validation_wf.out, sourmash_database(phage_references())))
                     .concat(marvel_wf(fasta_validation_wf.out))
+                    .concat(sourmash_wf(fasta_validation_wf.out, sourmash_database.out))
                     .concat(metaphinder_wf(fasta_validation_wf.out))
+                    .concat(metaphinder_own_DB_wf(fasta_validation_wf.out, phage_blast_DB.out))
                     .concat(deepvirfinder_wf(fasta_validation_wf.out))
                     .concat(virfinder_wf(fasta_validation_wf.out))
                     .concat(pprmeta_wf(fasta_validation_wf.out, ppr_dependecies()))
                     .filter { it != 'deactivated' } // removes deactivated tool channels
                     .groupTuple()
-                   
-        filter_tool_names(results)
+                    
+        filter_tool_names(results)                    
     //plotting results
         r_plot(filter_tool_names.out)
         upsetr_plot(filter_tool_names.out)
     //samtools 
-       samtools(fasta_validation_wf.out.join((filter_tool_names.out)))
-       
-       
-              
-
+       samtools(fasta_validation_wf.out.join((filter_tool_names.out)))    
     }
     
     if (!params.fasta && params.fastq) {
- 
+    // input filter
         read_validation_wf(fastq_input_ch)
 
-        r_plot_reads(parse_reads(    metaphinder_wf(read_validation_wf.out)
-                                    .concat(virfinder_wf(read_validation_wf.out))
-                                    .concat(pprmeta_wf(read_validation_wf.out, ppr_dependecies()))
-                                    .filter { it != 'deactivated' } // removes deactivated tool channels
-                                    .groupTuple()
-        )   )
+    // reference phages into DBs creations
+        phage_references() | ( phage_blast_DB )
+    
+    // gather results
+        results =   metaphinder_wf(read_validation_wf.out)
+                    .concat(metaphinder_own_DB_wf(read_validation_wf.out, phage_blast_DB.out))
+                    .concat(virfinder_wf(read_validation_wf.out))
+                    .concat(pprmeta_wf(read_validation_wf.out, ppr_dependecies()))
+                    .filter { it != 'deactivated' } // removes deactivated tool channels
+                    .groupTuple()
+        
+        filter_tool_names(results)
+
+    //plotting results
+        r_plot_reads(parse_reads(results))
+        upsetr_plot(filter_tool_names.out)
+    
+    //samtools 
+       samtools(read_validation_wf.out.join(results)) 
     }
 }
 
