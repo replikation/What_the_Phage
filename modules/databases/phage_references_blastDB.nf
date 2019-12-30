@@ -1,17 +1,17 @@
 process phage_references_blastDB {
         if (params.cloudProcess) {
-           publishDir "${params.cloudDatabase}/", mode: 'copy', pattern: "blast_phage_DB"
+           publishDir "${params.cloudDatabase}/", mode: 'copy', pattern: "phage_db.*"
         }
         else {
-           storeDir "nextflow-autodownload-databases/"
+           storeDir "nextflow-autodownload-databases/blast_phage_DB"
         }
       label 'metaphinder'
     input:
       file(references)
     output:
-      file("blast_phage_DB/")
+      file("phage_db.*")
     script:
       """
-      makeblastdb -in ${references} -dbtype nucl -parse_seqids -out blast_phage_DB/phage_db -title phage_db
+      makeblastdb -in ${references} -dbtype nucl -parse_seqids -out phage_db -title phage_db
       """
 }
