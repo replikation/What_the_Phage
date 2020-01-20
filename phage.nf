@@ -39,7 +39,7 @@ println " "}
             exit 1, "input missing, use [--fasta] or [--fastq]"}
         if ( params.fasta && params.fastq ) {
             exit 1, "please use either [--fasta] or [--fastq] as input"}
-       if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm ) {
+       if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm && params.vn) {
             exit 0, "You deactivated all the tools, so iam done ;) "}
 
     // fasta input or via csv file
@@ -97,6 +97,7 @@ println " "}
     include './modules/upsetr.nf' params(output: params.output)
     include './modules/virfinder' params(output: params.output, cpus: params.cpus)
     include './modules/virsorter' params(output: params.output, cpus: params.cpus)
+    include './modules/virnet' params(output: params.output, cpus: params.cpus)
 
 /************* 
 * DATABASES
@@ -275,6 +276,16 @@ workflow pprmeta_wf {
     emit:   pprmeta_results
 } 
 
+workflow virnet_wf {
+    get:    fasta
+    main:   if (!params.vn) { 
+                        virnet(fasta).groupTuple(remainder: true) ; 
+                        virnet_results = virnet.out 
+                        }
+            else { virnet_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+    emit:   virnet_results
+} 
+
 /************* 
 * MAIN WORKFLOWS
 *************/
@@ -296,6 +307,7 @@ workflow {
                     .concat(deepvirfinder_wf(fasta_validation_wf.out))
                     .concat(virfinder_wf(fasta_validation_wf.out))
                     .concat(pprmeta_wf(fasta_validation_wf.out, ppr_dependecies()))
+                    .concat(virnet_wf(fasta_validation_wf.out))
                     .filter { it != 'deactivated' } // removes deactivated tool channels
                     .groupTuple()
                     

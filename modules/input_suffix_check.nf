@@ -4,7 +4,7 @@ process input_suffix_check {
         tuple val(name), file(file) 
     output:
         tuple val(name), file("${name}.fa")
-    script:
+    // script:
         """
         case "${file}" in
             *.gz) 
