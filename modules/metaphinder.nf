@@ -27,7 +27,7 @@ process metaphinder_own_DB {
       """
       rnd=${Math.random()}
       mkdir ${name}
-      MetaPhinder.py -i ${fasta} -o ${name} -d ${database}/blast_phage_DB/phage_db
+      MetaPhinder.py -i ${fasta} -o ${name} -d phage_db
       mv ${name}/output.txt ${name}_\${rnd//0.}.list
       """
 }
