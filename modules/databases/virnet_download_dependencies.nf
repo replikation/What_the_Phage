@@ -10,6 +10,6 @@ process virnet_download_dependencies {
         file("virnet")
       script:
         """
-        git clone https://github.com/alyosama/virnet.git
+        git clone https://github.com/Stormrider935/virnet.git
         """
     }

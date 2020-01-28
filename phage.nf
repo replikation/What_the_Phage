@@ -395,6 +395,7 @@ def helpMSG() {
     --vf                deactivates virfinder
     --vs                deactivates virsorter
     --pp                deactivates PPRmeta
+    --vn                deactivates virnet
 
     ${c_yellow}Database behaviour:${c_reset}
     This workflow will automatically download files to ./nextflow-autodownload-databases
