@@ -39,7 +39,7 @@ println " "}
             exit 1, "input missing, use [--fasta] or [--fastq]"}
         if ( params.fasta && params.fastq ) {
             exit 1, "please use either [--fasta] or [--fastq] as input"}
-       if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm ) {
+       if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm && params.vn) {
             exit 0, "You deactivated all the tools, so iam done ;) "}
 
     // fasta input or via csv file
@@ -97,7 +97,9 @@ println " "}
     include './modules/upsetr.nf' params(output: params.output)
     include './modules/virfinder' params(output: params.output, cpus: params.cpus)
     include './modules/virsorter' params(output: params.output, cpus: params.cpus)
-
+    include './modules/virnet' params(output: params.output, cpus: params.cpus)
+    include './modules/databases/virnet_download_dependencies' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+    include './modules/parser/filter_virnet' params(output: params.output)
 /************* 
 * DATABASES
 *************/
@@ -167,6 +169,20 @@ workflow phage_blast_DB {
         }
     emit: db
 } 
+
+
+workflow virnet_dependecies {
+    main: 
+        // local storage via storeDir
+        if (!params.cloudProcess) { virnet_download_dependencies(); db = virnet_download_dependencies.out }
+        // cloud storage via db_preload.exists()
+        // if (params.cloudProcess) {
+        //     db_preload = file("${params.cloudDatabase}/pprmeta/PPR-Meta")
+        //     if (db_preload.exists()) { db = db_preload }
+            else  { virnet_download_dependencies(); db = virnet_download_dependencies.out } 
+        // }
+    emit: db
+}       
 
 /************* 
 * SUB WORKFLOWS
@@ -275,6 +291,17 @@ workflow pprmeta_wf {
     emit:   pprmeta_results
 } 
 
+workflow virnet_wf {
+    get:    fasta
+            virnet_dependecies
+    main:   if (!params.vn) { 
+                        filter_virnet(virnet(fasta, virnet_dependecies).groupTuple(remainder: true)) ; 
+                        virnet_results = filter_virnet.out 
+                        }
+            else { virnet_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+    emit:   virnet_results
+} 
+
 /************* 
 * MAIN WORKFLOWS
 *************/
@@ -296,10 +323,12 @@ workflow {
                     .concat(deepvirfinder_wf(fasta_validation_wf.out))
                     .concat(virfinder_wf(fasta_validation_wf.out))
                     .concat(pprmeta_wf(fasta_validation_wf.out, ppr_dependecies()))
+                    .concat(virnet_wf(fasta_validation_wf.out, virnet_dependecies()))
                     .filter { it != 'deactivated' } // removes deactivated tool channels
                     .groupTuple()
                     
-        filter_tool_names(results)                    
+        filter_tool_names(results) 
+                           
     //plotting results
         r_plot(filter_tool_names.out)
         upsetr_plot(filter_tool_names.out)
@@ -323,6 +352,7 @@ workflow {
                     .groupTuple()
         
         filter_tool_names(results)
+        
 
     //plotting results
         r_plot_reads(parse_reads(results))
