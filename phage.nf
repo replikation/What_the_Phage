@@ -176,11 +176,11 @@ workflow virnet_dependecies {
         // local storage via storeDir
         if (!params.cloudProcess) { virnet_download_dependencies(); db = virnet_download_dependencies.out }
         // cloud storage via db_preload.exists()
-        // if (params.cloudProcess) {
-        //     db_preload = file("${params.cloudDatabase}/pprmeta/PPR-Meta")
-        //     if (db_preload.exists()) { db = db_preload }
+        if (params.cloudProcess) {
+            db_preload = file("${params.cloudDatabase}/virnet/virnet")
+            if (db_preload.exists()) { db = db_preload }
             else  { virnet_download_dependencies(); db = virnet_download_dependencies.out } 
-        // }
+        }
     emit: db
 }       
 

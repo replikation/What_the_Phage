@@ -35,6 +35,8 @@
   * [paper](https://arxiv.org/abs/1806.07810)
 * [Sourmash](https://github.com/dib-lab/sourmash)
   * [paper](https://joss.theoj.org/papers/10.21105/joss.00027)
+* [virnet](https://github.com/alyosama/virnet)
+  * [paper](https://ieeexplore.ieee.org/document/8639400)
 
 ## Workflow
 
