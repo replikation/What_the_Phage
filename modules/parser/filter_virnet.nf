@@ -4,13 +4,12 @@ process filter_virnet {
     input:
       tuple val(name), file(results) 
     output:
-      tuple val(name), file("virnet_*.csv")
+      tuple val(name), file("virnet_*.txt")
     script:
       """
       rnd=${Math.random()}
 
-
-    sed 's|,|\t|g' ${name}_\${rnd//0.}.csv | awk '{if($6==1){print $2}}' > virnet_\${rnd//0.}.txt
+      tail -n+2 *.csv | sed 's|,|\\t|g' | awk '{if(\$5==1){print \$2}}' > virnet_\${rnd//0.}.txt
       
       """
 }
