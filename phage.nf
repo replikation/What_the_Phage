@@ -39,7 +39,7 @@ println " "}
             exit 1, "input missing, use [--fasta] or [--fastq]"}
         if ( params.fasta && params.fastq ) {
             exit 1, "please use either [--fasta] or [--fastq] as input"}
-       if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm ) {
+       if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm && params.vb ) {
             exit 0, "You deactivated all the tools, so iam done ;) "}
 
     // fasta input or via csv file
@@ -97,6 +97,8 @@ println " "}
     include './modules/upsetr.nf' params(output: params.output)
     include './modules/virfinder' params(output: params.output, cpus: params.cpus)
     include './modules/virsorter' params(output: params.output, cpus: params.cpus)
+    include './modules/vibrant' params(output: params.output, cpus: params.cpus)
+    include './modules/databases/vibrant_download_DB' params(output: params.output, cpus: params.cpus)
 
 /************* 
 * DATABASES
@@ -167,6 +169,19 @@ workflow phage_blast_DB {
         }
     emit: db
 } 
+
+workflow vibrant_database {
+    main: 
+        // local storage via storeDir
+        if (!params.cloudProcess) { vibrant_download_DB(); db = vibrant_download_DB.out }
+        // cloud storage via db_preload.exists()
+        // if (params.cloudProcess) {
+        //     db_preload = file("${params.cloudDatabase}/pprmeta/PPR-Meta")
+        //     if (db_preload.exists()) { db = db_preload }
+             else  { vibrant_download_DB(); db = vibrant_download_DB.out } 
+        // }
+    emit: db
+}        
 
 /************* 
 * SUB WORKFLOWS
@@ -275,6 +290,18 @@ workflow pprmeta_wf {
     emit:   pprmeta_results
 } 
 
+workflow vibrant_wf {
+    get:    fasta
+            vibrant_database
+    main:   
+            if (!params.sm) { 
+                        vibrant(fasta, vibrant_database).groupTuple(remainder: true) ; 
+                        //sourmash_results = filter_sourmash.out 
+                        }
+            else { vibrant_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+    emit:   vibrant_results
+} 
+
 /************* 
 * MAIN WORKFLOWS
 *************/
@@ -296,6 +323,7 @@ workflow {
                     .concat(deepvirfinder_wf(fasta_validation_wf.out))
                     .concat(virfinder_wf(fasta_validation_wf.out))
                     .concat(pprmeta_wf(fasta_validation_wf.out, ppr_dependecies()))
+                    .concat(vibrant_wf(fasta_validation_wf.out, vibrant_database.out))
                     .filter { it != 'deactivated' } // removes deactivated tool channels
                     .groupTuple()
                     

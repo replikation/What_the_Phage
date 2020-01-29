@@ -3,16 +3,19 @@ process vibrant_download_DB {
         //    publishDir "${params.cloudDatabase}/virsorter/", mode: 'copy', pattern: "virsorter-data"
         // }
         // else {
-           storeDir "nextflow-autodownload-databases/vibrant/"
+           storeDir "nextflow-autodownload-databases/Vibrant"
         // }
-       label 'vibrant'    
+       label 'vibrant_download_DB'    
       output:
-        file("vibrant-DB")
+        file("database.tar.gz")
       script:
         """
-        git clone https://github.com/AnantharamanLab/VIBRANT.git
-        chmod -R 777 VIBRANT
-        ./VIBRANT_setup.py
-        
+        mkdir database
+        mv /opt/conda/share/vibrant-1.0.1/databases/* database/
+        tar -czf database.tar.gz database/
         """
     }
+        // git clone https://github.com/AnantharamanLab/VIBRANT.git
+        // chmod 777 VIBRANT/databases/*
+        // cd VIBRANT/databases && ./VIBRANT_setup.py && ./VIBRANT_test_setup.py
+        // tar -czf VIBRANT.tar.gz VIBRANT/
