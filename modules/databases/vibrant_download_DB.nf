@@ -5,13 +5,18 @@ process vibrant_download_DB {
         else {
            storeDir "nextflow-autodownload-databases/Vibrant"
         }
-       label 'vibrant_download_DB'    
+       label 'vibrant'    
       output:
         file("database.tar.gz")
       script:
         """
         mkdir database
-        mv /opt/conda/share/vibrant-1.0.1/* database/
+        cd database
+        cp -r /opt/conda/share/vibrant-1.0.1/databases/profile_names .
+        /opt/conda/share/vibrant-1.0.1/databases/VIBRANT_setup.py
+        cp /opt/conda/share/vibrant-1.0.1/files/VIBRANT* .
+        ls
+        cd ..
         tar -czf database.tar.gz database/
         """
     }

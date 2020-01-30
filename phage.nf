@@ -72,7 +72,7 @@ println " "}
     include './modules/databases/phage_references_blastDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/databases/ppr_download_dependencies' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/databases/sourmash_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-    include './modules/databases/vibrant_download_DB' params(output: params.output, cpus: params.cpus)
+    include './modules/databases/vibrant_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/databases/virnet_download_dependencies' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/databases/virsorter_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/deepvirfinder' params(output: params.output, cpus: params.cpus)
@@ -315,7 +315,8 @@ workflow vibrant_wf {
                         }
             else { vibrant_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
     emit:   vibrant_results
-    
+}
+
 workflow virnet_wf {
     get:    fasta
             virnet_dependecies
