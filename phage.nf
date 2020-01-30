@@ -72,6 +72,7 @@ println " "}
     include './modules/databases/phage_references_blastDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/databases/ppr_download_dependencies' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/databases/sourmash_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+    include './modules/databases/vibrant_download_DB' params(output: params.output, cpus: params.cpus)
     include './modules/databases/virsorter_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/deepvirfinder' params(output: params.output, cpus: params.cpus)
     include './modules/fastqTofasta' params(output: params.output)
@@ -84,6 +85,7 @@ println " "}
     include './modules/parser/filter_metaphinder' params(output: params.output)
     include './modules/parser/filter_sourmash' params(output: params.output)
     include './modules/parser/filter_tool_names' params(output: params.output)
+    include './modules/parser/filter_vibrant' params(output: params.output)
     include './modules/parser/filter_virfinder' params(output: params.output)
     include './modules/parser/filter_virsorter' params(output: params.output, cpus: params.cpus)
     include './modules/parser/parse_reads.nf' params(output: params.output)
@@ -95,11 +97,9 @@ println " "}
     include './modules/sourmash' params(output: params.output)
     include './modules/split_multi_fasta' params(output: params.output)
     include './modules/upsetr.nf' params(output: params.output)
+    include './modules/vibrant' params(output: params.output, cpus: params.cpus)
     include './modules/virfinder' params(output: params.output, cpus: params.cpus)
     include './modules/virsorter' params(output: params.output, cpus: params.cpus)
-    include './modules/vibrant' params(output: params.output, cpus: params.cpus)
-    include './modules/databases/vibrant_download_DB' params(output: params.output, cpus: params.cpus)
-    include './modules/parser/filter_vibrant' params(output: params.output)
 /************* 
 * DATABASES
 *************/
@@ -392,6 +392,7 @@ def helpMSG() {
     --vf                deactivates virfinder
     --vs                deactivates virsorter
     --pp                deactivates PPRmeta
+    --vb                deactivates vibrant
 
     ${c_yellow}Database behaviour:${c_reset}
     This workflow will automatically download files to ./nextflow-autodownload-databases
