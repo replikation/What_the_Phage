@@ -99,7 +99,7 @@ println " "}
     include './modules/virsorter' params(output: params.output, cpus: params.cpus)
     include './modules/vibrant' params(output: params.output, cpus: params.cpus)
     include './modules/databases/vibrant_download_DB' params(output: params.output, cpus: params.cpus)
-
+    include './modules/parser/filter_vibrant' params(output: params.output)
 /************* 
 * DATABASES
 *************/
@@ -174,12 +174,12 @@ workflow vibrant_database {
     main: 
         // local storage via storeDir
         if (!params.cloudProcess) { vibrant_download_DB(); db = vibrant_download_DB.out }
-        // cloud storage via db_preload.exists()
-        // if (params.cloudProcess) {
-        //     db_preload = file("${params.cloudDatabase}/pprmeta/PPR-Meta")
-        //     if (db_preload.exists()) { db = db_preload }
+         //cloud storage via db_preload.exists()
+         if (params.cloudProcess) {
+             db_preload = file("${params.cloudDatabase}/Vibrant/database.tar.gz")
+             if (db_preload.exists()) { db = db_preload }
              else  { vibrant_download_DB(); db = vibrant_download_DB.out } 
-        // }
+        }
     emit: db
 }        
 
@@ -292,11 +292,10 @@ workflow pprmeta_wf {
 
 workflow vibrant_wf {
     get:    fasta
-            vibrant_database
-    main:   
-            if (!params.sm) { 
-                        vibrant(fasta, vibrant_database).groupTuple(remainder: true) ; 
-                        //sourmash_results = filter_sourmash.out 
+            vibrant_download_DB
+    main:    if (!params.vb) { 
+                        filter_vibrant(vibrant(fasta, vibrant_download_DB).groupTuple(remainder: true)) ; 
+                        vibrant_results = filter_vibrant.out 
                         }
             else { vibrant_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
     emit:   vibrant_results
@@ -323,7 +322,7 @@ workflow {
                     .concat(deepvirfinder_wf(fasta_validation_wf.out))
                     .concat(virfinder_wf(fasta_validation_wf.out))
                     .concat(pprmeta_wf(fasta_validation_wf.out, ppr_dependecies()))
-                    .concat(vibrant_wf(fasta_validation_wf.out, vibrant_database.out))
+                    .concat (vibrant_wf(fasta_validation_wf.out, vibrant_download_DB()))
                     .filter { it != 'deactivated' } // removes deactivated tool channels
                     .groupTuple()
                     

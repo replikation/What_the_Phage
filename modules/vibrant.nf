@@ -1,21 +1,30 @@
 process vibrant {
-      publishDir "${params.output}/${name}/", mode: 'copy', pattern: "VIBRANT*"
+      publishDir "${params.output}/${name}/Vibrant", mode: 'copy', pattern: "vibrant_*.tsv"
       label 'vibrant'
     input:
       tuple val(name), file(fasta) 
-      file(database) 
+      path(db)
     output:
-      file("VIBRANT*")
+      tuple val(name), file("vibrant_*.tsv")
     script:
       """
       rnd=${Math.random()}
-      tar xzf ${database}
-      mv databases/* /opt/conda/share/vibrant-1.0.1/databases/
-
-      VIBRANT_run.py -i ${fasta} 
+      
+    tar xzf ${db}
+    
+   
+    
+    VIBRANT_run.py -i ${fasta} -k database/databases/KEGG_profiles_prokaryotes.HMM -p database/databases/Pfam-A_v32.HMM -v database/databases/VOGDB94_phage.HMM -e database/databases/Pfam-A_plasmid_v32.HMM -a database/databases/Pfam-A_phage_v32.HMM \
+    -c database/files/VIBRANT_categories.tsv -n database/files/VIBRANT_names.tsv -s database/files/VIBRANT_KEGG_pathways_summary.tsv -m database/files/VIBRANT_machine_model.sav -g database/files/VIBRANT_AMGs.tsv
+    mv VIBRANT_${name}/VIBRANT_results_${name}/VIBRANT_machine_${name}.tsv vibrant_\${rnd//0.}.tsv
+      
       
       
       """
 }
 
-//virsorter_\${rnd//0.}.list
+//virsorter_\${rnd//0.}.list          VIBRANT_run.py -i ${fasta} 
+
+// slows pc down massively.... while tar proces 
+// folder structure of vibrant needs to be untouched
+// -t: increase the number of VIBRANT parallel runs (similar to threads). The integer entered here will have no impact on results but may impact runtime. To parallelize VIBRANT, the -t flag will indicate how many separate files to split the input file into; these will all be run in tandem. For example, an input file with 10 scaffolds that has invoked -t 5 will run VIBRANT 5 separate times simultaneously with each run consisting of 2 scaffolds each. Default = 1.
