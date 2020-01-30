@@ -39,7 +39,7 @@ println " "}
             exit 1, "input missing, use [--fasta] or [--fastq]"}
         if ( params.fasta && params.fastq ) {
             exit 1, "please use either [--fasta] or [--fastq] as input"}
-       if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm && params.vn) {
+       if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm && params.vn && params.vb ) {
             exit 0, "You deactivated all the tools, so iam done ;) "}
 
     // fasta input or via csv file
@@ -72,6 +72,8 @@ println " "}
     include './modules/databases/phage_references_blastDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/databases/ppr_download_dependencies' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/databases/sourmash_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+    include './modules/databases/vibrant_download_DB' params(output: params.output, cpus: params.cpus)
+    include './modules/databases/virnet_download_dependencies' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/databases/virsorter_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/deepvirfinder' params(output: params.output, cpus: params.cpus)
     include './modules/fastqTofasta' params(output: params.output)
@@ -84,7 +86,9 @@ println " "}
     include './modules/parser/filter_metaphinder' params(output: params.output)
     include './modules/parser/filter_sourmash' params(output: params.output)
     include './modules/parser/filter_tool_names' params(output: params.output)
+    include './modules/parser/filter_vibrant' params(output: params.output)
     include './modules/parser/filter_virfinder' params(output: params.output)
+    include './modules/parser/filter_virnet' params(output: params.output)
     include './modules/parser/filter_virsorter' params(output: params.output, cpus: params.cpus)
     include './modules/parser/parse_reads.nf' params(output: params.output)
     include './modules/r_plot.nf' params(output: params.output)
@@ -95,11 +99,10 @@ println " "}
     include './modules/sourmash' params(output: params.output)
     include './modules/split_multi_fasta' params(output: params.output)
     include './modules/upsetr.nf' params(output: params.output)
+    include './modules/vibrant' params(output: params.output, cpus: params.cpus)
     include './modules/virfinder' params(output: params.output, cpus: params.cpus)
-    include './modules/virsorter' params(output: params.output, cpus: params.cpus)
     include './modules/virnet' params(output: params.output, cpus: params.cpus)
-    include './modules/databases/virnet_download_dependencies' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-    include './modules/parser/filter_virnet' params(output: params.output)
+    include './modules/virsorter' params(output: params.output, cpus: params.cpus)
 /************* 
 * DATABASES
 *************/
@@ -170,6 +173,18 @@ workflow phage_blast_DB {
     emit: db
 } 
 
+workflow vibrant_database {
+    main: 
+        // local storage via storeDir
+        if (!params.cloudProcess) { vibrant_download_DB(); db = vibrant_download_DB.out }
+         //cloud storage via db_preload.exists()
+         if (params.cloudProcess) {
+             db_preload = file("${params.cloudDatabase}/Vibrant/database.tar.gz")
+             if (db_preload.exists()) { db = db_preload }
+             else  { vibrant_download_DB(); db = vibrant_download_DB.out } 
+        }
+    emit: db
+}        
 
 workflow virnet_dependecies {
     main: 
@@ -291,6 +306,16 @@ workflow pprmeta_wf {
     emit:   pprmeta_results
 } 
 
+workflow vibrant_wf {
+    get:    fasta
+            vibrant_download_DB
+    main:    if (!params.vb) { 
+                        filter_vibrant(vibrant(fasta, vibrant_download_DB).groupTuple(remainder: true)) ; 
+                        vibrant_results = filter_vibrant.out 
+                        }
+            else { vibrant_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+    emit:   vibrant_results
+    
 workflow virnet_wf {
     get:    fasta
             virnet_dependecies
@@ -323,6 +348,7 @@ workflow {
                     .concat(deepvirfinder_wf(fasta_validation_wf.out))
                     .concat(virfinder_wf(fasta_validation_wf.out))
                     .concat(pprmeta_wf(fasta_validation_wf.out, ppr_dependecies()))
+                    .concat (vibrant_wf(fasta_validation_wf.out, vibrant_download_DB()))
                     .concat(virnet_wf(fasta_validation_wf.out, virnet_dependecies()))
                     .filter { it != 'deactivated' } // removes deactivated tool channels
                     .groupTuple()
@@ -395,6 +421,7 @@ def helpMSG() {
     --vf                deactivates virfinder
     --vs                deactivates virsorter
     --pp                deactivates PPRmeta
+    --vb                deactivates vibrant
     --vn                deactivates virnet
 
     ${c_yellow}Database behaviour:${c_reset}

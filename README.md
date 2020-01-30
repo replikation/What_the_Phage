@@ -35,6 +35,8 @@
   * [paper](https://arxiv.org/abs/1806.07810)
 * [Sourmash](https://github.com/dib-lab/sourmash)
   * [paper](https://joss.theoj.org/papers/10.21105/joss.00027)
+* [VIBRANT](https://github.com/AnantharamanLab/VIBRANT)
+  * [paper](https://www.biorxiv.org/content/biorxiv/early/2019/11/26/855387.full.pdf)
 * [VirNet](https://github.com/alyosama/virnet)
   * [paper](https://ieeexplore.ieee.org/document/8639400)
 
