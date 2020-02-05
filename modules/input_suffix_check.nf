@@ -29,5 +29,9 @@ process input_suffix_check {
         sed 's#,#_#g' -i ${name}.fa
         # replace . with _
         sed 's#\\.#_#g' -i ${name}.fa
+        # replace | with _
+        sed 's#|#_#g' -i ${name}.fa
+        # remove empty lines
+        sed '/^\$/d' -i ${name}.fa
         """
 }
