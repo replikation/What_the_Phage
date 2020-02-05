@@ -1,16 +1,19 @@
-# What the Phage (WtP)
+![](https://repository-images.githubusercontent.com/200528166/c648fb80-4840-11ea-8c30-b1773d42d4e4)
+
 
 ![](https://img.shields.io/badge/nextflow-19.10.0-brightgreen)
 ![](https://img.shields.io/badge/uses-docker-blue.svg)
 ![](https://img.shields.io/badge/licence-GPL--3.0-lightgrey.svg)
-
-
 ![](https://github.com/replikation/What_the_Phage/workflows/Syntax_check/badge.svg)
 
 [![Twitter Follow](https://img.shields.io/twitter/follow/gcloudChris.svg?style=social)](https://twitter.com/gcloudChris) 
+[![Twitter Follow](https://img.shields.io/twitter/follow/mult1fractal.svg?style=social)](https://twitter.com/mult1fractal) 
 
+# What the Phage (WtP)
 * by Christian Brandt & Mike Marquet
 * **this tool is currently under heavy development, so expect some bugs but feel free to report issues**
+* a save bet is to use release or pre release candidates via `-r releasenumber` e.g. `-r v0.4`
+  * these are tested
 
 ## What is this Repo?
 
@@ -68,7 +71,7 @@ sudo usermod -a -G docker $USER
 * try out the installation by entering the following
 
 ```bash
-nextflow run replikation/What_the_Phage -r v0.2 --fasta ~/.nextflow/assets/replikation/What_the_Phage/test-data/T7_draft.fa
+nextflow run replikation/What_the_Phage -r v0.4 --fasta ~/.nextflow/assets/replikation/What_the_Phage/test-data/all_pos_phage.fasta
 ```
 
 ### Normal Installation

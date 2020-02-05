@@ -66,7 +66,6 @@ println " "}
 /************* 
 * MODULES
 *************/
-
     include './modules/PPRmeta' params(output: params.output, cpus: params.cpus)
     include './modules/databases/download_references' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/databases/phage_references_blastDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
@@ -75,16 +74,16 @@ println " "}
     include './modules/databases/vibrant_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/databases/virnet_download_dependencies' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/databases/virsorter_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-    include './modules/deepvirfinder' params(output: params.output, cpus: params.cpus)
+    include './modules/deepvirfinder' params(cpus: params.cpus)
     include './modules/fastqTofasta' params(output: params.output)
     include './modules/input_suffix_check' params(fastq: params.fastq)
     include './modules/marvel' params(output: params.output, cpus: params.cpus)
-    include './modules/metaphinder' params(output: params.output, cpus: params.cpus)
+    include './modules/metaphinder' params(cpus: params.cpus)
     include './modules/parser/filter_PPRmeta' params(output: params.output)
-    include './modules/parser/filter_deepvirfinder' params(output: params.output)
+    include './modules/parser/filter_deepvirfinder'
     include './modules/parser/filter_marvel' params(output: params.output)
-    include './modules/parser/filter_metaphinder' params(output: params.output)
-    include './modules/parser/filter_sourmash' params(output: params.output)
+    include './modules/parser/filter_metaphinder'
+    include './modules/parser/filter_sourmash'
     include './modules/parser/filter_tool_names' params(output: params.output)
     include './modules/parser/filter_vibrant' params(output: params.output)
     include './modules/parser/filter_virfinder' params(output: params.output)
@@ -93,10 +92,13 @@ println " "}
     include './modules/parser/parse_reads.nf' params(output: params.output)
     include './modules/r_plot.nf' params(output: params.output)
     include './modules/r_plot_reads.nf' params(output: params.output)
+    include './modules/raw_data_collection/metaphinder_collect_data' params(output: params.output)
+    include './modules/raw_data_collection/deepvirfinder_collect_data' params(output: params.output)
+    include './modules/raw_data_collection/sourmash_collect_data' params(output: params.output)
     include './modules/removeSmallReads' params(output: params.output)
     include './modules/samtools' params(output: params.output)
     include './modules/shuffle_reads_nts' params(output: params.output)
-    include './modules/sourmash' params(output: params.output)
+    include './modules/sourmash' 
     include './modules/split_multi_fasta' params(output: params.output)
     include './modules/upsetr.nf' params(output: params.output)
     include './modules/vibrant' params(output: params.output, cpus: params.cpus)
@@ -210,7 +212,7 @@ workflow fasta_validation_wf {
 
 workflow read_validation_wf {
     get:    fastq
-    main:   fastqTofasta(removeSmallReads(fastq.splitFastq(by: 10000, file: true)))
+    main:   fastqTofasta(removeSmallReads(fastq.splitFastq(by: 1000, file: true)))
     emit:   fastqTofasta.out
 }
 
@@ -226,7 +228,9 @@ workflow sourmash_wf {
     main:   
             if (!params.sm) { 
                         filter_sourmash(sourmash(split_multi_fasta(fasta), sourmash_database).groupTuple(remainder: true)) ; 
-                        sourmash_results = filter_sourmash.out 
+                        sourmash_results = filter_sourmash.out
+                        // raw data collector
+                        sourmash_collect_data(sourmash.out.groupTuple(remainder: true))
                         }
             else { sourmash_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
     emit:   sourmash_results
@@ -237,7 +241,9 @@ workflow deepvirfinder_wf {
     main:   
             if (!params.dv) { 
                         filter_deepvirfinder(deepvirfinder(fasta).groupTuple(remainder: true)) ; 
-                        deepvirfinder_results = filter_deepvirfinder.out 
+                        deepvirfinder_results = filter_deepvirfinder.out
+                        // raw data collector
+                        deepvirfinder_collect_data(deepvirfinder.out.groupTuple(remainder: true))
                         }
             else { deepvirfinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
     emit:   deepvirfinder_results
@@ -256,8 +262,12 @@ workflow marvel_wf {
 workflow metaphinder_wf {
     get:    fasta
     main:   if (!params.mp) { 
-                        filter_metaphinder(metaphinder(fasta).groupTuple(remainder: true)) ; 
-                        metaphinder_results = filter_metaphinder.out 
+                        metaphinder(fasta)
+                        // filtering
+                        filter_metaphinder(metaphinder.out[0].groupTuple(remainder: true))
+                        metaphinder_results = filter_metaphinder.out
+                        // raw data collector
+                        metaphinder_collect_data(metaphinder.out[1].groupTuple(remainder: true))
                         }
             else { metaphinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
     emit:   metaphinder_results
@@ -266,9 +276,13 @@ workflow metaphinder_wf {
 workflow metaphinder_own_DB_wf {
     get:    fasta
             blast_db
-    main:   if (!params.mp) { 
-                        filter_metaphinder_own_DB(metaphinder_own_DB(fasta, blast_db).groupTuple(remainder: true)) ; 
-                        metaphinder_results = filter_metaphinder_own_DB.out 
+    main:   if (!params.mp) {
+                        metaphinder_own_DB(fasta, blast_db)
+                        // filtering
+                        filter_metaphinder_own_DB(metaphinder_own_DB.out[0].groupTuple(remainder: true)) ; 
+                        metaphinder_results = filter_metaphinder_own_DB.out
+                        // raw data collector
+                        metaphinder_collect_data_ownDB(metaphinder_own_DB.out[1].groupTuple(remainder: true))
                         }
             else { metaphinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
     emit:   metaphinder_results
@@ -385,8 +399,9 @@ workflow {
         r_plot_reads(parse_reads(results))
         upsetr_plot(filter_tool_names.out)
     
-    //samtools 
-       samtools(read_validation_wf.out.join(results)) 
+    //samtools
+        // COMMENT: all fastas have the same name which does name collision 
+       //samtools(read_validation_wf.out.groupTuple(remainder: true).join(results)) 
     }
 }
 

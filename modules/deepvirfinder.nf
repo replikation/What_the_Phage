@@ -1,5 +1,4 @@
 process deepvirfinder {
-      publishDir "${params.output}/${name}/deepvirfinder", mode: 'copy', pattern: "${name}_*.list"
       label 'deepvirfinder'
     input:
       tuple val(name), file(fasta) 

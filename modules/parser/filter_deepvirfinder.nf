@@ -1,5 +1,4 @@
 process filter_deepvirfinder {
-      publishDir "${params.output}/${name}/deepvirfinder", mode: 'copy', pattern: "deepvirfinder_*.txt"
       label 'ubuntu'
     input:
       tuple val(name), file(results) 

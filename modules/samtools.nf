@@ -8,7 +8,8 @@ process samtools {
     script:
       """
       cat ${list} | sort | uniq > tmp_allctgs.txt
-      xargs samtools faidx ${file} < tmp_allctgs.txt > ${name}_pos_ctg.fa
+      cat ${file} > all.fasta
+      xargs samtools faidx all.fasta < tmp_allctgs.txt > ${name}_pos_ctg.fa
       """
 }
 

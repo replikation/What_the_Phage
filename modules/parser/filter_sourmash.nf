@@ -1,5 +1,4 @@
 process filter_sourmash {
-      publishDir "${params.output}/${name}/sourmash", mode: 'copy', pattern: "sourmash_*.txt"
       label 'ubuntu'
     input:
       tuple val(name), file(results)

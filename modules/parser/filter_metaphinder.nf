@@ -1,5 +1,4 @@
 process filter_metaphinder {
-      publishDir "${params.output}/${name}/metaphinder", mode: 'copy', pattern: "metaphinder_*.txt"
       label 'ubuntu'
     input:
       tuple val(name), file(results) 
@@ -13,7 +12,6 @@ process filter_metaphinder {
 }
 
 process filter_metaphinder_own_DB {
-      publishDir "${params.output}/${name}/metaphinder-own-DB", mode: 'copy', pattern: "metaphinder-own-DB_*.txt"
       label 'ubuntu'
     input:
       tuple val(name), file(results) 

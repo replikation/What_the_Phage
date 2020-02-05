@@ -1,10 +1,8 @@
 process sourmash {
-      publishDir "${params.output}/${name}/sourmash/", mode: 'copy', pattern: "${name}_*.list"
       label 'sourmash'
     input:
       tuple val(name), file(fasta_dir) 
       file(database)
-      //file(database) 
     output:
       tuple val(name), file("${name}_*.list")
     shell:
