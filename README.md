@@ -12,7 +12,7 @@
 # What the Phage (WtP)
 * by Christian Brandt & Mike Marquet
 * **this tool is currently under heavy development, so expect some bugs but feel free to report issues**
-* a save bet is to use release or pre release candidates via `-r releasenumber` e.g. `-r v0.4`
+* a save bet is to use release or pre release candidates via `-r releasenumber` e.g. `-r v0.5`
   * these are tested
 
 ## What is this Repo?
@@ -71,7 +71,7 @@ sudo usermod -a -G docker $USER
 * try out the installation by entering the following
 
 ```bash
-nextflow run replikation/What_the_Phage -r v0.4 --fasta ~/.nextflow/assets/replikation/What_the_Phage/test-data/all_pos_phage.fasta
+nextflow run replikation/What_the_Phage -r v0.5 --fasta ~/.nextflow/assets/replikation/What_the_Phage/test-data/all_pos_phage.fasta
 ```
 
 ### Normal Installation
@@ -100,24 +100,25 @@ nextflow run replikation/What_the_Phage -r v0.4 --fasta ~/.nextflow/assets/repli
 ./phage.nf --fasta 'test-data/*.fasta'
 ```
 
-* or execute it directly via a release candidate ( `-r releasenumber` , e.g. `-r v0.2`)
+* or execute it directly via a release candidate ( `-r releasenumber` , e.g. `-r v0.5`)
 
 ```bash
-nextflow run replikation/What_the_Phage -r v0.2 --fasta 'your-fasta-files/*.fasta'
+nextflow run replikation/What_the_Phage -r v0.5 --fasta 'your-fasta-files/*.fa'
 # or
-nextflow run replikation/What_the_Phage -r v0.2 --fasta your-file.fasta
+nextflow run replikation/What_the_Phage -r v0.5 --fasta your-file.fasta
 ```
 
 * long-read input is supported via `--fastq`
 
 ### Tool control
 
-* all the analysis tools included can be separatly turned via adding the option flags
-* do `nextflow run replikation/What_the_Phage -r v0.2 --help` for all options
+* all the tools can be separatly turned off via adding the related option flag
+  * e.g. adding `--ma` to your command deactivates `marvel`
+* execute `--help` for all options
 
 ```bash
 # in this case Marvel (ma) and deepvirfinder (dv) are deactivated
-nextflow run replikation/What_the_Phage -r v0.2 --fasta your-file.fasta --dv --ma
+nextflow run replikation/What_the_Phage -r v0.5 --fasta your-file.fasta --dv --ma
 ```
 
 

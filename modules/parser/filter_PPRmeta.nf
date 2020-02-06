@@ -1,5 +1,4 @@
 process filter_PPRmeta {
-      publishDir "${params.output}/${name}/PPR-Meta", mode: 'copy', pattern: "PPRmeta_*.txt"
       label 'ubuntu'
     input:
       tuple val(name), file(results) 

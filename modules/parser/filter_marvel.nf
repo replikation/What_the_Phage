@@ -1,5 +1,4 @@
 process filter_marvel {
-      publishDir "${params.output}/${name}/marvel", mode: 'copy', pattern: "marvel_*.txt"
       label 'ubuntu'
     input:
       tuple val(name), file(results) 

@@ -1,5 +1,4 @@
 process virfinder {
-      publishDir "${params.output}/${name}/virfinder", mode: 'copy', pattern: "${name}_*.list"
       label 'virfinder'
     input:
       tuple val(name), file(fasta) 
@@ -8,6 +7,6 @@ process virfinder {
     script:
       """
       rnd=${Math.random()}
-      virfinderGO.R ${fasta} | grep -v "\\[1\\]" > ${name}_\${rnd//0.}.list
+      virfinderGO.R ${fasta} > ${name}_\${rnd//0.}.list
       """
 }

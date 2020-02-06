@@ -13,9 +13,9 @@ process split_multi_fasta {
       if [[ \${line:0:1} == '>' ]]
       then
         outfile=\${line#>}.fa
-        echo \${line} > ${name}_contigs/\${outfile}
+        echo "\${line}" > ${name}_contigs/\${outfile}
       else
-        echo \${line} >> ${name}_contigs/\${outfile}
+        echo "\${line}" >> ${name}_contigs/\${outfile}
       fi
         done < ${fasta}
       """

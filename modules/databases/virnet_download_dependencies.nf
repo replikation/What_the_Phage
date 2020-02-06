@@ -11,5 +11,6 @@ process virnet_download_dependencies {
       script:
         """
         git clone https://github.com/Stormrider935/virnet.git
+        chmod 777 virnet/*.py
         """
     }

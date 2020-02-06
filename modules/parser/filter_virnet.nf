@@ -1,5 +1,4 @@
 process filter_virnet {
-      publishDir "${params.output}/${name}/virnet", mode: 'copy', pattern: "virnet_*.txt"
       label 'ubuntu'
     input:
       tuple val(name), file(results) 

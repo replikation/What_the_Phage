@@ -1,5 +1,4 @@
 process pprmeta {
-      publishDir "${params.output}/${name}/PPR-Meta", mode: 'copy', pattern: "${name}_*.csv"
       label 'pprmeta'
     input:
       tuple val(name), file(fasta) 

@@ -4,7 +4,7 @@ process input_suffix_check {
         tuple val(name), file(file) 
     output:
         tuple val(name), file("${name}.fa")
-    // script:
+    script:
         """
         case "${file}" in
             *.gz) 
@@ -31,6 +31,8 @@ process input_suffix_check {
         sed 's#\\.#_#g' -i ${name}.fa
         # replace | with _
         sed 's#|#_#g' -i ${name}.fa
+        # replace / with _
+        sed 's#/#_#g' -i ${name}.fa
         # remove empty lines
         sed '/^\$/d' -i ${name}.fa
         """

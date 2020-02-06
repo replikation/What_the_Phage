@@ -1,5 +1,4 @@
 process filter_vibrant {
-      publishDir "${params.output}/${name}/Vibrant", mode: 'copy', pattern: "vibrant_*.txt"
       label 'ubuntu'
     input:
       tuple val(name), file(results) 

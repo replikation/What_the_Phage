@@ -39,8 +39,8 @@ println " "}
             exit 1, "input missing, use [--fasta] or [--fastq]"}
         if ( params.fasta && params.fastq ) {
             exit 1, "please use either [--fasta] or [--fastq] as input"}
-       if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm && params.vn && params.vb ) {
-            exit 0, "You deactivated all the tools, so iam done ;) "}
+        if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm && params.vn && params.vb ) {
+            exit 0, "What the... you deactivated all the tools"}
 
     // fasta input or via csv file
         if (params.fasta && params.list) { fasta_input_ch = Channel
@@ -66,7 +66,6 @@ println " "}
 /************* 
 * MODULES
 *************/
-    include './modules/PPRmeta' params(output: params.output, cpus: params.cpus)
     include './modules/databases/download_references' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/databases/phage_references_blastDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/databases/ppr_download_dependencies' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
@@ -74,37 +73,44 @@ println " "}
     include './modules/databases/vibrant_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/databases/virnet_download_dependencies' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
     include './modules/databases/virsorter_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-    include './modules/deepvirfinder' params(cpus: params.cpus)
     include './modules/fastqTofasta' params(output: params.output)
     include './modules/input_suffix_check' params(fastq: params.fastq)
-    include './modules/marvel' params(output: params.output, cpus: params.cpus)
-    include './modules/metaphinder' params(cpus: params.cpus)
-    include './modules/parser/filter_PPRmeta' params(output: params.output)
+    include './modules/parser/filter_PPRmeta'
     include './modules/parser/filter_deepvirfinder'
-    include './modules/parser/filter_marvel' params(output: params.output)
+    include './modules/parser/filter_marvel'
     include './modules/parser/filter_metaphinder'
     include './modules/parser/filter_sourmash'
     include './modules/parser/filter_tool_names' params(output: params.output)
-    include './modules/parser/filter_vibrant' params(output: params.output)
-    include './modules/parser/filter_virfinder' params(output: params.output)
-    include './modules/parser/filter_virnet' params(output: params.output)
-    include './modules/parser/filter_virsorter' params(output: params.output, cpus: params.cpus)
+    include './modules/parser/filter_vibrant'
+    include './modules/parser/filter_virfinder'
+    include './modules/parser/filter_virnet'
+    include './modules/parser/filter_virsorter' 
     include './modules/parser/parse_reads.nf' params(output: params.output)
     include './modules/r_plot.nf' params(output: params.output)
     include './modules/r_plot_reads.nf' params(output: params.output)
-    include './modules/raw_data_collection/metaphinder_collect_data' params(output: params.output)
     include './modules/raw_data_collection/deepvirfinder_collect_data' params(output: params.output)
+    include './modules/raw_data_collection/marvel_collect_data' params(output: params.output)
+    include './modules/raw_data_collection/metaphinder_collect_data' params(output: params.output)
+    include './modules/raw_data_collection/pprmeta_collect_data' params(output: params.output)
     include './modules/raw_data_collection/sourmash_collect_data' params(output: params.output)
+    include './modules/raw_data_collection/vibrant_collect_data' params(output: params.output)
+    include './modules/raw_data_collection/virfinder_collect_data' params(output: params.output)
+    include './modules/raw_data_collection/virnet_collect_data' params(output: params.output)
+    include './modules/raw_data_collection/virsorter_collect_data' params(output: params.output)
     include './modules/removeSmallReads' params(output: params.output)
     include './modules/samtools' params(output: params.output)
     include './modules/shuffle_reads_nts' params(output: params.output)
-    include './modules/sourmash' 
     include './modules/split_multi_fasta' params(output: params.output)
+    include './modules/tools/pprmeta' params(cpus: params.cpus)
+    include './modules/tools/deepvirfinder' params(cpus: params.cpus)
+    include './modules/tools/marvel' params(cpus: params.cpus)
+    include './modules/tools/metaphinder' params(cpus: params.cpus)
+    include './modules/tools/sourmash' params(cpus: params.cpus)
+    include './modules/tools/vibrant' params(cpus: params.cpus)
+    include './modules/tools/virfinder' params(cpus: params.cpus)
+    include './modules/tools/virnet' params(cpus: params.cpus)
+    include './modules/tools/virsorter' params(cpus: params.cpus)
     include './modules/upsetr.nf' params(output: params.output)
-    include './modules/vibrant' params(output: params.output, cpus: params.cpus)
-    include './modules/virfinder' params(output: params.output, cpus: params.cpus)
-    include './modules/virnet' params(output: params.output, cpus: params.cpus)
-    include './modules/virsorter' params(output: params.output, cpus: params.cpus)
 /************* 
 * DATABASES
 *************/
@@ -227,36 +233,37 @@ workflow sourmash_wf {
             sourmash_database
     main:   
             if (!params.sm) { 
-                        filter_sourmash(sourmash(split_multi_fasta(fasta), sourmash_database).groupTuple(remainder: true)) ; 
-                        sourmash_results = filter_sourmash.out
+                        filter_sourmash(sourmash(split_multi_fasta(fasta), sourmash_database).groupTuple(remainder: true))
                         // raw data collector
                         sourmash_collect_data(sourmash.out.groupTuple(remainder: true))
                         }
             else { sourmash_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   sourmash_results
+    emit:   filter_sourmash.out
 } 
 
 workflow deepvirfinder_wf {
     get:    fasta
     main:   
             if (!params.dv) { 
-                        filter_deepvirfinder(deepvirfinder(fasta).groupTuple(remainder: true)) ; 
-                        deepvirfinder_results = filter_deepvirfinder.out
+                        filter_deepvirfinder(deepvirfinder(fasta).groupTuple(remainder: true))
                         // raw data collector
                         deepvirfinder_collect_data(deepvirfinder.out.groupTuple(remainder: true))
                         }
             else { deepvirfinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   deepvirfinder_results
+    emit:   filter_deepvirfinder.out
 } 
 
 workflow marvel_wf {
     get:    fasta
     main:   if (!params.ma) { 
-                        filter_marvel(marvel(split_multi_fasta(fasta)).groupTuple(remainder: true)) ; 
-                        marvel_results = filter_marvel.out 
+                        marvel(split_multi_fasta(fasta))
+                        // filtering
+                        filter_marvel(marvel.out[0].groupTuple(remainder: true))
+                        // raw data collector
+                        marvel_collect_data(marvel.out[1].groupTuple(remainder: true))
                         }
             else { marvel_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   marvel_results
+    emit:   filter_marvel.out 
 }
 
 workflow metaphinder_wf {
@@ -265,12 +272,11 @@ workflow metaphinder_wf {
                         metaphinder(fasta)
                         // filtering
                         filter_metaphinder(metaphinder.out[0].groupTuple(remainder: true))
-                        metaphinder_results = filter_metaphinder.out
                         // raw data collector
                         metaphinder_collect_data(metaphinder.out[1].groupTuple(remainder: true))
                         }
             else { metaphinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   metaphinder_results
+    emit:   filter_metaphinder.out
 } 
 
 workflow metaphinder_own_DB_wf {
@@ -279,67 +285,75 @@ workflow metaphinder_own_DB_wf {
     main:   if (!params.mp) {
                         metaphinder_own_DB(fasta, blast_db)
                         // filtering
-                        filter_metaphinder_own_DB(metaphinder_own_DB.out[0].groupTuple(remainder: true)) ; 
-                        metaphinder_results = filter_metaphinder_own_DB.out
+                        filter_metaphinder_own_DB(metaphinder_own_DB.out[0].groupTuple(remainder: true))
                         // raw data collector
                         metaphinder_collect_data_ownDB(metaphinder_own_DB.out[1].groupTuple(remainder: true))
                         }
             else { metaphinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   metaphinder_results
+    emit:   filter_metaphinder_own_DB.out
 } 
 
 workflow virfinder_wf {
     get:    fasta
     main:   if (!params.vf) { 
-                        filter_virfinder(virfinder(fasta).groupTuple(remainder: true)) ; 
-                        virfinder_results = filter_virfinder.out 
+                        filter_virfinder(virfinder(fasta).groupTuple(remainder: true))
+                        // raw data collector
+                        virfinder_collect_data(virfinder.out.groupTuple(remainder: true))
                         }
             else { virfinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   virfinder_results
+    emit:   filter_virfinder.out
 } 
 
 workflow virsorter_wf {
     get:    fasta
             virsorter_DB
-    main:   if (!params.vs) { 
-                        filter_virsorter(virsorter(fasta, virsorter_DB).groupTuple(remainder: true)) ; 
-                         virsorter_results = filter_virsorter.out 
+    main:   if (!params.vs) {
+                        virsorter(fasta, virsorter_DB)
+                        // filtering
+                        filter_virsorter(virsorter.out[0].groupTuple(remainder: true))
+                        // raw data collector
+                        virsorter_collect_data(virsorter.out[1].groupTuple(remainder: true))
                         }
             else { virsorter_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   virsorter_results
+    emit:   filter_virsorter.out 
 } 
 
 workflow pprmeta_wf {
     get:    fasta
             ppr_deps
     main:   if (!params.pp) { 
-                        filter_PPRmeta(pprmeta(fasta, ppr_deps).groupTuple(remainder: true)) ; 
-                         pprmeta_results = filter_PPRmeta.out 
+                        filter_PPRmeta(pprmeta(fasta, ppr_deps).groupTuple(remainder: true))
+                        // raw data collector
+                        pprmeta_collect_data(pprmeta.out.groupTuple(remainder: true))
                         }
             else { pprmeta_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   pprmeta_results
+    emit:   filter_PPRmeta.out 
 } 
 
 workflow vibrant_wf {
     get:    fasta
             vibrant_download_DB
-    main:    if (!params.vb) { 
-                        filter_vibrant(vibrant(fasta, vibrant_download_DB).groupTuple(remainder: true)) ; 
-                        vibrant_results = filter_vibrant.out 
+    main:    if (!params.vb) {
+                        vibrant(fasta, vibrant_download_DB)
+                        // filtering
+                        filter_vibrant(vibrant.out[0].groupTuple(remainder: true))
+                        // raw data collector
+                        vibrant_collect_data(vibrant.out[1].groupTuple(remainder: true))
                         }
             else { vibrant_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   vibrant_results
+    emit:   filter_vibrant.out
 }
 
 workflow virnet_wf {
     get:    fasta
             virnet_dependecies
     main:   if (!params.vn) { 
-                        filter_virnet(virnet(fasta, virnet_dependecies).groupTuple(remainder: true)) ; 
-                        virnet_results = filter_virnet.out 
+                        filter_virnet(virnet(fasta, virnet_dependecies).groupTuple(remainder: true))
+                        // raw data collector
+                        virnet_collect_data(virnet.out.groupTuple(remainder: true))
                         }
             else { virnet_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   virnet_results
+    emit:   filter_virnet.out 
 } 
 
 /************* 
@@ -363,7 +377,7 @@ workflow {
                     .concat(deepvirfinder_wf(fasta_validation_wf.out))
                     .concat(virfinder_wf(fasta_validation_wf.out))
                     .concat(pprmeta_wf(fasta_validation_wf.out, ppr_dependecies()))
-                    .concat (vibrant_wf(fasta_validation_wf.out, vibrant_download_DB()))
+                    .concat(vibrant_wf(fasta_validation_wf.out, vibrant_download_DB()))
                     .concat(virnet_wf(fasta_validation_wf.out, virnet_dependecies()))
                     .filter { it != 'deactivated' } // removes deactivated tool channels
                     .groupTuple()
@@ -434,11 +448,12 @@ def helpMSG() {
     --dv                deactivates deepvirfinder
     --ma                deactivates marvel
     --mp                deactivates metaphinder
-    --vf                deactivates virfinder
-    --vs                deactivates virsorter
     --pp                deactivates PPRmeta
+    --sm                deactivates sourmash
     --vb                deactivates vibrant
+    --vf                deactivates virfinder
     --vn                deactivates virnet
+    --vs                deactivates virsorter
 
     ${c_yellow}Database behaviour:${c_reset}
     This workflow will automatically download files to ./nextflow-autodownload-databases
