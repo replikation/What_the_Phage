@@ -1,4 +1,4 @@
-![](https://repository-images.githubusercontent.com/200528166/c648fb80-4840-11ea-8c30-b1773d42d4e4)
+![logo](figures/logo-wtp_small.png)
 
 
 ![](https://img.shields.io/badge/nextflow-19.10.0-brightgreen)
