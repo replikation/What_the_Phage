@@ -23,17 +23,23 @@ process input_suffix_check {
                 exit 1
         esac
         
-        # replace spaces with _
-        sed 's, ,_,g' -i ${name}.fa
-        # replace , with _
-        sed 's#,#_#g' -i ${name}.fa
-        # replace . with _
-        sed 's#\\.#_#g' -i ${name}.fa
-        # replace | with _
-        sed 's#|#_#g' -i ${name}.fa
-        # replace / with _
-        sed 's#/#_#g' -i ${name}.fa
+        # tr whitespace at the end of lines
+        sed 's/[[:blank:]]*\$//' -i ${name}.fa
+        # remove ' and "
+        tr -d "'"  < ${name}.fa | tr -d '"' > tmp.file && mv tmp.file ${name}.fa
+        # replace | . , / whitespace with _
+        sed 's#[|\\.,/ ]#_#g' -i ${name}.fa
         # remove empty lines
         sed '/^\$/d' -i ${name}.fa
         """
 }
+
+
+/*
+COMMENTS:
+        # tr whitespace at the end of lines
+        # sed 's/[[:blank:]]*$//' -i ${name}.fa
+        # replace other spaces with _
+        # sed 's, ,_,g' -i ${name}.fa
+
+*/

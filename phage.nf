@@ -236,9 +236,12 @@ workflow sourmash_wf {
                         filter_sourmash(sourmash(split_multi_fasta(fasta), sourmash_database).groupTuple(remainder: true))
                         // raw data collector
                         sourmash_collect_data(sourmash.out.groupTuple(remainder: true))
+                        // result channel
+                        sourmash_results = filter_sourmash.out
                         }
             else { sourmash_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   filter_sourmash.out
+
+    emit:   sourmash_results
 } 
 
 workflow deepvirfinder_wf {
@@ -248,22 +251,25 @@ workflow deepvirfinder_wf {
                         filter_deepvirfinder(deepvirfinder(fasta).groupTuple(remainder: true))
                         // raw data collector
                         deepvirfinder_collect_data(deepvirfinder.out.groupTuple(remainder: true))
+                        // result channel
+                        deepvirfinder_results = filter_deepvirfinder.out
                         }
             else { deepvirfinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   filter_deepvirfinder.out
+    emit:   deepvirfinder_results 
 } 
 
 workflow marvel_wf {
     get:    fasta
     main:   if (!params.ma) { 
-                        marvel(split_multi_fasta(fasta))
                         // filtering
-                        filter_marvel(marvel.out[0].groupTuple(remainder: true))
+                        filter_marvel(marvel(split_multi_fasta(fasta)).groupTuple(remainder: true))
                         // raw data collector
-                        marvel_collect_data(marvel.out[1].groupTuple(remainder: true))
+                        marvel_collect_data(marvel.out.groupTuple(remainder: true))
+                        // result channel
+                        marvel_results = filter_marvel.out 
                         }
             else { marvel_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   filter_marvel.out 
+    emit:   marvel_results 
 }
 
 workflow metaphinder_wf {
@@ -274,9 +280,11 @@ workflow metaphinder_wf {
                         filter_metaphinder(metaphinder.out[0].groupTuple(remainder: true))
                         // raw data collector
                         metaphinder_collect_data(metaphinder.out[1].groupTuple(remainder: true))
+                        // result channel
+                        metaphinder_results = filter_metaphinder.out
                         }
             else { metaphinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   filter_metaphinder.out
+    emit:   metaphinder_results
 } 
 
 workflow metaphinder_own_DB_wf {
@@ -288,9 +296,11 @@ workflow metaphinder_own_DB_wf {
                         filter_metaphinder_own_DB(metaphinder_own_DB.out[0].groupTuple(remainder: true))
                         // raw data collector
                         metaphinder_collect_data_ownDB(metaphinder_own_DB.out[1].groupTuple(remainder: true))
+                        // result channel
+                        metaphinder_results = filter_metaphinder_own_DB.out
                         }
             else { metaphinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   filter_metaphinder_own_DB.out
+    emit:   metaphinder_results 
 } 
 
 workflow virfinder_wf {
@@ -299,9 +309,11 @@ workflow virfinder_wf {
                         filter_virfinder(virfinder(fasta).groupTuple(remainder: true))
                         // raw data collector
                         virfinder_collect_data(virfinder.out.groupTuple(remainder: true))
+                        // result channel
+                        virfinder_results = filter_virfinder.out
                         }
             else { virfinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   filter_virfinder.out
+    emit:   virfinder_results
 } 
 
 workflow virsorter_wf {
@@ -313,9 +325,11 @@ workflow virsorter_wf {
                         filter_virsorter(virsorter.out[0].groupTuple(remainder: true))
                         // raw data collector
                         virsorter_collect_data(virsorter.out[1].groupTuple(remainder: true))
+                        // result channel
+                        virsorter_results = filter_virsorter.out
                         }
             else { virsorter_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   filter_virsorter.out 
+    emit:   virsorter_results
 } 
 
 workflow pprmeta_wf {
@@ -325,9 +339,11 @@ workflow pprmeta_wf {
                         filter_PPRmeta(pprmeta(fasta, ppr_deps).groupTuple(remainder: true))
                         // raw data collector
                         pprmeta_collect_data(pprmeta.out.groupTuple(remainder: true))
+                        // result channel
+                        pprmeta_results = filter_PPRmeta.out
                         }
             else { pprmeta_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   filter_PPRmeta.out 
+    emit:   pprmeta_results 
 } 
 
 workflow vibrant_wf {
@@ -339,9 +355,11 @@ workflow vibrant_wf {
                         filter_vibrant(vibrant.out[0].groupTuple(remainder: true))
                         // raw data collector
                         vibrant_collect_data(vibrant.out[1].groupTuple(remainder: true))
+                        // result channel
+                        vibrant_results = filter_vibrant.out
                         }
             else { vibrant_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   filter_vibrant.out
+    emit:   vibrant_results
 }
 
 workflow virnet_wf {
@@ -351,9 +369,11 @@ workflow virnet_wf {
                         filter_virnet(virnet(fasta, virnet_dependecies).groupTuple(remainder: true))
                         // raw data collector
                         virnet_collect_data(virnet.out.groupTuple(remainder: true))
+                        // result channel
+                        virnet_results = filter_virnet.out
                         }
             else { virnet_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   filter_virnet.out 
+    emit:   virnet_results
 } 
 
 /************* 
@@ -365,25 +385,32 @@ workflow {
     // input filter
         fasta_validation_wf(fasta_input_ch)
 
-    // reference phages into DBs creations
-        phage_references() | ( sourmash_database & phage_blast_DB )
+    // reference phages, DBs and dependencies, deactivation based on input flags
+        phage_references() 
+
+        if (params.mp) { ref_phages_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { ref_phages_DB = phage_blast_DB (phage_references.out) }
+        if (params.pp) { ppr_deps = Channel.from( [ 'deactivated', 'deactivated'] ) } else { ppr_deps = ppr_dependecies() }
+        if (params.sm) { sourmash_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { sourmash_DB = sourmash_database (phage_references.out) }
+        if (params.vb) { vibrant_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vibrant_DB = vibrant_download_DB() }
+        if (params.vn) { virnet_deps = Channel.from( [ 'deactivated', 'deactivated'] ) } else { virnet_deps = virnet_dependecies() }
+        if (params.vs) { virsorter_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { virsorter_DB = virsorter_database() }
 
     // gather results
-        results =   virsorter_wf(fasta_validation_wf.out, virsorter_database())
-                    .concat(marvel_wf(fasta_validation_wf.out))
-                    .concat(sourmash_wf(fasta_validation_wf.out, sourmash_database.out))
+        results =   virsorter_wf(fasta_validation_wf.out, virsorter_DB)
+                    .concat(marvel_wf(fasta_validation_wf.out))      
+                    .concat(sourmash_wf(fasta_validation_wf.out, sourmash_DB))
                     .concat(metaphinder_wf(fasta_validation_wf.out))
-                    .concat(metaphinder_own_DB_wf(fasta_validation_wf.out, phage_blast_DB.out))
+                    .concat(metaphinder_own_DB_wf(fasta_validation_wf.out, ref_phages_DB))
                     .concat(deepvirfinder_wf(fasta_validation_wf.out))
                     .concat(virfinder_wf(fasta_validation_wf.out))
-                    .concat(pprmeta_wf(fasta_validation_wf.out, ppr_dependecies()))
-                    .concat(vibrant_wf(fasta_validation_wf.out, vibrant_download_DB()))
-                    .concat(virnet_wf(fasta_validation_wf.out, virnet_dependecies()))
+                    .concat(pprmeta_wf(fasta_validation_wf.out, ppr_deps))
+                    .concat(vibrant_wf(fasta_validation_wf.out, vibrant_DB))
+                    .concat(virnet_wf(fasta_validation_wf.out, virnet_deps))
                     .filter { it != 'deactivated' } // removes deactivated tool channels
                     .groupTuple()
                     
         filter_tool_names(results) 
-                           
+                     
     //plotting results
         r_plot(filter_tool_names.out)
         upsetr_plot(filter_tool_names.out)
