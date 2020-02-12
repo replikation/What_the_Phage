@@ -9,7 +9,7 @@ process virnet {
       """
       rnd=${Math.random()}
       cp -r ${dependencies}/* .
-      python3 virnet/predict.py --input_dim=500 --input=${fasta} --output=${name}_\${rnd//0.}.csv
+      python3 virnet/predict.py --input_dim=100 --input=${fasta} --output=${name}_\${rnd//0.}.csv
       """
 }
 

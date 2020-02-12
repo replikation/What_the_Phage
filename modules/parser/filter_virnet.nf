@@ -9,7 +9,6 @@ process filter_virnet {
       rnd=${Math.random()}
 
       tail -n+2 *.csv | sed 's|,|\\t|g' | awk '{if(\$5==1){print \$2}}' > virnet_\${rnd//0.}.txt
-      
       """
 }
 
