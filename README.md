@@ -1,7 +1,7 @@
 ![logo](figures/logo-wtp_small.png)
 
 
-![](https://img.shields.io/badge/nextflow-19.10.0-brightgreen)
+![](https://img.shields.io/badge/nextflow-20.01.0-brightgreen)
 ![](https://img.shields.io/badge/uses-docker-blue.svg)
 ![](https://img.shields.io/badge/licence-GPL--3.0-lightgrey.svg)
 ![](https://github.com/replikation/What_the_Phage/workflows/Syntax_check/badge.svg)
@@ -121,6 +121,10 @@ nextflow run replikation/What_the_Phage -r v0.5 --fasta your-file.fasta
 nextflow run replikation/What_the_Phage -r v0.5 --fasta your-file.fasta --dv --ma
 ```
 
+### Temporary files
+
+* all temporary files are stored in `/tmp/nextflow-phage-$USER`
+* you can change the location via adding '-work-dir new/path/here' to the command
 
 ## Results
 

@@ -1,5 +1,6 @@
 process sourmash {
       label 'sourmash'
+      errorStrategy 'ignore'
     input:
       tuple val(name), file(fasta_dir) 
       file(database)

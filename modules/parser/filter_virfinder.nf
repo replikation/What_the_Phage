@@ -7,6 +7,7 @@ process filter_virfinder {
     script:
       """
       rnd=${Math.random()}
-       cat *.list | grep -v "\\[1\\]" | sed '1d'| sort  -k5,5 | awk '\$4>=0.9' | awk '{ print \$2 }' > virfinder_\${rnd//0.}.txt
+
+      tail -q -n+2 *.list | awk '\$4>=0.9' | awk '{ print \$2 }' > virfinder_\${rnd//0.}.txt
       """
 }

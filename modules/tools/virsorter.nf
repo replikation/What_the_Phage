@@ -1,5 +1,6 @@
 process virsorter {
       label 'virsorter'
+      errorStrategy 'ignore'
     input:
       tuple val(name), file(fasta) 
       file(database) 

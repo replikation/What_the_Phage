@@ -1,5 +1,6 @@
 process deepvirfinder {
       label 'deepvirfinder'
+      errorStrategy 'ignore'
     input:
       tuple val(name), file(fasta) 
     output:

@@ -2,7 +2,7 @@ process marvel_collect_data {
       publishDir "${params.output}/${name}/raw_data", mode: 'copy', pattern: "marvel_results_${name}.tar.gz"
       label 'ubuntu'
     input:
-      tuple val(name), file(results_files)
+      tuple val(name), file(results_files), file(bin_dir)
     output:
       tuple val(name), file("marvel_results_${name}.tar.gz")
     script:

@@ -7,7 +7,7 @@ process filter_vibrant {
     script:
       """
       rnd=${Math.random()}
-      tail -n+2 *.tsv | awk '{if(\$2=="virus"){print \$1}}' > vibrant_\${rnd//0.}.txt
+      tail -q  -n+2 *.tsv | awk '{if(\$2=="virus"){print \$1}}' > vibrant_\${rnd//0.}.txt
       
       """
 }

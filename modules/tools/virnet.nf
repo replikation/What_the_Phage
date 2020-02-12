@@ -1,7 +1,8 @@
 process virnet {
+      errorStrategy 'ignore'
       label 'virnet'
     input:
-      tuple val(name), file(fasta)
+      tuple val(name), file(fasta) 
       file(dependencies) 
     output:
       tuple val(name), file("${name}_*.csv")
@@ -9,7 +10,7 @@ process virnet {
       """
       rnd=${Math.random()}
       cp -r ${dependencies}/* .
-      python3 virnet/predict.py --input_dim=100 --input=${fasta} --output=${name}_\${rnd//0.}.csv
+      python3 virnet/predict.py --input_dim=3000 --input=${fasta} --output=${name}_\${rnd//0.}.csv
       """
 }
 

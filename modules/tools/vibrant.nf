@@ -1,5 +1,6 @@
 process vibrant {
       label 'vibrant'
+      errorStrategy 'ignore'
     input:
       tuple val(name), file(fasta) 
       path(db)
@@ -25,7 +26,8 @@ process vibrant {
       -m database/VIBRANT_machine_model.sav \
       -g database/VIBRANT_AMGs.tsv 
 
-      mv VIBRANT_${name}/VIBRANT_results_${name}/VIBRANT_machine_${name}.tsv vibrant_\${rnd//0.}.tsv
+      # error control via touch
+      mv VIBRANT_${name}/VIBRANT_results_${name}/VIBRANT_machine_${name}.tsv vibrant_\${rnd//0.}.tsv 2>/dev/null
       
       tar cf VIBRANT_results_\${rnd//0.}.tar.gz VIBRANT_${name}
 

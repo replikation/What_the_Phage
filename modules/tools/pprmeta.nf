@@ -1,5 +1,6 @@
 process pprmeta {
       label 'pprmeta'
+      errorStrategy 'ignore'
     input:
       tuple val(name), file(fasta) 
       file(depts) 

@@ -1,5 +1,6 @@
 process metaphinder {
       label 'metaphinder'
+      errorStrategy 'ignore'
     input:
       tuple val(name), file(fasta) 
     output:
@@ -19,6 +20,7 @@ process metaphinder {
 
 process metaphinder_own_DB {
       label 'metaphinder'
+      errorStrategy 'ignore'
     input:
       tuple val(name), file(fasta)
       file(database)

@@ -23,6 +23,7 @@ println "\u001B[32mProfile: $workflow.profile\033[0m"
 println " "
 println "\033[2mCurrent User: $workflow.userName"
 println "Nextflow-version: $nextflow.version"
+println "WtP intended for Nextflow-version: 20.01.0"
 println "Starting time: $nextflow.timestamp"
 println "Workdir location:"
 println "  $workflow.workDir\u001B[0m"
@@ -66,51 +67,55 @@ println " "}
 /************* 
 * MODULES
 *************/
-    include './modules/databases/download_references' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-    include './modules/databases/phage_references_blastDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-    include './modules/databases/ppr_download_dependencies' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-    include './modules/databases/sourmash_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-    include './modules/databases/vibrant_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-    include './modules/databases/virnet_download_dependencies' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-    include './modules/databases/virsorter_download_DB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-    include './modules/fastqTofasta' params(output: params.output)
-    include './modules/input_suffix_check' params(fastq: params.fastq)
-    include './modules/parser/filter_PPRmeta'
-    include './modules/parser/filter_deepvirfinder'
-    include './modules/parser/filter_marvel'
-    include './modules/parser/filter_metaphinder'
-    include './modules/parser/filter_sourmash'
-    include './modules/parser/filter_tool_names' params(output: params.output)
-    include './modules/parser/filter_vibrant'
-    include './modules/parser/filter_virfinder'
-    include './modules/parser/filter_virnet'
-    include './modules/parser/filter_virsorter' 
-    include './modules/parser/parse_reads.nf' params(output: params.output)
-    include './modules/r_plot.nf' params(output: params.output)
-    include './modules/r_plot_reads.nf' params(output: params.output)
-    include './modules/raw_data_collection/deepvirfinder_collect_data' params(output: params.output)
-    include './modules/raw_data_collection/marvel_collect_data' params(output: params.output)
-    include './modules/raw_data_collection/metaphinder_collect_data' params(output: params.output)
-    include './modules/raw_data_collection/pprmeta_collect_data' params(output: params.output)
-    include './modules/raw_data_collection/sourmash_collect_data' params(output: params.output)
-    include './modules/raw_data_collection/vibrant_collect_data' params(output: params.output)
-    include './modules/raw_data_collection/virfinder_collect_data' params(output: params.output)
-    include './modules/raw_data_collection/virnet_collect_data' params(output: params.output)
-    include './modules/raw_data_collection/virsorter_collect_data' params(output: params.output)
-    include './modules/removeSmallReads' params(output: params.output)
-    include './modules/samtools' params(output: params.output)
-    include './modules/shuffle_reads_nts' params(output: params.output)
-    include './modules/split_multi_fasta' params(output: params.output)
-    include './modules/tools/pprmeta' params(cpus: params.cpus)
-    include './modules/tools/deepvirfinder' params(cpus: params.cpus)
-    include './modules/tools/marvel' params(cpus: params.cpus)
-    include './modules/tools/metaphinder' params(cpus: params.cpus)
-    include './modules/tools/sourmash' params(cpus: params.cpus)
-    include './modules/tools/vibrant' params(cpus: params.cpus)
-    include './modules/tools/virfinder' params(cpus: params.cpus)
-    include './modules/tools/virnet' params(cpus: params.cpus)
-    include './modules/tools/virsorter' params(cpus: params.cpus)
-    include './modules/upsetr.nf' params(output: params.output)
+    include deepvirfinder from './modules/tools/deepvirfinder'
+    include deepvirfinder_collect_data from './modules/raw_data_collection/deepvirfinder_collect_data'
+    include download_references from './modules/databases/download_references'
+    include fastqTofasta from './modules/fastqTofasta'
+    include filter_PPRmeta from './modules/parser/filter_PPRmeta'
+    include filter_deepvirfinder from './modules/parser/filter_deepvirfinder'
+    include filter_marvel from './modules/parser/filter_marvel'
+    include filter_metaphinder from './modules/parser/filter_metaphinder'
+    include filter_metaphinder_own_DB from './modules/parser/filter_metaphinder'
+    include filter_sourmash from './modules/parser/filter_sourmash'
+    include filter_tool_names from './modules/parser/filter_tool_names'
+    include filter_vibrant from './modules/parser/filter_vibrant'
+    include filter_virfinder from './modules/parser/filter_virfinder'
+    include filter_virnet from './modules/parser/filter_virnet'
+    include filter_virsorter from './modules/parser/filter_virsorter' 
+    include input_suffix_check from './modules/input_suffix_check'
+    include marvel from './modules/tools/marvel'
+    include marvel_collect_data from './modules/raw_data_collection/marvel_collect_data'
+    include metaphinder from './modules/tools/metaphinder'
+    include metaphinder_own_DB from './modules/tools/metaphinder'
+    include metaphinder_collect_data from './modules/raw_data_collection/metaphinder_collect_data'
+    include metaphinder_collect_data_ownDB from './modules/raw_data_collection/metaphinder_collect_data'
+    include normalize_contig_size from './modules/normalize_contig_size'
+    include parse_reads from './modules/parser/parse_reads.nf'
+    include phage_references_blastDB from './modules/databases/phage_references_blastDB'
+    include ppr_download_dependencies from './modules/databases/ppr_download_dependencies'
+    include pprmeta from './modules/tools/pprmeta'
+    include pprmeta_collect_data from './modules/raw_data_collection/pprmeta_collect_data'
+    include r_plot from './modules/r_plot.nf' 
+    include r_plot_reads from './modules/r_plot_reads.nf'
+    include removeSmallReads from './modules/removeSmallReads'
+    include samtools from './modules/samtools'
+    include shuffle_reads_nts from './modules/shuffle_reads_nts'
+    include sourmash from './modules/tools/sourmash'
+    include sourmash_collect_data from './modules/raw_data_collection/sourmash_collect_data'
+    include sourmash_download_DB from './modules/databases/sourmash_download_DB'
+    include split_multi_fasta from './modules/split_multi_fasta'
+    include upsetr_plot from './modules/upsetr.nf'
+    include vibrant from './modules/tools/vibrant'
+    include vibrant_collect_data from './modules/raw_data_collection/vibrant_collect_data'
+    include vibrant_download_DB from './modules/databases/vibrant_download_DB'
+    include virfinder from './modules/tools/virfinder'
+    include virfinder_collect_data from './modules/raw_data_collection/virfinder_collect_data'
+    include virnet from './modules/tools/virnet'
+    include virnet_collect_data from './modules/raw_data_collection/virnet_collect_data'
+    include virnet_download_dependencies from './modules/databases/virnet_download_dependencies'
+    include virsorter from './modules/tools/virsorter'
+    include virsorter_collect_data from './modules/raw_data_collection/virsorter_collect_data'
+    include virsorter_download_DB from './modules/databases/virsorter_download_DB'
 /************* 
 * DATABASES
 *************/
@@ -141,7 +146,7 @@ workflow virsorter_database {
 }
 
 workflow sourmash_database {
-    get: references
+    take: references
     main: 
         // local storage via storeDir
         if (!params.cloudProcess) { sourmash_download_DB(references); db = sourmash_download_DB.out }
@@ -168,7 +173,7 @@ workflow phage_references {
 } 
 
 workflow phage_blast_DB {
-    get: references
+    take: references
     main: 
         // local storage via storeDir
         if (!params.cloudProcess) { phage_references_blastDB(references); db = phage_references_blastDB.out }
@@ -211,25 +216,25 @@ workflow virnet_dependecies {
 * SUB WORKFLOWS
 *************/
 workflow fasta_validation_wf {
-    get:    fasta
+    take:    fasta
     main:   input_suffix_check(fasta)
     emit:   input_suffix_check.out
 }
 
 workflow read_validation_wf {
-    get:    fastq
+    take:    fastq
     main:   fastqTofasta(removeSmallReads(fastq.splitFastq(by: 1000, file: true)))
     emit:   fastqTofasta.out
 }
 
 workflow read_shuffling_wf {
-    get:    fastq
+    take:    fastq
     main:   fastqTofasta(shuffle_reads_nts(removeSmallReads(fastq.splitFastq(by: 10000, file: true))))
     emit:   fastqTofasta.out
 } 
 
 workflow sourmash_wf {
-    get:    fasta
+    take:    fasta
             sourmash_database
     main:   
             if (!params.sm) { 
@@ -245,7 +250,7 @@ workflow sourmash_wf {
 } 
 
 workflow deepvirfinder_wf {
-    get:    fasta
+    take:    fasta
     main:   
             if (!params.dv) { 
                         filter_deepvirfinder(deepvirfinder(fasta).groupTuple(remainder: true))
@@ -259,7 +264,7 @@ workflow deepvirfinder_wf {
 } 
 
 workflow marvel_wf {
-    get:    fasta
+    take:    fasta
     main:   if (!params.ma) { 
                         // filtering
                         filter_marvel(marvel(split_multi_fasta(fasta)).groupTuple(remainder: true))
@@ -273,7 +278,7 @@ workflow marvel_wf {
 }
 
 workflow metaphinder_wf {
-    get:    fasta
+    take:    fasta
     main:   if (!params.mp) { 
                         metaphinder(fasta)
                         // filtering
@@ -288,7 +293,7 @@ workflow metaphinder_wf {
 } 
 
 workflow metaphinder_own_DB_wf {
-    get:    fasta
+    take:    fasta
             blast_db
     main:   if (!params.mp) {
                         metaphinder_own_DB(fasta, blast_db)
@@ -304,7 +309,7 @@ workflow metaphinder_own_DB_wf {
 } 
 
 workflow virfinder_wf {
-    get:    fasta
+    take:    fasta
     main:   if (!params.vf) { 
                         filter_virfinder(virfinder(fasta).groupTuple(remainder: true))
                         // raw data collector
@@ -317,7 +322,7 @@ workflow virfinder_wf {
 } 
 
 workflow virsorter_wf {
-    get:    fasta
+    take:    fasta
             virsorter_DB
     main:   if (!params.vs) {
                         virsorter(fasta, virsorter_DB)
@@ -333,7 +338,7 @@ workflow virsorter_wf {
 } 
 
 workflow pprmeta_wf {
-    get:    fasta
+    take:    fasta
             ppr_deps
     main:   if (!params.pp) { 
                         filter_PPRmeta(pprmeta(fasta, ppr_deps).groupTuple(remainder: true))
@@ -347,7 +352,7 @@ workflow pprmeta_wf {
 } 
 
 workflow vibrant_wf {
-    get:    fasta
+    take:    fasta
             vibrant_download_DB
     main:    if (!params.vb) {
                         vibrant(fasta, vibrant_download_DB)
@@ -363,10 +368,10 @@ workflow vibrant_wf {
 }
 
 workflow virnet_wf {
-    get:    fasta
+    take:    fasta
             virnet_dependecies
     main:   if (!params.vn) { 
-                        filter_virnet(virnet(fasta, virnet_dependecies).groupTuple(remainder: true))
+                        filter_virnet(virnet(normalize_contig_size(fasta), virnet_dependecies).groupTuple(remainder: true))
                         // raw data collector
                         virnet_collect_data(virnet.out.groupTuple(remainder: true))
                         // result channel

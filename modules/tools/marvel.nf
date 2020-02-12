@@ -1,15 +1,16 @@
 process marvel {
       label 'marvel'
+      errorStrategy 'ignore'
     input:
-      tuple val(name), file(fasta) 
+      tuple val(name), file(contig_bins) 
     output:
-      tuple val(name), file("results_*.txt")
-    shell:
+      tuple val(name), file("results_*.txt"), file(contig_bins)
+    script:
       """
       rnd=${Math.random()}
       
       # Marvel
-      marvel_bins.py -i ${name}_contigs/ -t ${params.cpus} > results_\${rnd//0.}.txt
+      marvel_bins.py -i ${contig_bins} -t ${params.cpus} > results_\${rnd//0.}.txt
       """
 }
 

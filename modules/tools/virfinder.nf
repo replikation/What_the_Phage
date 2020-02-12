@@ -1,5 +1,6 @@
 process virfinder {
       label 'virfinder'
+      errorStrategy 'ignore'
     input:
       tuple val(name), file(fasta) 
     output:
@@ -7,6 +8,7 @@ process virfinder {
     script:
       """
       rnd=${Math.random()}
-      virfinderGO.R ${fasta} > ${name}_\${rnd//0.}.list
+      virfinder_execute.R ${fasta} 
+      cp results.txt ${name}_\${rnd//0.}.list
       """
 }
