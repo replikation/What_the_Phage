@@ -5,6 +5,7 @@
 ![](https://img.shields.io/badge/uses-docker-blue.svg)
 ![](https://img.shields.io/badge/licence-GPL--3.0-lightgrey.svg)
 ![](https://github.com/replikation/What_the_Phage/workflows/Syntax_check/badge.svg)
+![](https://github.com/replikation/What_the_Phage/workflows/run_WtP/badge.svg)
 
 [![Twitter Follow](https://img.shields.io/twitter/follow/gcloudChris.svg?style=social)](https://twitter.com/gcloudChris) 
 [![Twitter Follow](https://img.shields.io/twitter/follow/mult1fractal.svg?style=social)](https://twitter.com/mult1fractal) 
