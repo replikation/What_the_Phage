@@ -17,7 +17,10 @@ println "        \\/                        "
 println "_____ _____ ____ ____ ___ ___ __ __ _ _ "
 
 if (params.help) { exit 0, helpMSG() }
-
+if( !nextflow.version.matches('20.01+') ) {
+    println "This workflow requires Nextflow version 20.01 or greater -- You are running version $nextflow.version"
+    exit 1
+}
 println " "
 println "\u001B[32mProfile: $workflow.profile\033[0m"
 println " "
