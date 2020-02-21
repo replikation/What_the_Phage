@@ -17,8 +17,8 @@ println "        \\/                        "
 println "_____ _____ ____ ____ ___ ___ __ __ _ _ "
 
 if (params.help) { exit 0, helpMSG() }
-if( !nextflow.version.matches('20.01+') ) {
-    println "This workflow requires Nextflow version 20.01 or greater -- You are running version $nextflow.version"
+if( !nextflow.version.matches('20.+') ) {
+    println "This workflow requires Nextflow version 20.X or greater -- You are running version $nextflow.version"
     exit 1
 }
 println " "
@@ -509,4 +509,8 @@ def helpMSG() {
     Profile:
     -profile                 standard, lsf [default: standard] ${c_reset}
     """.stripIndent()
+}
+
+workflow.onComplete { 
+	log.info ( workflow.success ? "\nDone! Results are stored here --> $params.output \n" : "Oops .. something went wrong" )
 }
