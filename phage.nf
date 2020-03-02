@@ -119,8 +119,11 @@ println " "}
     include virsorter from './modules/tools/virsorter'
     include virsorter_collect_data from './modules/raw_data_collection/virsorter_collect_data'
     include virsorter_download_DB from './modules/databases/virsorter_download_DB'
+    include pvog_DB from './modules/databases/download_pvog_DB'
+    include prodigal from './modules/prodigal'
+
 /************* 
-* DATABASES
+* DATABASES for Phage Identification
 *************/
 workflow ppr_dependecies {
     main: 
@@ -214,6 +217,29 @@ workflow virnet_dependecies {
         }
     emit: db
 }       
+
+/************* 
+* DATABASES for Phage annotation
+*************/
+
+// workflow pvog_DB {
+//     main: 
+//         // local storage via storeDir
+//         if (!params.cloudProcess) { pvog_download_DB(); db = pvog_download_DB.out }
+//         // cloud storage via db_preload.exists()
+//         if (params.cloudProcess) {
+//             db_preload = file("${params.cloudDatabase}/pvogs/")
+//             if (db_preload.exists()) { db = db_preload }
+//             else  { pvog_download_DB(); db = pvog_download_DB.out } 
+//         }
+//     emit: db
+// }
+
+
+
+
+
+
 
 /************* 
 * SUB WORKFLOWS
@@ -384,6 +410,15 @@ workflow virnet_wf {
     emit:   virnet_results
 } 
 
+workflow phage_annotation_wf {
+    take :  fasta 
+    main :  modified_input = fasta
+                            .map { it -> [it[0], it[2]] }
+            prodigal(modified_input)
+
+
+
+}
 /************* 
 * MAIN WORKFLOWS
 *************/
@@ -423,8 +458,12 @@ workflow {
         r_plot(filter_tool_names.out)
         upsetr_plot(filter_tool_names.out)
     //samtools 
-       samtools(fasta_validation_wf.out.join((filter_tool_names.out)))    
+       samtools(fasta_validation_wf.out.join((filter_tool_names.out)))   
+    //annotation  
+      
+        phage_annotation_wf(samtools.out)
     }
+   
     
     if (!params.fasta && params.fastq) {
     // input filter
@@ -453,7 +492,6 @@ workflow {
        //samtools(read_validation_wf.out.groupTuple(remainder: true).join(results)) 
     }
 }
-
 
 /*************  
 * --help

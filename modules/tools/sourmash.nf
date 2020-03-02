@@ -1,14 +1,14 @@
 process sourmash {
       label 'sourmash'
       errorStrategy 'ignore'
+      def random = (Math.random() + Math.random()).toString().md5().toString()
     input:
       tuple val(name), file(fasta_dir) 
       file(database)
     output:
-      tuple val(name), file("${name}_*.list")
+      tuple val(name), file("${name}_${random}.list")
     shell:
       """
-      rnd=${Math.random()}
       tar xzf ${database}
 
       for fastafile in ${fasta_dir}/*.fa; do
@@ -19,14 +19,14 @@ process sourmash {
         sourmash search -k 21 \${signature} phages.sbt.json -o \${signature}.temporary
       done
     
-      touch ${name}_\${rnd//0.}.list
+      touch ${name}_${random}.list
 
       for tempfile in *.temporary; do
         value=\$(grep -v "similarity,name,filename,md5" \${tempfile} | awk '\$1>=0.5'|wc -l)   # filtering criteria
         filename=\$(basename \${tempfile} .fa.sig.temporary)
       
         if [ \$value -gt 0 ] 
-          then echo "\$filename" >> ${name}_\${rnd//0.}.list
+          then echo "\$filename" >> ${name}_${random}.list
         fi
       done
       """

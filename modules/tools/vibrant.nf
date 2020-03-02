@@ -1,16 +1,16 @@
 process vibrant {
       label 'vibrant'
       errorStrategy 'ignore'
+      def random = (Math.random() + Math.random()).toString().md5().toString()
     input:
       tuple val(name), file(fasta) 
       path(db)
     output:
-      tuple val(name), file("vibrant_*.tsv")
+      tuple val(name), file("vibrant_${random}.tsv")
       // output collection stream
-      tuple val(name), file("vibrant_*.tsv"), file("VIBRANT_results_*.tar.gz")
+      tuple val(name), file("vibrant_${random}.tsv"), file("VIBRANT_results_${random}.tar.gz")
     script:
       """
-      rnd=${Math.random()}
       
       tar xzf ${db}
 
@@ -27,9 +27,9 @@ process vibrant {
       -g database/VIBRANT_AMGs.tsv 
 
       # error control via touch
-      mv VIBRANT_${name}/VIBRANT_results_${name}/VIBRANT_machine_${name}.tsv vibrant_\${rnd//0.}.tsv 2>/dev/null
+      mv VIBRANT_${name}/VIBRANT_results_${name}/VIBRANT_machine_${name}.tsv vibrant_${random}.tsv 2>/dev/null
       
-      tar cf VIBRANT_results_\${rnd//0.}.tar.gz VIBRANT_${name}
+      tar cf VIBRANT_results_${random}.tar.gz VIBRANT_${name}
 
       """
 }

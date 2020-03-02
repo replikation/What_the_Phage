@@ -1,12 +1,12 @@
 process filter_sourmash {
       label 'ubuntu'
+      def random = (Math.random() + Math.random()).toString().md5().toString()
     input:
       tuple val(name), file(results)
     output:
-      tuple val(name), file("sourmash_*.txt")
+      tuple val(name), file("sourmash_${random}.txt")
     shell:
       """
-      rnd=${Math.random()}
-      cat *.list  > sourmash_\${rnd//0.}.txt
+      cat *.list  > sourmash_${random}.txt
       """
 }

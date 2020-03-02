@@ -1,16 +1,16 @@
 process pprmeta {
       label 'pprmeta'
       errorStrategy 'ignore'
+      def random = (Math.random() + Math.random()).toString().md5().toString()
     input:
       tuple val(name), file(fasta) 
       file(depts) 
     output:
-      tuple val(name), file("${name}_*.csv")
+      tuple val(name), file("${name}_${random}.csv")
     script:
       """
-      rnd=${Math.random()}
       cp ${depts}/* .
-      ./PPR_Meta ${fasta} ${name}_\${rnd//0.}.csv
+      ./PPR_Meta ${fasta} ${name}_${random}.csv
       """
 }
 
