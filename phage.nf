@@ -121,6 +121,9 @@ println " "}
     include virsorter_download_DB from './modules/databases/virsorter_download_DB'
     include pvog_DB from './modules/databases/download_pvog_DB'
     include prodigal from './modules/prodigal'
+    include hmmscan from './modules/hmmscan'
+    include rvdb_DB from './modules/databases/download_rvdb_DB'
+    include vog_DB from './modules/databases/download_vog_DB'
 
 /************* 
 * DATABASES for Phage Identification
@@ -222,19 +225,44 @@ workflow virnet_dependecies {
 * DATABASES for Phage annotation
 *************/
 
-// workflow pvog_DB {
-//     main: 
-//         // local storage via storeDir
-//         if (!params.cloudProcess) { pvog_download_DB(); db = pvog_download_DB.out }
-//         // cloud storage via db_preload.exists()
-//         if (params.cloudProcess) {
-//             db_preload = file("${params.cloudDatabase}/pvogs/")
-//             if (db_preload.exists()) { db = db_preload }
-//             else  { pvog_download_DB(); db = pvog_download_DB.out } 
-//         }
-//     emit: db
-// }
+workflow pvog_database {
+    main: 
+        // local storage via storeDir
+        if (!params.cloudProcess) { pvog_DB(); db = pvog_DB.out }
+        // cloud storage via db_preload.exists()
+        if (params.cloudProcess) {
+            db_preload = file("${params.cloudDatabase}/pvogs/")
+            if (db_preload.exists()) { db = db_preload }
+            else  { pvog_DB(); db = pvog_DB.out } 
+        }
+    emit: db
+}
 
+workflow rvdb_database {
+    main: 
+        // local storage via storeDir
+        if (!params.cloudProcess) { rvdb_DB(); db = rvdb_DB.out }
+        // cloud storage via db_preload.exists()
+        if (params.cloudProcess) {
+            db_preload = file("${params.cloudDatabase}/pvogs/")
+            if (db_preload.exists()) { db = db_preload }
+            else  { rvdb_DB(); db = rvdb_DB.out } 
+        }
+    emit: db
+}
+
+workflow vog_database {
+    main: 
+        // local storage via storeDir
+        if (!params.cloudProcess) { vog_DB(); db = vog_DB.out }
+        // cloud storage via db_preload.exists()
+        if (params.cloudProcess) {
+            db_preload = file("${params.cloudDatabase}/pvogs/")
+            if (db_preload.exists()) { db = db_preload }
+            else  { vog_DB(); db = vog_DB.out } 
+        }
+    emit: db
+}
 
 
 
@@ -412,13 +440,22 @@ workflow virnet_wf {
 
 workflow phage_annotation_wf {
     take :  fasta 
-    main :  modified_input = fasta
+            pvog_DB
+            vog_DB
+            rvdb_DB
+
+    main :  
+            //prodigal 
+            modified_input = fasta
                             .map { it -> [it[0], it[2]] }
             prodigal(modified_input)
-
+            //hmmscan
+            hmmscan(prodigal.out, pvog_DB, vog_DB, rvdb_DB)
 
 
 }
+
+
 /************* 
 * MAIN WORKFLOWS
 *************/
@@ -461,7 +498,7 @@ workflow {
        samtools(fasta_validation_wf.out.join((filter_tool_names.out)))   
     //annotation  
       
-        phage_annotation_wf(samtools.out)
+        phage_annotation_wf(samtools.out, pvog_DB(), vog_DB(), rvdb_DB())
     }
    
     

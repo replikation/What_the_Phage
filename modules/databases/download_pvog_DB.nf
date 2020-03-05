@@ -5,7 +5,7 @@ process pvog_DB {
     publishDir "${params.cloudDatabase}/", mode: 'copy', pattern: "pvogs" 
   }
   else { 
-    storeDir "nextflow-autodownload-databases/" 
+    storeDir "nextflow-autodownload-databases/pvog" 
   }  
 
   output:
