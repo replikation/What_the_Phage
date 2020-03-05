@@ -8,6 +8,7 @@ process chromomap_parser {
 
     output: 
     tuple val(name), file("chromosomefile.tbl"), file("annotationfile.tbl"), file("headfile.tbl")
+    
     script:
     """
     head ${hmmscan_results} >headfile.tbl
