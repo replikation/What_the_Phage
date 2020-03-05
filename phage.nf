@@ -124,6 +124,8 @@ println " "}
     include hmmscan from './modules/hmmscan'
     include rvdb_DB from './modules/databases/download_rvdb_DB'
     include vog_DB from './modules/databases/download_vog_DB'
+    include chromomap_parser from './modules/parser/chromomap_parser'
+
 
 /************* 
 * DATABASES for Phage Identification
@@ -450,8 +452,13 @@ workflow phage_annotation_wf {
                             .map { it -> [it[0], it[2]] }
             prodigal(modified_input)
             //hmmscan
-            hmmscan(prodigal.out, pvog_DB, vog_DB, rvdb_DB)
+            hmmscan(prodigal.out, pvog_DB).view()
 
+            modified_input_for_chromomap_parser = hmmscan.out
+                                                .map { it -> [it[0], it[1]] }
+                                                .view()
+            //chromomap
+            chromomap_parser(modified_input, modified_input_for_chromomap_parser)
 
 }
 
