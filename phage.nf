@@ -125,6 +125,7 @@ println " "}
     include rvdb_DB from './modules/databases/download_rvdb_DB'
     include vog_DB from './modules/databases/download_vog_DB'
     include chromomap_parser from './modules/parser/chromomap_parser'
+    include chromomap from './modules/chromomap'
 
 
 /************* 
@@ -458,7 +459,7 @@ workflow phage_annotation_wf {
                                                 .map { it -> [it[0], it[1]] }
                                                 .view()
             //chromomap
-            chromomap_parser(modified_input, modified_input_for_chromomap_parser)
+            chromomap(chromomap_parser(modified_input, modified_input_for_chromomap_parser, prodigal.out)).view()
 
 }
 

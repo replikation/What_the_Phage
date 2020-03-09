@@ -5,14 +5,15 @@ process chromomap_parser {
     input:
     tuple val(name), file(positive_contigs_list)
     tuple val(name), file(hmmscan_results)
+    tuple val(name), file(prodigal_out)
 
     output: 
-    tuple val(name), file("chromosomefile.tbl"), file("annotationfile.tbl"), file("headfile.tbl")
+    tuple val(name), file("chromosomefile.tbl"), file("annotationfile.tbl")
     
     script:
     """
     head ${hmmscan_results} >headfile.tbl
-    prepare_hmmscan_for_chromomap.sh -c ${positive_contigs_list} -a ${hmmscan_results}
+    prepare_hmmscan_for_chromomap.sh -c ${positive_contigs_list} -p ${prodigal_out} -a ${hmmscan_results}
 
     """
 }

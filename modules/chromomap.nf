@@ -44,7 +44,7 @@ process chromomap {
       library(chromoMap)
       library(ggplot2)
       library(plotly)
-      p <-  chromoMap("${chromosome}","${annotation_busco_only}",
+      p <-  chromoMap("${chromosome}","${annotation}",
             data_type = "categorical",
             segment_annotation = T,
             anno_col = c("lightblue"),
