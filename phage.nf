@@ -452,14 +452,24 @@ workflow phage_annotation_wf {
             modified_input = fasta
                             .map { it -> [it[0], it[2]] }
             prodigal(modified_input)
-            //hmmscan
-            hmmscan(prodigal.out, pvog_DB).view()
 
-            modified_input_for_chromomap_parser = hmmscan.out
+            modified_pvog_DB_input_for_hmmscan = pvog_DB
+                                                .map { it -> [it[0]] }
+
+            //hmmscan
+            hmmscan(prodigal.out, modified_pvog_DB_input_for_hmmscan)
+
+
+            modified_hmmscan_input_for_chromomap_parser = hmmscan.out
                                                 .map { it -> [it[0], it[1]] }
+                                                
+            // map only VOGTable with annotation for input of chromomap
+            modified_pvog_DB_input_for_chromomapparser = pvog_DB
+                                                .map { it -> [it[1]] }
                                                 .view()
+                                                
             //chromomap
-            chromomap(chromomap_parser(modified_input, modified_input_for_chromomap_parser, prodigal.out)).view()
+            chromomap(chromomap_parser(modified_input, modified_hmmscan_input_for_chromomap_parser, prodigal.out, modified_pvog_DB_input_for_chromomapparser)).view()
 
 }
 

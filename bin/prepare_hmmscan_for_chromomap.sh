@@ -1,6 +1,6 @@
 #!/bin/sh
 
-while getopts "c:p:a:" arg; do
+while getopts "c:p:a:v:" arg; do
       case "${arg}" in
         
         c)
@@ -13,6 +13,9 @@ while getopts "c:p:a:" arg; do
         
         a)
             hmmscan_result=${OPTARG}
+            ;;
+        v)
+            vog_table=${OPTARG}
             ;;
     esac
 done
@@ -64,7 +67,37 @@ awk 'NR==FNR {a[$2] = $1; ; next} {print $1,$2,$3,a[$1]}' OFS='\t' tmp_hmmscan.t
 
 awk '{print $4, $2, $3, $1}' OFS='\t' tmp.tbl \
 | sed 's/_[^_]*$//g' \
-| awk '{print $1, $4, $2, $3}' OFS='\t' > annotationfile.tbl 
+| awk '{print $1, $4, $2, $3}' OFS='\t' > pvog_contig_start_end.tbl 
+
+## ----------------------------------------------------------------------------------------------------
+
+
+
+########
+# annotation wir proteins to vog
+########
+
+
+    ## make tab separated
+sed -e 's/    /\t/g'  $vog_table > tmp_annotation1.tbl
+
+        ## print field 1 and everything after 7, so all annotations
+cat tmp_annotation1.tbl |  awk '{ s = ""; for (i = 7; i <= NF; i++) s = s $i " "; print $1, s }' OFS='\t' >tmp_annotation2.tbl
+
+        ## make tab separated
+sed -e 's/    /;/g' tmp_annotation2.tbl >tmp_annotation3.tbl
+
+        ## print field which is vog & most likely protein to vog .....Output: vog   protein
+cut -d';' -f1 tmp_annotation3.tbl | sed -e 's/ /_/g' >tmp_annotation4.tbl
+
+        ## change a[$1] in print to move the proteine name to first or last column
+awk 'NR==FNR {a[$1] = $2; ; next} {print a[$1],$2,$3,$4,$1}' OFS='\t'  tmp_annotation4.tbl pvog_contig_start_end.tbl \
+|awk '{printf "%d\t%s\n", NR, $0}' |awk '{print $2"_"$1"\t"$3"\t"$4"\t"$5"\t"$6}' > annotationfile.tbl
+
+        ##| awk '{printf "%d\t%s\n", NR, $0}' |      awk '{print $2"_"$1"\t"$3"\t"$4"\t"$5"\t"$6}'
+        ## hack: fügt hinter jedem eintrag der ersten spalte einen _1
+
+rm tmp_annotation1.tbl tmp_annotation2.tbl tmp_annotation3.tbl
 
 
 ## ----------------------------------------------------------------------------------------------------

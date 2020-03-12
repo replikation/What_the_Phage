@@ -1,17 +1,14 @@
 process marvel {
       label 'marvel'
       errorStrategy 'ignore'
-      def random = (Math.random() + Math.random()).toString().md5().toString()
     input:
       tuple val(name), file(contig_bins) 
     output:
-      tuple val(name), file("results_${random}.txt"), file(contig_bins)
+      tuple val(name), file("results_*.txt"), file(contig_bins)
     script:
       """
-      
-      
       # Marvel
-      marvel_bins.py -i ${contig_bins} -t ${params.cpus} > results_${random}.txt
+      marvel_bins.py -i ${contig_bins} -t ${params.cpus} > results_\${PWD##*/}.txt
       """
 }
 
