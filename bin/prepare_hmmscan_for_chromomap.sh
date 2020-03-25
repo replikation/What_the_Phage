@@ -92,12 +92,15 @@ cut -d';' -f1 tmp_annotation3.tbl | sed -e 's/ /_/g' >tmp_annotation4.tbl
 
         ## change a[$1] in print to move the proteine name to first or last column
 awk 'NR==FNR {a[$1] = $2; ; next} {print a[$1],$2,$3,$4,$1}' OFS='\t'  tmp_annotation4.tbl pvog_contig_start_end.tbl \
-|awk '{printf "%d\t%s\n", NR, $0}' |awk '{print $2"_"$1"\t"$3"\t"$4"\t"$5"\t"$6}' > annotationfile.tbl
+|awk '{printf "%d\t%s\n", NR, $0}' |awk '{print $2"_"$1"\t"$3"\t"$4"\t"$5"\t"$6}' > tmp_annotationfile1.tbl
+
+        ## delete ' from annotationfile otherwise chromomap will break
+cat tmp_annotationfile1.tbl| tr -d " ' " | grep -v hypothetical_protein >annotationfile.tbl
 
         ##| awk '{printf "%d\t%s\n", NR, $0}' |      awk '{print $2"_"$1"\t"$3"\t"$4"\t"$5"\t"$6}'
         ## hack: fügt hinter jedem eintrag der ersten spalte einen _1
 
-rm tmp_annotation1.tbl tmp_annotation2.tbl tmp_annotation3.tbl
+rm tmp_annotation1.tbl tmp_annotation2.tbl tmp_annotation3.tbl tmp_annotationfile1.tbl
 
 
 ## ----------------------------------------------------------------------------------------------------
