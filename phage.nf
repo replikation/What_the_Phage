@@ -469,7 +469,9 @@ workflow phage_annotation_wf {
                                                 .view()
                                                 
             //chromomap
-            chromomap(chromomap_parser(modified_input, modified_hmmscan_input_for_chromomap_parser, prodigal.out, modified_pvog_DB_input_for_chromomapparser)).view()
+            chromomap(chromomap_parser(modified_input.join(modified_hmmscan_input_for_chromomap_parser).join(prodigal.out), modified_pvog_DB_input_for_chromomapparser))
+
+            
 
 }
 

@@ -3,9 +3,7 @@ process chromomap_parser {
     label 'noDocker'
 
     input:
-    tuple val(name), file(positive_contigs_list)
-    tuple val(name), file(hmmscan_results)
-    tuple val(name), file(prodigal_out)
+    tuple val(name), file(positive_contigs_list), file(hmmscan_results), file(prodigal_out)
     file(vogtable)
 
     output: 
