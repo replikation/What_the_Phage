@@ -3,11 +3,11 @@ process chromomap_parser {
     label 'noDocker'
 
     input:
-    tuple val(name), file(positive_contigs_list), file(hmmscan_results), file(prodigal_out)
-    file(vogtable)
+    tuple val(name), path(positive_contigs_list), path(hmmscan_results), path(prodigal_out)
+    path(vogtable)
 
     output: 
-    tuple val(name), file("chromosomefile.tbl"), file("annotationfile.tbl")
+    tuple val(name), path("chromosomefile.tbl"), path("annotationfile.tbl")
     
     script:
     """
