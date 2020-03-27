@@ -8,8 +8,8 @@ process vog_DB {
   }  
 
   output:
-    file("vogdb")
-
+  path("vogdb", type: 'dir')
+  
   script:
     """
     wget -nH ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/viral-pipeline/hmmer_databases/vogdb.tar.gz && tar -zxvf vogdb.tar.gz
