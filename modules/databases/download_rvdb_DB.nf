@@ -8,7 +8,7 @@ process rvdb_DB {
   }  
 
   output:
-    path("rvdb" type: 'dir')
+    path("rvdb", type: 'dir')
 
   script:
     """

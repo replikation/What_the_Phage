@@ -8,7 +8,7 @@ process vog_DB {
   }  
 
   output:
-  path("vogdb" type: 'dir')
+  path("vogdb", type: 'dir')
   
   script:
     """
