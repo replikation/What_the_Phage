@@ -81,22 +81,3 @@ process chromomap {
       echo "nothing found" > sample_overview.html
       """
 }
-
-
-
-/*
-  install.packages("chromoMap")
-      library(chromoMap)
-setwd ("/input")
-# needs to be added to the R docker
-apt-get install xdg-utils
-p <-  chromoMap("07-GER_chromosome_file.txt","07-GER_annotation_file.txt",
-            data_based_color_map = T,
-            data_type = "categorical",
-            segment_annotation = T,
-            data_colors = list(c("green", "lightblue", "orange", "grey")),
-            labels=T,
-            left_margin = 300, canvas_width = 1500, canvas_height = 1500, chr_length = 12, ch_gap = 6)
-      htmlwidgets::saveWidget(as_widget(p), "sample_overview.html")
-'
-  */
