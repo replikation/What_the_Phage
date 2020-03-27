@@ -3,10 +3,10 @@ process prodigal {
       label 'prodigal'
 
     input:
-    tuple val(name), file(positive_contigs) 
+    tuple val(name), path(positive_contigs) 
     
     output:
-    tuple val(name), file("${name}_prodigal.faa")
+    tuple val(name), path("${name}_prodigal.faa")
     
     script:
     """
