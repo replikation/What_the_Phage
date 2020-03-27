@@ -1,7 +1,7 @@
 process metaphinder {
       label 'metaphinder'
       errorStrategy 'ignore'
-     // def random = (Math.random() + Math.random()).toString().md5().toString()
+
     input:
       tuple val(name), file(fasta) 
     output:
@@ -21,7 +21,6 @@ process metaphinder {
 process metaphinder_own_DB {
       label 'metaphinder'
       errorStrategy 'ignore'
-     // def random = (Math.random() + Math.random()).toString().md5().toString()
     input:
       tuple val(name), file(fasta)
       file(database)
