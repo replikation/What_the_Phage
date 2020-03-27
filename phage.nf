@@ -515,7 +515,7 @@ workflow {
         r_plot(filter_tool_names.out)
         upsetr_plot(filter_tool_names.out)
     //samtools 
-       samtools(fasta_validation_wf.out.join((filter_tool_names.out)))   
+       samtools(fasta_validation_wf.out.join(filter_tool_names.out))   
     //annotation  
       
         phage_annotation_wf(samtools.out, pvog_DB(), vog_DB(), rvdb_DB())
