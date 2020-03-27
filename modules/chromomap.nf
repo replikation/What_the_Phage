@@ -2,7 +2,7 @@ process chromomap {
       publishDir "${params.output}/${name}/chromomap", mode: 'copy', pattern: "sample_overview.html"
       label 'chromomap'
       errorStrategy 'retry'
-      maxRetries 3
+      maxRetries 4
     input:
       tuple val(name), file(chromosome), file(annotation)
     output:
