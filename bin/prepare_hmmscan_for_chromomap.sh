@@ -20,7 +20,6 @@ while getopts "c:p:a:v:" arg; do
     esac
 done
 
-## ----------------------------------------------------------------------------------------------------
 
 ###############
 # create chromosomefile
@@ -31,7 +30,7 @@ cat ${positive_contig_list} \
 | awk 'NR==0 {print}  NR>0 {printf("%s\t%s\n", $0, "1") }'\
 | awk '{print $1, $3, $2}' OFS='\t' > chromosomefile.tbl
 
-## ----------------------------------------------------------------------------------------------------
+
 
 ###############
 # create Annotationfile
@@ -69,14 +68,9 @@ awk '{print $4, $2, $3, $1}' OFS='\t' tmp.tbl \
 | sed 's/_[^_]*$//g' \
 | awk '{print $1, $4, $2, $3}' OFS='\t' > pvog_contig_start_end.tbl 
 
-## ----------------------------------------------------------------------------------------------------
-
-
-
 ########
 # annotation wir proteins to vog
 ########
-
 
     ## make tab separated
 sed -e 's/    /\t/g'  $vog_table > tmp_annotation1.tbl
@@ -101,9 +95,6 @@ cat tmp_annotationfile1.tbl| tr -d " ' " | grep -v hypothetical_protein >annotat
         ## hack: fügt hinter jedem eintrag der ersten spalte einen _1
 
 rm tmp_annotation1.tbl tmp_annotation2.tbl tmp_annotation3.tbl tmp_annotationfile1.tbl
-
-
-## ----------------------------------------------------------------------------------------------------
 
 
 # # create Chromosomefile1 for chromomap
