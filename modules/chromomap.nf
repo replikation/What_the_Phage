@@ -4,9 +4,9 @@ process chromomap {
       errorStrategy 'retry'
       maxRetries 4
     input:
-      tuple val(name), file(chromosome), file(annotation)
+      tuple val(name), path(chromosome), path(annotation)
     output:
-      tuple val(name), file("sample_overview.html")
+      tuple val(name), path("sample_overview.html")
     script:
       if (task.attempt.toString() == '1')
       """
