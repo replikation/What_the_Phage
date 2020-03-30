@@ -6,7 +6,6 @@ process filter_sourmash {
       tuple val(name), file("sourmash_*.txt")
     shell:
       """
-      rnd=${Math.random()}
-      cat *.list  > sourmash_\${rnd//0.}.txt
+      cat *.list  > sourmash_\${PWD##*/}.txt
       """
 }

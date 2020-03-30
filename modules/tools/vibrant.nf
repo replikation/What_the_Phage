@@ -10,7 +10,6 @@ process vibrant {
       tuple val(name), file("vibrant_*.tsv"), file("VIBRANT_results_*.tar.gz")
     script:
       """
-      rnd=${Math.random()}
       
       tar xzf ${db}
 
@@ -27,9 +26,9 @@ process vibrant {
       -g database/VIBRANT_AMGs.tsv 
 
       # error control via touch
-      mv VIBRANT_${name}/VIBRANT_results_${name}/VIBRANT_machine_${name}.tsv vibrant_\${rnd//0.}.tsv 2>/dev/null
+      mv VIBRANT_${name}/VIBRANT_results_${name}/VIBRANT_machine_${name}.tsv vibrant_\${PWD##*/}.tsv 2>/dev/null
       
-      tar cf VIBRANT_results_\${rnd//0.}.tar.gz VIBRANT_${name}
+      tar cf VIBRANT_results_\${PWD##*/}.tar.gz VIBRANT_${name}
 
       """
 }

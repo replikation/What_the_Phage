@@ -1,6 +1,7 @@
 process metaphinder {
       label 'metaphinder'
       errorStrategy 'ignore'
+
     input:
       tuple val(name), file(fasta) 
     output:
@@ -9,11 +10,10 @@ process metaphinder {
       tuple val(name), file("${name}_*.list"), file("${name}_*_blast.out")
     script:
       """
-      rnd=${Math.random()}
       mkdir ${name}
       MetaPhinder.py -i ${fasta} -o ${name} -d /MetaPhinder/database/ALL_140821_hr
-      mv ${name}/output.txt ${name}_\${rnd//0.}.list
-      mv ${name}/blast.out ${name}_\${rnd//0.}_blast.out
+      mv ${name}/output.txt ${name}_\${PWD##*/}.list
+      mv ${name}/blast.out ${name}_\${PWD##*/}_blast.out
       """
 }
 
@@ -33,7 +33,7 @@ process metaphinder_own_DB {
       rnd=${Math.random()}
       mkdir ${name}
       MetaPhinder.py -i ${fasta} -o ${name} -d phage_db
-      mv ${name}/output.txt ${name}_\${rnd//0.}.list
-      mv ${name}/blast.out ${name}_\${rnd//0.}_blast.out
+      mv ${name}/output.txt ${name}_\${PWD##*/}.list
+      mv ${name}/blast.out ${name}_\${PWD##*/}_blast.out
       """
 }

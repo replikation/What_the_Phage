@@ -8,9 +8,9 @@ process virnet {
       tuple val(name), file("${name}_*.csv")
     script:
       """
-      rnd=${Math.random()}
+     
       cp -r ${dependencies}/* .
-      python3 virnet/predict.py --input_dim=3000 --input=${fasta} --output=${name}_\${rnd//0.}.csv
+      python3 virnet/predict.py --input_dim=3000 --input=${fasta} --output=${name}_\${PWD##*/}.csv
       """
 }
 

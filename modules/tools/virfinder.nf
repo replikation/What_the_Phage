@@ -7,8 +7,8 @@ process virfinder {
       tuple val(name), file("${name}_*.list")
     script:
       """
-      rnd=${Math.random()}
+    
       virfinder_execute.R ${fasta} 
-      cp results.txt ${name}_\${rnd//0.}.list
+      cp results.txt ${name}_\${PWD##*/}.list
       """
 }

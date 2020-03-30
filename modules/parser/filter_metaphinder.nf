@@ -6,8 +6,7 @@ process filter_metaphinder {
       tuple val(name), file("metaphinder_*.txt")
     script:
       """
-      rnd=${Math.random()}
-      cat *.list | sort -g -k4,4 | awk '{if(\$2=="phage"){print \$1}}' | tail -n+2 > metaphinder_\${rnd//0.}.txt
+      cat *.list | sort -g -k4,4 | awk '{if(\$2=="phage"){print \$1}}' | tail -n+2 > metaphinder_\${PWD##*/}.txt
       """
 }
 
@@ -19,7 +18,6 @@ process filter_metaphinder_own_DB {
       tuple val(name), file("metaphinder-own-DB_*.txt")
     script:
       """
-      rnd=${Math.random()}
-      cat *.list | sort -g -k4,4 | awk '{if(\$2=="phage"){print \$1}}' | tail -n+2 > metaphinder-own-DB_\${rnd//0.}.txt
+      cat *.list | sort -g -k4,4 | awk '{if(\$2=="phage"){print \$1}}' | tail -n+2 > metaphinder-own-DB_\${PWD##*/}.txt
       """
 }

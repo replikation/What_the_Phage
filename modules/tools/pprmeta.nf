@@ -8,9 +8,8 @@ process pprmeta {
       tuple val(name), file("${name}_*.csv")
     script:
       """
-      rnd=${Math.random()}
       cp ${depts}/* .
-      ./PPR_Meta ${fasta} ${name}_\${rnd//0.}.csv
+      ./PPR_Meta ${fasta} ${name}_\${PWD##*/}.csv
       """
 }
 

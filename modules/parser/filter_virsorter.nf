@@ -6,7 +6,6 @@ process filter_virsorter {
       tuple val(name), file("virsorter_*.txt")
     shell:
       """
-      rnd=${Math.random()}
-      cat *.list  > virsorter_\${rnd//0.}.txt
+      cat *.list  > virsorter_\${PWD##*/}.txt
       """
 }

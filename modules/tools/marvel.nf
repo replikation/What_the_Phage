@@ -7,10 +7,8 @@ process marvel {
       tuple val(name), file("results_*.txt"), file(contig_bins)
     script:
       """
-      rnd=${Math.random()}
-      
       # Marvel
-      marvel_bins.py -i ${contig_bins} -t ${params.cpus} > results_\${rnd//0.}.txt
+      marvel_bins.py -i ${contig_bins} -t ${params.cpus} > results_\${PWD##*/}.txt
       """
 }
 
