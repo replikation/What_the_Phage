@@ -7,7 +7,6 @@ process virfinder {
       tuple val(name), file("${name}_*.list")
     script:
       """
-    
       virfinder_execute.R ${fasta} 
       cp results.txt ${name}_\${PWD##*/}.list
       """
