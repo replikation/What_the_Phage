@@ -8,4 +8,4 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: run_What_the_Phage
-      run: curl -s https://get.nextflow.io | bash && ./nextflow run phage.nf -profile git_action,docker
+      run: curl -s https://get.nextflow.io | bash && ./nextflow run phage.nf -profile git_action,docker --cores 2
