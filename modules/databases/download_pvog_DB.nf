@@ -2,10 +2,10 @@
 process pvog_DB {
   label 'noDocker'    
   if (params.cloudProcess) { 
-    publishDir "${params.cloudDatabase}/", mode: 'copy' 
+    publishDir "${params.databases}/", mode: 'copy' 
   }
   else { 
-    storeDir "nextflow-autodownload-databases/pvog" 
+    storeDir "${params.databases}/pvog" 
   }  
 
   output:

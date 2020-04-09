@@ -7,7 +7,7 @@ process deepvirfinder {
       tuple val(name), file("${name}_*.list")
     script:
       """  
-      dvf.py -c ${params.cpus} -i ${fasta} -o ${name}
+      dvf.py -c ${task.cpus} -i ${fasta} -o ${name}
       cp ${name}/*.txt ${name}_\${PWD##*/}.list
       """
 }

@@ -6,6 +6,10 @@ nextflow.preview.dsl=2
 * Author: christian.jena@gmail.com
 */
 
+if ( !nextflow.version.matches('20.+') ) {
+    println "This workflow requires Nextflow version 20.X or greater -- You are running version $nextflow.version"
+    exit 1
+}
 
 println "_____ _____ ____ ____ ___ ___ __ __ _ _ "
 println "  __      _______________________ "
@@ -17,10 +21,7 @@ println "        \\/                        "
 println "_____ _____ ____ ____ ___ ___ __ __ _ _ "
 
 if (params.help) { exit 0, helpMSG() }
-if( !nextflow.version.matches('20.+') ) {
-    println "This workflow requires Nextflow version 20.X or greater -- You are running version $nextflow.version"
-    exit 1
-}
+
 println " "
 println "\u001B[32mProfile: $workflow.profile\033[0m"
 println " "
@@ -28,44 +29,61 @@ println "\033[2mCurrent User: $workflow.userName"
 println "Nextflow-version: $nextflow.version"
 println "WtP intended for Nextflow-version: 20.01.0"
 println "Starting time: $nextflow.timestamp"
-println "Workdir location:"
-println "  $workflow.workDir\u001B[0m"
+println "Workdir location [--workdir]:"
+println "  $workflow.workDir"
+println "Output location [--output]:"
+println "  $params.output"
+println "\033[2mDatabase location [--databases]:"
+println "  $params.databases\u001B[0m"
+if (workflow.profile.contains('singularity')) {
+println "\033[2mSingularity cache location [--cachedir]:"
+println "  $params.cachedir"
+println "\u001B[33m  WARNING: Singularity image building sometimes fails!"
+println "  Rerun WtP via -resume to retry the failed image build"
+println "  Manually remove faulty images in $params.cachedir for a rebuild\u001B[0m"
+}
 println " "
-if (workflow.profile == 'standard') {
-println "\033[2mCPUs to use: $params.cores"
-println "Output dir name: $params.output\u001B[0m"
-println " "}
+println "\033[2mCPUs to use: $params.cores\033[0m"
+println " "
+
+/************* 
+* ERROR HANDLING
+*************/
+// profiles
+if ( workflow.profile == 'standard' ) { exit 1, "NO EXECUTION PROFILE SELECTED, use e.g. [-profile local,docker]" }
+
+// params tests
+if ( !params.fasta && !params.fastq ) {
+    exit 1, "input missing, use [--fasta] or [--fastq]"}
+if ( params.fasta && params.fastq ) {
+    exit 1, "please use either [--fasta] or [--fastq] as input"}
+if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm && params.vn && params.vb ) {
+    exit 0, "What the... you deactivated all the tools"}
 
 /************* 
 * INPUT HANDLING
 *************/
-        if ( !params.fasta && !params.fastq ) {
-            exit 1, "input missing, use [--fasta] or [--fastq]"}
-        if ( params.fasta && params.fastq ) {
-            exit 1, "please use either [--fasta] or [--fastq] as input"}
-        if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm && params.vn && params.vb ) {
-            exit 0, "What the... you deactivated all the tools"}
 
-    // fasta input or via csv file
-        if (params.fasta && params.list) { fasta_input_ch = Channel
-                .fromPath( params.fasta, checkIfExists: true )
-                .splitCsv()
-                .map { row -> ["${row[0]}", file("${row[1]}", checkIfExists: true)] }
-                 }
-        else if (params.fasta) { fasta_input_ch = Channel
-                .fromPath( params.fasta, checkIfExists: true)
-                .map { file -> tuple(file.baseName, file) }
-                 }
-    // fastq input or via csv file
-        if (params.fastq && params.list) { fastq_input_ch = Channel
-                .fromPath( params.fastq, checkIfExists: true )
-                .splitCsv()
-                .map { row -> ["${row[0]}", file("${row[1]}", checkIfExists: true)] }
-                 }
-        else if (params.fastq) { fastq_input_ch = Channel
-                .fromPath( params.fastq, checkIfExists: true)
-                .map { file -> tuple(file.baseName, file) }
-                 }
+// fasta input or via csv file
+    if (params.fasta && params.list) { fasta_input_ch = Channel
+            .fromPath( params.fasta, checkIfExists: true )
+            .splitCsv()
+            .map { row -> ["${row[0]}", file("${row[1]}", checkIfExists: true)] }
+                }
+    else if (params.fasta) { fasta_input_ch = Channel
+            .fromPath( params.fasta, checkIfExists: true)
+            .map { file -> tuple(file.baseName, file) }
+                }
+// fastq input or via csv file
+    if (params.fastq && params.list) { fastq_input_ch = Channel
+            .fromPath( params.fastq, checkIfExists: true )
+            .splitCsv()
+            .map { row -> ["${row[0]}", file("${row[1]}", checkIfExists: true)] }
+                }
+    else if (params.fastq) { fastq_input_ch = Channel
+            .fromPath( params.fastq, checkIfExists: true)
+            .map { file -> tuple(file.baseName, file) }
+                }
 
 /************* 
 * MODULES
@@ -137,7 +155,7 @@ workflow ppr_dependecies {
         if (!params.cloudProcess) { ppr_download_dependencies(); db = ppr_download_dependencies.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.cloudDatabase}/pprmeta/PPR-Meta")
+            db_preload = file("${params.databases}/pprmeta/PPR-Meta")
             if (db_preload.exists()) { db = db_preload }
             else  { ppr_download_dependencies(); db = ppr_download_dependencies.out } 
         }
@@ -150,7 +168,7 @@ workflow virsorter_database {
         if (!params.cloudProcess) { virsorter_download_DB(); db = virsorter_download_DB.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.cloudDatabase}/virsorter/virsorter-data")
+            db_preload = file("${params.databases}/virsorter/virsorter-data")
             if (db_preload.exists()) { db = db_preload }
             else  { virsorter_download_DB(); db = virsorter_download_DB.out } 
         }
@@ -164,7 +182,7 @@ workflow sourmash_database {
         if (!params.cloudProcess) { sourmash_download_DB(references); db = sourmash_download_DB.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.cloudDatabase}/sourmash/phages.sbt.json.tar.gz")
+            db_preload = file("${params.databases}/sourmash/phages.sbt.json.tar.gz")
             if (db_preload.exists()) { db = db_preload }
             else  { sourmash_download_DB(references); db = sourmash_download_DB.out } 
         }
@@ -177,7 +195,7 @@ workflow phage_references {
         if (!params.cloudProcess) { download_references(); db = download_references.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.cloudDatabase}/references/phage_references.fa")
+            db_preload = file("${params.databases}/references/phage_references.fa")
             if (db_preload.exists()) { db = db_preload }
             else  { download_references(); db = download_references.out } 
         }
@@ -191,7 +209,7 @@ workflow phage_blast_DB {
         if (!params.cloudProcess) { phage_references_blastDB(references); db = phage_references_blastDB.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.cloudDatabase}/blast_phage_DB")
+            db_preload = file("${params.databases}/blast_phage_DB")
             if (db_preload.exists()) { db = db_preload }
             else  { phage_references_blastDB(references); db = phage_references_blastDB.out } 
         }
@@ -204,7 +222,7 @@ workflow vibrant_database {
         if (!params.cloudProcess) { vibrant_download_DB(); db = vibrant_download_DB.out }
          //cloud storage via db_preload.exists()
          if (params.cloudProcess) {
-             db_preload = file("${params.cloudDatabase}/Vibrant/database.tar.gz")
+             db_preload = file("${params.databases}/Vibrant/database.tar.gz")
              if (db_preload.exists()) { db = db_preload }
              else  { vibrant_download_DB(); db = vibrant_download_DB.out } 
         }
@@ -217,7 +235,7 @@ workflow virnet_dependecies {
         if (!params.cloudProcess) { virnet_download_dependencies(); db = virnet_download_dependencies.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.cloudDatabase}/virnet/virnet")
+            db_preload = file("${params.databases}/virnet/virnet")
             if (db_preload.exists()) { db = db_preload }
             else  { virnet_download_dependencies(); db = virnet_download_dependencies.out } 
         }
@@ -234,7 +252,7 @@ workflow pvog_database {
         if (!params.cloudProcess) { pvog_DB(); db = pvog_DB.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.cloudDatabase}/pvogs/")
+            db_preload = file("${params.databases}/pvogs/")
             if (db_preload.exists()) { db = db_preload }
             else  { pvog_DB(); db = pvog_DB.out } 
         }
@@ -247,7 +265,7 @@ workflow rvdb_database {
         if (!params.cloudProcess) { rvdb_DB(); db = rvdb_DB.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.cloudDatabase}/pvogs/")
+            db_preload = file("${params.databases}/pvogs/")
             if (db_preload.exists()) { db = db_preload }
             else  { rvdb_DB(); db = rvdb_DB.out } 
         }
@@ -260,7 +278,7 @@ workflow vog_database {
         if (!params.cloudProcess) { vog_DB(); db = vog_DB.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.cloudDatabase}/pvogs/")
+            db_preload = file("${params.databases}/pvogs/")
             if (db_preload.exists()) { db = db_preload }
             else  { vog_DB(); db = vog_DB.out } 
         }
@@ -269,32 +287,29 @@ workflow vog_database {
 
 
 
-
-
-
 /************* 
 * SUB WORKFLOWS
 *************/
 workflow fasta_validation_wf {
-    take:    fasta
+    take:   fasta
     main:   input_suffix_check(fasta)
     emit:   input_suffix_check.out
 }
 
 workflow read_validation_wf {
-    take:    fastq
+    take:   fastq
     main:   fastqTofasta(removeSmallReads(fastq.splitFastq(by: 1000, file: true)))
     emit:   fastqTofasta.out
 }
 
 workflow read_shuffling_wf {
-    take:    fastq
+    take:   fastq
     main:   fastqTofasta(shuffle_reads_nts(removeSmallReads(fastq.splitFastq(by: 10000, file: true))))
     emit:   fastqTofasta.out
 } 
 
 workflow sourmash_wf {
-    take:    fasta
+    take:   fasta
             sourmash_database
     main:   
             if (!params.sm) { 
@@ -310,7 +325,7 @@ workflow sourmash_wf {
 } 
 
 workflow deepvirfinder_wf {
-    take:    fasta
+    take:   fasta
     main:   
             if (!params.dv) { 
                         filter_deepvirfinder(deepvirfinder(fasta).groupTuple(remainder: true))
@@ -324,7 +339,7 @@ workflow deepvirfinder_wf {
 } 
 
 workflow marvel_wf {
-    take:    fasta
+    take:   fasta
     main:   if (!params.ma) { 
                         // filtering
                         filter_marvel(marvel(split_multi_fasta(fasta)).groupTuple(remainder: true))
@@ -338,7 +353,7 @@ workflow marvel_wf {
 }
 
 workflow metaphinder_wf {
-    take:    fasta
+    take:   fasta
     main:   if (!params.mp) { 
                         metaphinder(fasta)
                         // filtering
@@ -353,7 +368,7 @@ workflow metaphinder_wf {
 } 
 
 workflow metaphinder_own_DB_wf {
-    take:    fasta
+    take:   fasta
             blast_db
     main:   if (!params.mp) {
                         metaphinder_own_DB(fasta, blast_db)
@@ -369,7 +384,7 @@ workflow metaphinder_own_DB_wf {
 } 
 
 workflow virfinder_wf {
-    take:    fasta
+    take:   fasta
     main:   if (!params.vf) { 
                         filter_virfinder(virfinder(fasta).groupTuple(remainder: true))
                         // raw data collector
@@ -382,7 +397,7 @@ workflow virfinder_wf {
 } 
 
 workflow virsorter_wf {
-    take:    fasta
+    take:   fasta
             virsorter_DB
     main:   if (!params.vs) {
                         virsorter(fasta, virsorter_DB)
@@ -398,7 +413,7 @@ workflow virsorter_wf {
 } 
 
 workflow pprmeta_wf {
-    take:    fasta
+    take:   fasta
             ppr_deps
     main:   if (!params.pp) { 
                         filter_PPRmeta(pprmeta(fasta, ppr_deps).groupTuple(remainder: true))
@@ -412,7 +427,7 @@ workflow pprmeta_wf {
 } 
 
 workflow vibrant_wf {
-    take:    fasta
+    take:   fasta
             vibrant_download_DB
     main:    if (!params.vb) {
                         vibrant(fasta, vibrant_download_DB)
@@ -428,7 +443,7 @@ workflow vibrant_wf {
 }
 
 workflow virnet_wf {
-    take:    fasta
+    take:   fasta
             virnet_dependecies
     main:   if (!params.vn) { 
                         filter_virnet(virnet(normalize_contig_size(fasta), virnet_dependecies).groupTuple(remainder: true))
@@ -497,9 +512,9 @@ workflow {
         if (params.vs) { virsorter_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { virsorter_DB = virsorter_database() }
   
     // phage annotation DBs deactivation based on input flags
-            if (params.anno) { pvog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { pvog_DB = pvog_database() }
-            if (params.anno) { vog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vog_DB = vog_database() }
-            if (params.anno) { rvdb_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { rvdb_DB = rvdb_database() }
+        if (params.anno) { pvog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { pvog_DB = pvog_database() }
+        if (params.anno) { vog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vog_DB = vog_database() }
+        if (params.anno) { rvdb_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { rvdb_DB = rvdb_database() }
 
     // gather results
         results =   virsorter_wf(fasta_validation_wf.out, virsorter_DB)
@@ -521,9 +536,8 @@ workflow {
         r_plot(filter_tool_names.out)
         upsetr_plot(filter_tool_names.out)
     //samtools 
-       samtools(fasta_validation_wf.out.join(filter_tool_names.out))   
+        samtools(fasta_validation_wf.out.join(filter_tool_names.out))   
     //annotation  
-      
         phage_annotation_wf(samtools.out, pvog_DB, vog_DB, rvdb_DB)
     }
    
@@ -568,19 +582,24 @@ def helpMSG() {
     log.info """
     .
     ${c_yellow}Usage example:${c_reset}
-    nextflow run phage.nf --fasta '*/*.fasta' 
+    nextflow run phage.nf --fasta '*/*.fasta' -profile local,docker --cores 20 --output results
 
     ${c_yellow}Input:${c_reset}
     ${c_green} --fasta ${c_reset}            '*.fasta'   -> assembly file(s)
     ${c_green} --fastq ${c_reset}            '*.fastq'   -> long read file(s)
-    ${c_dim}  ..change above input to csv:${c_reset} ${c_green}--list ${c_reset}            
+    ${c_dim}  ..change above input to csv:${c_reset} ${c_green}--list ${c_reset}  
+    ${c_dim}  e.g. --fasta inputs.csv --list    (.csv contains per line: name,/path/to/file)
 
     ${c_yellow}Options:${c_reset}
     --cores             max cores for local use [default: $params.cores]
     --output            name of the result folder [default: $params.output]
 
-    ${c_yellow}Tool control (BETA feature - might break the plots):${c_reset}
-    All tools are activated by default, deactivate them by adding one or more flags
+    ${c_yellow}Execution profiles:${c_reset}
+    -profile local,docker           for local use with docker installed
+    -profile local,singularity      for local use with singularity installed
+
+    ${c_yellow}Tool control:${c_reset}
+    Deactivate tools individually by adding one or more of these flags
     --dv                deactivates deepvirfinder
     --ma                deactivates marvel
     --mp                deactivates metaphinder
@@ -590,25 +609,19 @@ def helpMSG() {
     --vf                deactivates virfinder
     --vn                deactivates virnet
     --vs                deactivates virsorter
+    --anno              skips annotation
 
-    ${c_yellow}Database behaviour:${c_reset}
-    This workflow will automatically download files to ./nextflow-autodownload-databases
-    It will skip this download if the files are present in ./nextflow-autodownload-databases
+    ${c_yellow}Databases and file behaviour:${c_reset}
+    --databases         specifiy download location of databases 
+                        [default: ${params.databases}]
+                        ${c_dim}This workflow skip the download if the files are present${c_reset}
+
+    --workdir           defines the path where nextflow writes temporary files 
+                        [default: $params.workdir]
     
-    ${c_yellow}HPC or cloud computing:${c_reset}
-    For execution of the workflow in the cloud or on a HPC (such as provided with LSF) 
-    you might want to adjust the following parameters.
-    --databases         defines the path where databases are stored [default: $params.cloudDatabase]
-    --workdir           defines the path where nextflow writes tmp files [default: $params.workdir]
-    --cachedir          defines the path where images (singularity) are cached [default: $params.cachedir] 
+    ${c_yellow}Singularity:${c_reset}
+    --cachedir          defines the path where singularity images are cached [default: $params.cachedir] 
 
-    ${c_dim}Nextflow options:
-    -with-report rep.html    cpu / ram usage (may cause errors)
-    -with-dag chart.html     generates a flowchart for the process tree
-    -with-timeline time.html timeline (may cause errors)
-
-    Profile:
-    -profile                 standard, lsf [default: standard] ${c_reset}
     """.stripIndent()
 }
 

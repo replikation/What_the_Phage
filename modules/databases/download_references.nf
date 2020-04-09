@@ -1,9 +1,9 @@
 process download_references {
         if (params.cloudProcess) {
-           publishDir "${params.cloudDatabase}/references/", mode: 'copy', pattern: "phage_references.fa"
+           publishDir "${params.databases}/references/", mode: 'copy', pattern: "phage_references.fa"
         }
         else {
-           storeDir "nextflow-autodownload-databases/references/"
+           storeDir "${params.databases}/references/"
         }
        label 'noDocker'    
       output:
