@@ -1,9 +1,9 @@
 process ppr_download_dependencies {
       if (params.cloudProcess) {
-         publishDir "${params.cloudDatabase}/pprmeta/", mode: 'copy', pattern: "PPR-Meta"
+         publishDir "${params.databases}/pprmeta/", mode: 'copy', pattern: "PPR-Meta"
       }
       else {
-         storeDir "nextflow-autodownload-databases/pprmeta/"
+         storeDir "${params.databases}/pprmeta/"
       }
       label 'noDocker'    
       output:

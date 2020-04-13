@@ -1,9 +1,9 @@
 process virnet_download_dependencies {
       if (params.cloudProcess) {
-         publishDir "${params.cloudDatabase}/virnet/", mode: 'copy', pattern: "virnet"
+         publishDir "${params.databases}/virnet/", mode: 'copy', pattern: "virnet"
       }
       else {
-         storeDir "nextflow-autodownload-databases/virnet/"
+         storeDir "${params.databases}/virnet/"
       }
       label 'noDocker'    
       output:

@@ -1,5 +1,5 @@
 process filter_tool_names {
-      label 'upsetr'
+      label 'ubuntu'
     input:
       tuple val(name), file(files)
     output:

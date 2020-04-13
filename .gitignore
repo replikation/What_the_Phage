@@ -7,3 +7,4 @@ work/
 .nextflow/
 results/
 .Rhistory
+singularity_images/

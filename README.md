@@ -52,7 +52,9 @@
 
 * WtP runs with the workflow manager `nextflow` using `docker`
 * this means all the other programs are automatically pulled via docker
-* Only `docker` and `nextflow` needs to be installed
+* Only `docker` or `singularity`, and `nextflow` needs to be installed
+* the first execution will take time as tons of databases and container get pulled/downloaded
+   * we recommend in executing the first time with a small data set!
 
 ### Easy Installation
 * if you dont have experience with bioinformatic tools use this
@@ -89,6 +91,7 @@ nextflow run replikation/What_the_Phage -r v0.5 --fasta ~/.nextflow/assets/repli
 
 * Docker installation [here](https://docs.docker.com/v17.09/engine/installation/linux/docker-ce/ubuntu/#install-docker-ce)
 * Nextflow installation [here](https://www.nextflow.io/)
+* Singularity installation [here](https://github.com/sylabs/singularity/blob/master/INSTALL.md)
 * move or add the nextflow executable to a bin path
 * add docker to your User group via `sudo usermod -a -G docker $USER`
 
@@ -98,7 +101,7 @@ nextflow run replikation/What_the_Phage -r v0.5 --fasta ~/.nextflow/assets/repli
 * for local use of the `master` branch you could either clone the git and do:
 
 ```bash
-./phage.nf --fasta 'test-data/*.fasta'
+./phage.nf --fasta 'test-data/*.fasta' -profile local,docker
 ```
 
 * or execute it directly via a release candidate ( `-r releasenumber` , e.g. `-r v0.5`)
@@ -110,6 +113,13 @@ nextflow run replikation/What_the_Phage -r v0.5 --fasta your-file.fasta
 ```
 
 * long-read input is supported via `--fastq`
+
+### Profiles
+
+* we are currently setting up a few profiles to allow for the execution in different working environments
+* `-profile local,docker` -> local use with docker container
+* `-profile local,singularity` -> local use with singularity container
+* if you need executioner profiles (slurm lsf etc.) please contact us and so we can implement that
 
 ### Tool control
 
@@ -125,7 +135,7 @@ nextflow run replikation/What_the_Phage -r v0.5 --fasta your-file.fasta --dv --m
 ### Temporary files
 
 * all temporary files are stored in `/tmp/nextflow-phage-$USER`
-* you can change the location via adding '-work-dir new/path/here' to the command
+* you can change the location via adding '--workdir new/path/here' to the command
 
 ## Results
 

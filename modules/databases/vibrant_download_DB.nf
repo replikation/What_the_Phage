@@ -1,9 +1,9 @@
 process vibrant_download_DB {
         if (params.cloudProcess) {
-           publishDir "${params.cloudDatabase}/Vibrant/", mode: 'copy', pattern: "database.tar.gz"
+           publishDir "${params.databases}/Vibrant/", mode: 'copy', pattern: "database.tar.gz"
         }
         else {
-           storeDir "nextflow-autodownload-databases/Vibrant"
+           storeDir "${params.databases}/Vibrant"
         }
        label 'vibrant'    
       output:

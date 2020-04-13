@@ -8,7 +8,7 @@ process marvel {
     script:
       """
       # Marvel
-      marvel_bins.py -i ${contig_bins} -t ${params.cpus} > results_\${PWD##*/}.txt
+      marvel_bins.py -i ${contig_bins} -t ${task.cpus} > results_\${PWD##*/}.txt
       """
 }
 

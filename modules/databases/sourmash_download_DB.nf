@@ -1,9 +1,9 @@
 process sourmash_download_DB {
         if (params.cloudProcess) {
-           publishDir "${params.cloudDatabase}/sourmash/", mode: 'copy', pattern: "phages.sbt.json.tar.gz"
+           publishDir "${params.databases}/sourmash/", mode: 'copy', pattern: "phages.sbt.json.tar.gz"
         }
         else {
-           storeDir "nextflow-autodownload-databases/sourmash/"
+           storeDir "${params.databases}/sourmash/"
         }
        label 'sourmash' 
       input:
