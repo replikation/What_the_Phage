@@ -61,7 +61,8 @@ else { exit 1, "No engine selected:  -profile EXECUTER,ENGINE" }
 if (
     workflow.profile.contains('local') ||
     workflow.profile.contains('ebi') ||
-    workflow.profile.contains('lsf')
+    workflow.profile.contains('lsf') ||
+    workflow.profile.contains('git_action')
     ) { "executer selected" }
 else { exit 1, "No executer selected:  -profile EXECUTER,ENGINE" }
 
