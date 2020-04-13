@@ -50,7 +50,20 @@ println " "
 * ERROR HANDLING
 *************/
 // profiles
-if ( workflow.profile == 'standard' ) { exit 1, "NO EXECUTION PROFILE SELECTED, use e.g. [-profile local,docker]" }
+if ( workflow.profile == 'standard' ) { exit 1, "NO VALID EXECUTION PROFILE SELECTED, use e.g. [-profile local,docker]" }
+
+if (
+    workflow.profile.contains('singularity') ||
+    workflow.profile.contains('docker')
+    ) { "engine selected" }
+else { exit 1, "No engine selected:  -profile EXECUTER,ENGINE" }
+
+if (
+    workflow.profile.contains('local') ||
+    workflow.profile.contains('ebi') ||
+    workflow.profile.contains('lsf')
+    ) { "executer selected" }
+else { exit 1, "No executer selected:  -profile EXECUTER,ENGINE" }
 
 // params tests
 if ( !params.fasta && !params.fastq ) {
@@ -581,22 +594,37 @@ def helpMSG() {
     c_dim = "\033[2m";
     log.info """
     .
-    ${c_yellow}Usage example:${c_reset}
-    nextflow run phage.nf --fasta '*/*.fasta' -profile local,docker --cores 20 --output results
+    ${c_yellow}Usage examples:${c_reset}
+    nextflow run phage.nf --fasta '*/*.fasta' --cores 20 \\
+        --output results -profile local,docker 
+
+    nextflow run phage.nf --fasta '*/*.fasta' --cores 20 \\
+        --output results -profile lsf,singularity \\
+        --cachedir /images/singularity_images \\
+        --databases /databases/WtP_databases/ 
 
     ${c_yellow}Input:${c_reset}
-    ${c_green} --fasta ${c_reset}            '*.fasta'   -> assembly file(s)
-    ${c_green} --fastq ${c_reset}            '*.fastq'   -> long read file(s)
-    ${c_dim}  ..change above input to csv:${c_reset} ${c_green}--list ${c_reset}  
-    ${c_dim}  e.g. --fasta inputs.csv --list    (.csv contains per line: name,/path/to/file)
+     --fasta             '*.fasta'   -> assembly file(s)
+     --fastq             '*.fastq'   -> long read file(s)
+    ${c_dim}  ..change above input to csv via --list ${c_reset}  
+    ${c_dim}   e.g. --fasta inputs.csv --list    
+        the .csv contains per line: name,/path/to/file
+
+    ${c_yellow}Execution/Engine profiles:${c_reset}
+     WtP supports profiles to run via different ${c_green}Executers${c_reset} and ${c_blue}Engines${c_reset} e.g.:
+     -profile ${c_green}local${c_reset},${c_blue}docker${c_reset}
+
+      ${c_green}Executer${c_reset} (choose one):
+      local
+      lsf
+      ebi
+      ${c_blue}Engines${c_reset} (choose one):
+      docker
+      singularity
 
     ${c_yellow}Options:${c_reset}
     --cores             max cores for local use [default: $params.cores]
     --output            name of the result folder [default: $params.output]
-
-    ${c_yellow}Execution profiles:${c_reset}
-    -profile local,docker           for local use with docker installed
-    -profile local,singularity      for local use with singularity installed
 
     ${c_yellow}Tool control:${c_reset}
     Deactivate tools individually by adding one or more of these flags
@@ -620,7 +648,8 @@ def helpMSG() {
                         [default: $params.workdir]
     
     ${c_yellow}Singularity:${c_reset}
-    --cachedir          defines the path where singularity images are cached [default: $params.cachedir] 
+    --cachedir          defines the path where singularity images are cached
+                        [default: $params.cachedir] 
 
     """.stripIndent()
 }
