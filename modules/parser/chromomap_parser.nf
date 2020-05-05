@@ -8,11 +8,9 @@ process chromomap_parser {
 
     output: 
     tuple val(name), path("chromosomefile.tbl"), path("annotationfile.tbl")
-    
+    //tuple val(name), path("annotationfile_results.tbl")
     script:
     """
-   
     prepare_hmmscan_for_chromomap.sh -c ${positive_contigs_list} -p ${prodigal_out} -a ${hmmscan_results} -v ${vogtable}
-
     """
 }

@@ -6,6 +6,6 @@ process filter_deepvirfinder {
       tuple val(name), file("deepvirfinder_*.txt")
     shell:
       """
-      sort  -g  -k4,4 *.list | awk '\$3>=0.9' | awk '{ print \$1 }' | tail -n+2 > deepvirfinder_\${PWD##*/}.txt
+      tail -n+2 *.list | sort -g  -k4,4  | awk '\$3>=0.9' | awk '{ print \$1 }'  > deepvirfinder_\${PWD##*/}.txt
       """
 }

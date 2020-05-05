@@ -21,7 +21,8 @@ process chromomap {
             data_type = "categorical",
             segment_annotation = T,
             data_colors = list(c("red", "lightblue", "orange", "green")),
-            labels=T,
+            labels=F,
+            legend=T, lg_x = 300,
             left_margin = 340, canvas_width = 1500, canvas_height = sizeh, chr_length = 12, ch_gap = 6)
       htmlwidgets::saveWidget(as_widget(p), "sample_overview.html")
       """
@@ -39,7 +40,8 @@ process chromomap {
             data_type = "categorical",
             segment_annotation = T,
             data_colors = list(c("lightblue", "orange", "red")),
-            labels=T,
+            labels=F,
+            legend=T, lg_x = 300,
             left_margin = 340, canvas_width = 1500, canvas_height = sizeh, chr_length = 12, ch_gap = 6)
       htmlwidgets::saveWidget(as_widget(p), "sample_overview.html")
       """
@@ -56,7 +58,8 @@ process chromomap {
             data_type = "categorical",
             segment_annotation = T, 
             data_colors = list(c("lightblue", "orange")),
-            labels=T,
+            labels=F,
+            legend=T, lg_x = 300,
             left_margin = 340, canvas_width = 1500, canvas_height = sizeh, chr_length = 12, ch_gap = 6)
       htmlwidgets::saveWidget(as_widget(p), "sample_overview.html")
       """

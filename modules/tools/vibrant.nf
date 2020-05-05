@@ -26,10 +26,9 @@ process vibrant {
       -g database/VIBRANT_AMGs.tsv 
 
       # error control via touch
-      mv VIBRANT_${name}/VIBRANT_results_${name}/VIBRANT_machine_${name}.tsv vibrant_\${PWD##*/}.tsv 2>/dev/null
+      cp VIBRANT_*/VIBRANT_results_*/VIBRANT_machine_*.tsv vibrant_\${PWD##*/}.tsv 2>/dev/null
       
-      tar cf VIBRANT_results_\${PWD##*/}.tar.gz VIBRANT_${name}
-
+      tar cf VIBRANT_results_\${PWD##*/}.tar.gz VIBRANT_*
       """
 }
 

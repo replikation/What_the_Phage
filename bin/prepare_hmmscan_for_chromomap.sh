@@ -89,43 +89,35 @@ awk 'NR==FNR {a[$1] = $2; ; next} {print a[$1],$2,$3,$4,$1}' OFS='\t'  tmp_annot
 |awk '{printf "%d\t%s\n", NR, $0}' |awk '{print $2"_"$1"\t"$3"\t"$4"\t"$5"\t"$6}' > tmp_annotationfile1.tbl
 
         ## delete ' from annotationfile otherwise chromomap will break
-cat tmp_annotationfile1.tbl| tr -d " ' " | grep -v hypothetical_protein >annotationfile.tbl
+cat tmp_annotationfile1.tbl| tr -d " ' " | grep -v hypothetical_protein > annotationfile_results.tbl
 
         ##| awk '{printf "%d\t%s\n", NR, $0}' |      awk '{print $2"_"$1"\t"$3"\t"$4"\t"$5"\t"$6}'
         ## hack: fügt hinter jedem eintrag der ersten spalte einen _1
 
-rm tmp_annotation1.tbl tmp_annotation2.tbl tmp_annotation3.tbl tmp_annotationfile1.tbl
+rm tmp_annotation1.tbl tmp_annotation2.tbl tmp_annotation3.tbl tmp_annotationfile1.tbl 2>/dev/null
 
 
-# # create Chromosomefile1 for chromomap
-# cat all_pos_phage_positive_contigs.fa \
-# # first awk: results in name of contig an lenght
-# | awk '$0 ~ ">" {if (NR > 1) {print c;} c=0;printf substr($0,2,100) "\t"; } $0 !~ ">" {c+=length($0);} END { print c; }' \
-# # second awk: appends column with 1 for each line--> as start of a gene
-# | awk 'NR==0 {print}  NR>0 {printf("%s\t%s\n", $0, "1") }'\
-# # third awk: print contigname   start of contig end of contig as tabseparated file
-# | awk '{print $1, $3, $2}' OFS='\t' > Chromosomefile.tbl
+# reparse the annotation file
+
+while IFS= read -r line; do
+    if echo $line | grep -q "baseplate"; then
+        echo "$line" | cut -f 1,2,3,4 | sed $'s/$/\tBaseplate/' >> annotationfile.tbl
+    else
+        if echo $line | grep -q "capsid"; then
+            echo "$line" | cut -f 1,2,3,4 | sed $'s/$/\tCapsid/' >> annotationfile.tbl
+        else
+            if echo $line | grep -q "tail"; then
+                echo "$line" | cut -f 1,2,3,4 | sed $'s/$/\tTail/' >> annotationfile.tbl
+            else
+                echo "$line" | cut -f 1,2,3,4 | sed $'s/$/\tOther/' >> annotationfile.tbl
+            fi
+        fi
+    fi
+done < "annotationfile_results.tbl"
 
 
-# # create Chromosomefile2
-# # print needed fields
-# cat all_pos_phage_pvogs_hmmscan.tbl \
-# # print important field: start end pvog contigname
-# | awk '{print $16, $17, $1, $4}' OFS='\t' \
-# # remove lines with # from header
-# | sed '/#/d' \
-# # remove _1 from contigname
-# | sed 's/_[^_]*$//g' \
-# #print fields in correct order for annotationfile
-# | awk '{print $3, $4, $1, $2}' OFS='\t' >newtmp.tbl
-# create Chromosomefile2
-# print needed fields
 
+# rename annotationfile.tbl and make it a separate ooutput
+# use that file remove last coloumn and do a "grep" positive (baseplat, capsule, tail, other)
+# sed $'s/$/\tMitos/'-
 
-# Annotationfile_function_deprecated(){
-# cat $hmmscan_result \
-# | awk '{print $1, $4}' OFS='\t' \
-# | sed '/#/d' \
-# | sed 's/_[^_]*$//g' \
-# | awk '{print $3, $4, $1, $2}' OFS='\t' > annotationfile1.tbl
-# }

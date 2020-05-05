@@ -7,6 +7,5 @@ process filter_vibrant {
     script:
       """
       tail -q  -n+2 *.tsv | awk '{if(\$2=="virus"){print \$1}}' > vibrant_\${PWD##*/}.txt
-      
       """
 }

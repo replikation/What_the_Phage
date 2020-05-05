@@ -67,12 +67,15 @@ if (
 else { exit 1, "No executer selected:  -profile EXECUTER,ENGINE" }
 
 // params tests
-if ( !params.fasta && !params.fastq ) {
-    exit 1, "input missing, use [--fasta] or [--fastq]"}
-if ( params.fasta && params.fastq ) {
-    exit 1, "please use either [--fasta] or [--fastq] as input"}
-if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm && params.vn && params.vb ) {
-    exit 0, "What the... you deactivated all the tools"}
+if (!params.setup) {
+    if ( !params.fasta && !params.fastq ) {
+        exit 1, "input missing, use [--fasta] or [--fastq]"}
+    if ( params.fasta && params.fastq ) {
+        exit 1, "please use either [--fasta] or [--fastq] as input"}
+    if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm && params.vn && params.vb ) {
+        exit 0, "What the... you deactivated all the tools"}
+}
+
 
 /************* 
 * INPUT HANDLING
@@ -102,6 +105,9 @@ if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv 
 /************* 
 * MODULES
 *************/
+
+    include chromomap from './modules/chromomap'
+    include chromomap_parser from './modules/parser/chromomap_parser'
     include deepvirfinder from './modules/tools/deepvirfinder'
     include deepvirfinder_collect_data from './modules/raw_data_collection/deepvirfinder_collect_data'
     include download_references from './modules/databases/download_references'
@@ -117,23 +123,29 @@ if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv 
     include filter_virfinder from './modules/parser/filter_virfinder'
     include filter_virnet from './modules/parser/filter_virnet'
     include filter_virsorter from './modules/parser/filter_virsorter' 
+    include hmmscan from './modules/hmmscan'
     include input_suffix_check from './modules/input_suffix_check'
     include marvel from './modules/tools/marvel'
     include marvel_collect_data from './modules/raw_data_collection/marvel_collect_data'
     include metaphinder from './modules/tools/metaphinder'
-    include metaphinder_own_DB from './modules/tools/metaphinder'
     include metaphinder_collect_data from './modules/raw_data_collection/metaphinder_collect_data'
     include metaphinder_collect_data_ownDB from './modules/raw_data_collection/metaphinder_collect_data'
+    include metaphinder_own_DB from './modules/tools/metaphinder'
     include normalize_contig_size from './modules/normalize_contig_size'
     include parse_reads from './modules/parser/parse_reads.nf'
     include phage_references_blastDB from './modules/databases/phage_references_blastDB'
     include ppr_download_dependencies from './modules/databases/ppr_download_dependencies'
     include pprmeta from './modules/tools/pprmeta'
     include pprmeta_collect_data from './modules/raw_data_collection/pprmeta_collect_data'
+    include prodigal from './modules/prodigal'
+    include pvog_DB from './modules/databases/download_pvog_DB'
     include r_plot from './modules/r_plot.nf' 
     include r_plot_reads from './modules/r_plot_reads.nf'
     include removeSmallReads from './modules/removeSmallReads'
+    include rvdb_DB from './modules/databases/download_rvdb_DB'
     include samtools from './modules/samtools'
+    include seqkit from './modules/seqkit'
+    include setup_container from './modules/setup_container'
     include shuffle_reads_nts from './modules/shuffle_reads_nts'
     include sourmash from './modules/tools/sourmash'
     include sourmash_collect_data from './modules/raw_data_collection/sourmash_collect_data'
@@ -151,14 +163,7 @@ if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv 
     include virsorter from './modules/tools/virsorter'
     include virsorter_collect_data from './modules/raw_data_collection/virsorter_collect_data'
     include virsorter_download_DB from './modules/databases/virsorter_download_DB'
-    include pvog_DB from './modules/databases/download_pvog_DB'
-    include prodigal from './modules/prodigal'
-    include hmmscan from './modules/hmmscan'
-    include rvdb_DB from './modules/databases/download_rvdb_DB'
     include vog_DB from './modules/databases/download_vog_DB'
-    include chromomap_parser from './modules/parser/chromomap_parser'
-    include chromomap from './modules/chromomap'
-
 
 /************* 
 * DATABASES for Phage Identification
@@ -306,8 +311,8 @@ workflow vog_database {
 *************/
 workflow fasta_validation_wf {
     take:   fasta
-    main:   input_suffix_check(fasta)
-    emit:   input_suffix_check.out
+    main:   seqkit(input_suffix_check(fasta))
+    emit:   seqkit.out
 }
 
 workflow read_validation_wf {
@@ -497,21 +502,51 @@ workflow phage_annotation_wf {
                 modified_pvog_DB_input_for_chromomapparser = pvog_DB
                                                     .map { it -> [it[1]] }
                                                     
-                //chromomap
+                //chromomap channel change from, to:
                     //chromomap_parser: val(name), file(positive_contigs_list), file(hmmscan_results), file(prodigal_out), path(vogtable)
                     //chromomap: val(name), path(chromosomefile), path(annotationfile)
-                chromomap(chromomap_parser(modified_input.join(modified_hmmscan_input_for_chromomap_parser).join(prodigal.out), modified_pvog_DB_input_for_chromomapparser))
+                chromomap(
+                    chromomap_parser(
+                        modified_input.join(modified_hmmscan_input_for_chromomap_parser).join(prodigal.out), modified_pvog_DB_input_for_chromomapparser))
                 }
             else { phage_annotation_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
 }
 
+workflow setup_wf {
+    take:   
+    main:       
+        // docker
+        if (workflow.profile.contains('docker')) {
+            config_ch = Channel.fromPath( workflow.projectDir + "/configs/container.config" , checkIfExists: true)
+            setup_container(config_ch)
+        }
+        // singularity
+        if (workflow.profile.contains('singularity')) {
+            config_ch2 = Channel.fromPath( workflow.projectDir + "/configs/container.config" , checkIfExists: true)
+            setup_container(config_ch2)
+        }
+
+        // databases
+        if (params.setup) {
+            phage_references() 
+            ref_phages_DB = phage_blast_DB (phage_references.out)
+            ppr_deps = ppr_dependecies()
+            sourmash_DB = sourmash_database (phage_references.out)
+            vibrant_DB = vibrant_download_DB()
+            virnet_deps = virnet_dependecies()
+            virsorter_DB = virsorter_database()
+        }
+} 
 
 /************* 
 * MAIN WORKFLOWS
 *************/
 
 workflow {
-    if (params.fasta && !params.fastq) {
+
+    if (params.setup) { setup_wf() }
+
+    if (!params.setup && params.fasta && !params.fastq) {
     // input filter
         fasta_validation_wf(fasta_input_ch)
 
@@ -556,7 +591,7 @@ workflow {
     }
    
     
-    if (!params.fasta && params.fastq) {
+    if (!params.setup && !params.fasta && params.fastq) {
     // input filter
         read_validation_wf(fastq_input_ch)
 
@@ -596,7 +631,7 @@ def helpMSG() {
     log.info """
     .
     ${c_yellow}Usage examples:${c_reset}
-    nextflow run phage.nf --fasta '*/*.fasta' --cores 20 \\
+    nextflow run replikation/What_the_Phage --fasta '*/*.fasta' --cores 20 \\
         --output results -profile local,docker 
 
     nextflow run phage.nf --fasta '*/*.fasta' --cores 20 \\
@@ -609,7 +644,8 @@ def helpMSG() {
      --fastq             '*.fastq'   -> long read file(s)
     ${c_dim}  ..change above input to csv via --list ${c_reset}  
     ${c_dim}   e.g. --fasta inputs.csv --list    
-        the .csv contains per line: name,/path/to/file
+        the .csv contains per line: name,/path/to/file${c_reset}  
+     --setup              skips analysis and just downloads databases and containers
 
     ${c_yellow}Execution/Engine profiles:${c_reset}
      WtP supports profiles to run via different ${c_green}Executers${c_reset} and ${c_blue}Engines${c_reset} e.g.:
@@ -624,6 +660,7 @@ def helpMSG() {
       singularity
 
     ${c_yellow}Options:${c_reset}
+    --filter            min contig size [bp] to analyse [default: $params.filter]
     --cores             max cores for local use [default: $params.cores]
     --output            name of the result folder [default: $params.output]
 
@@ -640,15 +677,14 @@ def helpMSG() {
     --vs                deactivates virsorter
     --anno              skips annotation
 
-    ${c_yellow}Databases and file behaviour:${c_reset}
+    ${c_yellow}Databases, file, container behaviour:${c_reset}
     --databases         specifiy download location of databases 
                         [default: ${params.databases}]
-                        ${c_dim}This workflow skip the download if the files are present${c_reset}
+                        ${c_dim}WtP downloads DBs if not present at this path${c_reset}
 
     --workdir           defines the path where nextflow writes temporary files 
                         [default: $params.workdir]
-    
-    ${c_yellow}Singularity:${c_reset}
+
     --cachedir          defines the path where singularity images are cached
                         [default: $params.cachedir] 
 
