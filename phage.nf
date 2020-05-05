@@ -38,8 +38,9 @@ println "  $params.databases\u001B[0m"
 if (workflow.profile.contains('singularity')) {
 println "\033[2mSingularity cache location [--cachedir]:"
 println "  $params.cachedir"
+println "  "
 println "\u001B[33m  WARNING: Singularity image building sometimes fails!"
-println "  Rerun WtP via -resume to retry the failed image build"
+println "  Please download all images first via --setup --cachedir IMAGE-LOCATION"
 println "  Manually remove faulty images in $params.cachedir for a rebuild\u001B[0m"
 }
 println " "
@@ -691,6 +692,8 @@ def helpMSG() {
     """.stripIndent()
 }
 
-workflow.onComplete { 
-	log.info ( workflow.success ? "\nDone! Results are stored here --> $params.output \n" : "Oops .. something went wrong" )
+if (!params.setup) {
+    workflow.onComplete { 
+        log.info ( workflow.success ? "\nDone! Results are stored here --> $params.output \n" : "Oops .. something went wrong" )
+    }
 }

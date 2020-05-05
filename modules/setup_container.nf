@@ -1,5 +1,9 @@
 process setup_container {
         label 'noContainer'
+        def slash = "/"
+        def cachdirloc = workflow.launchDir + slash + params.cachedir
+        println cachdirloc
+        println slash
     input:
         file(config_file)
     output:
@@ -12,8 +16,9 @@ process setup_container {
         touch everything_done.txt
         """
         else if (workflow.profile.contains('singularity'))
+        
         """
-        download_singularity.sh ${config_file}
+        download_singularity.sh ${config_file} ${workflow.launchDir}/${params.cachedir} 
 
         touch everything_done.txt
         """
