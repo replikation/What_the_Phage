@@ -53,8 +53,8 @@
 * WtP runs with the workflow manager `nextflow` using `docker`
 * this means all the other programs are automatically pulled via docker
 * Only `docker` or `singularity`, and `nextflow` needs to be installed
-* the first execution will take time as tons of databases and container get pulled/downloaded
-   * we recommend in executing the first time with a small data set!
+* we suggest running the workflow with the `--setup` flag first
+  * this purely downloads all databases firsts without computing (Release `-r v0.6` or greater)
 
 ### Easy Installation
 * if you dont have experience with bioinformatic tools use this
@@ -70,7 +70,6 @@ sudo usermod -a -G docker $USER
 ```
 
 * restart your computer
-
 * try out the installation by entering the following
 
 ```bash
