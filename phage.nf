@@ -160,7 +160,6 @@ if (!params.setup) {
     include virfinder_collect_data from './modules/raw_data_collection/virfinder_collect_data'
     include virnet from './modules/tools/virnet'
     include virnet_collect_data from './modules/raw_data_collection/virnet_collect_data'
-    include virnet_download_dependencies from './modules/databases/virnet_download_dependencies'
     include virsorter from './modules/tools/virsorter'
     include virsorter_collect_data from './modules/raw_data_collection/virsorter_collect_data'
     include virsorter_download_DB from './modules/databases/virsorter_download_DB'
@@ -247,20 +246,7 @@ workflow vibrant_database {
              else  { vibrant_download_DB(); db = vibrant_download_DB.out } 
         }
     emit: db
-}        
-
-workflow virnet_dependecies {
-    main: 
-        // local storage via storeDir
-        if (!params.cloudProcess) { virnet_download_dependencies(); db = virnet_download_dependencies.out }
-        // cloud storage via db_preload.exists()
-        if (params.cloudProcess) {
-            db_preload = file("${params.databases}/virnet/virnet")
-            if (db_preload.exists()) { db = db_preload }
-            else  { virnet_download_dependencies(); db = virnet_download_dependencies.out } 
-        }
-    emit: db
-}       
+}           
 
 /************* 
 * DATABASES for Phage annotation
@@ -464,9 +450,9 @@ workflow vibrant_wf {
 
 workflow virnet_wf {
     take:   fasta
-            virnet_dependecies
+
     main:   if (!params.vn) { 
-                        filter_virnet(virnet(normalize_contig_size(fasta), virnet_dependecies).groupTuple(remainder: true))
+                        filter_virnet(virnet(normalize_contig_size(fasta)).groupTuple(remainder: true))
                         // raw data collector
                         virnet_collect_data(virnet.out.groupTuple(remainder: true))
                         // result channel
@@ -534,7 +520,6 @@ workflow setup_wf {
             ppr_deps = ppr_dependecies()
             sourmash_DB = sourmash_database (phage_references.out)
             vibrant_DB = vibrant_download_DB()
-            virnet_deps = virnet_dependecies()
             virsorter_DB = virsorter_database()
         }
 } 
@@ -558,7 +543,6 @@ workflow {
         if (params.pp) { ppr_deps = Channel.from( [ 'deactivated', 'deactivated'] ) } else { ppr_deps = ppr_dependecies() }
         if (params.sm) { sourmash_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { sourmash_DB = sourmash_database (phage_references.out) }
         if (params.vb) { vibrant_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vibrant_DB = vibrant_download_DB() }
-        if (params.vn) { virnet_deps = Channel.from( [ 'deactivated', 'deactivated'] ) } else { virnet_deps = virnet_dependecies() }
         if (params.vs) { virsorter_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { virsorter_DB = virsorter_database() }
   
     // phage annotation DBs deactivation based on input flags
@@ -576,7 +560,7 @@ workflow {
                     .concat(virfinder_wf(fasta_validation_wf.out))
                     .concat(pprmeta_wf(fasta_validation_wf.out, ppr_deps))
                     .concat(vibrant_wf(fasta_validation_wf.out, vibrant_DB))
-                    .concat(virnet_wf(fasta_validation_wf.out, virnet_deps))
+                    .concat(virnet_wf(fasta_validation_wf.out))
                     .filter { it != 'deactivated' } // removes deactivated tool channels
                     .groupTuple()
                     
