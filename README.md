@@ -41,7 +41,7 @@
 * [VIBRANT](https://github.com/AnantharamanLab/VIBRANT)
   * [paper](https://www.biorxiv.org/content/biorxiv/early/2019/11/26/855387.full.pdf)
 * [VirNet](https://github.com/alyosama/virnet)
-  * [paper](https://ieeexplore.ieee.org/document/8639400)
+  * [paper](https://www.biorxiv.org/content/10.1101/2020.01.10.892158v1)
 
 ## Workflow
 
