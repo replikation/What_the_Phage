@@ -18,19 +18,19 @@
 # Table of content
 
 
-* [What is this Repo?](##What-is-this-Repo)
+* [What is this Repo?](#What-is-this-Repo)
 * [Installation](#Installation)
   * [Quick installation](##Quick-installation)
-  * [Default](##Default)
+  * [Default](###Default)
 * [Execution / Examples / Help](#Execution-/-Examples-/-Help)
   * [Quick execution](##Quick-execution)
-  * [Default](##Default)
-  * [Inputs](##Inputs)
-  * [Workflow control](##Workflow-control)
-  * [Profiles](###Profiles)
-  * [Data Handling](###Data-handling)
-  * [Pre-download for Offline-mode](###Pre-download-for-Offline-mode)
-* [Results / Exemples](#Results/Examples)
+  * [Advanced execution](##Advanced-execution)
+    * [Inputs](###Inputs)
+    * [Workflow control](###Workflow-control)
+    * [Profiles](###Profiles)
+    * [Data Handling](###Data-handling)
+    * [Pre-download for Offline-mode](###Pre-download-for-Offline-mode)
+* [Results / Examples](#Results/Examples)
 * [Under the hood](#Under-the-hood)
 * [Included bioinformatic tools](#Included-bioinformatic-tools)
 
@@ -84,7 +84,7 @@ nextflow run replikation/What_the_Phage -r v0.6 --fasta ~/.nextflow/assets/repli
 
 # Execution / Examples / Help
 
-#### Call help via "--help"
+## Call help via "--help"
 ```bash
 nextflow run replikation/What_the_Phage --help
 ```
@@ -94,17 +94,21 @@ nextflow run replikation/What_the_Phage --help
 * just give me the command god dammit.....
 
 ```shell
-nextflow run replikation/What_the_Phage --fasta /path/to/file.fa -profile local,docker
+nextflow run \
+replikation/What_the_Phage \
+--fasta /path/to/file.fa \
+--cores 4[number of cores you want to use] 
+-profile local,docker
 ```
-#### What is what? O.o
-* ```shell
-nextflow run # calling the workflow
+## What is what? O.o
+```bash
+nextflow run \                  # calling the workflow
+replikation/What_the_Phage \    # WtP Git-Repo
+--fasta /path/to/file.fa \      # provide a fasta-file as input
+--cores 4                       # [number of cores you want to use]
+-profile local,docker           # choose the environment:local and docker
 ```
 
-* replikation/What_the_Phage
-> * WtP Git-Repo
-* [fasta](###Inputs)
-* [profile](###Profiles)
 
 
 
@@ -113,19 +117,25 @@ nextflow run # calling the workflow
 ### Advanced execution command
 * e.g.:
 
-\ command etwas aufdröseln
+
 ```shell
-nextflow run replikation/What_the_Phage --fasta /path/to/file.fa -profile local,docker --anno --dv --vf --ma
+nextflow run replikation/What_the_Phage \ 
+--fasta /path/to/file.fa \ 
+-profile local,docker \
+--anno \
+--dv \
+--vf \
+--ma
 ```
 * the order of flags can be random
 
 ### Inputs
 * choose your input-file:
 ```bash
---fasta /path/to/phage-assembly.fa  # 
---fasta '/path/to/*.fa'             #
---fastq /path/to/phage-read.fastq   #
---fastq '/path/to/*.fastq'          #
+--fasta /path/to/phage-assembly.fa  # path to your fasta-file
+--fasta '/path/to/*.fa'             # path to all .fa files in a dir
+--fastq /path/to/phage-read.fastq   # path to your fastq-file
+--fastq '/path/to/*.fastq'          # path to all .fastq files in a dir
 ```
 
 ### Workflow control
@@ -163,37 +173,15 @@ nextflow run replikation/What_the_Phage --fasta /path/to/file.fa -profile local,
 auch ein codeblock
 wtp handels everything by default.
 if you want to change thes location use the following commands
-
-```bash
---workdir /path/to/dir
-````
-> * defines the path where nextflow writes temporary files, by default this is `/tmp/nextflow-phage-$USER`
 > * it's useful to specify --workdir to your current working dir
-
-
 ```bash
---database /path/to/dir
+--workdir /path/to/dir    # defines the path where nextflow writes temporary files, by default this is `/tmp/nextflow-phage-$USER`
+--database /path/to/dir   # specifiy download location of databases
+--cachedir /path/to/dir   # defines the path where singularity images are cached
+--output /path/to/output  # by default, your current working dir
 ```
-> * specifiy download location of databases the tools need for identification and annotation
 
 
-```bash
---cachedir /path/to/dir
-```
-> * defines the path where singularity images are cached
-
-
-```bash
---output /path/to/output-dir
-```
-> * store your output to a specific location (creates a new dir if not existing)
-> by default, your current working dir
-
-
-```bash
---cores [number of cores you want to use]
-```
-> * max cores for local use
 
 ### Pre-download for Offline-mode
 
@@ -206,51 +194,43 @@ nextflow run replikation/What_the_Phage.nf --setup
 ```
 * everything has been pre-downloaded and you can use the following command in the Git-Repo without an internet connection:
 ```shell
-nextflow run phage.nf --fasta 'test-data/*.fasta' -profile local,docker --r v0.6
+nextflow run replikation/What_the_Phage.nf \
+--fasta 'test-data/*.fasta' \
+-profile local,docker \
+--r v0.6 \
+--cores 4
 ```
 verweisen auf die die database where you downloaded everything via 
 
 # Example results
-#### 1.  Tool and contig overview (upsetr)
+#### 1.  Identification Tool and contig overview (upsetr)
 
-* example output: place holder atm
+
 ![plot](figures/plot.png)
+*figure 1:* This Output provides an efficient way to visualize intersections of multiple tools. The amount of positive phage-sequences identified by each tool is represented on the left blue barplot. This plot shows by line connection which of the tools identifyed togehter the exact same positive phage sequences. The amount of each shared matches  is shown as barplot above each combination
 
-* this Output provides an efficient way to visualize intersections of multiple tools.
-
-* The amount of positive phage-sequences identified by each tool is represented on the left blue barplot.
-
-* This plot shows by line connection which of the tools identifyed togehter the exact same positive phage sequences 
-
-* The amount of each shared matches  is shown as barplot above each combination
-
-
-
-#### 2. Chromomap 
+#### 2. Annotation Visualization (Chromomap) 
 * example output: place holder atm
-[chromomap](figures/sample_overview.html)
-make png
+[chromomap](https://replikation.github.io/What_the_Phage/index.html)
 
-* the Graphical output of the Annotation shows an overview of the individual loci of the predicted ORFs and the corresponding genes in the fasta sequences identified as phages.
-* For better visibility we have chosen 4 categories tail, capsid, baseplate and other.
-* This output can be used to verify the identifyed sequences (if the predicted sequences make sense or not)
+Scientific :
 
-* the annotation results are additionally plottet in an interactive html file
+*figure 2:* the Graphical output of the Annotation shows an overview of the individual loci of the predicted ORFs and the corresponding genes in the fasta sequences identified as phages. For better visibility we have chosen 4 categories tail, capsid, baseplate and other. This output can be used to verify the identifyed sequences (if the predicted sequences make sense or not). The annotation results are additionally plottet in an interactive html file and are available as file for further analysis
 
-#### 3. Table nach checkV
-* WIP
+#### 3. Table checkV
+* feature for releas --r v0.7
 
 # Under the hood
 
 ![plot](figures/wtp-flowchart-simple.png)
 
-* this plot shows a simplified version of the WtP-Processes for better understanding what's going on behind the curtain
+*figure 3:* This plot shows a simplified version of the WtP-Processes for better understanding what's going on behind the curtain
 
 
 
 ## Included bioinformatic tools
 * please cite the following tools
-* feeling lazy? a bibtext file for citation can be found [here](link to a bibtext file of all references)
+
 
 ### Identification
 Toolname/Git | Reference |  
@@ -268,7 +248,7 @@ Toolname/Git | Reference |
  
  
 ### Annotation & classification
-Toolname/Git | reference
+Toolname/Git | Reference
 |-|-|
 [prodigal](https://github.com/hyattpd/Prodigal)|[Prodigal: prokaryotic gene recognition and translation initiation site identification](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-11-119)
 [hmmer](http://hmmer.org/)|[nhmmer: DNA homology search with profile HMMs](https://academic.oup.com/bioinformatics/article/29/19/2487/186765)
