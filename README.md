@@ -42,8 +42,8 @@
 * An attempt to streamline the usage of various phage identification and prediction tools
 * The main focus is stability and data filtering / analysis for the user
 * The tool is intended for fasta and fastq reads to identify phages in contigs/reads
-
 * Prophage detection is not implemented (yet)
+
 
 # Installation
 
@@ -56,7 +56,7 @@
 sudo apt-get update
 sudo apt install -y default-jre
 curl -s https://get.nextflow.io | bash 
-sudo mv nextflow /bin/
+sudo mv nextflow /usr/bin/
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io
 sudo usermod -a -G docker $USER
 ```
@@ -66,17 +66,16 @@ sudo usermod -a -G docker $USER
 ## Default
 
 ### Dependencies
+> * [Nextflow installation](https://www.nextflow.io/) + java runtime
+>   * move or add the nextflow executable to a bin path
+> * git (should be already installed)
+> * wget (should be already installed)
+> * tar (should be already installed)
 
->   * [Docker installation](https://docs.docker.com/v17.09/engine/installation/linux/docker-ce/ubuntu/#install-docker-ce)
->   * [Nextflow installation](https://www.nextflow.io/) + java runtime
->   * [Singularity installation](https://github.com/sylabs/singularity/blob/master/INSTALL.md)
->   * git (should be already installed)
->   * wget (should be already installed)
->   * tar (should be already installed)
-* move or add the nextflow executable to a bin path
-* add docker to your User group via `sudo usermod -a -G docker $USER`
-
-
+* choose one
+> * [Docker installation](https://docs.docker.com/v17.09/engine/installation/linux/docker-ce/ubuntu/#install-docker-ce)
+>   * add docker to your User group via `sudo usermod -a -G docker $USER`
+>  * [Singularity installation](https://github.com/sylabs/singularity/blob/master/INSTALL.md)
 * restart your computer
 * try out the installation by entering the following
 ```shell
@@ -85,11 +84,11 @@ nextflow run replikation/What_the_Phage -r v0.6 --fasta ~/.nextflow/assets/repli
 
 # Execution / Examples / Help
 
-#### several options of WtP are called via "--flags"
+#### Call help via "--help"
 ```bash
 nextflow run replikation/What_the_Phage --help
 ```
-* --help will give you a detailed overview over the features of WtP (eg identification, annotation only, deactivate tools....)
+
 
 ## Quick execution
 * just give me the command god dammit.....
@@ -98,8 +97,10 @@ nextflow run replikation/What_the_Phage --help
 nextflow run replikation/What_the_Phage --fasta /path/to/file.fa -profile local,docker
 ```
 #### What is what? O.o
-* nextflow run: 
-> * calling the workflow
+* ```shell
+nextflow run # calling the workflow
+```
+
 * replikation/What_the_Phage
 > * WtP Git-Repo
 * [fasta](###Inputs)
@@ -111,6 +112,8 @@ nextflow run replikation/What_the_Phage --fasta /path/to/file.fa -profile local,
 
 ### Advanced execution command
 * e.g.:
+
+\ command etwas aufdröseln
 ```shell
 nextflow run replikation/What_the_Phage --fasta /path/to/file.fa -profile local,docker --anno --dv --vf --ma
 ```
@@ -119,36 +122,27 @@ nextflow run replikation/What_the_Phage --fasta /path/to/file.fa -profile local,
 ### Inputs
 * choose your input-file:
 ```bash
---fasta /path/to/phage-assembly.fa
-```
-* or
-```shell
---fasta '/path/to/*.fa'
-```
-* or
-```bash
---fastq /path/to/phage-read.fastq
-```
-* or
-```shell
---fastq '/path/to/*.fastq'
+--fasta /path/to/phage-assembly.fa  # 
+--fasta '/path/to/*.fa'             #
+--fastq /path/to/phage-read.fastq   #
+--fastq '/path/to/*.fastq'          #
 ```
 
 ### Workflow control
 * turn on/off tools 
 
 ```bash
-    --dv                deactivates deepvirfinder
-    --ma                deactivates marvel
-    --mp                deactivates metaphinder
-    --pp                deactivates PPRmeta
-    --sm                deactivates sourmash
-    --vb                deactivates vibrant
-    --vf                deactivates virfinder
-    --vn                deactivates virnet
-    --vs                deactivates virsorter
-    --anno              skips annotation
-    --filter            min contig size [bp] to analyse
+    --dv             #   deactivates deepvirfinder
+    --ma             #   deactivates marvel
+    --mp             #   deactivates metaphinder
+    --pp             #   deactivates PPRmeta
+    --sm             #   deactivates sourmash
+    --vb             #   deactivates vibrant
+    --vf             #   deactivates virfinder
+    --vn             #   deactivates virnet
+    --vs             #   deactivates virsorter
+    --anno           #   skips annotation
+    --filter         #   min contig size [bp] to analyse
 ```
 
 ### Profiles
@@ -166,6 +160,9 @@ nextflow run replikation/What_the_Phage --fasta /path/to/file.fa -profile local,
 ```
 
 ### Data handling
+auch ein codeblock
+wtp handels everything by default.
+if you want to change thes location use the following commands
 
 ```bash
 --workdir /path/to/dir
@@ -175,13 +172,13 @@ nextflow run replikation/What_the_Phage --fasta /path/to/file.fa -profile local,
 
 
 ```bash
---database 
+--database /path/to/dir
 ```
 > * specifiy download location of databases the tools need for identification and annotation
 
 
 ```bash
---cachedir
+--cachedir /path/to/dir
 ```
 > * defines the path where singularity images are cached
 
@@ -201,18 +198,17 @@ nextflow run replikation/What_the_Phage --fasta /path/to/file.fa -profile local,
 ### Pre-download for Offline-mode
 
 * skips analysis and just downloads databases and containers
-* needs at least 30 GB as storage...
+* needs roughly 30 GB as storage
 * clone the Git-Repo: `git clone https://github.com/replikation/What_the_Phage.git`
-* in the cloned repo, execute:
 
 ```bash
-nextflow run phage.nf --setup
+nextflow run replikation/What_the_Phage.nf --setup
 ```
 * everything has been pre-downloaded and you can use the following command in the Git-Repo without an internet connection:
 ```shell
 nextflow run phage.nf --fasta 'test-data/*.fasta' -profile local,docker --r v0.6
 ```
-
+verweisen auf die die database where you downloaded everything via 
 
 # Example results
 #### 1.  Tool and contig overview (upsetr)
@@ -233,7 +229,7 @@ nextflow run phage.nf --fasta 'test-data/*.fasta' -profile local,docker --r v0.6
 #### 2. Chromomap 
 * example output: place holder atm
 [chromomap](figures/sample_overview.html)
-
+make png
 
 * the Graphical output of the Annotation shows an overview of the individual loci of the predicted ORFs and the corresponding genes in the fasta sequences identified as phages.
 * For better visibility we have chosen 4 categories tail, capsid, baseplate and other.
