@@ -30,7 +30,7 @@
     * [Profiles](###Profiles)
     * [Data Handling](###Data-handling)
     * [Pre-download for Offline-mode](###Pre-download-for-Offline-mode)
-* [Results / Examples](#Results/Examples)
+* [Results / Examples](#Example-/-results)
 * [Under the hood](#Under-the-hood)
 * [Included bioinformatic tools](#Included-bioinformatic-tools)
 
@@ -93,20 +93,13 @@ nextflow run replikation/What_the_Phage --help
 ## Quick execution
 * just give me the command god dammit.....
 
-```shell
-nextflow run \
-replikation/What_the_Phage \
---fasta /path/to/file.fa \
---cores 4[number of cores you want to use] 
--profile local,docker
-```
-## What is what? O.o
 ```bash
 nextflow run \                  # calling the workflow
 replikation/What_the_Phage \    # WtP Git-Repo
 --fasta /path/to/file.fa \      # provide a fasta-file as input
---cores 4                       # [number of cores you want to use]
+--cores 4 \                     # [number of cores you want to use]
 -profile local,docker           # choose the environment:local and docker
+-r v0.6                         # WtP release version
 ```
 
 
@@ -122,6 +115,8 @@ replikation/What_the_Phage \    # WtP Git-Repo
 nextflow run replikation/What_the_Phage \ 
 --fasta /path/to/file.fa \ 
 -profile local,docker \
+--cores 4 \
+-r v0.6 \
 --anno \
 --dv \
 --vf \
@@ -166,7 +161,7 @@ nextflow run replikation/What_the_Phage \
 ### Release candidate
 * A release candidate is a [released version of WtP](https://github.com/replikation/What_the_Phage/releases) which ensures proper functionality of WtP
 ```bash
---r v0.6
+-r v0.6
 ```
 
 ### Data handling
@@ -197,12 +192,12 @@ nextflow run replikation/What_the_Phage.nf --setup
 nextflow run replikation/What_the_Phage.nf \
 --fasta 'test-data/*.fasta' \
 -profile local,docker \
---r v0.6 \
+-r v0.6 \
 --cores 4
 ```
 verweisen auf die die database where you downloaded everything via 
 
-# Example results
+# Example / results
 #### 1.  Identification Tool and contig overview (upsetr)
 
 
@@ -218,7 +213,7 @@ Scientific :
 *figure 2:* the Graphical output of the Annotation shows an overview of the individual loci of the predicted ORFs and the corresponding genes in the fasta sequences identified as phages. For better visibility we have chosen 4 categories tail, capsid, baseplate and other. This output can be used to verify the identifyed sequences (if the predicted sequences make sense or not). The annotation results are additionally plottet in an interactive html file and are available as file for further analysis
 
 #### 3. Table checkV
-* feature for releas --r v0.7
+* feature for release -r v0.7
 
 # Under the hood
 
@@ -228,7 +223,7 @@ Scientific :
 
 
 
-## Included bioinformatic tools
+# Included bioinformatic tools
 * please cite the following tools
 
 
