@@ -1,5 +1,5 @@
 process virnet {
-      //errorStrategy 'ignore'
+      errorStrategy 'ignore'
       label 'virnet'
     input:
       tuple val(name), file(fasta) 
