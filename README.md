@@ -21,7 +21,7 @@
 * [What is this Repo?](#What-is-this-Repo)
 * [Installation](#Installation)
   * [Quick installation](##Quick-installation)
-  * [Default](###Default)
+  * [Default](##Default)
 * [Execution / Examples / Help](#Execution-/-Examples-/-Help)
   * [Quick execution](##Quick-execution)
   * [Advanced execution](##Advanced-execution)
