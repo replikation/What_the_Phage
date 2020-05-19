@@ -1,4 +1,3 @@
-# readme4
 ![logo](figures/logo-wtp_small.png)
 
 
