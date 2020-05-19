@@ -468,7 +468,7 @@ workflow phage_annotation_wf {
             vog_DB
             rvdb_DB
 
-    main :  if (!params.anno) {
+    main :  if (!params.identify) {
                 //prodigal 
                 modified_input = fasta
                                 .map { it -> [it[0], it[2]] }
@@ -546,9 +546,9 @@ workflow {
         if (params.vs) { virsorter_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { virsorter_DB = virsorter_database() }
   
     // phage annotation DBs deactivation based on input flags
-        if (params.anno) { pvog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { pvog_DB = pvog_database() }
-        if (params.anno) { vog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vog_DB = vog_database() }
-        if (params.anno) { rvdb_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { rvdb_DB = rvdb_database() }
+        if (params.identify) { pvog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { pvog_DB = pvog_database() }
+        if (params.identify) { vog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vog_DB = vog_database() }
+        if (params.identify) { rvdb_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { rvdb_DB = rvdb_database() }
 
     // gather results
         results =   virsorter_wf(fasta_validation_wf.out, virsorter_DB)
@@ -573,6 +573,12 @@ workflow {
         samtools(fasta_validation_wf.out.join(filter_tool_names.out))   
     //annotation  
         phage_annotation_wf(samtools.out, pvog_DB, vog_DB, rvdb_DB)
+    }
+    else if (!params.setup && params.fasta && !params.fastq && params.annotate) {
+
+        phage_annotation_wf(fasta_validation_wf(fasta_input_ch), pvog_DB, vog_DB, rvdb_DB)
+
+
     }
    
     
@@ -660,7 +666,8 @@ def helpMSG() {
     --vf                deactivates virfinder
     --vn                deactivates virnet
     --vs                deactivates virsorter
-    --anno              skips annotation
+    --identify          only identification
+    --annotate          only annotation
 
     ${c_yellow}Databases, file, container behaviour:${c_reset}
     --databases         specifiy download location of databases 
