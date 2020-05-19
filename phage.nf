@@ -532,7 +532,7 @@ workflow {
 
     if (params.setup) { setup_wf() }
 
-    if (!params.setup && params.fasta && !params.fastq) {
+    if (!params.setup && params.fasta && !params.fastq && !params.annotate) {
     // input filter
         fasta_validation_wf(fasta_input_ch)
 
@@ -577,8 +577,6 @@ workflow {
     else if (!params.setup && params.fasta && !params.fastq && params.annotate) {
 
         phage_annotation_wf(fasta_validation_wf(fasta_input_ch), pvog_DB, vog_DB, rvdb_DB)
-
-
     }
    
     
