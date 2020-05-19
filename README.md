@@ -198,28 +198,26 @@ nextflow run replikation/What_the_Phage.nf \
 
 * Refer to the pre-downloaded databases when using this method (--database)
 
-# Example / results
-#### 1.  Identification Tool and contig overview (upsetr)
+# Example results
+#### 1.  Identification Tool and contig overview (UpSetR)
 
 
 ![plot](figures/plot.png)
-*figure 1:* This Output provides an efficient way to visualize intersections of multiple tools. The amount of positive phage-sequences identified by each tool is represented on the left blue barplot. This plot shows by line connection which of the tools identified the exact same positive phage sequences. The amount of each shared matches  is shown as barplot above each combination
+*Figure 1:* This chart (UpSetR plot) quantifies the result-intersections of the phage identification tools, similar to a venn diagram. The amount of positive phage-sequences identified by each tool is represented on the left barplot in blue. The dot plot shows via line connection(s) which of the tools identified the exact same positive phage sequences. The amount of these shared matches is quantified as a barplot above each corresponding dot pattern.
 
 #### 2. Annotation Visualization (Chromomap) 
-* [chromomap](https://replikation.github.io/What_the_Phage/index.html)
+* [chromomap results](https://replikation.github.io/What_the_Phage/index.html)
 
-Scientific :
+*See Link:* The graphical output of the annotation shows an overview of the individual loci of the predicted ORFs and the corresponding genes in the fasta sequences identified as phages. For better visibility, we have chosen 4 categories tail, capsid, baseplate, and other. This output can be used to verify the identified sequences (if the predicted sequences make sense or not). The annotation results are additionally plotted in an interactive HTML-file and are available as a file for further analysis.
 
-*figure 2:* The Graphical output of the Annotation shows an overview of the individual loci of the predicted ORFs and the corresponding genes in the fasta sequences identified as phages. For better visibility, we have chosen 4 categories tail, capsid, baseplate, and other. This output can be used to verify the identified sequences (if the predicted sequences make sense or not). The annotation results are additionally plotted in an interactive HTML-file and are available as a file for further analysis
-
-#### 3. Table checkV
-* Feature for release `-r v0.7`
+#### 3. Summary Table (checkV + Results)
+* Featured for release `-r v0.7` (wip)
 
 # Under the hood
 
 ![plot](figures/wtp-flowchart-simple.png)
 
-*figure 3:* This plot shows a simplified version of the WtP-Processes for better understanding what's going on behind the curtain
+*Figure 3:* This plot shows a simplified dagchart of WtP for better understanding what's going on behind the curtain.
 
 
 
@@ -228,7 +226,7 @@ Scientific :
 
 
 ### Identification
-Toolname/Git | Reference |  
+Toolname/Gitlink | Reference |  
 |-|-|
 [MARVEL](https://github.com/LaboratorioBioinformatica/MARVEL#metagenomic-analysis-and-retrieval-of-viral-elements)|[MARVEL, a Tool for Prediction of Bacteriophage Sequences in Metagenomic Bins](https://www.frontiersin.org/articles/10.3389/fgene.2018.00304/full)
 [VirFinder](https://github.com/jessieren/VirFinder)|[VirFinder: R package for identifying viral sequences from metagenomic data using sequence signatures](https://link.springer.com/epdf/10.1186/s40168-017-0283-5?)
@@ -254,5 +252,5 @@ Toolname/Git | Reference
 |-|-|
 [samtools](https://github.com/samtools/samtools)|[The Sequence Alignment/Map format and SAMtools](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2723002/)
 [seqkit](https://github.com/shenwei356/seqkit)|[SeqKit: A Cross-Platform and Ultrafast Toolkit for FASTA/Q File Manipulation](https://ieeexplore.ieee.org/document/8639400)
-[upsetr](https://github.com/hms-dbmi/UpSetR)|
+[UpSetR](https://github.com/hms-dbmi/UpSetR)|
 
