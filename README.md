@@ -1,3 +1,4 @@
+# readme4
 ![logo](figures/logo-wtp_small.png)
 
 
@@ -12,7 +13,7 @@
 # What the Phage (WtP)
 * by Christian Brandt & Mike Marquet
 * **this tool is currently under heavy development, so expect some bugs but feel free to report issues**
-* a save bet is to use release or pre release candidates via `-r releasenumber` e.g. `-r v0.6`
+* a save bet is to use release or pre-release candidates via `-r release number` e.g. `-r v0.6`
   * these are tested versions of WtP
 
 # Table of content
@@ -40,7 +41,7 @@
 #### TL;DR
 * WtP is a scalable and easy-to-use workflow for phage identification and analysis. Our tool currently combines  9 established phage [identification tools](#included-bioinformatic-tools)
 * An attempt to streamline the usage of various phage identification and prediction tools
-* The main focus is stability and data filtering / analysis for the user
+* The main focus is stability and data filtering/analysis for the user
 * The tool is intended for fasta and fastq reads to identify phages in contigs/reads
 * Prophage detection is not implemented (yet)
 
@@ -49,8 +50,8 @@
 
 ## Quick installation
 
-* "non informaticians / newcomer to bioinformatics" approach using ubuntu [admin rights required]
-* copy and paste for local, docker usage
+* "None informaticians / newcomer to bioinformatics" approach using ubuntu [admin rights required]
+* Copy and paste for local, docker usage
 
 ```bash
 sudo apt-get update
@@ -60,7 +61,7 @@ sudo mv nextflow /usr/bin/
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io
 sudo usermod -a -G docker $USER
 ```
-* restart your computer and [go](##Quick-execution)
+* Restart your computer and [go](##Quick-execution)
 
 
 ## Default
@@ -72,12 +73,12 @@ sudo usermod -a -G docker $USER
 > * wget (should be already installed)
 > * tar (should be already installed)
 
-* choose one
+* Choose one:
 > * [Docker installation](https://docs.docker.com/v17.09/engine/installation/linux/docker-ce/ubuntu/#install-docker-ce)
 >   * add docker to your User group via `sudo usermod -a -G docker $USER`
 >  * [Singularity installation](https://github.com/sylabs/singularity/blob/master/INSTALL.md)
-* restart your computer
-* try out the installation by entering the following
+* Restart your computer
+* Try out the installation by entering the following
 ```shell
 nextflow run replikation/What_the_Phage -r v0.6 --fasta ~/.nextflow/assets/replikation/What_the_Phage/test-data/all_pos_phage.fasta -profile local,docker
 ```
@@ -91,7 +92,7 @@ nextflow run replikation/What_the_Phage --help
 
 
 ## Quick execution
-* just give me the command god dammit.....
+* Just give me the command god dammit.....
 
 ```bash
 nextflow run \                  # calling the workflow
@@ -122,10 +123,10 @@ nextflow run replikation/What_the_Phage \
 --vf \
 --ma
 ```
-* the order of flags can be random
+* The order of flags can be random
 
 ### Inputs
-* choose your input-file:
+* Choose your input-file:
 ```bash
 --fasta /path/to/phage-assembly.fa  # path to your fasta-file
 --fasta '/path/to/*.fa'             # path to all .fa files in a dir
@@ -134,7 +135,7 @@ nextflow run replikation/What_the_Phage \
 ```
 
 ### Workflow control
-* turn on/off tools 
+* Turn on/off tools 
 
 ```bash
     --dv             #   deactivates deepvirfinder
@@ -151,7 +152,7 @@ nextflow run replikation/What_the_Phage \
 ```
 
 ### Profiles
-* choose the environment: cloud or local use or docker or singularity
+* Choose the environment: cloud or local use or docker or singularity
 ```shell
 -profile local,docker
 -profile local,singularity
@@ -165,13 +166,13 @@ nextflow run replikation/What_the_Phage \
 ```
 
 ### Data handling
-auch ein codeblock
-wtp handels everything by default.
-if you want to change thes location use the following commands
-> * it's useful to specify --workdir to your current working dir
+
+* WtP handles everything by default.
+* If you want to change the location use the following commands
+  * It's useful to specify `--workdir` to your current working dir
 ```bash
 --workdir /path/to/dir    # defines the path where nextflow writes temporary files, by default this is `/tmp/nextflow-phage-$USER`
---database /path/to/dir   # specifiy download location of databases
+--database /path/to/dir   # specify download location of databases
 --cachedir /path/to/dir   # defines the path where singularity images are cached
 --output /path/to/output  # by default, your current working dir
 ```
@@ -180,14 +181,14 @@ if you want to change thes location use the following commands
 
 ### Pre-download for Offline-mode
 
-* skips analysis and just downloads databases and containers
-* needs roughly 30 GB as storage
-* clone the Git-Repo: `git clone https://github.com/replikation/What_the_Phage.git`
+* Skips analysis and just downloads databases and containers
+* Needs roughly 30 GB as storage
+* Clone the Git-Repo: `git clone https://github.com/replikation/What_the_Phage.git`
 
 ```bash
-nextflow run replikation/What_the_Phage.nf --setup
+nextflow run replikation/What_the_Phage --setup
 ```
-* everything has been pre-downloaded and you can use the following command in the Git-Repo without an internet connection:
+* Everything has been pre-downloaded and you can use the following command in the Git-Repo without an internet connection:
 ```shell
 nextflow run replikation/What_the_Phage.nf \
 --fasta 'test-data/*.fasta' \
@@ -195,25 +196,25 @@ nextflow run replikation/What_the_Phage.nf \
 -r v0.6 \
 --cores 4
 ```
-verweisen auf die die database where you downloaded everything via 
+
+* Refer to the pre-downloaded databases when using this method (--database)
 
 # Example / results
 #### 1.  Identification Tool and contig overview (upsetr)
 
 
 ![plot](figures/plot.png)
-*figure 1:* This Output provides an efficient way to visualize intersections of multiple tools. The amount of positive phage-sequences identified by each tool is represented on the left blue barplot. This plot shows by line connection which of the tools identifyed togehter the exact same positive phage sequences. The amount of each shared matches  is shown as barplot above each combination
+*figure 1:* This Output provides an efficient way to visualize intersections of multiple tools. The amount of positive phage-sequences identified by each tool is represented on the left blue barplot. This plot shows by line connection which of the tools identified the exact same positive phage sequences. The amount of each shared matches  is shown as barplot above each combination
 
 #### 2. Annotation Visualization (Chromomap) 
-* example output: place holder atm
-[chromomap](https://replikation.github.io/What_the_Phage/index.html)
+* [chromomap](https://replikation.github.io/What_the_Phage/index.html)
 
 Scientific :
 
-*figure 2:* the Graphical output of the Annotation shows an overview of the individual loci of the predicted ORFs and the corresponding genes in the fasta sequences identified as phages. For better visibility we have chosen 4 categories tail, capsid, baseplate and other. This output can be used to verify the identifyed sequences (if the predicted sequences make sense or not). The annotation results are additionally plottet in an interactive html file and are available as file for further analysis
+*figure 2:* The Graphical output of the Annotation shows an overview of the individual loci of the predicted ORFs and the corresponding genes in the fasta sequences identified as phages. For better visibility, we have chosen 4 categories tail, capsid, baseplate, and other. This output can be used to verify the identified sequences (if the predicted sequences make sense or not). The annotation results are additionally plotted in an interactive HTML-file and are available as a file for further analysis
 
 #### 3. Table checkV
-* feature for release -r v0.7
+* Feature for release `-r v0.7`
 
 # Under the hood
 
@@ -224,7 +225,7 @@ Scientific :
 
 
 # Included bioinformatic tools
-* please cite the following tools
+* Please cite the following tools
 
 
 ### Identification
