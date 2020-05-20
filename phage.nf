@@ -92,6 +92,15 @@ if (!params.setup) {
             .fromPath( params.fasta, checkIfExists: true)
             .map { file -> tuple(file.baseName, file) }
                 }
+    
+    // // channel for annotation only
+    else if (params.fasta && params.annotate) { fasta_annotation_ch = Channel
+            .fromPath( params.fasta, checkIfExists: true)
+            .map { file -> tuple(file.baseName, file) }
+            .view()
+                }
+
+
 // fastq input or via csv file
     if (params.fastq && params.list) { fastq_input_ch = Channel
             .fromPath( params.fastq, checkIfExists: true )
@@ -495,7 +504,7 @@ workflow phage_annotation_wf {
                     //chromomap: val(name), path(chromosomefile), path(annotationfile)
                 chromomap(
                     chromomap_parser(
-                        fasta.join(modified_hmmscan_input_for_chromomap_parser).join(prodigal.out), modified_pvog_DB_input_for_chromomapparser)).view()
+                        fasta.join(modified_hmmscan_input_for_chromomap_parser).join(prodigal.out), modified_pvog_DB_input_for_chromomapparser))
                 }
             else { phage_annotation_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
 }
@@ -524,6 +533,8 @@ workflow setup_wf {
             virsorter_DB = virsorter_database()
         }
 } 
+
+
 
 /************* 
 * MAIN WORKFLOWS
@@ -577,9 +588,8 @@ workflow {
     }
    
     else if (!params.setup && params.fasta && !params.fastq && params.annotate) {
-
-        fasta_validation_wf(fasta_input_ch).view()
-        phage_annotation_wf(fasta_validation_wf.out, pvog_DB, vog_DB, rvdb_DB)
+            fasta_validation_wf(fasta_input_ch) ; fasta_annotation_ch = fasta_validation_wf.out
+            phage_annotation_wf(fasta_annotation_ch, pvog_DB, vog_DB, rvdb_DB)
     }
    
     
