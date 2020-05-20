@@ -470,9 +470,10 @@ workflow phage_annotation_wf {
 
     main :  if (!params.identify) {
                 //prodigal 
-                modified_input = fasta
-                                .map { it -> [it[0], it[2]] }
-                prodigal(modified_input)
+                //modified_input = fasta
+                                // .map { it -> [it[0], it[2]] }
+                prodigal(fasta)                
+                // prodigal(modified_input)
 
                 modified_pvog_DB_input_for_hmmscan = pvog_DB
                                                     .map { it -> [it[0]] }
@@ -494,7 +495,7 @@ workflow phage_annotation_wf {
                     //chromomap: val(name), path(chromosomefile), path(annotationfile)
                 chromomap(
                     chromomap_parser(
-                        modified_input.join(modified_hmmscan_input_for_chromomap_parser).join(prodigal.out), modified_pvog_DB_input_for_chromomapparser))
+                        fasta.join(modified_hmmscan_input_for_chromomap_parser).join(prodigal.out), modified_pvog_DB_input_for_chromomapparser)).view()
                 }
             else { phage_annotation_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
 }
@@ -574,9 +575,11 @@ workflow {
     //annotation  
         phage_annotation_wf(samtools.out, pvog_DB, vog_DB, rvdb_DB)
     }
+   
     else if (!params.setup && params.fasta && !params.fastq && params.annotate) {
 
-        phage_annotation_wf(fasta_validation_wf(fasta_input_ch), pvog_DB, vog_DB, rvdb_DB)
+        fasta_validation_wf(fasta_input_ch).view()
+        phage_annotation_wf(fasta_validation_wf.out, pvog_DB, vog_DB, rvdb_DB)
     }
    
     

@@ -4,7 +4,7 @@ process samtools {
     input:
       tuple val(name), file(file), file(list)
     output:
-      tuple val(name), file(list), file("${name}_positive_contigs.fa")
+      tuple val(name), file("${name}_positive_contigs.fa")
     script:
       """
       cat ${list} | sort | uniq > tmp_allctgs.txt
@@ -13,3 +13,4 @@ process samtools {
       """
 }
 
+// file(list),
