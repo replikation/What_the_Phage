@@ -2,10 +2,10 @@ process hmmscan {
         publishDir "${params.output}/${name}/raw_data/hmm/", mode: 'copy'
         label 'hmmscan'
     input:
-        tuple val(name), file(faa) 
-        file(pvog_db)
+        tuple val(name), path(faa) 
+        path(pvog_db)
     output:
-        tuple val(name), file("${name}_${pvog_db}_hmmscan.tbl"), file(faa)
+        tuple val(name), path("${name}_${pvog_db}_hmmscan.tbl"), path(faa) 
     script:
     """
     hmmscan --cpu ${task.cpus} --noali --domtblout ${name}_${pvog_db}_hmmscan.tbl ${pvog_db}/${pvog_db}.hmm ${faa}
