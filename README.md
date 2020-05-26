@@ -11,9 +11,10 @@
 
 # What the Phage (WtP)
 * by Christian Brandt & Mike Marquet
-* **this tool is currently under heavy development, so expect some bugs but feel free to report issues**
-* a save bet is to use release or pre-release candidates via `-r release number` e.g. `-r v0.6`
-  * these are tested versions of WtP
+* **this tool is under heavy development, feel free to report issues and add suggestions**
+* use a release candidates for a stable experience via `-r release.number` e.g. `-r v0.7`
+  * these are extensively tested release versions of WtP
+  * [releases of WtP are here](https://github.com/replikation/What_the_Phage/releases)
 
 # Table of content
 
@@ -146,12 +147,15 @@ nextflow run replikation/What_the_Phage \
     --vf             #   deactivates virfinder
     --vn             #   deactivates virnet
     --vs             #   deactivates virsorter
-    --anno           #   skips annotation
+    --identify       #   only phage identification, skips analysis
+    --annotate       #   only annotation, skips phage identification
     --filter         #   min contig size [bp] to analyse
 ```
 
 ### Profiles
-* Choose the environment: cloud or local use or docker or singularity
+1. Choose the environment: local, lsf or ebi
+2. Choose the engine: docker or singularity
+* examples:
 ```shell
 -profile local,docker
 -profile local,singularity
@@ -160,8 +164,9 @@ nextflow run replikation/What_the_Phage \
 
 ### Release candidate
 * A release candidate is a [released version of WtP](https://github.com/replikation/What_the_Phage/releases) which ensures proper functionality of WtP
+* add this flag to your command and a specific release is used instead
 ```bash
--r v0.6
+-r v0.7
 ```
 
 ### Data handling

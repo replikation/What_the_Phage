@@ -514,6 +514,19 @@ workflow checkV_wf {
     take:   fasta
             database
     main:   checkV(fasta, database)
+
+            /* filter_tool_names.out in identify_fasta_MSF is the info i need to parse into checkV overview 
+            has tuple val(name), file("*.txt")
+            
+            each txt file can be present or not
+
+            1.) parse this output into a "contig name", 1, 0" matrix still having the "value" infront of it
+
+            2.) then i could do a join first bei val(name), an then combine by val(contigname) within the channels?
+
+            3.) annoying ...
+
+            */
     emit:   checkV.out
 } 
 
