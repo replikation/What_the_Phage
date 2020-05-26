@@ -43,6 +43,8 @@ println "\u001B[33m  WARNING: Singularity image building sometimes fails!"
 println "  Please download all images first via --setup --cachedir IMAGE-LOCATION"
 println "  Manually remove faulty images in $params.cachedir for a rebuild\u001B[0m"
 }
+if (params.annotate) { println "\u001B[33mSkipping phage identification for fasta files\u001B[0m" }
+if (params.identify) { println "\u001B[33mSkipping phage annotation\u001B[0m" }
 println " "
 println "\033[2mCPUs to use: $params.cores\033[0m"
 println " "
@@ -71,8 +73,8 @@ else { exit 1, "No executer selected:  -profile EXECUTER,ENGINE" }
 if (!params.setup) {
     if ( !params.fasta && !params.fastq ) {
         exit 1, "input missing, use [--fasta] or [--fastq]"}
-    if ( params.fasta && params.fastq ) {
-        exit 1, "please use either [--fasta] or [--fastq] as input"}
+    // if ( params.fasta && params.fastq ) {
+    //     exit 1, "please use either [--fasta] or [--fastq] as input"}
     if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm && params.vn && params.vb ) {
         exit 0, "What the... you deactivated all the tools"}
 }
@@ -92,6 +94,7 @@ if (!params.setup) {
             .fromPath( params.fasta, checkIfExists: true)
             .map { file -> tuple(file.baseName, file) }
                 }
+    
 // fastq input or via csv file
     if (params.fastq && params.list) { fastq_input_ch = Channel
             .fromPath( params.fastq, checkIfExists: true )
@@ -291,11 +294,10 @@ workflow vog_database {
     emit: db
 }
 
-
-
 /************* 
 * SUB WORKFLOWS
 *************/
+
 workflow fasta_validation_wf {
     take:   fasta
     main:   seqkit(input_suffix_check(fasta))
@@ -462,43 +464,6 @@ workflow virnet_wf {
     emit:   virnet_results
 } 
 
-workflow phage_annotation_wf {
-    take :  fasta 
-            pvog_DB
-            vog_DB
-            rvdb_DB
-
-    main :  if (!params.anno) {
-                //prodigal 
-                modified_input = fasta
-                                .map { it -> [it[0], it[2]] }
-                prodigal(modified_input)
-
-                modified_pvog_DB_input_for_hmmscan = pvog_DB
-                                                    .map { it -> [it[0]] }
-
-                //hmmscan
-                hmmscan(prodigal.out, modified_pvog_DB_input_for_hmmscan)
-
-
-                modified_hmmscan_input_for_chromomap_parser = hmmscan.out
-                                                    .map { it -> [it[0], it[1]] }
-                                                    
-                // map only VOGTable with annotation for input of chromomap
-                    // file(vogtable)
-                modified_pvog_DB_input_for_chromomapparser = pvog_DB
-                                                    .map { it -> [it[1]] }
-                                                    
-                //chromomap channel change from, to:
-                    //chromomap_parser: val(name), file(positive_contigs_list), file(hmmscan_results), file(prodigal_out), path(vogtable)
-                    //chromomap: val(name), path(chromosomefile), path(annotationfile)
-                chromomap(
-                    chromomap_parser(
-                        modified_input.join(modified_hmmscan_input_for_chromomap_parser).join(prodigal.out), modified_pvog_DB_input_for_chromomapparser))
-                }
-            else { phage_annotation_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-}
-
 workflow setup_wf {
     take:   
     main:       
@@ -514,7 +479,7 @@ workflow setup_wf {
         }
 
         // databases
-        if (params.setup) {
+        if (!params.annotate) {
             phage_references() 
             ref_phages_DB = phage_blast_DB (phage_references.out)
             ppr_deps = ppr_dependecies()
@@ -522,77 +487,76 @@ workflow setup_wf {
             vibrant_DB = vibrant_download_DB()
             virsorter_DB = virsorter_database()
         }
+        if (!params.identify) {
+            pvog_DB = pvog_database() 
+            vog_DB = vog_database() 
+            rvdb_DB = rvdb_database()
+        }
 } 
 
 /************* 
-* MAIN WORKFLOWS
+* MainSubWorkflows
 *************/
 
-workflow {
+workflow identification_fasta_MSF {
+    take:   fasta
+            ref_phages_DB
+            ppr_deps
+            sourmash_DB
+            vibrant_DB
+            virsorter_DB
+    main:   fasta_validation_wf(fasta)
 
-    if (params.setup) { setup_wf() }
+        // reference phages, DBs and dependencies, deactivation based on input flags
 
-    if (!params.setup && params.fasta && !params.fastq) {
+        // gather results
+            results =   virsorter_wf(fasta_validation_wf.out, virsorter_DB)
+                        .concat(marvel_wf(fasta_validation_wf.out))      
+                        .concat(sourmash_wf(fasta_validation_wf.out, sourmash_DB))
+                        .concat(metaphinder_wf(fasta_validation_wf.out))
+                        .concat(metaphinder_own_DB_wf(fasta_validation_wf.out, ref_phages_DB))
+                        .concat(deepvirfinder_wf(fasta_validation_wf.out))
+                        .concat(virfinder_wf(fasta_validation_wf.out))
+                        .concat(pprmeta_wf(fasta_validation_wf.out, ppr_deps))
+                        .concat(vibrant_wf(fasta_validation_wf.out, vibrant_DB))
+                        .concat(virnet_wf(fasta_validation_wf.out))
+                        .filter { it != 'deactivated' } // removes deactivated tool channels
+                        .groupTuple()
+                        
+            filter_tool_names(results) 
+                        
+        //plotting results
+            r_plot(filter_tool_names.out)
+            upsetr_plot(filter_tool_names.out)
+        //samtools 
+            samtools(fasta_validation_wf.out.join(filter_tool_names.out))
+
+    emit:   samtools.out
+}
+
+workflow identification_fastq_MSF { 
+    take:   fastq
+            ref_phages_DB
+            ppr_deps
+            sourmash_DB
+            vibrant_DB
+            virsorter_DB
+    main:
     // input filter
-        fasta_validation_wf(fasta_input_ch)
-
-    // reference phages, DBs and dependencies, deactivation based on input flags
-        phage_references() 
-
-        if (params.mp) { ref_phages_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { ref_phages_DB = phage_blast_DB (phage_references.out) }
-        if (params.pp) { ppr_deps = Channel.from( [ 'deactivated', 'deactivated'] ) } else { ppr_deps = ppr_dependecies() }
-        if (params.sm) { sourmash_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { sourmash_DB = sourmash_database (phage_references.out) }
-        if (params.vb) { vibrant_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vibrant_DB = vibrant_download_DB() }
-        if (params.vs) { virsorter_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { virsorter_DB = virsorter_database() }
-  
-    // phage annotation DBs deactivation based on input flags
-        if (params.anno) { pvog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { pvog_DB = pvog_database() }
-        if (params.anno) { vog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vog_DB = vog_database() }
-        if (params.anno) { rvdb_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { rvdb_DB = rvdb_database() }
-
-    // gather results
-        results =   virsorter_wf(fasta_validation_wf.out, virsorter_DB)
-                    .concat(marvel_wf(fasta_validation_wf.out))      
-                    .concat(sourmash_wf(fasta_validation_wf.out, sourmash_DB))
-                    .concat(metaphinder_wf(fasta_validation_wf.out))
-                    .concat(metaphinder_own_DB_wf(fasta_validation_wf.out, ref_phages_DB))
-                    .concat(deepvirfinder_wf(fasta_validation_wf.out))
-                    .concat(virfinder_wf(fasta_validation_wf.out))
-                    .concat(pprmeta_wf(fasta_validation_wf.out, ppr_deps))
-                    .concat(vibrant_wf(fasta_validation_wf.out, vibrant_DB))
-                    .concat(virnet_wf(fasta_validation_wf.out))
-                    .filter { it != 'deactivated' } // removes deactivated tool channels
-                    .groupTuple()
-                    
-        filter_tool_names(results) 
-                     
-    //plotting results
-        r_plot(filter_tool_names.out)
-        upsetr_plot(filter_tool_names.out)
-    //samtools 
-        samtools(fasta_validation_wf.out.join(filter_tool_names.out))   
-    //annotation  
-        phage_annotation_wf(samtools.out, pvog_DB, vog_DB, rvdb_DB)
-    }
-   
-    
-    if (!params.setup && !params.fasta && params.fastq) {
-    // input filter
-        read_validation_wf(fastq_input_ch)
+        read_validation_wf(fastq)
 
     // reference phages into DBs creations
         phage_references() | ( phage_blast_DB )
     
     // gather results
         results =   metaphinder_wf(read_validation_wf.out)
-                    .concat(metaphinder_own_DB_wf(read_validation_wf.out, phage_blast_DB.out))
+                    .concat(metaphinder_own_DB_wf(read_validation_wf.out, ref_phages_DB))
                     .concat(virfinder_wf(read_validation_wf.out))
-                    .concat(pprmeta_wf(read_validation_wf.out, ppr_dependecies()))
+                    .concat(pprmeta_wf(read_validation_wf.out, ppr_deps))
                     .filter { it != 'deactivated' } // removes deactivated tool channels
                     .groupTuple()
         
-        filter_tool_names(results)
-        
+        filter_tool_names(results) 
 
     //plotting results
         r_plot_reads(parse_reads(results))
@@ -600,9 +564,66 @@ workflow {
     
     //samtools
         // COMMENT: all fastas have the same name which does name collision 
-       //samtools(read_validation_wf.out.groupTuple(remainder: true).join(results)) 
-    }
+       samtools(read_validation_wf.out.groupTuple(remainder: true).join(results)) 
+
+    emit: samtools.out
 }
+
+workflow phage_annotation_MSF {
+    take :  fasta 
+            pvog_DB
+            vog_DB
+            rvdb_DB
+
+    main :  
+            prodigal(fasta)                
+
+            hmmscan(prodigal.out, pvog_DB.map { it -> [it[0]] })
+
+            chromomap(
+                chromomap_parser(
+                    fasta.join(hmmscan.out), pvog_DB.map { it -> [it[1]] }))
+
+}
+
+/************* 
+* MAIN WORKFLOWS
+*************/
+
+workflow {
+    // setup no run
+    if (params.setup) { setup_wf() }
+
+    // databases identification
+    phage_references() 
+    if (params.mp || params.annotate) { ref_phages_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { ref_phages_DB = phage_blast_DB (phage_references.out) }
+    if (params.pp || params.annotate) { ppr_deps = Channel.from( [ 'deactivated', 'deactivated'] ) } else { ppr_deps = ppr_dependecies() }
+    if (params.sm || params.annotate) { sourmash_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { sourmash_DB = sourmash_database (phage_references.out) }
+    if (params.vb || params.annotate) { vibrant_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vibrant_DB = vibrant_download_DB() }
+    if (params.vs || params.annotate) { virsorter_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { virsorter_DB = virsorter_database() }
+    
+    // databases annotation
+    if (params.identify) { pvog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { pvog_DB = pvog_database() }
+    if (params.identify) { vog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vog_DB = vog_database() }
+    if (params.identify) { rvdb_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { rvdb_DB = rvdb_database() }
+
+
+    // Phage identification
+    if (params.fasta && !params.annotate) { identification_fasta_MSF(fasta_input_ch, ref_phages_DB, ppr_deps,sourmash_DB, vibrant_DB, virsorter_DB) }
+    if (params.fastq) { identification_fastq_MSF(fastq_input_ch, ref_phages_DB, ppr_deps, sourmash_DB, vibrant_DB, virsorter_DB) }
+    
+    // annotation based on fasta and fastq input combinations
+        // channel handling
+        if (params.fasta && params.fastq && params.annotate) { annotation_ch = identification_fastq_MSF.out.concat(fasta_input_ch) }
+        else if (params.fasta && params.fastq && !params.annotate) { annotation_ch = identification_fastq_MSF.out.concat(identification_fasta_MSF.out) }
+        else if (params.fasta && params.annotate) { annotation_ch = fasta_input_ch }
+        else if (params.fasta && !params.annotate) { annotation_ch = identification_fasta_MSF.out }
+        else if (params.fastq ) { annotation_ch = identification_fastq_MSF.out }
+        
+        // actual annotation
+        if (!params.identify) { phage_annotation_MSF(annotation_ch, pvog_DB, vog_DB, rvdb_DB) }
+    }
+
 
 /*************  
 * --help
@@ -660,7 +681,8 @@ def helpMSG() {
     --vf                deactivates virfinder
     --vn                deactivates virnet
     --vs                deactivates virsorter
-    --anno              skips annotation
+    --identify          only identification
+    --annotate          only annotation
 
     ${c_yellow}Databases, file, container behaviour:${c_reset}
     --databases         specifiy download location of databases 
