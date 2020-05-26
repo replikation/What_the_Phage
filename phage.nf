@@ -521,7 +521,7 @@ workflow checkV_wf {
 * MainSubWorkflows
 *************/
 
-workflow identification_fasta_MSF {
+workflow identify_fasta_MSF {
     take:   fasta
             ref_phages_DB
             ppr_deps
@@ -557,7 +557,7 @@ workflow identification_fasta_MSF {
     emit:   samtools.out
 }
 
-workflow identification_fastq_MSF { 
+workflow identify_fastq_MSF { 
     take:   fastq
             ref_phages_DB
             ppr_deps
@@ -633,16 +633,16 @@ workflow {
 
 
     // Phage identification
-    if (params.fasta && !params.annotate) { identification_fasta_MSF(fasta_input_ch, ref_phages_DB, ppr_deps,sourmash_DB, vibrant_DB, virsorter_DB) }
-    if (params.fastq) { identification_fastq_MSF(fastq_input_ch, ref_phages_DB, ppr_deps, sourmash_DB, vibrant_DB, virsorter_DB) }
+    if (params.fasta && !params.annotate) { identify_fasta_MSF(fasta_input_ch, ref_phages_DB, ppr_deps,sourmash_DB, vibrant_DB, virsorter_DB) }
+    if (params.fastq) { identify_fastq_MSF(fastq_input_ch, ref_phages_DB, ppr_deps, sourmash_DB, vibrant_DB, virsorter_DB) }
     
     // annotation based on fasta and fastq input combinations
         // channel handling
-        if (params.fasta && params.fastq && params.annotate) { annotation_ch = identification_fastq_MSF.out.mix(fasta_input_ch) }
-        else if (params.fasta && params.fastq && !params.annotate) { annotation_ch = identification_fastq_MSF.out.mix(identification_fasta_MSF.out) }
+        if (params.fasta && params.fastq && params.annotate) { annotation_ch = identify_fastq_MSF.out.mix(fasta_input_ch) }
+        else if (params.fasta && params.fastq && !params.annotate) { annotation_ch = identify_fastq_MSF.out.mix(identify_fasta_MSF.out) }
         else if (params.fasta && params.annotate) { annotation_ch = fasta_input_ch }
-        else if (params.fasta && !params.annotate) { annotation_ch = identification_fasta_MSF.out }
-        else if (params.fastq ) { annotation_ch = identification_fastq_MSF.out }
+        else if (params.fasta && !params.annotate) { annotation_ch = identify_fasta_MSF.out }
+        else if (params.fastq ) { annotation_ch = identify_fastq_MSF.out }
         
         // actual annotation -> annotation_ch = tuple val(name), path(fasta)
         if (!params.identify) { 

@@ -1,5 +1,5 @@
 process chromomap_parser {
-    publishDir "${params.output}/${name}/hmm/chromomap_filter", mode: 'copy'
+    publishDir "${params.output}/${name}/annotation_results", mode: 'copy'
     label 'noDocker'
 
     input:

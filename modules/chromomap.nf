@@ -1,5 +1,5 @@
 process chromomap {
-      publishDir "${params.output}/${name}/chromomap", mode: 'copy', pattern: "sample_overview.html"
+      publishDir "${params.output}/${name}", mode: 'copy', pattern: "sample_overview.html"
       label 'chromomap'
       errorStrategy 'retry'
       maxRetries 4
