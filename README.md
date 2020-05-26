@@ -246,7 +246,7 @@ Toolname/Git | Reference
 [prodigal](https://github.com/hyattpd/Prodigal)|[Prodigal: prokaryotic gene recognition and translation initiation site identification](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-11-119)
 [hmmer](http://hmmer.org/)|[nhmmer: DNA homology search with profile HMMs](https://academic.oup.com/bioinformatics/article/29/19/2487/186765)
 [chromomap](https://cran.r-project.org/web/packages/chromoMap/vignettes/chromoMap.html)|
-
+[CheckV](https://bitbucket.org/berkeleylab/checkv/src/master/)|
 ### Other tools
 Toolname/Git | Reference
 |-|-|

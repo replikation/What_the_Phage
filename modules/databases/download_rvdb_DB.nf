@@ -1,7 +1,7 @@
 process rvdb_DB {
   label 'noDocker'    
   if (params.cloudProcess) { 
-    publishDir "${params.databases}/", mode: 'copy', pattern: "rvdb" 
+    publishDir "${params.databases}/rvdb", mode: 'copy', pattern: "rvdb" 
   }
   else { 
     storeDir "${params.databases}/rvdb" 

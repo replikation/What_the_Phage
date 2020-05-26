@@ -1,7 +1,7 @@
 process vog_DB {
   label 'noDocker'    
   if (params.cloudProcess) { 
-    publishDir "${params.databases}/", mode: 'copy', pattern: "vogdb" 
+    publishDir "${params.databases}/vog", mode: 'copy', pattern: "vogdb" 
   }
   else { 
     storeDir "${params.databases}/vog" 

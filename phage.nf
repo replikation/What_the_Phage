@@ -110,6 +110,8 @@ if (!params.setup) {
 * MODULES
 *************/
 
+    include checkV from './modules/checkV'
+    include download_checkV_DB from './modules/databases/download_checkV_DB'
     include chromomap from './modules/chromomap'
     include chromomap_parser from './modules/parser/chromomap_parser'
     include deepvirfinder from './modules/tools/deepvirfinder'
@@ -274,7 +276,7 @@ workflow rvdb_database {
         if (!params.cloudProcess) { rvdb_DB(); db = rvdb_DB.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.databases}/pvogs/")
+            db_preload = file("${params.databases}/rvdb/")
             if (db_preload.exists()) { db = db_preload }
             else  { rvdb_DB(); db = rvdb_DB.out } 
         }
@@ -287,9 +289,22 @@ workflow vog_database {
         if (!params.cloudProcess) { vog_DB(); db = vog_DB.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.databases}/pvogs/")
+            db_preload = file("${params.databases}/vog/")
             if (db_preload.exists()) { db = db_preload }
             else  { vog_DB(); db = vog_DB.out } 
+        }
+    emit: db
+}
+
+workflow checkV_database {
+    main: 
+        // local storage via storeDir
+        if (!params.cloudProcess) { download_checkV_DB(); db = download_checkV_DB.out }
+        // cloud storage via db_preload.exists()
+        if (params.cloudProcess) {
+            db_preload = file("${params.databases}/checkV_DB/")
+            if (db_preload.exists()) { db = db_preload }
+            else  { download_checkV_DB(); db = download_checkV_DB.out } 
         }
     emit: db
 }
@@ -491,7 +506,15 @@ workflow setup_wf {
             pvog_DB = pvog_database() 
             vog_DB = vog_database() 
             rvdb_DB = rvdb_database()
+            checkV_DB = checkV_database()
         }
+} 
+
+workflow checkV_wf {
+    take:   fasta
+            database
+    main:   checkV(fasta, database)
+    emit:   checkV.out
 } 
 
 /************* 
@@ -606,6 +629,7 @@ workflow {
     if (params.identify) { pvog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { pvog_DB = pvog_database() }
     if (params.identify) { vog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vog_DB = vog_database() }
     if (params.identify) { rvdb_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { rvdb_DB = rvdb_database() }
+    if (params.identify) { checkV_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { checkV_DB = checkV_database() }
 
 
     // Phage identification
@@ -614,14 +638,17 @@ workflow {
     
     // annotation based on fasta and fastq input combinations
         // channel handling
-        if (params.fasta && params.fastq && params.annotate) { annotation_ch = identification_fastq_MSF.out.concat(fasta_input_ch) }
-        else if (params.fasta && params.fastq && !params.annotate) { annotation_ch = identification_fastq_MSF.out.concat(identification_fasta_MSF.out) }
+        if (params.fasta && params.fastq && params.annotate) { annotation_ch = identification_fastq_MSF.out.mix(fasta_input_ch) }
+        else if (params.fasta && params.fastq && !params.annotate) { annotation_ch = identification_fastq_MSF.out.mix(identification_fasta_MSF.out) }
         else if (params.fasta && params.annotate) { annotation_ch = fasta_input_ch }
         else if (params.fasta && !params.annotate) { annotation_ch = identification_fasta_MSF.out }
         else if (params.fastq ) { annotation_ch = identification_fastq_MSF.out }
         
-        // actual annotation
-        if (!params.identify) { phage_annotation_MSF(annotation_ch, pvog_DB, vog_DB, rvdb_DB) }
+        // actual annotation -> annotation_ch = tuple val(name), path(fasta)
+        if (!params.identify) { 
+            phage_annotation_MSF(annotation_ch, pvog_DB, vog_DB, rvdb_DB) 
+            checkV_wf(annotation_ch, checkV_DB) 
+        }
     }
 
 
@@ -681,8 +708,8 @@ def helpMSG() {
     --vf                deactivates virfinder
     --vn                deactivates virnet
     --vs                deactivates virsorter
-    --identify          only identification
-    --annotate          only annotation
+    --identify          only phage identification, skips analysis
+    --annotate          only annotation, skips phage identification
 
     ${c_yellow}Databases, file, container behaviour:${c_reset}
     --databases         specifiy download location of databases 
