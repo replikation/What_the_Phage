@@ -12,7 +12,7 @@
 # What the Phage (WtP)
 * by Christian Brandt & Mike Marquet
 * **this tool is under heavy development, feel free to report issues and add suggestions**
-* use a release candidates for a stable experience via `-r release.number` e.g. `-r v0.7`
+* use a release candidates for a stable experience via `-r release.number` e.g. `-r v0.6`
   * these are extensively tested release versions of WtP
   * [releases of WtP are here](https://github.com/replikation/What_the_Phage/releases)
 
@@ -166,7 +166,7 @@ nextflow run replikation/What_the_Phage \
 * A release candidate is a [released version of WtP](https://github.com/replikation/What_the_Phage/releases) which ensures proper functionality of WtP
 * add this flag to your command and a specific release is used instead
 ```bash
--r v0.7
+-r v0.6
 ```
 
 ### Data handling
