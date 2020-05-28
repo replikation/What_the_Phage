@@ -169,6 +169,7 @@ if (!params.setup) {
     include virsorter_collect_data from './modules/raw_data_collection/virsorter_collect_data'
     include virsorter_download_DB from './modules/databases/virsorter_download_DB'
     include vog_DB from './modules/databases/download_vog_DB'
+    include sourmash_for_tax from './modules/sourmash_for_tax'
 
 /************* 
 * DATABASES for Phage Identification
@@ -610,8 +611,8 @@ workflow phage_annotation_MSF {
             pvog_DB
             vog_DB
             rvdb_DB
-
     main :  
+            //annotation-process
             prodigal(fasta)                
 
             hmmscan(prodigal.out, pvog_DB.map { it -> [it[0]] })
@@ -619,7 +620,17 @@ workflow phage_annotation_MSF {
             chromomap(
                 chromomap_parser(
                     fasta.join(hmmscan.out), pvog_DB.map { it -> [it[1]] }))
+}
 
+workflow phage_tax_classification {
+    take:   fasta
+            sourmash_database
+    main:    
+            sourmash_for_tax(split_multi_fasta(fasta), sourmash_database).groupTuple(remainder: true)
+            // raw data collector
+            //sourmash_collect_data(sourmash.out.groupTuple(remainder: true))
+            // result channel
+           // sourmash_results = filter_sourmash.out
 }
 
 /************* 
@@ -657,10 +668,11 @@ workflow {
         else if (params.fasta && !params.annotate) { annotation_ch = identify_fasta_MSF.out }
         else if (params.fastq ) { annotation_ch = identify_fastq_MSF.out }
         
-        // actual annotation -> annotation_ch = tuple val(name), path(fasta)
+        // actual annotation & classification -> annotation_ch = tuple val(name), path(fasta)
         if (!params.identify) { 
             phage_annotation_MSF(annotation_ch, pvog_DB, vog_DB, rvdb_DB) 
             checkV_wf(annotation_ch, checkV_DB) 
+            phage_tax_classification(annotation_ch, sourmash_DB)
         }
     }
 
