@@ -662,7 +662,7 @@ workflow {
     
     // annotation based on fasta and fastq input combinations
         // channel handling
-        if (params.fasta && params.fastq && params.annotate) { annotation_ch = identify_fastq_MSF.out.mix(fasta_input_ch) }
+        if (params.fasta && params.fastq && params.annotate) { annotation_ch = identify_fastq_MSF.out.mix(fasta_validation_wf.out) }
         else if (params.fasta && params.fastq && !params.annotate) { annotation_ch = identify_fastq_MSF.out.mix(identify_fasta_MSF.out) }
         else if (params.fasta && params.annotate) { annotation_ch = fasta_input_ch }
         else if (params.fasta && !params.annotate) { annotation_ch = identify_fasta_MSF.out }
@@ -670,6 +670,7 @@ workflow {
         
         // actual annotation & classification -> annotation_ch = tuple val(name), path(fasta)
         if (!params.identify) { 
+            fasta_validation_wf(annotation_ch
             phage_annotation_MSF(annotation_ch, pvog_DB, vog_DB, rvdb_DB) 
             checkV_wf(annotation_ch, checkV_DB) 
             phage_tax_classification(annotation_ch, sourmash_DB )
