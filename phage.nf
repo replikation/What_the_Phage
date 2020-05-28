@@ -628,7 +628,7 @@ workflow phage_tax_classification {
     main:    
             sourmash_for_tax(split_multi_fasta(fasta), sourmash_database).groupTuple(remainder: true)
             // raw data collector
-            //sourmash_collect_data(sourmash.out.groupTuple(remainder: true))
+            // sourmash_collect_data(sourmash.out.groupTuple(remainder: true))
             // result channel
            // sourmash_results = filter_sourmash.out
 }
@@ -645,7 +645,6 @@ workflow {
     phage_references() 
     if (params.mp || params.annotate) { ref_phages_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { ref_phages_DB = phage_blast_DB (phage_references.out) }
     if (params.pp || params.annotate) { ppr_deps = Channel.from( [ 'deactivated', 'deactivated'] ) } else { ppr_deps = ppr_dependecies() }
-    if (params.sm || params.annotate) { sourmash_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { sourmash_DB = sourmash_database (phage_references.out) }
     if (params.vb || params.annotate) { vibrant_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vibrant_DB = vibrant_download_DB() }
     if (params.vs || params.annotate) { virsorter_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { virsorter_DB = virsorter_database() }
     
@@ -654,7 +653,8 @@ workflow {
     if (params.identify) { vog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vog_DB = vog_database() }
     if (params.identify) { rvdb_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { rvdb_DB = rvdb_database() }
     if (params.identify) { checkV_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { checkV_DB = checkV_database() }
-
+    // database sourmash
+    if (params.identify && params.sm) { sourmash_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { sourmash_DB = sourmash_database (phage_references.out) }
 
     // Phage identification
     if (params.fasta && !params.annotate) { identify_fasta_MSF(fasta_input_ch, ref_phages_DB, ppr_deps,sourmash_DB, vibrant_DB, virsorter_DB) }
@@ -672,7 +672,7 @@ workflow {
         if (!params.identify) { 
             phage_annotation_MSF(annotation_ch, pvog_DB, vog_DB, rvdb_DB) 
             checkV_wf(annotation_ch, checkV_DB) 
-            phage_tax_classification(annotation_ch, sourmash_DB)
+            phage_tax_classification(annotation_ch, sourmash_DB )
         }
     }
 
