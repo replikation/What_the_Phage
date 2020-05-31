@@ -613,7 +613,7 @@ workflow phage_annotation_MSF {
             rvdb_DB
     main :  
             //annotation-process
-            prodigal(fasta)                
+            prodigal(fasta)      
 
             hmmscan(prodigal.out, pvog_DB.map { it -> [it[0]] })
 
@@ -627,10 +627,6 @@ workflow phage_tax_classification {
             sourmash_database
     main:    
             sourmash_for_tax(split_multi_fasta(fasta), sourmash_database).groupTuple(remainder: true)
-            // raw data collector
-            // sourmash_collect_data(sourmash.out.groupTuple(remainder: true))
-            // result channel
-           // sourmash_results = filter_sourmash.out
 }
 
 /************* 
@@ -662,15 +658,14 @@ workflow {
     
     // annotation based on fasta and fastq input combinations
         // channel handling
-        if (params.fasta && params.fastq && params.annotate) { annotation_ch = identify_fastq_MSF.out.mix(fasta_validation_wf.out) }
+        if (params.fasta && params.fastq && params.annotate) { annotation_ch = identify_fastq_MSF.out.mix(fasta_validation_wf(fasta_input_ch)) }
         else if (params.fasta && params.fastq && !params.annotate) { annotation_ch = identify_fastq_MSF.out.mix(identify_fasta_MSF.out) }
-        else if (params.fasta && params.annotate) { annotation_ch = fasta_input_ch }
+        else if (params.fasta && params.annotate) { annotation_ch = fasta_validation_wf(fasta_input_ch)}
         else if (params.fasta && !params.annotate) { annotation_ch = identify_fasta_MSF.out }
         else if (params.fastq ) { annotation_ch = identify_fastq_MSF.out }
         
         // actual annotation & classification -> annotation_ch = tuple val(name), path(fasta)
         if (!params.identify) { 
-            fasta_validation_wf(annotation_ch
             phage_annotation_MSF(annotation_ch, pvog_DB, vog_DB, rvdb_DB) 
             checkV_wf(annotation_ch, checkV_DB) 
             phage_tax_classification(annotation_ch, sourmash_DB )
