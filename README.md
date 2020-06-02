@@ -12,7 +12,7 @@
 # What the Phage (WtP)
 * by Christian Brandt & Mike Marquet
 * **this tool is under heavy development, feel free to report issues and add suggestions**
-* use a release candidates for a stable experience via `-r release.number` e.g. `-r v0.7`
+* use a release candidate for a stable experience via `-r release.number` e.g. `-r v0.6`
   * these are extensively tested release versions of WtP
   * [releases of WtP are here](https://github.com/replikation/What_the_Phage/releases)
 
@@ -80,7 +80,10 @@ sudo usermod -a -G docker $USER
 * Restart your computer
 * Try out the installation by entering the following
 ```shell
-nextflow run replikation/What_the_Phage -r v0.7 --fasta ~/.nextflow/assets/replikation/What_the_Phage/test-data/all_pos_phage.fasta -profile local,docker
+# for docker (local use)
+nextflow run replikation/What_the_Phage -r v0.7 --cores 8 --fasta ~/.nextflow/assets/replikation/What_the_Phage/test-data/all_pos_phage.fasta -profile local,docker
+# for singularity (local use)
+nextflow run replikation/What_the_Phage -r v0.7 --cores 8 --fasta ~/.nextflow/assets/replikation/What_the_Phage/test-data/all_pos_phage.fasta -profile local,singularity
 ```
 
 # Execution / Examples / Help
@@ -95,12 +98,12 @@ nextflow run replikation/What_the_Phage --help
 * Just give me the command god dammit.....
 
 ```bash
-nextflow run \                  # calling the workflow
-replikation/What_the_Phage \    # WtP Git-Repo
---fasta /path/to/file.fa \      # provide a fasta-file as input
---cores 4 \                     # [number of cores you want to use]
--profile local,docker           # choose the environment:local and docker
--r v0.7                         # WtP release version
+nextflow run \                    # calling the workflow
+  replikation/What_the_Phage \    # WtP Git-Repo
+  --fasta /path/to/file.fa \      # provide a fasta-file as input
+  --cores 4 \                     # number of cores you want to use
+  -profile local,docker           # choose the environment:local and docker
+  -r v0.7                         # WtP release version
 ```
 
 
@@ -114,19 +117,20 @@ replikation/What_the_Phage \    # WtP Git-Repo
 
 ```shell
 nextflow run replikation/What_the_Phage \ 
---fasta /path/to/file.fa \ 
--profile local,docker \
---cores 4 \
--r v0.7 \
---anno \
---dv \
---vf \
---ma
+  --fasta '/path/to/*.fasta' \ 
+  -profile local,docker \
+  --cores 4 \
+  -r v0.7 \
+  --anno \
+  --dv \
+  --vf \
+  --ma
 ```
 * The order of flags can be random
 
 ### Inputs
-* Choose your input-file:
+* Input examples:
+  * wildcards need single quotes around the path (`'`)
 ```bash
 --fasta /path/to/phage-assembly.fa  # path to your fasta-file
 --fasta '/path/to/*.fa'             # path to all .fa files in a dir
@@ -149,74 +153,75 @@ nextflow run replikation/What_the_Phage \
     --vs             #   deactivates virsorter
     --identify       #   only phage identification, skips analysis
     --annotate       #   only annotation, skips phage identification
-    --filter         #   min contig size [bp] to analyse
+```
+
+* min size of contigs for identification
+
+```bash
+--filter         #   min contig size [bp] to analyse
 ```
 
 ### Profiles
 1. Choose the environment: local, lsf or ebi
 2. Choose the engine: docker or singularity
 * examples:
-```shell
+```bash
 -profile local,docker
 -profile local,singularity
 -profile lsf,docker
 ```
 
 ### Release candidate
-* A release candidate is a [released version of WtP](https://github.com/replikation/What_the_Phage/releases) which ensures proper functionality of WtP
+* A release candidate is a [released version of WtP](https://github.com/replikation/What_the_Phage/releases) which ensures proper functionality
+* version control ensures reproducibility as each tools version is also "locked" within the release candidate
+  * databases have no automatic version control (they are downloaded from the source)
+  * if you need version control for databases, just make a copy of the database dir after download
+  * you can specify the database dir via the `--database` flag (see below)
+    * WtP only downloads a database if it's missing, it is not "auto-updating" them
 * add this flag to your command and a specific release is used instead
 ```bash
--r v0.7
+-r v0.6
 ```
 
 ### Data handling
 
-* WtP handles everything by default.
+* WtP handles everything by default
 * If you want to change the location use the following commands
   * It's useful to specify `--workdir` to your current working dir
 ```bash
 --workdir /path/to/dir    # defines the path where nextflow writes temporary files, by default this is `/tmp/nextflow-phage-$USER`
 --database /path/to/dir   # specify download location of databases
 --cachedir /path/to/dir   # defines the path where singularity images are cached
---output /path/to/output  # by default, your current working dir
+--output results          # path of the outdir (by default './results')
 ```
-
 
 
 ### Pre-download for Offline-mode
 
-* Skips analysis and just downloads databases and containers
-* Needs roughly 30 GB as storage
-* Clone the Git-Repo: `git clone https://github.com/replikation/What_the_Phage.git`
+* Skips analysis and just downloads all databases and containers
+* Needs roughly 30 GB as storage for databases, excluding programs
 
 ```bash
 nextflow run replikation/What_the_Phage --setup
 ```
-* Everything has been pre-downloaded and you can use the following command in the Git-Repo without an internet connection:
-```shell
-nextflow run replikation/What_the_Phage.nf \
---fasta 'test-data/*.fasta' \
--profile local,docker \
--r v0.7 \
---cores 4
-```
 
-* Refer to the pre-downloaded databases when using this method (--database)
+* you can change the database download location via (--database)
+* make sure that you specify the database location when executing WtP, if you change the default path
 
 # Example results
 #### 1.  Identification Tool and contig overview (UpSetR)
 
-
 ![plot](figures/plot.svg)
-*Figure 1:* This chart (UpSetR plot) quantifies the result-intersections of the phage identification tools, similar to a venn diagram. The amount of positive phage-sequences identified by each tool is represented on the left barplot in blue. The dot plot shows via line connection(s) which of the tools identified the exact same positive phage sequences. The amount of these shared matches is quantified as a barplot above each corresponding dot pattern.
+
+*Figure 1:* This chart (UpSetR plot) quantifies the result-intersections of the phage identification tools, similar to a Venn diagram. The amount of positive phage-sequences identified by each tool is represented on the left barplot in blue. The dot plot shows via line connection(s) which of the tools identified the exact same positive phage sequences. The amount of these shared matches is quantified as a barplot above each corresponding dot pattern.
 
 #### 2. Annotation Visualization (Chromomap) 
 * [chromomap results](https://replikation.github.io/What_the_Phage/index.html)
 
-*See Link:* The graphical output of the annotation shows an overview of the individual loci of the predicted ORFs and the corresponding genes in the fasta sequences identified as phages. For better visibility, we have chosen 4 categories tail, capsid, baseplate, and other. This output can be used to verify the identified sequences (if the predicted sequences make sense or not). The annotation results are additionally plotted in an interactive HTML-file and are available as a file for further analysis.
+*See Link:* The graphical output of the annotation shows an overview of the individual loci of the predicted ORFs and the corresponding genes in the fasta sequences identified as phages. For a better visibility, we have chosen 4 categories tail, capsid, baseplate, and other. This output can be used to verify the identified sequences (if the predicted sequences make sense or not). The annotation results are additionally plotted in an interactive HTML-file and are available as a file for further analysis.
 
 #### 3. Summary Table (checkV + Results)
-* check [CheckV](https://bitbucket.org/berkeleylab/checkv/src/master/) for a detailed explaination
+* check [CheckV](https://bitbucket.org/berkeleylab/checkv/src/master/) for a detailed explanation
 
 contig_id|	contig_length|	genome_copies|	gene_count|	viral_genes|	host_genes|	checkv_quality|	miuvig_quality|	completeness|	completeness_method|	contamination|	provirus|
 |-|-|-|-|-|-|-|-|-|-|-|-|
@@ -236,7 +241,7 @@ pos_phage_9|	221908|	1|	310|	48|	9|	High-quality|	High-quality|	100|	AAI-based|	
 
 ![plot](figures/wtp-flowchart-simple.png)
 
-*Figure 3:* This plot shows a simplified dagchart of WtP for better understanding what's going on behind the curtain.
+*Figure 3:* This plot shows a simplified dag-chart of WtP for better understanding of what's going on behind the curtain.
 
 
 
