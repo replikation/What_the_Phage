@@ -1,7 +1,6 @@
 process metaphinder {
       label 'metaphinder'
       errorStrategy 'ignore'
-
     input:
       tuple val(name), file(fasta) 
     output:

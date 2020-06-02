@@ -169,6 +169,7 @@ if (!params.setup) {
     include virsorter_collect_data from './modules/raw_data_collection/virsorter_collect_data'
     include virsorter_download_DB from './modules/databases/virsorter_download_DB'
     include vog_DB from './modules/databases/download_vog_DB'
+    include sourmash_for_tax from './modules/sourmash_for_tax'
 
 /************* 
 * DATABASES for Phage Identification
@@ -610,16 +611,22 @@ workflow phage_annotation_MSF {
             pvog_DB
             vog_DB
             rvdb_DB
-
     main :  
-            prodigal(fasta)                
+            //annotation-process
+            prodigal(fasta)      
 
             hmmscan(prodigal.out, pvog_DB.map { it -> [it[0]] })
 
             chromomap(
                 chromomap_parser(
                     fasta.join(hmmscan.out), pvog_DB.map { it -> [it[1]] }))
+}
 
+workflow phage_tax_classification {
+    take:   fasta
+            sourmash_database
+    main:    
+            sourmash_for_tax(split_multi_fasta(fasta), sourmash_database).groupTuple(remainder: true)
 }
 
 /************* 
@@ -634,7 +641,6 @@ workflow {
     phage_references() 
     if (params.mp || params.annotate) { ref_phages_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { ref_phages_DB = phage_blast_DB (phage_references.out) }
     if (params.pp || params.annotate) { ppr_deps = Channel.from( [ 'deactivated', 'deactivated'] ) } else { ppr_deps = ppr_dependecies() }
-    if (params.sm || params.annotate) { sourmash_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { sourmash_DB = sourmash_database (phage_references.out) }
     if (params.vb || params.annotate) { vibrant_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vibrant_DB = vibrant_download_DB() }
     if (params.vs || params.annotate) { virsorter_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { virsorter_DB = virsorter_database() }
     
@@ -643,7 +649,8 @@ workflow {
     if (params.identify) { vog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vog_DB = vog_database() }
     if (params.identify) { rvdb_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { rvdb_DB = rvdb_database() }
     if (params.identify) { checkV_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { checkV_DB = checkV_database() }
-
+    // database sourmash
+    if (params.identify && params.sm) { sourmash_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { sourmash_DB = sourmash_database (phage_references.out) }
 
     // Phage identification
     if (params.fasta && !params.annotate) { identify_fasta_MSF(fasta_input_ch, ref_phages_DB, ppr_deps,sourmash_DB, vibrant_DB, virsorter_DB) }
@@ -651,16 +658,17 @@ workflow {
     
     // annotation based on fasta and fastq input combinations
         // channel handling
-        if (params.fasta && params.fastq && params.annotate) { annotation_ch = identify_fastq_MSF.out.mix(fasta_input_ch) }
+        if (params.fasta && params.fastq && params.annotate) { annotation_ch = identify_fastq_MSF.out.mix(fasta_validation_wf(fasta_input_ch)) }
         else if (params.fasta && params.fastq && !params.annotate) { annotation_ch = identify_fastq_MSF.out.mix(identify_fasta_MSF.out) }
-        else if (params.fasta && params.annotate) { annotation_ch = fasta_input_ch }
+        else if (params.fasta && params.annotate) { annotation_ch = fasta_validation_wf(fasta_input_ch)}
         else if (params.fasta && !params.annotate) { annotation_ch = identify_fasta_MSF.out }
         else if (params.fastq ) { annotation_ch = identify_fastq_MSF.out }
         
-        // actual annotation -> annotation_ch = tuple val(name), path(fasta)
+        // actual annotation & classification -> annotation_ch = tuple val(name), path(fasta)
         if (!params.identify) { 
             phage_annotation_MSF(annotation_ch, pvog_DB, vog_DB, rvdb_DB) 
             checkV_wf(annotation_ch, checkV_DB) 
+            phage_tax_classification(annotation_ch, sourmash_DB )
         }
     }
 

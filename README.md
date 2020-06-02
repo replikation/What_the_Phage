@@ -12,7 +12,7 @@
 # What the Phage (WtP)
 * by Christian Brandt & Mike Marquet
 * **this tool is under heavy development, feel free to report issues and add suggestions**
-* use a release candidates for a stable experience via `-r release.number` e.g. `-r v0.6`
+* use a release candidate for a stable experience via `-r release.number` e.g. `-r v0.6`
   * these are extensively tested release versions of WtP
   * [releases of WtP are here](https://github.com/replikation/What_the_Phage/releases)
 
@@ -61,7 +61,7 @@ sudo mv nextflow /usr/bin/
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io
 sudo usermod -a -G docker $USER
 ```
-* Restart your computer and [go](##Quick-execution)
+* Restart your computer and [go](#Quick-execution)
 
 
 ## Default
@@ -81,9 +81,9 @@ sudo usermod -a -G docker $USER
 * Try out the installation by entering the following
 ```shell
 # for docker (local use)
-nextflow run replikation/What_the_Phage -r v0.6 --cores 8 --fasta ~/.nextflow/assets/replikation/What_the_Phage/test-data/all_pos_phage.fasta -profile local,docker
+nextflow run replikation/What_the_Phage -r v0.7 --cores 8 --fasta ~/.nextflow/assets/replikation/What_the_Phage/test-data/all_pos_phage.fasta -profile local,docker
 # for singularity (local use)
-nextflow run replikation/What_the_Phage -r v0.6 --cores 8 --fasta ~/.nextflow/assets/replikation/What_the_Phage/test-data/all_pos_phage.fasta -profile local,singularity
+nextflow run replikation/What_the_Phage -r v0.7 --cores 8 --fasta ~/.nextflow/assets/replikation/What_the_Phage/test-data/all_pos_phage.fasta -profile local,singularity
 ```
 
 # Execution / Examples / Help
@@ -103,7 +103,7 @@ nextflow run \                    # calling the workflow
   --fasta /path/to/file.fa \      # provide a fasta-file as input
   --cores 4 \                     # number of cores you want to use
   -profile local,docker           # choose the environment:local and docker
-  -r v0.6                         # WtP release version
+  -r v0.7                         # WtP release version
 ```
 
 
@@ -120,7 +120,7 @@ nextflow run replikation/What_the_Phage \
   --fasta '/path/to/*.fasta' \ 
   -profile local,docker \
   --cores 4 \
-  -r v0.6 \
+  -r v0.7 \
   --anno \
   --dv \
   --vf \
@@ -173,11 +173,11 @@ nextflow run replikation/What_the_Phage \
 
 ### Release candidate
 * A release candidate is a [released version of WtP](https://github.com/replikation/What_the_Phage/releases) which ensures proper functionality
-* version control ensures reproducability as each tools version is also "locked" within the release candidate
+* version control ensures reproducibility as each tools version is also "locked" within the release candidate
   * databases have no automatic version control (they are downloaded from the source)
   * if you need version control for databases, just make a copy of the database dir after download
   * you can specify the database dir via the `--database` flag (see below)
-    * WtP only downloads a database if its missing, it is not "auto updating them"
+    * WtP only downloads a database if it's missing, it is not "auto-updating" them
 * add this flag to your command and a specific release is used instead
 ```bash
 -r v0.6
@@ -211,22 +211,37 @@ nextflow run replikation/What_the_Phage --setup
 # Example results
 #### 1.  Identification Tool and contig overview (UpSetR)
 
-![plot](figures/plot.png)
-*Figure 1:* This chart (UpSetR plot) quantifies the result-intersections of the phage identification tools, similar to a venn diagram. The amount of positive phage-sequences identified by each tool is represented on the left barplot in blue. The dot plot shows via line connection(s) which of the tools identified the exact same positive phage sequences. The amount of these shared matches is quantified as a barplot above each corresponding dot pattern.
+![plot](figures/plot.svg)
+
+*Figure 1:* This chart (UpSetR plot) quantifies the result-intersections of the phage identification tools, similar to a Venn diagram. The amount of positive phage-sequences identified by each tool is represented on the left barplot in blue. The dot plot shows via line connection(s) which of the tools identified the exact same positive phage sequences. The amount of these shared matches is quantified as a barplot above each corresponding dot pattern.
 
 #### 2. Annotation Visualization (Chromomap) 
 * [chromomap results](https://replikation.github.io/What_the_Phage/index.html)
 
-*See Link:* The graphical output of the annotation shows an overview of the individual loci of the predicted ORFs and the corresponding genes in the fasta sequences identified as phages. For better visibility, we have chosen 4 categories tail, capsid, baseplate, and other. This output can be used to verify the identified sequences (if the predicted sequences make sense or not). The annotation results are additionally plotted in an interactive HTML-file and are available as a file for further analysis.
+*See Link:* The graphical output of the annotation shows an overview of the individual loci of the predicted ORFs and the corresponding genes in the fasta sequences identified as phages. For a better visibility, we have chosen 4 categories tail, capsid, baseplate, and other. This output can be used to verify the identified sequences (if the predicted sequences make sense or not). The annotation results are additionally plotted in an interactive HTML-file and are available as a file for further analysis.
 
 #### 3. Summary Table (checkV + Results)
-* Featured for release `-r v0.7` (wip)
+* check [CheckV](https://bitbucket.org/berkeleylab/checkv/src/master/) for a detailed explanation
+
+contig_id|	contig_length|	genome_copies|	gene_count|	viral_genes|	host_genes|	checkv_quality|	miuvig_quality|	completeness|	completeness_method|	contamination|	provirus|
+|-|-|-|-|-|-|-|-|-|-|-|-|
+pos_phage_0|	146647|	1|	243|	141|	1|	High-quality|	High-quality|	97.03|	AAI-based|	0|	No|
+pos_phage_1|	58871|	1|	97|	21|	0|	High-quality|	High-quality|	100|	AAI-based|	0|	No|
+pos_phage_2|	58560|	1|	95|	20|	0|	High-quality|	High-quality|	99.47|	AAI-based|	0|	No|
+pos_phage_3|	59443|	1|	90|	52|	0|	High-quality|	High-quality|	100|	AAI-based|	0|	No|
+pos_phage_4|	51290|	1|	74|	44|	0|	High-quality|	High-quality|	100|	AAI-based|	0|	No|
+pos_phage_5|	43293|	1|	69|	55|	0|	High-quality|	High-quality|	100|	AAI-based|	0|	No|
+pos_phage_6|	43851|	1|	53|	30|	0|	High-quality|	High-quality|	98.71|	AAI-based|	0|	No|
+pos_phage_7|	44262|	1|	54|	31|	0|	High-quality|	High-quality|	99.64|	AAI-based|	0|	No|
+pos_phage_8|	41865|	1|	60|	57|	0|	High-quality|	High-quality|	97.29|	AAI-based|	0|	No|
+pos_phage_9|	221908|	1|	310|	48|	9|	High-quality|	High-quality|	100|	AAI-based|	0|	No|
+
 
 # Under the hood
 
 ![plot](figures/wtp-flowchart-simple.png)
 
-*Figure 3:* This plot shows a simplified dagchart of WtP for better understanding what's going on behind the curtain.
+*Figure 3:* This plot shows a simplified dag-chart of WtP for better understanding of what's going on behind the curtain.
 
 
 
@@ -255,7 +270,7 @@ Toolname/Git | Reference
 [prodigal](https://github.com/hyattpd/Prodigal)|[Prodigal: prokaryotic gene recognition and translation initiation site identification](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-11-119)
 [hmmer](http://hmmer.org/)|[nhmmer: DNA homology search with profile HMMs](https://academic.oup.com/bioinformatics/article/29/19/2487/186765)
 [chromomap](https://cran.r-project.org/web/packages/chromoMap/vignettes/chromoMap.html)|
-[CheckV](https://bitbucket.org/berkeleylab/checkv/src/master/)|
+[CheckV](https://bitbucket.org/berkeleylab/checkv/src/master/)|[CheckV: assessing the quality of metagenome-assembled viral genomes](https://www.biorxiv.org/content/10.1101/2020.05.06.081778v1)
 ### Other tools
 Toolname/Git | Reference
 |-|-|
