@@ -61,7 +61,7 @@ sudo mv nextflow /usr/bin/
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io
 sudo usermod -a -G docker $USER
 ```
-* Restart your computer and [go](##Quick-execution)
+* Restart your computer and [go](#Quick-execution)
 
 
 ## Default
@@ -80,7 +80,7 @@ sudo usermod -a -G docker $USER
 * Restart your computer
 * Try out the installation by entering the following
 ```shell
-nextflow run replikation/What_the_Phage -r v0.6 --fasta ~/.nextflow/assets/replikation/What_the_Phage/test-data/all_pos_phage.fasta -profile local,docker
+nextflow run replikation/What_the_Phage -r v0.7 --fasta ~/.nextflow/assets/replikation/What_the_Phage/test-data/all_pos_phage.fasta -profile local,docker
 ```
 
 # Execution / Examples / Help
@@ -100,7 +100,7 @@ replikation/What_the_Phage \    # WtP Git-Repo
 --fasta /path/to/file.fa \      # provide a fasta-file as input
 --cores 4 \                     # [number of cores you want to use]
 -profile local,docker           # choose the environment:local and docker
--r v0.6                         # WtP release version
+-r v0.7                         # WtP release version
 ```
 
 
@@ -117,7 +117,7 @@ nextflow run replikation/What_the_Phage \
 --fasta /path/to/file.fa \ 
 -profile local,docker \
 --cores 4 \
--r v0.6 \
+-r v0.7 \
 --anno \
 --dv \
 --vf \
@@ -197,7 +197,7 @@ nextflow run replikation/What_the_Phage --setup
 nextflow run replikation/What_the_Phage.nf \
 --fasta 'test-data/*.fasta' \
 -profile local,docker \
--r v0.6 \
+-r v0.7 \
 --cores 4
 ```
 
@@ -251,7 +251,7 @@ Toolname/Git | Reference
 [prodigal](https://github.com/hyattpd/Prodigal)|[Prodigal: prokaryotic gene recognition and translation initiation site identification](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-11-119)
 [hmmer](http://hmmer.org/)|[nhmmer: DNA homology search with profile HMMs](https://academic.oup.com/bioinformatics/article/29/19/2487/186765)
 [chromomap](https://cran.r-project.org/web/packages/chromoMap/vignettes/chromoMap.html)|
-[CheckV](https://bitbucket.org/berkeleylab/checkv/src/master/)|
+[CheckV](https://bitbucket.org/berkeleylab/checkv/src/master/)|[CheckV: assessing the quality of metagenome-assembled viral genomes](https://www.biorxiv.org/content/10.1101/2020.05.06.081778v1)
 ### Other tools
 Toolname/Git | Reference
 |-|-|
