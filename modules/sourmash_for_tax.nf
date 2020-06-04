@@ -22,18 +22,28 @@ process sourmash_for_tax {
       touch ${name}_tax-class.tsv
 
       for classfile in *.temporary; do
-        phagename=\$(grep -v "similarity,name,filename,md5" \$classfile \
-        | sort -nrk1,1 | head -1 \
-        | grep -o '".*"' \
-        | tr -d '"')
+        phagename=\$(if [ \$(wc -l <\$classfile) == 1 ]
+                     then
+                      echo "no match found"
+                     else 
+                      grep -v "similarity,name,filename,md5" \$classfile \
+                    | sort -nrk1,1 | head -1 \
+                    | grep -o '".*"' \
+                    | tr -d '"'
+                    fi )
         
-        similarity=\$(grep -v "similarity,name,filename,md5" \$classfile \
-        | sort -nrk1,1 | head -1 \
-        | tr -d '"' \
-        | tr "|" "," \
-        | tr -s _ \
-        | awk -F "\\"*,\\"*" '{print \$1}' \
-        | awk '{printf "%.2f\\n",\$1}' )
+        similarity=\$(if [ \$(wc -l <\$classfile) == 1 ]
+                      then
+                        echo "0"
+                      else          
+                        grep -v "similarity,name,filename,md5" \$classfile \
+                        | sort -nrk1,1 | head -1 \
+                        | tr -d '"' \
+                        | tr "|" "," \
+                        | tr -s _ \
+                        | awk -F "\\"*,\\"*" '{print \$1}' \
+                        | awk '{printf "%.2f\\n",\$1}' 
+                      fi )
         
         filename=\$(basename \${classfile} .fa.sig.temporary)
                 
