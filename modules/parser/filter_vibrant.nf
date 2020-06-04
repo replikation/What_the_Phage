@@ -6,6 +6,6 @@ process filter_vibrant {
       tuple val(name), file("vibrant_*.txt")
     script:
       """
-      tail -q  -n+2 *.tsv | awk '{if(\$2=="virus"){print \$1}}' | sed -r 's/_fragment_?//' > vibrant_\${PWD##*/}.txt
+      tail -q  -n+2 *.tsv | awk '{if(\$2=="virus"){print \$1}}' | sed -r 's/_fragment_\?//' > vibrant_\${PWD##*/}.txt
       """
 }
