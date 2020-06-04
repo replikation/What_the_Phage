@@ -617,9 +617,10 @@ workflow phage_annotation_MSF {
 
             hmmscan(prodigal.out, pvog_DB.map { it -> [it[0]] })
 
-            chromomap(
-                chromomap_parser(
-                    fasta.join(hmmscan.out), pvog_DB.map { it -> [it[1]] }))
+            chromomap_parser(
+                    fasta.join(hmmscan.out), pvog_DB.map { it -> [it[1]] })
+
+            chromomap(chromomap_parser.out[0].mix(chromomap_parser.out[1]))
 }
 
 workflow phage_tax_classification {

@@ -1,12 +1,12 @@
 process chromomap {
-      publishDir "${params.output}/${name}", mode: 'copy', pattern: "sample_overview.html"
+      publishDir "${params.output}/${name}", mode: 'copy', pattern: "sample_overview_${type}.html"
       label 'chromomap'
       errorStrategy 'retry'
       maxRetries 4
     input:
-      tuple val(name), path(chromosome), path(annotation)
+      tuple val(name), val(type), path(chromosome), path(annotation)
     output:
-      tuple val(name), path("sample_overview.html")
+      tuple val(name), path("sample_overview_${type}.html")
     script:
       if (task.attempt.toString() == '1')
       """
@@ -24,7 +24,7 @@ process chromomap {
             labels=F,
             legend=T, lg_x = 300,
             left_margin = 340, canvas_width = 1500, canvas_height = sizeh, chr_length = 12, ch_gap = 6)
-      htmlwidgets::saveWidget(as_widget(p), "sample_overview.html")
+      htmlwidgets::saveWidget(as_widget(p), "sample_overview_${type}.html")
       """
 
     else if (task.attempt.toString() == '2')
@@ -43,7 +43,7 @@ process chromomap {
             labels=F,
             legend=T, lg_x = 300,
             left_margin = 340, canvas_width = 1500, canvas_height = sizeh, chr_length = 12, ch_gap = 6)
-      htmlwidgets::saveWidget(as_widget(p), "sample_overview.html")
+      htmlwidgets::saveWidget(as_widget(p), "sample_overview_${type}.html")
       """
     else if (task.attempt.toString() == '3')
       """
@@ -61,7 +61,7 @@ process chromomap {
             labels=F,
             legend=T, lg_x = 300,
             left_margin = 340, canvas_width = 1500, canvas_height = sizeh, chr_length = 12, ch_gap = 6)
-      htmlwidgets::saveWidget(as_widget(p), "sample_overview.html")
+      htmlwidgets::saveWidget(as_widget(p), "sample_overview_${type}.html")
       """
     else if (task.attempt.toString() == '4')
       """
@@ -77,10 +77,10 @@ process chromomap {
             labels=F,
             anno_col = c("lightblue"),
             left_margin = 340, canvas_width = 1400, canvas_height = sizeh, chr_length = 8, ch_gap = 6)
-      htmlwidgets::saveWidget(as_widget(p), "sample_overview.html")
+      htmlwidgets::saveWidget(as_widget(p), "sample_overview_${type}.html")
       """
     else if (task.attempt.toString() == '5')
       """
-      echo "nothing found" > sample_overview.html
+      echo "nothing found" > sample_overview_${type}.html
       """
 }

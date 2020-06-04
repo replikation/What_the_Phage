@@ -1,12 +1,12 @@
 process sourmash_for_tax {
-      publishDir "${params.output}/${name}/taxonomic-classification", mode: 'copy', pattern: "${name}_*.tax-class.csv"
+      publishDir "${params.output}/${name}/taxonomic-classification", mode: 'copy', pattern: "${name}_tax-class.tsv"
       label 'sourmash'
     //  errorStrategy 'ignore'
     input:
       tuple val(name), file(fasta_dir) 
       file(database)
     output:
-      tuple val(name), file("${name}_*.tax-class.csv")
+      tuple val(name), file("${name}_tax-class.tsv")
     shell:
       """
       tar xzf ${database}
@@ -19,16 +19,13 @@ process sourmash_for_tax {
         sourmash search -k 21 \${signature} phages.sbt.json -o \${signature}.temporary
       done
     
-      touch ${name}_\${PWD##*/}.tax-class.csv
-      sed -i 1i"contig, prediction_value, predicted-organism-name" ${name}_\${PWD##*/}.tax-class.csv
+      touch ${name}_tax-class.tsv
 
       for classfile in *.temporary; do
         phagename=\$(grep -v "similarity,name,filename,md5" \$classfile \
         | sort -nrk1,1 | head -1 \
-        | tr -d '"' \
-        | tr "|" "," \
-        | tr -s _ \
-        | awk -F "\\"*,\\"*" '{print \$6 \$7}' )
+        | grep -o '".*"' \
+        | tr -d '"')
         
         similarity=\$(grep -v "similarity,name,filename,md5" \$classfile \
         | sort -nrk1,1 | head -1 \
@@ -39,10 +36,10 @@ process sourmash_for_tax {
         | awk '{printf "%.2f\\n",\$1}' )
         
         filename=\$(basename \${classfile} .fa.sig.temporary)
-        
-        
-        echo "\$filename,\$similarity,\${phagename:1} " >> ${name}_\${PWD##*/}.tax-class.csv
+                
+        echo "\$filename\t\$similarity\t\${phagename} " >> ${name}_tax-class.tsv
       done
+      sed -i 1i"contig\tprediction_value\tpredicted_organism_name" ${name}_tax-class.tsv
       """
 }
 
