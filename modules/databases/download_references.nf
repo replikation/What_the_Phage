@@ -10,7 +10,7 @@ process download_references {
         file("phage_references.fa")
       script:
         """
-        wget http://147.8.185.62/VirMiner/downloads/phage_genome/public_phage_genomes.fasta
-        cat *.fasta > phage_references.fa
+        git clone https://github.com/mult1fractal/WtP_phage_reference_db.git
+        cat WtP_phage_reference_db/*.fa > phage_references.fa
         """
     }
