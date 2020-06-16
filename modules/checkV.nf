@@ -1,5 +1,5 @@
 process checkV {
-        publishDir "${params.output}/${name}/"
+        publishDir "${params.output}/${name}/", mode: 'copy'
         errorStrategy 'ignore'
         label 'checkV'
     input:
