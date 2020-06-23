@@ -1,4 +1,5 @@
 process filter_tool_names {
+      publishDir "${params.output}/${name}/identified_contigs_by_tools/", mode: 'copy'
       label 'ubuntu'
     input:
       tuple val(name), file(files)
