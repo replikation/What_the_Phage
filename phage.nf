@@ -65,6 +65,7 @@ if (
     workflow.profile.contains('local') ||
     workflow.profile.contains('test') ||
     workflow.profile.contains('ebi') ||
+    workflow.profile.contains('slurm') ||
     workflow.profile.contains('lsf') ||
     workflow.profile.contains('git_action')
     ) { "executer selected" }
@@ -693,9 +694,6 @@ def helpMSG() {
     nextflow run replikation/What_the_Phage --fasta '*/*.fasta' --cores 20 \\
         --output results -profile local,docker 
 
-    ${c_yellow}Test the workflow using the test-profile eg. for a local test run${c_reset}
-    nextflow run replikation/What_the_Phage -profile local,test,docker --cores 20
-
     nextflow run phage.nf --fasta '*/*.fasta' --cores 20 \\
         --output results -profile lsf,singularity \\
         --cachedir /images/singularity_images \\
@@ -714,13 +712,15 @@ def helpMSG() {
      -profile ${c_green}local${c_reset},${c_blue}docker${c_reset}
 
       ${c_green}Executer${c_reset} (choose one):
-      test
+      slurm
       local
       lsf
       ebi
       ${c_blue}Engines${c_reset} (choose one):
       docker
       singularity
+    
+    For a test run add "test" to the profile, e.g. -profile test,local,singularity
 
     ${c_yellow}Options:${c_reset}
     --filter            min contig size [bp] to analyse [default: $params.filter]
