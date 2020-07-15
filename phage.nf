@@ -63,6 +63,7 @@ else { exit 1, "No engine selected:  -profile EXECUTER,ENGINE" }
 
 if (
     workflow.profile.contains('local') ||
+    workflow.profile.contains('test') ||
     workflow.profile.contains('ebi') ||
     workflow.profile.contains('lsf') ||
     workflow.profile.contains('git_action')
@@ -70,7 +71,7 @@ if (
 else { exit 1, "No executer selected:  -profile EXECUTER,ENGINE" }
 
 // params tests
-if (!params.setup) {
+if (!params.setup && !workflow.profile.contains('test')) {
     if ( !params.fasta && !params.fastq ) {
         exit 1, "input missing, use [--fasta] or [--fastq]"}
     if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm && params.vn && params.vb ) {
@@ -82,13 +83,13 @@ if (!params.setup) {
 * INPUT HANDLING
 *************/
 
-// fasta input or via csv file
-    if (params.fasta && params.list) { fasta_input_ch = Channel
+// fasta input or via csv file, fasta input is deactivated if test profile is choosen
+    if (params.fasta && params.list && !workflow.profile.contains('test')) { fasta_input_ch = Channel
             .fromPath( params.fasta, checkIfExists: true )
             .splitCsv()
             .map { row -> ["${row[0]}", file("${row[1]}", checkIfExists: true)] }
                 }
-    else if (params.fasta) { fasta_input_ch = Channel
+    else if (params.fasta && !workflow.profile.contains('test')) { fasta_input_ch = Channel
             .fromPath( params.fasta, checkIfExists: true)
             .map { file -> tuple(file.baseName, file) }
                 }
@@ -168,6 +169,7 @@ if (!params.setup) {
     include virsorter_download_DB from './modules/databases/virsorter_download_DB'
     include vog_DB from './modules/databases/download_vog_DB'
     include sourmash_for_tax from './modules/sourmash_for_tax'
+    include testprofile from './modules/testprofile'
 
 /************* 
 * DATABASES for Phage Identification
@@ -529,6 +531,18 @@ workflow checkV_wf {
     emit:   checkV.out
 } 
 
+workflow get_test_data {
+    main: testprofile()
+    emit: testprofile.out.flatten().map { file -> tuple(file.baseName, file) }
+}
+
+workflow phage_tax_classification {
+    take:   fasta
+            sourmash_database
+    main:    
+            sourmash_for_tax(split_multi_fasta(fasta), sourmash_database).groupTuple(remainder: true)
+}
+
 /************* 
 * MainSubWorkflows
 *************/
@@ -621,56 +635,48 @@ workflow phage_annotation_MSF {
             chromomap(chromomap_parser.out[0].mix(chromomap_parser.out[1]))
 }
 
-workflow phage_tax_classification {
-    take:   fasta
-            sourmash_database
-    main:    
-            sourmash_for_tax(split_multi_fasta(fasta), sourmash_database).groupTuple(remainder: true)
-}
-
 /************* 
 * MAIN WORKFLOWS
 *************/
 
 workflow {
-    // setup no run
+// SETUP AND TESTRUNS
     if (params.setup) { setup_wf() }
-
-    // databases identification
+    if (workflow.profile.contains('test')) { fasta_input_ch = get_test_data() }
+// DATABASES
+    // identification
     phage_references() 
     if (params.mp || params.annotate) { ref_phages_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { ref_phages_DB = phage_blast_DB (phage_references.out) }
     if (params.pp || params.annotate) { ppr_deps = Channel.from( [ 'deactivated', 'deactivated'] ) } else { ppr_deps = ppr_dependecies() }
     if (params.vb || params.annotate) { vibrant_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vibrant_DB = vibrant_download_DB() }
     if (params.vs || params.annotate) { virsorter_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { virsorter_DB = virsorter_database() }
-    
-    // databases annotation
+    //  annotation
     if (params.identify) { pvog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { pvog_DB = pvog_database() }
     if (params.identify) { vog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vog_DB = vog_database() }
     if (params.identify) { rvdb_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { rvdb_DB = rvdb_database() }
     if (params.identify) { checkV_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { checkV_DB = checkV_database() }
-    // database sourmash
+    // sourmash (used in identify and annotate)
     if (params.identify && params.sm) { sourmash_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { sourmash_DB = sourmash_database (phage_references.out) }
 
-    // Phage identification
+// IDENTIFY !
     if (params.fasta && !params.annotate) { identify_fasta_MSF(fasta_input_ch, ref_phages_DB, ppr_deps,sourmash_DB, vibrant_DB, virsorter_DB) }
     if (params.fastq) { identify_fastq_MSF(fastq_input_ch, ref_phages_DB, ppr_deps, sourmash_DB, vibrant_DB, virsorter_DB) }
-    
-    // annotation based on fasta and fastq input combinations
-        // channel handling
-        if (params.fasta && params.fastq && params.annotate) { annotation_ch = identify_fastq_MSF.out.mix(fasta_validation_wf(fasta_input_ch)) }
-        else if (params.fasta && params.fastq && !params.annotate) { annotation_ch = identify_fastq_MSF.out.mix(identify_fasta_MSF.out) }
-        else if (params.fasta && params.annotate) { annotation_ch = fasta_validation_wf(fasta_input_ch)}
-        else if (params.fasta && !params.annotate) { annotation_ch = identify_fasta_MSF.out }
-        else if (params.fastq ) { annotation_ch = identify_fastq_MSF.out }
-        
-        // actual annotation & classification -> annotation_ch = tuple val(name), path(fasta)
-        if (!params.identify) { 
-            phage_annotation_MSF(annotation_ch, pvog_DB, vog_DB, rvdb_DB) 
-            checkV_wf(annotation_ch, checkV_DB) 
-            phage_tax_classification(annotation_ch, sourmash_DB )
-        }
-    }
 
+// ANNOTATE & TAXONOMY !
+    // generate "annotation_ch" based on input types (fasta/fastq and annotate)
+    if (params.fasta && params.fastq && params.annotate) { annotation_ch = identify_fastq_MSF.out.mix(fasta_validation_wf(fasta_input_ch)) }
+    else if (params.fasta && params.fastq && !params.annotate) { annotation_ch = identify_fastq_MSF.out.mix(identify_fasta_MSF.out) }
+    else if (params.fasta && params.annotate) { annotation_ch = fasta_validation_wf(fasta_input_ch)}
+    else if (params.fasta && !params.annotate) { annotation_ch = identify_fasta_MSF.out }
+    else if (params.fastq ) { annotation_ch = identify_fastq_MSF.out }
+
+    // Annotation & classification from this -> annotation_ch = tuple val(name), path(fasta)
+    if (!params.identify) { 
+        phage_annotation_MSF(annotation_ch, pvog_DB, vog_DB, rvdb_DB) 
+        checkV_wf(annotation_ch, checkV_DB) 
+        phage_tax_classification(annotation_ch, sourmash_DB )
+    }
+}
 
 /*************  
 * --help
@@ -686,6 +692,9 @@ def helpMSG() {
     ${c_yellow}Usage examples:${c_reset}
     nextflow run replikation/What_the_Phage --fasta '*/*.fasta' --cores 20 \\
         --output results -profile local,docker 
+
+    ${c_yellow}Test the workflow using the test-profile eg. for a local test run${c_reset}
+    nextflow run replikation/What_the_Phage -profile local,test,docker --cores 20
 
     nextflow run phage.nf --fasta '*/*.fasta' --cores 20 \\
         --output results -profile lsf,singularity \\
@@ -705,6 +714,7 @@ def helpMSG() {
      -profile ${c_green}local${c_reset},${c_blue}docker${c_reset}
 
       ${c_green}Executer${c_reset} (choose one):
+      test
       local
       lsf
       ebi
