@@ -73,8 +73,6 @@ else { exit 1, "No executer selected:  -profile EXECUTER,ENGINE" }
 if (!params.setup) {
     if ( !params.fasta && !params.fastq ) {
         exit 1, "input missing, use [--fasta] or [--fastq]"}
-    // if ( params.fasta && params.fastq ) {
-    //     exit 1, "please use either [--fasta] or [--fastq] as input"}
     if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm && params.vn && params.vb ) {
         exit 0, "What the... you deactivated all the tools"}
 }
