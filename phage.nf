@@ -693,6 +693,9 @@ def helpMSG() {
     nextflow run replikation/What_the_Phage --fasta '*/*.fasta' --cores 20 \\
         --output results -profile local,docker 
 
+    ${c_yellow}Test the workflow using the test-profile eg. for a local test run${c_reset}
+    nextflow run replikation/What_the_Phage -profile local,test,docker --cores 20
+
     nextflow run phage.nf --fasta '*/*.fasta' --cores 20 \\
         --output results -profile lsf,singularity \\
         --cachedir /images/singularity_images \\
@@ -711,6 +714,7 @@ def helpMSG() {
      -profile ${c_green}local${c_reset},${c_blue}docker${c_reset}
 
       ${c_green}Executer${c_reset} (choose one):
+      test
       local
       lsf
       ebi
