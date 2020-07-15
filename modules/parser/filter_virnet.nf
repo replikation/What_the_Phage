@@ -9,4 +9,5 @@ process filter_virnet {
       tail -q -n+2 *.csv | sed 's|,|\\t|g' | awk '{if(\$6==1){print \$2}}' | sort | uniq | tr -d '"' > virnet_\${PWD##*/}.txt
       """
 }
+// filter for "score"
 

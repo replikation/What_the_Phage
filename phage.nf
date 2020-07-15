@@ -63,6 +63,7 @@ else { exit 1, "No engine selected:  -profile EXECUTER,ENGINE" }
 
 if (
     workflow.profile.contains('local') ||
+    workflow.profile.contains('test') ||
     workflow.profile.contains('ebi') ||
     workflow.profile.contains('lsf') ||
     workflow.profile.contains('git_action')
@@ -70,11 +71,9 @@ if (
 else { exit 1, "No executer selected:  -profile EXECUTER,ENGINE" }
 
 // params tests
-if (!params.setup) {
+if (!params.setup && !workflow.profile.contains('test')) {
     if ( !params.fasta && !params.fastq ) {
         exit 1, "input missing, use [--fasta] or [--fastq]"}
-    // if ( params.fasta && params.fastq ) {
-    //     exit 1, "please use either [--fasta] or [--fastq] as input"}
     if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm && params.vn && params.vb ) {
         exit 0, "What the... you deactivated all the tools"}
 }
@@ -170,6 +169,7 @@ if (!params.setup) {
     include virsorter_download_DB from './modules/databases/virsorter_download_DB'
     include vog_DB from './modules/databases/download_vog_DB'
     include sourmash_for_tax from './modules/sourmash_for_tax'
+    include testprofile from './modules/testprofile'
 
 /************* 
 * DATABASES for Phage Identification
@@ -638,6 +638,13 @@ workflow {
     // setup no run
     if (params.setup) { setup_wf() }
 
+    //testrun
+    if (workflow.profile.contains('test')) { 
+    testprofile()
+    fasta_input_ch = testprofile.out.flatten().map { file -> tuple(file.baseName, file) }.view()
+     println "Running test data" 
+     }
+
     // databases identification
     phage_references() 
     if (params.mp || params.annotate) { ref_phages_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { ref_phages_DB = phage_blast_DB (phage_references.out) }
@@ -657,6 +664,7 @@ workflow {
     if (params.fasta && !params.annotate) { identify_fasta_MSF(fasta_input_ch, ref_phages_DB, ppr_deps,sourmash_DB, vibrant_DB, virsorter_DB) }
     if (params.fastq) { identify_fastq_MSF(fastq_input_ch, ref_phages_DB, ppr_deps, sourmash_DB, vibrant_DB, virsorter_DB) }
     
+
     // annotation based on fasta and fastq input combinations
         // channel handling
         if (params.fasta && params.fastq && params.annotate) { annotation_ch = identify_fastq_MSF.out.mix(fasta_validation_wf(fasta_input_ch)) }
@@ -664,7 +672,9 @@ workflow {
         else if (params.fasta && params.annotate) { annotation_ch = fasta_validation_wf(fasta_input_ch)}
         else if (params.fasta && !params.annotate) { annotation_ch = identify_fasta_MSF.out }
         else if (params.fastq ) { annotation_ch = identify_fastq_MSF.out }
-        
+
+      //  else if (workflow.profile.contains('test')) { annotation_ch = identify_fastq_MSF.out.mix(fasta_validation_wf(testprofile()testprofile.out.flatten().map { file -> tuple(file.baseName, file) }.view())) }
+
         // actual annotation & classification -> annotation_ch = tuple val(name), path(fasta)
         if (!params.identify) { 
             phage_annotation_MSF(annotation_ch, pvog_DB, vog_DB, rvdb_DB) 
