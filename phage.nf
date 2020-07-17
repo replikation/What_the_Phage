@@ -555,9 +555,9 @@ workflow identify_fasta_MSF {
             sourmash_DB
             vibrant_DB
             virsorter_DB
-    main:   fasta_validation_wf(fasta)
-
-        // reference phages, DBs and dependencies, deactivation based on input flags
+    main: 
+        // input filter  
+        fasta_validation_wf(fasta)
 
         // gather results
             results =   virsorter_wf(fasta_validation_wf.out, virsorter_DB)
@@ -642,7 +642,8 @@ workflow phage_annotation_MSF {
 
 workflow {
 // SETUP AND TESTRUNS
-    if (params.setup) { setup_wf() }
+if (params.setup) { setup_wf() }
+else {
     if (workflow.profile.contains('test')) { fasta_input_ch = get_test_data() }
 // DATABASES
     // identification
@@ -677,7 +678,7 @@ workflow {
         checkV_wf(annotation_ch, checkV_DB) 
         phage_tax_classification(annotation_ch, sourmash_DB )
     }
-}
+}}
 
 /*************  
 * --help
