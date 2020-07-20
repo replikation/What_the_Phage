@@ -144,7 +144,7 @@ if (!params.setup && !workflow.profile.contains('test')) {
     include pprmeta from './modules/tools/pprmeta'
     include pprmeta_collect_data from './modules/raw_data_collection/pprmeta_collect_data'
     include prodigal from './modules/prodigal'
-    include pvog_DB from './modules/databases/download_pvog_DB'
+    include {pvog_DB; vogtable_DB} from './modules/databases/download_pvog_DB'
     include r_plot from './modules/r_plot.nf' 
     include r_plot_reads from './modules/r_plot_reads.nf'
     include removeSmallReads from './modules/removeSmallReads'
@@ -235,7 +235,7 @@ workflow phage_blast_DB {
         if (!params.cloudProcess) { phage_references_blastDB(references); db = phage_references_blastDB.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.databases}/blast_phage_DB")
+            db_preload = file("${params.databases}/blast_phage_DB/phage_db.*")
             if (db_preload.exists()) { db = db_preload }
             else  { phage_references_blastDB(references); db = phage_references_blastDB.out } 
         }
@@ -248,9 +248,9 @@ workflow vibrant_database {
         if (!params.cloudProcess) { vibrant_download_DB(); db = vibrant_download_DB.out }
          //cloud storage via db_preload.exists()
          if (params.cloudProcess) {
-             db_preload = file("${params.databases}/Vibrant/database.tar.gz")
-             if (db_preload.exists()) { db = db_preload }
-             else  { vibrant_download_DB(); db = vibrant_download_DB.out } 
+            db_preload = file("${params.databases}/Vibrant/database.tar.gz")
+            if (db_preload.exists()) { db = db_preload }
+            else  { vibrant_download_DB(); db = vibrant_download_DB.out } 
         }
     emit: db
 }           
@@ -272,13 +272,26 @@ workflow pvog_database {
     emit: db
 }
 
+workflow vogtable_database {
+    main: 
+        // local storage via storeDir
+        if (!params.cloudProcess) { vogtable_DB(); db = vogtable_DB.out }
+        // cloud storage via db_preload.exists()
+        if (params.cloudProcess) {
+            db_preload = file("${params.databases}/vog_table/VOGTable.txt")
+            if (db_preload.exists()) { db = db_preload }
+            else  { vogtable_DB(); db = vogtable_DB.out } 
+        }
+    emit: db
+}
+
 workflow rvdb_database {
     main: 
         // local storage via storeDir
         if (!params.cloudProcess) { rvdb_DB(); db = rvdb_DB.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.databases}/rvdb/")
+            db_preload = file("${params.databases}/rvdb")
             if (db_preload.exists()) { db = db_preload }
             else  { rvdb_DB(); db = rvdb_DB.out } 
         }
@@ -291,7 +304,7 @@ workflow vog_database {
         if (!params.cloudProcess) { vog_DB(); db = vog_DB.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.databases}/vog/")
+            db_preload = file("${params.databases}/vog/vogdb")
             if (db_preload.exists()) { db = db_preload }
             else  { vog_DB(); db = vog_DB.out } 
         }
@@ -304,7 +317,7 @@ workflow checkV_database {
         if (!params.cloudProcess) { download_checkV_DB(); db = download_checkV_DB.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.databases}/checkV_DB/")
+            db_preload = file("${params.databases}/checkV_DB/checkv-db-v")
             if (db_preload.exists()) { db = db_preload }
             else  { download_checkV_DB(); db = download_checkV_DB.out } 
         }
@@ -505,6 +518,7 @@ workflow setup_wf {
             virsorter_DB = virsorter_database()
         }
         if (!params.identify) {
+            vog_table = vogtable_database()
             pvog_DB = pvog_database() 
             vog_DB = vog_database() 
             rvdb_DB = rvdb_database()
@@ -594,10 +608,7 @@ workflow identify_fastq_MSF {
     main:
     // input filter
         read_validation_wf(fastq)
-
-    // reference phages into DBs creations
-        phage_references() | ( phage_blast_DB )
-    
+   
     // gather results
         results =   metaphinder_wf(read_validation_wf.out)
                     .concat(metaphinder_own_DB_wf(read_validation_wf.out, ref_phages_DB))
@@ -622,16 +633,17 @@ workflow identify_fastq_MSF {
 workflow phage_annotation_MSF {
     take :  fasta 
             pvog_DB
+            vog_table
             vog_DB
             rvdb_DB
     main :  
             //annotation-process
             prodigal(fasta)      
 
-            hmmscan(prodigal.out, pvog_DB.map { it -> [it[0]] })
+            hmmscan(prodigal.out, pvog_DB)
 
             chromomap_parser(
-                    fasta.join(hmmscan.out), pvog_DB.map { it -> [it[1]] })
+                    fasta.join(hmmscan.out), vog_table)
 
             chromomap(chromomap_parser.out[0].mix(chromomap_parser.out[1]))
 }
@@ -654,6 +666,7 @@ else {
     if (params.vs || params.annotate) { virsorter_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { virsorter_DB = virsorter_database() }
     //  annotation
     if (params.identify) { pvog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { pvog_DB = pvog_database() }
+    if (params.identify) { vog_table = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vog_table = vogtable_database() } /**/
     if (params.identify) { vog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vog_DB = vog_database() }
     if (params.identify) { rvdb_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { rvdb_DB = rvdb_database() }
     if (params.identify) { checkV_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { checkV_DB = checkV_database() }
@@ -674,7 +687,7 @@ else {
 
     // Annotation & classification from this -> annotation_ch = tuple val(name), path(fasta)
     if (!params.identify) { 
-        phage_annotation_MSF(annotation_ch, pvog_DB, vog_DB, rvdb_DB) 
+        phage_annotation_MSF(annotation_ch, pvog_DB, vog_table, vog_DB, rvdb_DB) 
         checkV_wf(annotation_ch, checkV_DB) 
         phage_tax_classification(annotation_ch, sourmash_DB )
     }
