@@ -235,7 +235,7 @@ workflow phage_blast_DB {
         if (!params.cloudProcess) { phage_references_blastDB(references); db = phage_references_blastDB.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.databases}/blast_phage_DB/phage_blast_DB", type: 'dir')
+            db_preload = file("${params.databases}/phage_blast_DB", type: 'dir')
             if (db_preload.exists()) { db = db_preload }
             else  { phage_references_blastDB(references); db = phage_references_blastDB.out } 
         }
@@ -246,8 +246,8 @@ workflow vibrant_database {
     main: 
         // local storage via storeDir
         if (!params.cloudProcess) { vibrant_download_DB(); db = vibrant_download_DB.out }
-         //cloud storage via db_preload.exists()
-         if (params.cloudProcess) {
+        //cloud storage via db_preload.exists()
+        if (params.cloudProcess) {
             db_preload = file("${params.databases}/Vibrant/database.tar.gz")
             if (db_preload.exists()) { db = db_preload }
             else  { vibrant_download_DB(); db = vibrant_download_DB.out } 
@@ -317,7 +317,7 @@ workflow checkV_database {
         if (!params.cloudProcess) { download_checkV_DB(); db = download_checkV_DB.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.databases}/checkV_DB/checkv-db-v", type: 'dir')
+            db_preload = file("${params.databases}/checkV/checkv-db-v0.6", type: 'dir')
             if (db_preload.exists()) { db = db_preload }
             else  { download_checkV_DB(); db = download_checkV_DB.out } 
         }
@@ -662,7 +662,7 @@ else {
     phage_references() 
     if (params.mp || params.annotate) { ref_phages_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { ref_phages_DB = phage_blast_DB(phage_references.out) }
     if (params.pp || params.annotate) { ppr_deps = Channel.from( [ 'deactivated', 'deactivated'] ) } else { ppr_deps = ppr_dependecies() }
-    if (params.vb || params.annotate) { vibrant_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vibrant_DB = vibrant_download_DB() }
+    if (params.vb || params.annotate) { vibrant_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vibrant_DB = vibrant_database() }
     if (params.vs || params.annotate) { virsorter_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { virsorter_DB = virsorter_database() }
     //  annotation
     if (params.identify) { pvog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { pvog_DB = pvog_database() }
