@@ -181,7 +181,7 @@ workflow ppr_dependecies {
         if (!params.cloudProcess) { ppr_download_dependencies(); db = ppr_download_dependencies.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.databases}/pprmeta/PPR-Meta")
+            db_preload = file("${params.databases}/pprmeta/PPR-Meta", type: 'dir')
             if (db_preload.exists()) { db = db_preload }
             else  { ppr_download_dependencies(); db = ppr_download_dependencies.out } 
         }
@@ -194,7 +194,7 @@ workflow virsorter_database {
         if (!params.cloudProcess) { virsorter_download_DB(); db = virsorter_download_DB.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.databases}/virsorter/virsorter-data")
+            db_preload = file("${params.databases}/virsorter/virsorter-data", type: 'dir')
             if (db_preload.exists()) { db = db_preload }
             else  { virsorter_download_DB(); db = virsorter_download_DB.out } 
         }
@@ -235,7 +235,7 @@ workflow phage_blast_DB {
         if (!params.cloudProcess) { phage_references_blastDB(references); db = phage_references_blastDB.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.databases}/blast_phage_DB/phage_db.*")
+            db_preload = file("${params.databases}/blast_phage_DB/phage_blast_DB", type: 'dir')
             if (db_preload.exists()) { db = db_preload }
             else  { phage_references_blastDB(references); db = phage_references_blastDB.out } 
         }
@@ -265,7 +265,7 @@ workflow pvog_database {
         if (!params.cloudProcess) { pvog_DB(); db = pvog_DB.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.databases}/pvogs/")
+            db_preload = file("${params.databases}/pvogs/", type: 'dir')
             if (db_preload.exists()) { db = db_preload }
             else  { pvog_DB(); db = pvog_DB.out } 
         }
@@ -291,7 +291,7 @@ workflow rvdb_database {
         if (!params.cloudProcess) { rvdb_DB(); db = rvdb_DB.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.databases}/rvdb")
+            db_preload = file("${params.databases}/rvdb", type: 'dir')
             if (db_preload.exists()) { db = db_preload }
             else  { rvdb_DB(); db = rvdb_DB.out } 
         }
@@ -304,7 +304,7 @@ workflow vog_database {
         if (!params.cloudProcess) { vog_DB(); db = vog_DB.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.databases}/vog/vogdb")
+            db_preload = file("${params.databases}/vog/vogdb", type: 'dir')
             if (db_preload.exists()) { db = db_preload }
             else  { vog_DB(); db = vog_DB.out } 
         }
@@ -317,7 +317,7 @@ workflow checkV_database {
         if (!params.cloudProcess) { download_checkV_DB(); db = download_checkV_DB.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.databases}/checkV_DB/checkv-db-v")
+            db_preload = file("${params.databases}/checkV_DB/checkv-db-v", type: 'dir')
             if (db_preload.exists()) { db = db_preload }
             else  { download_checkV_DB(); db = download_checkV_DB.out } 
         }
@@ -660,18 +660,18 @@ else {
 // DATABASES
     // identification
     phage_references() 
-    if (params.mp || params.annotate) { ref_phages_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { ref_phages_DB = phage_blast_DB (phage_references.out) }
+    if (params.mp || params.annotate) { ref_phages_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { ref_phages_DB = phage_blast_DB(phage_references.out) }
     if (params.pp || params.annotate) { ppr_deps = Channel.from( [ 'deactivated', 'deactivated'] ) } else { ppr_deps = ppr_dependecies() }
     if (params.vb || params.annotate) { vibrant_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vibrant_DB = vibrant_download_DB() }
     if (params.vs || params.annotate) { virsorter_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { virsorter_DB = virsorter_database() }
     //  annotation
     if (params.identify) { pvog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { pvog_DB = pvog_database() }
-    if (params.identify) { vog_table = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vog_table = vogtable_database() } /**/
+    if (params.identify) { vog_table = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vog_table = vogtable_database() }
     if (params.identify) { vog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vog_DB = vog_database() }
     if (params.identify) { rvdb_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { rvdb_DB = rvdb_database() }
     if (params.identify) { checkV_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { checkV_DB = checkV_database() }
     // sourmash (used in identify and annotate)
-    if (params.identify && params.sm) { sourmash_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { sourmash_DB = sourmash_database (phage_references.out) }
+    if (params.identify && params.sm) { sourmash_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { sourmash_DB = sourmash_database(phage_references.out) }
 
 // IDENTIFY !
     if (params.fasta && !params.annotate) { identify_fasta_MSF(fasta_input_ch, ref_phages_DB, ppr_deps,sourmash_DB, vibrant_DB, virsorter_DB) }
