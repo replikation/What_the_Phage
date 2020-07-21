@@ -16,7 +16,7 @@ filein <- args[1]
 
 # own input
 df <- read.table(filein, sep=",", header = TRUE)
-df <- read.table("summary.csv", sep=",", header = TRUE)
+
 
 # count rows to resize y axis
 resize <- ( (ncol(df)*0.3) +2)
