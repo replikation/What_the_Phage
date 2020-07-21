@@ -1,5 +1,7 @@
 process setup_container {
         label 'noContainer'
+        errorStrategy = "retry"
+        maxRetries = 3
     input:
         file(config_file)
     output:
