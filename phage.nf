@@ -533,7 +533,7 @@ workflow checkV_wf {
 
 workflow get_test_data {
     main: testprofile()
-    emit: testprofile.out.flatten().map { file -> tuple(file.baseName, file) }
+    emit: testprofile.out.flatten().map { file -> tuple(file.simpleName, file) } // or getSimpleName
 }
 
 workflow phage_tax_classification {
