@@ -769,10 +769,18 @@ def helpMSG() {
     --vf                deactivates virfinder
     --vn                deactivates virnet
     --vs                deactivates virsorter
-    --virome            deactivates virome-mode of tool
+
+    Adjust tools individually
+    --virome            deactivates virome-mode (vibrand and virsorter)
+    --dv_filter         p-value cut-off [default: $params.dv_filter]
+    --mp_filter         average nucleotide identity [default: $params.mp_filter]
+    --vf_filter         p-value cut-off [default: $params.vf_filter]
+    --sm_filter         Similarity score [default: $params.sm_filter]
+    --vn_filter         Score [default: $params.vn_filter]
+
+    Workflow control:
     --identify          only phage identification, skips analysis
     --annotate          only annotation, skips phage identification
-    --virome            deactivates virome-mode of tool
 
     ${c_yellow}Databases, file, container behaviour:${c_reset}
     --databases         specifiy download location of databases 
