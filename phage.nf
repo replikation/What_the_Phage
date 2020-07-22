@@ -769,8 +769,10 @@ def helpMSG() {
     --vf                deactivates virfinder
     --vn                deactivates virnet
     --vs                deactivates virsorter
+    --virome            deactivates virome-mode of tool
     --identify          only phage identification, skips analysis
     --annotate          only annotation, skips phage identification
+    --virome            deactivates virome-mode of tool
 
     ${c_yellow}Databases, file, container behaviour:${c_reset}
     --databases         specifiy download location of databases 
