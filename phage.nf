@@ -111,32 +111,24 @@ if (!params.setup && !workflow.profile.contains('test')) {
 *************/
 
     include checkV from './modules/checkV'
-    include download_checkV_DB from './modules/databases/download_checkV_DB'
     include chromomap from './modules/chromomap'
     include chromomap_parser from './modules/parser/chromomap_parser'
     include deepvirfinder from './modules/tools/deepvirfinder'
     include deepvirfinder_collect_data from './modules/raw_data_collection/deepvirfinder_collect_data'
+    include download_checkV_DB from './modules/databases/download_checkV_DB'
     include download_references from './modules/databases/download_references'
     include fastqTofasta from './modules/fastqTofasta'
     include filter_PPRmeta from './modules/parser/filter_PPRmeta'
     include filter_deepvirfinder from './modules/parser/filter_deepvirfinder'
     include filter_marvel from './modules/parser/filter_marvel'
-    include filter_metaphinder from './modules/parser/filter_metaphinder'
-    include filter_metaphinder_own_DB from './modules/parser/filter_metaphinder'
     include filter_sourmash from './modules/parser/filter_sourmash'
     include filter_tool_names from './modules/parser/filter_tool_names'
-    include filter_vibrant from './modules/parser/filter_vibrant'
     include filter_virfinder from './modules/parser/filter_virfinder'
     include filter_virnet from './modules/parser/filter_virnet'
-    include filter_virsorter from './modules/parser/filter_virsorter' 
     include hmmscan from './modules/hmmscan'
     include input_suffix_check from './modules/input_suffix_check'
     include marvel from './modules/tools/marvel'
     include marvel_collect_data from './modules/raw_data_collection/marvel_collect_data'
-    include metaphinder from './modules/tools/metaphinder'
-    include metaphinder_collect_data from './modules/raw_data_collection/metaphinder_collect_data'
-    include metaphinder_collect_data_ownDB from './modules/raw_data_collection/metaphinder_collect_data'
-    include metaphinder_own_DB from './modules/tools/metaphinder'
     include normalize_contig_size from './modules/normalize_contig_size'
     include parse_reads from './modules/parser/parse_reads.nf'
     include phage_references_blastDB from './modules/databases/phage_references_blastDB'
@@ -156,21 +148,26 @@ if (!params.setup && !workflow.profile.contains('test')) {
     include sourmash from './modules/tools/sourmash'
     include sourmash_collect_data from './modules/raw_data_collection/sourmash_collect_data'
     include sourmash_download_DB from './modules/databases/sourmash_download_DB'
+    include sourmash_for_tax from './modules/sourmash_for_tax'
     include split_multi_fasta from './modules/split_multi_fasta'
+    include testprofile from './modules/testprofile'
     include upsetr_plot from './modules/upsetr.nf'
-    include vibrant from './modules/tools/vibrant'
-    include vibrant_collect_data from './modules/raw_data_collection/vibrant_collect_data'
     include vibrant_download_DB from './modules/databases/vibrant_download_DB'
     include virfinder from './modules/tools/virfinder'
     include virfinder_collect_data from './modules/raw_data_collection/virfinder_collect_data'
     include virnet from './modules/tools/virnet'
     include virnet_collect_data from './modules/raw_data_collection/virnet_collect_data'
-    include virsorter from './modules/tools/virsorter'
-    include virsorter_collect_data from './modules/raw_data_collection/virsorter_collect_data'
     include virsorter_download_DB from './modules/databases/virsorter_download_DB'
     include vog_DB from './modules/databases/download_vog_DB'
-    include sourmash_for_tax from './modules/sourmash_for_tax'
-    include testprofile from './modules/testprofile'
+    include { filter_metaphinder; filter_metaphinder_own_DB } from './modules/parser/filter_metaphinder'
+    include { filter_vibrant; filter_vibrant_virome } from './modules/parser/filter_vibrant'
+    include { filter_virsorter; filter_virsorter_virome } from './modules/parser/filter_virsorter' 
+    include { metaphinder; metaphinder_own_DB} from './modules/tools/metaphinder'
+    include { metaphinder_collect_data; metaphinder_collect_data_ownDB } from './modules/raw_data_collection/metaphinder_collect_data'
+    include { vibrant; vibrant_virome } from './modules/tools/vibrant'
+    include { vibrant_collect_data; vibrant_virome_collect_data } from './modules/raw_data_collection/vibrant_collect_data'
+    include { virsorter; virsorter_virome } from './modules/tools/virsorter'
+    include { virsorter_collect_data; virsorter_virome_collect_data } from './modules/raw_data_collection/virsorter_collect_data'
 
 /************* 
 * DATABASES for Phage Identification
@@ -450,6 +447,22 @@ workflow virsorter_wf {
     emit:   virsorter_results
 } 
 
+workflow virsorter_virome_wf {
+    take:   fasta
+            virsorter_DB
+    main:   if (!params.vs && !params.virome) {
+                        virsorter_virome(fasta, virsorter_DB)
+                        // filtering
+                        filter_virsorter_virome(virsorter_virome.out[0].groupTuple(remainder: true))
+                        // raw data collector
+                        virsorter_virome_collect_data(virsorter_virome.out[1].groupTuple(remainder: true))
+                        // result channel
+                        virsorter_virome_results = filter_virsorter_virome.out
+                        }
+            else { virsorter_virome_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+    emit:   virsorter_virome_results
+} 
+
 workflow pprmeta_wf {
     take:   fasta
             ppr_deps
@@ -478,6 +491,22 @@ workflow vibrant_wf {
                         }
             else { vibrant_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
     emit:   vibrant_results
+}
+
+workflow vibrant_virome_wf {
+    take:   fasta
+            vibrant_download_DB
+    main:   if (!params.vb && !params.virome) {
+                        vibrant_virome(fasta, vibrant_download_DB)
+                        // filtering
+                        filter_vibrant_virome(vibrant_virome.out[0].groupTuple(remainder: true))
+                        // raw data collector
+                        vibrant_virome_collect_data(vibrant_virome.out[1].groupTuple(remainder: true))
+                        // result channel
+                        vibrant_virome_results = filter_vibrant_virome.out
+                        }
+            else { vibrant_virome_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+    emit:   vibrant_virome_results
 }
 
 workflow virnet_wf {
@@ -548,7 +577,7 @@ workflow checkV_wf {
 
 workflow get_test_data {
     main: testprofile()
-    emit: testprofile.out.flatten().map { file -> tuple(file.baseName, file) }
+    emit: testprofile.out.flatten().map { file -> tuple(file.simpleName, file) } // or getSimpleName
 }
 
 workflow phage_tax_classification {
@@ -575,6 +604,7 @@ workflow identify_fasta_MSF {
 
         // gather results
             results =   virsorter_wf(fasta_validation_wf.out, virsorter_DB)
+                        .concat(virsorter_virome_wf(fasta_validation_wf.out, virsorter_DB))
                         .concat(marvel_wf(fasta_validation_wf.out))      
                         .concat(sourmash_wf(fasta_validation_wf.out, sourmash_DB))
                         .concat(metaphinder_wf(fasta_validation_wf.out))
@@ -583,12 +613,13 @@ workflow identify_fasta_MSF {
                         .concat(virfinder_wf(fasta_validation_wf.out))
                         .concat(pprmeta_wf(fasta_validation_wf.out, ppr_deps))
                         .concat(vibrant_wf(fasta_validation_wf.out, vibrant_DB))
+                        .concat(vibrant_virome_wf(fasta_validation_wf.out, vibrant_DB))
                         .concat(virnet_wf(fasta_validation_wf.out))
                         .filter { it != 'deactivated' } // removes deactivated tool channels
                         .groupTuple()
                         
             filter_tool_names(results) 
-                        
+                                               
         //plotting results
             r_plot(filter_tool_names.out)
             upsetr_plot(filter_tool_names.out)
@@ -752,6 +783,16 @@ def helpMSG() {
     --vf                deactivates virfinder
     --vn                deactivates virnet
     --vs                deactivates virsorter
+
+    Adjust tools individually
+    --virome            deactivates virome-mode (vibrand and virsorter)
+    --dv_filter         p-value cut-off [default: $params.dv_filter]
+    --mp_filter         average nucleotide identity [default: $params.mp_filter]
+    --vf_filter         p-value cut-off [default: $params.vf_filter]
+    --sm_filter         Similarity score [default: $params.sm_filter]
+    --vn_filter         Score [default: $params.vn_filter]
+
+    Workflow control:
     --identify          only phage identification, skips analysis
     --annotate          only annotation, skips phage identification
 

@@ -6,6 +6,6 @@ process filter_virfinder {
       tuple val(name), file("virfinder_*.txt")
     script:
       """
-      tail -q -n+2 *.list | awk '\$4>=0.9' | awk '{ print \$2 }' > virfinder_\${PWD##*/}.txt
+      tail -q -n+2 *.list | awk '\$4>=${params.vf_filter}' | awk '{ print \$2 }' > virfinder_\${PWD##*/}.txt
       """
 }

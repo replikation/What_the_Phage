@@ -21,7 +21,7 @@ process sourmash {
       touch ${name}_\${PWD##*/}.list
 
       for tempfile in *.temporary; do
-        value=\$(grep -v "similarity,name,filename,md5" \${tempfile} | awk '\$1>=0.5'|wc -l)   # filtering criteria
+        value=\$(grep -v "similarity,name,filename,md5" \${tempfile} | awk '\$1>=${params.sm_filter}'|wc -l)   # filtering criteria
         filename=\$(basename \${tempfile} .fa.sig.temporary)
       
         if [ \$value -gt 0 ] 
