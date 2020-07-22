@@ -436,7 +436,7 @@ workflow virsorter_wf {
 workflow virsorter_virome_wf {
     take:   fasta
             virsorter_DB
-    main:   if (!params.vs) {
+    main:   if (!params.vs && !params.virome) {
                         virsorter_virome(fasta, virsorter_DB)
                         // filtering
                         filter_virsorter_virome(virsorter_virome.out[0].groupTuple(remainder: true))
@@ -482,7 +482,7 @@ workflow vibrant_wf {
 workflow vibrant_virome_wf {
     take:   fasta
             vibrant_download_DB
-    main:   if (!params.vb) {
+    main:   if (!params.vb && !params.virome) {
                         vibrant_virome(fasta, vibrant_download_DB)
                         // filtering
                         filter_vibrant_virome(vibrant_virome.out[0].groupTuple(remainder: true))

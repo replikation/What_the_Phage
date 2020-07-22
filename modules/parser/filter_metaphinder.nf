@@ -6,7 +6,7 @@ process filter_metaphinder {
       tuple val(name), file("metaphinder_*.txt")
     script:
       """
-      cat *.list | sort -g -k4,4 | tail -n+2 | awk '{if(\$2=="phage" && \$3>50.0){print \$1}}'  > metaphinder_\${PWD##*/}.txt
+      cat *.list | sort -g -k4,4 | tail -n+2 | awk '{if(\$2=="phage" && \$3>${params.mp_filter}){print \$1}}'  > metaphinder_\${PWD##*/}.txt
       """
 }
 // filter for phage and %Ani >50
@@ -18,6 +18,6 @@ process filter_metaphinder_own_DB {
       tuple val(name), file("metaphinder-own-DB_*.txt")
     script:
       """
-      cat *.list | sort -g -k4,4 | tail -n+2 | awk '{if(\$2=="phage" && \$3>50.0){print \$1}}'  > metaphinder-own-DB_\${PWD##*/}.txt
+      cat *.list | sort -g -k4,4 | tail -n+2 | awk '{if(\$2=="phage" && \$3>${params.mp_filter}){print \$1}}'  > metaphinder-own-DB_\${PWD##*/}.txt
       """
 }
