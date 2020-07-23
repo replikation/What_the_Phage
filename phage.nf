@@ -232,7 +232,7 @@ workflow phage_blast_DB {
         if (!params.cloudProcess) { phage_references_blastDB(references); db = phage_references_blastDB.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.databases}/phage_blast_DB", type: 'dir')
+            db_preload = file("${params.databases}/blast_DB_phage/blast_database.tar.gz", type: 'dir')
             if (db_preload.exists()) { db = db_preload }
             else  { phage_references_blastDB(references); db = phage_references_blastDB.out } 
         }
