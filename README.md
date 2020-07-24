@@ -42,7 +42,7 @@
 * An attempt to streamline the usage of various phage identification and prediction tools
 * The main focus is stability and data filtering/analysis for the user
 * The tool is intended for fasta and fastq reads to identify phages in contigs/reads
-* Prophage detection is not implemented (yet)
+* a proper Prophage detection is not implemented (yet) - but a handful of tools report them - so they are mostly identified
 
 
 # Installation
