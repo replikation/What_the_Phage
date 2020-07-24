@@ -1,7 +1,7 @@
 ![logo](figures/logo-wtp_small.png)
 
 
-![](https://img.shields.io/badge/nextflow-20.01.0-brightgreen)
+![](https://img.shields.io/badge/nextflow-20.04.1-brightgreen)
 ![](https://img.shields.io/badge/uses-docker-blue.svg)
 ![](https://img.shields.io/badge/licence-GPL--3.0-lightgrey.svg)
 ![](https://github.com/replikation/What_the_Phage/workflows/Syntax_check/badge.svg)
@@ -11,13 +11,12 @@
 
 # What the Phage (WtP)
 * by Christian Brandt & Mike Marquet
-* **this tool is under heavy development, feel free to report issues and add suggestions**
+* **this tool is under active development,feel free to report issues and add suggestions**
 * use a release candidate for a stable experience via `-r` e.g. `-r v0.8.0`
   * these are extensively tested release versions of WtP
   * [releases of WtP are here](https://github.com/replikation/What_the_Phage/releases)
 
 # Table of content
-
 
 * [What is this Repo?](#What-is-this-Repo)
 * [Installation](#Installation)
