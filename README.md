@@ -12,7 +12,7 @@
 # What the Phage (WtP)
 * by Christian Brandt & Mike Marquet
 * **this tool is under heavy development, feel free to report issues and add suggestions**
-* use a release candidate for a stable experience via `-r` e.g. `-r v0.7`
+* use a release candidate for a stable experience via `-r` e.g. `-r v0.8.0`
   * these are extensively tested release versions of WtP
   * [releases of WtP are here](https://github.com/replikation/What_the_Phage/releases)
 
@@ -78,19 +78,20 @@ sudo usermod -a -G docker $USER
 >   * add docker to your User group via `sudo usermod -a -G docker $USER`
 >  * [Singularity installation](https://github.com/sylabs/singularity/blob/master/INSTALL.md)
 * Restart your computer
-* Try out the installation by entering the following
+* Try out the installation by entering the following (analyses 8 samples ~ 10h runtime)
+
 ```shell
 # for docker (local use)
-nextflow run replikation/What_the_Phage -r v0.7 --cores 8 --fasta ~/.nextflow/assets/replikation/What_the_Phage/test-data/all_pos_phage.fasta -profile local,docker
-# for singularity (local use)
-nextflow run replikation/What_the_Phage -r v0.7 --cores 8 --fasta ~/.nextflow/assets/replikation/What_the_Phage/test-data/all_pos_phage.fasta -profile local,singularity
+nextflow run replikation/What_the_Phage -r v0.8.0 --cores 8 -profile test,local,docker
+# for singularity (slurm use)
+nextflow run replikation/What_the_Phage -r v0.8.0 --cores 8 -profile test,slurm,singularity
 ```
 
 # Execution / Examples / Help
 
 ## Call help via "--help"
 ```bash
-nextflow run replikation/What_the_Phage --help
+nextflow run replikation/What_the_Phage -r v0.8.0 --help
 ```
 
 
@@ -101,9 +102,9 @@ nextflow run replikation/What_the_Phage --help
 nextflow run \                    # calling the workflow
   replikation/What_the_Phage \    # WtP Git-Repo
   --fasta /path/to/file.fa \      # provide a fasta-file as input
-  --cores 4 \                     # number of cores you want to use
+  --cores 8 \                     # number of cores you want to use
   -profile local,docker           # choose the environment:local and docker
-  -r v0.7                         # WtP release version
+  -r v0.8.0                       # WtP release version
 ```
 
 
@@ -114,19 +115,18 @@ nextflow run \                    # calling the workflow
 ### Advanced execution command
 * e.g.:
 
-
 ```shell
 nextflow run replikation/What_the_Phage \ 
   --fasta '/path/to/*.fasta' \ 
   -profile local,docker \
-  --cores 4 \
-  -r v0.7 \
+  --cores 20 \
+  -r v0.8.0 \
   --anno \
   --dv \
   --vf \
   --ma
 ```
-* The order of flags can be random
+* The order of flags does not matter
 
 ### Inputs
 * Input examples:
@@ -139,7 +139,7 @@ nextflow run replikation/What_the_Phage \
 ```
 
 ### Workflow control
-* Turn on/off tools 
+* Turn on/off tools (check `--help` for more)
 
 ```bash
     --dv             #   deactivates deepvirfinder
@@ -162,7 +162,7 @@ nextflow run replikation/What_the_Phage \
 ```
 
 ### Profiles
-1. Choose the environment: local, lsf or ebi
+1. Choose the environment: local, slurm, lsf or ebi
 2. Choose the engine: docker or singularity
 * examples:
 ```bash
@@ -180,33 +180,35 @@ nextflow run replikation/What_the_Phage \
     * WtP only downloads a database if it's missing, it is not "auto-updating" them
 * add this flag to your command and a specific release is used instead
 ```bash
--r v0.6
+-r v0.8.0
 ```
 
 ### Data handling
 
 * WtP handles everything by default
-* If you want to change the location use the following commands
-  * It's useful to specify `--workdir` to your current working dir
+* If you need to change paths use the following commands
+  * It's useful to specify `--workdir` to your current working dir if `/tmp` (default) has limited space
 ```bash
---workdir /path/to/dir    # defines the path where nextflow writes temporary files, by default this is `/tmp/nextflow-phage-$USER`
---database /path/to/dir   # specify download location of databases
---cachedir /path/to/dir   # defines the path where singularity images are cached
---output results          # path of the outdir (by default './results')
+--workdir /path/to/dir    # defines the path where nextflow writes temporary files, default: '/tmp/nextflow-phage-$USER'
+--database /path/to/dir   # specify download location of databases, default './nextflow-autodownload-databases'
+--cachedir /path/to/dir   # defines the path where singularity images are cached, default './singularity-images'
+--output results          # path of the outdir, default './results'
 ```
 
 
 ### Pre-download for Offline-mode
 
-* Skips analysis and just downloads all databases and containers
-* Needs roughly 30 GB as storage for databases, excluding programs
+* `--setup` skips analysis and just downloads all databases and containers
+* Needs roughly 30 GB storage for databases, excluding programs
 
 ```bash
-nextflow run replikation/What_the_Phage --setup
+nextflow run replikation/What_the_Phage --setup -r v0.8.0
 ```
 
 * you can change the database download location via (--database)
 * make sure that you specify the database location when executing WtP, if you change the default path
+* singularity images sometimes fail during building, just try to re-execute `--setup`
+  * WtP attempts to build images up to 3 times, image building is individually skipped if present
 
 # Example results
 #### 1.  Identification Tool and contig overview (UpSetR)
@@ -276,5 +278,5 @@ Toolname/Git | Reference
 |-|-|
 [samtools](https://github.com/samtools/samtools)|[The Sequence Alignment/Map format and SAMtools](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2723002/)
 [seqkit](https://github.com/shenwei356/seqkit)|[SeqKit: A Cross-Platform and Ultrafast Toolkit for FASTA/Q File Manipulation](https://ieeexplore.ieee.org/document/8639400)
-[UpSetR](https://github.com/hms-dbmi/UpSetR)|
+[UpSetR](https://github.com/hms-dbmi/UpSetR)|[UpSetR: an R package for the visualization of intersecting sets and their properties](https://doi.org/10.1093/bioinformatics/btx364)
 
