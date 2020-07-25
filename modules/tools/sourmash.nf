@@ -8,8 +8,6 @@ process sourmash {
       tuple val(name), file("${name}_*.list")
     shell:
       """
-      tar xzf ${database}
-
       for fastafile in ${fasta_dir}/*.fa; do
         sourmash compute -p ${task.cpus} --scaled 100 -k 21 \${fastafile}
       done
