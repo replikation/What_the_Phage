@@ -1,10 +1,14 @@
 ![logo](figures/logo-wtp_small.png)
 
+![](https://img.shields.io/github/v/release/replikation/What_the_Phage)
+![](https://img.shields.io/badge/licence-GPL--3.0-lightgrey.svg)
+![](https://github.com/replikation/What_the_Phage/workflows/Syntax_check/badge.svg)
 
 ![](https://img.shields.io/badge/nextflow-20.04.1-brightgreen)
 ![](https://img.shields.io/badge/uses-docker-blue.svg)
-![](https://img.shields.io/badge/licence-GPL--3.0-lightgrey.svg)
-![](https://github.com/replikation/What_the_Phage/workflows/Syntax_check/badge.svg)
+![](https://img.shields.io/badge/uses-singularity-yellow.svg)
+
+[![Generic badge](https://img.shields.io/badge/Preprint-bioRxiv-red.svg)](https://www.biorxiv.org/content/10.1101/2020.07.24.219899v1)
 
 [![Twitter Follow](https://img.shields.io/twitter/follow/gcloudChris.svg?style=social)](https://twitter.com/gcloudChris) 
 [![Twitter Follow](https://img.shields.io/twitter/follow/mult1fractal.svg?style=social)](https://twitter.com/mult1fractal) 
@@ -15,6 +19,14 @@
 * use a release candidate for a stable experience via `-r` e.g. `-r v0.8.0`
   * these are extensively tested release versions of WtP
   * [releases of WtP are here](https://github.com/replikation/What_the_Phage/releases)
+
+## Preprint:
+> **What the Phage: A scalable workflow for the identification and analysis of phage sequences**
+>
+> M. Marquet, M. Hölzer, M. W. Pletz, A. Viehweger, O. Makarewicz, R. Ehricht, C. Brandt
+>
+> doi: https://doi.org/10.1101/2020.07.24.219899
+
 
 # Table of content
 
