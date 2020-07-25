@@ -205,7 +205,7 @@ workflow sourmash_database {
         if (!params.cloudProcess) { sourmash_download_DB(references); db = sourmash_download_DB.out }
         // cloud storage via db_preload.exists()
         if (params.cloudProcess) {
-            db_preload = file("${params.databases}/sourmash/phages.sbt.json.tar.gz")
+            db_preload = file("${params.databases}/sourmash/phages.sbt.zip")
             if (db_preload.exists()) { db = db_preload }
             else  { sourmash_download_DB(references); db = sourmash_download_DB.out } 
         }

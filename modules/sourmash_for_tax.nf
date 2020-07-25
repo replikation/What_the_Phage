@@ -16,7 +16,7 @@ process sourmash_for_tax {
       done
 
       for signature in *.sig; do
-        sourmash search -k 21 \${signature} phages.sbt.json -o \${signature}.temporary
+        sourmash search -k 21 \${signature} phages.sbt.zip -o \${signature}.temporary
       done
     
       touch ${name}_tax-class.tsv
