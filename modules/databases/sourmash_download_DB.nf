@@ -1,15 +1,14 @@
 process sourmash_download_DB {
-    if (params.cloudProcess) { publishDir "${params.databases}/sourmash/", mode: 'copy', pattern: "phages.sbt.json.tar.gz" }
+    if (params.cloudProcess) { publishDir "${params.databases}/sourmash/", mode: 'copy', pattern: "phages.sbt.zip" }
     else { storeDir "${params.databases}/sourmash/" }
     label 'sourmash' 
     input:
         file(references)
     output:
-        file("phages.sbt.json.tar.gz")
+        file("phages.sbt.zip")
     script:
         """
         sourmash compute --scaled 100 -k 21 --singleton --seed 42 -p 8 -o phages.sig ${references}
-        sourmash index phages phages.sig
-        tar czf phages.sbt.json.tar.gz phages.sbt.json .sbt.phages
+        sourmash index phages.sbt.zip phages.sig
         """
 }

@@ -9,14 +9,12 @@ process sourmash_for_tax {
       tuple val(name), file("${name}_tax-class.tsv")
     shell:
       """
-      tar xzf ${database}
-
       for fastafile in ${fasta_dir}/*.fa; do
         sourmash compute -p ${task.cpus} --scaled 100 -k 21 \${fastafile}
       done
 
       for signature in *.sig; do
-        sourmash search -k 21 \${signature} phages.sbt.json -o \${signature}.temporary
+        sourmash search -k 21 \${signature} phages.sbt.zip -o \${signature}.temporary
       done
     
       touch ${name}_tax-class.tsv
