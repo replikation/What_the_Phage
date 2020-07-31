@@ -7,7 +7,7 @@ nextflow.preview.dsl=2
 */
 
 if ( !nextflow.version.matches('20.+') ) {
-    println "This workflow requires Nextflow version 20.X or greater -- You are running version $nextflow.version"
+    println "This workflow requires Nextflow version 20.04.1 or greater -- You are running version $nextflow.version"
     exit 1
 }
 
@@ -812,6 +812,7 @@ def helpMSG() {
 
 if (!params.setup) {
     workflow.onComplete { 
-        log.info ( workflow.success ? "\nDone! Results are stored here --> $params.output \n" : "Oops .. something went wrong" )
+        log.info ( workflow.success ? "\nDone! Results are stored here --> $params.output \nThank you for using What the Phage ;) \nPlease cite us: https://doi.org/10.1101/2020.07.24.219899\n" : "Oops .. something went wrong" )
+      //  log.info ( workflow.success ? "\nThank you for using What the Phage ;)\nPlease cite us: https://doi.org/10.1101/2020.07.24.219899\n" )
     }
 }
