@@ -327,8 +327,12 @@ workflow checkV_database {
 
 workflow fasta_validation_wf {
     take:   fasta
-    main:   seqkit(input_suffix_check(fasta))
+    main:   seqkit(input_suffix_check(fasta)) 
+            //get-citation-file for results
+            citation = Channel.fromPath(workflow.projectDir + "/Docs/Citations.txt")
+                              .collectFile(storeDir: params.output + "/Docs")
     emit:   seqkit.out
+
 }
 
 workflow read_validation_wf {
@@ -812,6 +816,7 @@ def helpMSG() {
 
 if (!params.setup) {
     workflow.onComplete { 
-        log.info ( workflow.success ? "\nDone! Results are stored here --> $params.output \nThank you for using What the Phage \nPlease cite us: https://doi.org/10.1101/2020.07.24.219899\n" : "Oops .. something went wrong" )
+        log.info ( workflow.success ? "\nDone! Results are stored here --> $params.output \nThank you for using What the Phage\n \nPlease cite us: https://doi.org/10.1101/2020.07.24.219899 \
+                                      \n\nPlease also cite the other tools we use in our workflow --> $params.output/Docs \n" : "Oops .. something went wrong" )
     }
 }
