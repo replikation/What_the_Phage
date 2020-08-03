@@ -1,0 +1,185 @@
+@article{amgarten2018marvel,
+  title={MARVEL, a tool for prediction of bacteriophage sequences in metagenomic bins},
+  author={Amgarten, Deyvid and Braga, Lucas PP and da Silva, Aline M and Setubal, Jo{\~a}o C},
+  journal={Frontiers in genetics},
+  volume={9},
+  pages={304},
+  year={2018},
+  publisher={Frontiers}
+}
+
+@article{ren2017virfinder,
+  title={VirFinder: a novel k-mer based tool for identifying viral sequences from assembled metagenomic data},
+  author={Ren, Jie and Ahlgren, Nathan A and Lu, Yang Young and Fuhrman, Jed A and Sun, Fengzhu},
+  journal={Microbiome},
+  volume={5},
+  number={1},
+  pages={69},
+  year={2017},
+  publisher={Springer}
+}
+
+@article{fang2019ppr,
+  title={PPR-Meta: a tool for identifying phages and plasmids from metagenomic fragments using deep learning},
+  author={Fang, Zhencheng and Tan, Jie and Wu, Shufang and Li, Mo and Xu, Congmin and Xie, Zhongjie and Zhu, Huaiqiu},
+  journal={GigaScience},
+  volume={8},
+  number={6},
+  pages={giz066},
+  year={2019},
+  publisher={Oxford University Press}
+}
+
+@article{roux2015virsorter,
+  title={VirSorter: mining viral signal from microbial genomic data},
+  author={Roux, Simon and Enault, Francois and Hurwitz, Bonnie L and Sullivan, Matthew B},
+  journal={PeerJ},
+  volume={3},
+  pages={e985},
+  year={2015},
+  publisher={PeerJ Inc.}
+}
+
+@article{jurtz2016metaphinder,
+  title={MetaPhinder—identifying bacteriophage sequences in metagenomic data sets},
+  author={Jurtz, Vanessa Isabell and Villarroel, Julia and Lund, Ole and Voldby Larsen, Mette and Nielsen, Morten},
+  journal={PLoS One},
+  volume={11},
+  number={9},
+  pages={e0163111},
+  year={2016},
+  publisher={Public Library of Science San Francisco, CA USA}
+}
+
+@article{ren2018identifying,
+  title={Identifying viruses from metagenomic data by deep learning},
+  author={Ren, Jie and Song, Kai and Deng, Chao and Ahlgren, Nathan A and Fuhrman, Jed A and Li, Yi and Xie, Xiaohui and Sun, Fengzhu},
+  journal={arXiv preprint arXiv:1806.07810},
+  year={2018}
+}
+
+@article{brown2016sourmash,
+  title={sourmash: a library for MinHash sketching of DNA},
+  author={Brown, C Titus and Irber, Luiz},
+  journal={Journal of Open Source Software},
+  volume={1},
+  number={5},
+  pages={27},
+  year={2016}
+}
+
+@article{kieft2020vibrant,
+  title={VIBRANT: automated recovery, annotation and curation of microbial viruses, and evaluation of viral community function from genomic sequences},
+  author={Kieft, Kristopher and Zhou, Zhichao and Anantharaman, Karthik},
+  journal={Microbiome},
+  volume={8},
+  number={1},
+  pages={1--23},
+  year={2020},
+  publisher={BioMed Central}
+}
+
+@inproceedings{abdelkareem2018virnet,
+  title={Virnet: Deep attention model for viral reads identification},
+  author={Abdelkareem, Aly O and Khalil, Mahmoud I and Elaraby, Mostafa and Abbas, Hazem and Elbehery, Ali HA},
+  booktitle={2018 13th International Conference on Computer Engineering and Systems (ICCES)},
+  pages={623--626},
+  year={2018},
+  organization={IEEE}
+}
+
+library-citation-WtP-other-tools
+
+@article{nayfach2020checkv,
+  title={CheckV: assessing the quality of metagenome-assembled viral genomes},
+  author={Nayfach, Stephen and Camargo, Antonio Pedro and Eloe-Fadrosh, Emiley and Roux, Simon and Kyrpides, Nikos},
+  journal={BioRxiv},
+  year={2020},
+  publisher={Cold Spring Harbor Laboratory}
+}
+
+@article{anand2019chromomap,
+  title={chromoMap: An R package for Interactive Visualization and Annotation of Chromosomes},
+  author={Anand, Lakshay},
+  journal={bioRxiv},
+  pages={605600},
+  year={2019},
+  publisher={Cold Spring Harbor Laboratory}
+}
+
+@article{wheeler2013nhmmer,
+  title={nhmmer: DNA homology search with profile HMMs},
+  author={Wheeler, Travis J and Eddy, Sean R},
+  journal={Bioinformatics},
+  volume={29},
+  number={19},
+  pages={2487--2489},
+  year={2013},
+  publisher={Oxford University Press}
+}
+
+@article{hyatt2010prodigal,
+  title={Prodigal: prokaryotic gene recognition and translation initiation site identification},
+  author={Hyatt, Doug and Chen, Gwo-Liang and LoCascio, Philip F and Land, Miriam L and Larimer, Frank W and Hauser, Loren J},
+  journal={BMC bioinformatics},
+  volume={11},
+  number={1},
+  pages={119},
+  year={2010},
+  publisher={Springer}
+}
+
+@article{li2009sequence,
+  title={The sequence alignment/map format and SAMtools},
+  author={Li, Heng and Handsaker, Bob and Wysoker, Alec and Fennell, Tim and Ruan, Jue and Homer, Nils and Marth, Gabor and Abecasis, Goncalo and Durbin, Richard},
+  journal={Bioinformatics},
+  volume={25},
+  number={16},
+  pages={2078--2079},
+  year={2009},
+  publisher={Oxford University Press}
+}
+
+@article{shen2016seqkit,
+  title={SeqKit: a cross-platform and ultrafast toolkit for FASTA/Q file manipulation},
+  author={Shen, Wei and Le, Shuai and Li, Yan and Hu, Fuquan},
+  journal={PloS one},
+  volume={11},
+  number={10},
+  pages={e0163962},
+  year={2016},
+  publisher={Public Library of Science San Francisco, CA USA}
+}
+
+@article{conway2017upsetr,
+  title={UpSetR: an R package for the visualization of intersecting sets and their properties},
+  author={Conway, Jake R and Lex, Alexander and Gehlenborg, Nils},
+  journal={Bioinformatics},
+  volume={33},
+  number={18},
+  pages={2938--2940},
+  year={2017},
+  publisher={Oxford University Press}
+}
+
+@article{di2017nextflow,
+  title={Nextflow enables reproducible computational workflows},
+  author={Di Tommaso, Paolo and Chatzou, Maria and Floden, Evan W and Barja, Pablo Prieto and Palumbo, Emilio and Notredame, Cedric},
+  journal={Nature biotechnology},
+  volume={35},
+  number={4},
+  pages={316--319},
+  year={2017},
+  publisher={Nature Publishing Group}
+}
+
+@article{boettiger2015introduction,
+  title={An introduction to Docker for reproducible research},
+  author={Boettiger, Carl},
+  journal={ACM SIGOPS Operating Systems Review},
+  volume={49},
+  number={1},
+  pages={71--79},
+  year={2015},
+  publisher={ACM New York, NY, USA}
+}
