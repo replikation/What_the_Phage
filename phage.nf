@@ -108,7 +108,7 @@ if (!params.setup && !workflow.profile.contains('test')) {
 
 //get-citation-file for results
     citation = Channel.fromPath(workflow.projectDir + "/Docs/Citations.txt")
-            .collectFile(storeDir: params.output + "/Docs")
+            .collectFile(storeDir: params.output + "/literature")
 
 /************* 
 * MODULES
@@ -817,6 +817,6 @@ def helpMSG() {
 if (!params.setup) {
     workflow.onComplete { 
         log.info ( workflow.success ? "\nDone! Results are stored here --> $params.output \nThank you for using What the Phage\n \nPlease cite us: https://doi.org/10.1101/2020.07.24.219899 \
-                                      \n\nPlease also cite the other tools we use in our workflow --> $params.output/Docs \n" : "Oops .. something went wrong" )
+                                      \n\nPlease also cite the other tools we use in our workflow --> $params.output/literature \n" : "Oops .. something went wrong" )
     }
 }
