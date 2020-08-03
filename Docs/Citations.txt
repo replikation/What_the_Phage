@@ -1,3 +1,11 @@
+@article{marquet2020phage,
+  title={What the Phage: A scalable workflow for the identification and analysis of phage sequences},
+  author={Marquet, Mike and H{\"o}lzer, Martin and Pletz, Mathias W and Viehweger, Adrian and Makarewicz, Oliwia and Ehricht, Ralf and Brandt, Christian},
+  journal={bioRxiv},
+  year={2020},
+  publisher={Cold Spring Harbor Laboratory}
+}
+
 @article{amgarten2018marvel,
   title={MARVEL, a tool for prediction of bacteriophage sequences in metagenomic bins},
   author={Amgarten, Deyvid and Braga, Lucas PP and da Silva, Aline M and Setubal, Jo{\~a}o C},
