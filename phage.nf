@@ -106,6 +106,10 @@ if (!params.setup && !workflow.profile.contains('test')) {
             .map { file -> tuple(file.baseName, file) }
                 }
 
+//get-citation-file for results
+    citation = Channel.fromPath(workflow.projectDir + "/Docs/Citations.txt")
+            .collectFile(storeDir: params.output + "/Docs")
+
 /************* 
 * MODULES
 *************/
@@ -328,11 +332,7 @@ workflow checkV_database {
 workflow fasta_validation_wf {
     take:   fasta
     main:   seqkit(input_suffix_check(fasta)) 
-            //get-citation-file for results
-            citation = Channel.fromPath(workflow.projectDir + "/Docs/Citations.txt")
-                              .collectFile(storeDir: params.output + "/Docs")
     emit:   seqkit.out
-
 }
 
 workflow read_validation_wf {
