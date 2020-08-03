@@ -126,7 +126,7 @@ if (!params.setup && !workflow.profile.contains('test')) {
     include filter_virfinder from './modules/parser/filter_virfinder'
     include filter_virnet from './modules/parser/filter_virnet'
     include hmmscan from './modules/hmmscan'
-    include input_suffix_check from './modules/input_suffix_check'
+    include { input_suffix_check ; get_Citation } from './modules/input_suffix_check'
     include marvel from './modules/tools/marvel'
     include marvel_collect_data from './modules/raw_data_collection/marvel_collect_data'
     include normalize_contig_size from './modules/normalize_contig_size'
@@ -328,6 +328,8 @@ workflow checkV_database {
 workflow fasta_validation_wf {
     take:   fasta
     main:   seqkit(input_suffix_check(fasta))
+            // get_Citation
+            get_Citation()
     emit:   seqkit.out
 }
 
@@ -812,7 +814,7 @@ def helpMSG() {
 
 if (!params.setup) {
     workflow.onComplete { 
-        log.info ( workflow.success ? "\nDone! Results are stored here --> $params.output \nThank you for using What the Phage \nPlease cite us: https://doi.org/10.1101/2020.07.24.219899\n \\
+        log.info ( workflow.success ? "\nDone! Results are stored here --> $params.output \nThank you for using What the Phage \nPlease cite us: https://doi.org/10.1101/2020.07.24.219899\n \
                                       Please cite also the other tools we use in our workflow --> $params.output/Docs \n" : "Oops .. something went wrong" )
     }
 }
