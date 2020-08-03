@@ -812,6 +812,7 @@ def helpMSG() {
 
 if (!params.setup) {
     workflow.onComplete { 
-        log.info ( workflow.success ? "\nDone! Results are stored here --> $params.output \nThank you for using What the Phage \nPlease cite us: https://doi.org/10.1101/2020.07.24.219899\n" : "Oops .. something went wrong" )
+        log.info ( workflow.success ? "\nDone! Results are stored here --> $params.output \nThank you for using What the Phage \nPlease cite us: https://doi.org/10.1101/2020.07.24.219899\n \\
+                                      Please cite also the other tools we use in our workflow --> $params.output/Docs \n" : "Oops .. something went wrong" )
     }
 }
