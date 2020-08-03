@@ -34,6 +34,18 @@ process input_suffix_check {
         """
 }
 
+process get_Citation {
+        label 'emboss'
+        publishDir "${params.output}/Docs", mode: 'copy'
+    output:
+        path("Citations.txt")
+    script:
+    """
+    git clone https://github.com/replikation/What_the_Phage.git
+    mv What_the_Phage/Docs/Citations.txt .
+
+    """
+}
 
 /*
 COMMENTS:
