@@ -107,7 +107,7 @@ if (!params.setup && !workflow.profile.contains('test')) {
                 }
 
 //get-citation-file for results
-    citation = Channel.fromPath(workflow.projectDir + "/Docs/Citations.txt")
+    citation = Channel.fromPath(workflow.projectDir + "/docs/Citations.bib")
             .collectFile(storeDir: params.output + "/literature")
 
 /************* 
