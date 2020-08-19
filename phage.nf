@@ -75,7 +75,7 @@ else { exit 1, "No executer selected:  -profile EXECUTER,ENGINE" }
 if (!params.setup && !workflow.profile.contains('test')) {
     if ( !params.fasta && !params.fastq ) {
         exit 1, "input missing, use [--fasta] or [--fastq]"}
-    if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm && params.vn && params.vb ) {
+    if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm && params.vn && params.vb && params.ph ) {
         exit 0, "What the... you deactivated all the tools"}
 }
 
@@ -172,6 +172,8 @@ if (!params.setup && !workflow.profile.contains('test')) {
     include { vibrant_collect_data; vibrant_virome_collect_data } from './modules/raw_data_collection/vibrant_collect_data'
     include { virsorter; virsorter_virome } from './modules/tools/virsorter'
     include { virsorter_collect_data; virsorter_virome_collect_data } from './modules/raw_data_collection/virsorter_collect_data'
+    include { phigaro } from './modules/tools/phigaro'
+    include phigaro_collect_data from './modules/raw_data_collection/phigaro_collect_data'
 
 /************* 
 * DATABASES for Phage Identification
@@ -527,6 +529,21 @@ workflow virnet_wf {
     emit:   virnet_results
 } 
 
+
+workflow phigaro_wf {
+    take:   fasta
+
+    main:   if (!params.ph) { 
+                        phigaro(fasta)
+                        // raw data collector
+                        phigaro_collect_data(phigaro.out.groupTuple(remainder: true))
+                        // result channel
+                        phigaro_results = phigaro.out
+                        }
+            else { phigaro_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+    emit:   phigaro_results
+} 
+
 workflow setup_wf {
     take:   
     main:       
@@ -619,6 +636,7 @@ workflow identify_fasta_MSF {
                         .concat(vibrant_wf(fasta_validation_wf.out, vibrant_DB))
                         .concat(vibrant_virome_wf(fasta_validation_wf.out, vibrant_DB))
                         .concat(virnet_wf(fasta_validation_wf.out))
+                        .concat(phigaro_wf(fasta_validation_wf.out))
                         .filter { it != 'deactivated' } // removes deactivated tool channels
                         .groupTuple()
                         
@@ -787,6 +805,7 @@ def helpMSG() {
     --vf                deactivates virfinder
     --vn                deactivates virnet
     --vs                deactivates virsorter
+    --ph                deactivates phigaro
 
     Adjust tools individually
     --virome            deactivates virome-mode (vibrand and virsorter)
