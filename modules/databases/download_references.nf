@@ -7,6 +7,6 @@ process download_references {
     script:
         """
         git clone https://github.com/mult1fractal/WtP_phage_reference_db.git
-        cat WtP_phage_reference_db/*.fa > phage_references.fa
+        cat WtP_phage_reference_db/fasta-files/*.fa > phage_references.fa
         """
 }

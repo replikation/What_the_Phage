@@ -64,6 +64,7 @@ else { exit 1, "No engine selected:  -profile EXECUTER,ENGINE" }
 if (
     workflow.profile.contains('local') ||
     workflow.profile.contains('test') ||
+    workflow.profile.contains('smalltest') ||
     workflow.profile.contains('ebi') ||
     workflow.profile.contains('slurm') ||
     workflow.profile.contains('lsf') ||
@@ -72,7 +73,7 @@ if (
 else { exit 1, "No executer selected:  -profile EXECUTER,ENGINE" }
 
 // params tests
-if (!params.setup && !workflow.profile.contains('test')) {
+if (!params.setup && !workflow.profile.contains('test') && !workflow.profile.contains('smalltest')) {
     if ( !params.fasta && !params.fastq ) {
         exit 1, "input missing, use [--fasta] or [--fastq]"}
     if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm && params.vn && params.vb && params.ph ) {
@@ -710,6 +711,7 @@ workflow {
 if (params.setup) { setup_wf() }
 else {
     if (workflow.profile.contains('test')) { fasta_input_ch = get_test_data() }
+    if (workflow.profile.contains('smalltest')) { fasta_input_ch = Channel.fromPath(workflow.projectDir + "/test-data/all_pos_phage.fa").map { file -> tuple(file.simpleName, file) } }
 // DATABASES
     // identification
     phage_references() 

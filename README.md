@@ -89,13 +89,13 @@ sudo usermod -a -G docker $USER
 >   * add docker to your User group via `sudo usermod -a -G docker $USER`
 >  * [Singularity installation](https://github.com/sylabs/singularity/blob/master/INSTALL.md)
 * Restart your computer
-* Try out the installation by entering the following (analyses 8 samples ~ 10h runtime)
+* Try out the installation by entering the following (analyses 1 sample with 10 phage sequences ~ 30 min runtime)
 
 ```shell
 # for docker (local use)
-nextflow run replikation/What_the_Phage -r v0.8.0 --cores 8 -profile test,local,docker
+nextflow run replikation/What_the_Phage -r v0.8.0 --cores 8 -profile smalltest,local,docker
 # for singularity (slurm use)
-nextflow run replikation/What_the_Phage -r v0.8.0 --cores 8 -profile test,slurm,singularity
+nextflow run replikation/What_the_Phage -r v0.8.0 --cores 8 -profile smalltest,slurm,singularity
 ```
 
 # Execution / Examples / Help
