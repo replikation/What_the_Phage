@@ -6,7 +6,7 @@ process download_references {
         path("phage_references.fa")
     script:
         """
-        git clone https://github.com/mult1fractal/WtP_phage_reference_db.git
-        cat WtP_phage_reference_db/*.fa > phage_references.fa
+        git clone -b WtP-v0.9 https://github.com/mult1fractal/WtP_phage_reference_db-WtP_v0.9.0.git
+        cat WtP_phage_reference_db-WtP_v0.9.0/fasta-files/*.fa > phage_references.fa
         """
 }

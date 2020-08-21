@@ -86,12 +86,12 @@ if (!params.setup && !workflow.profile.contains('test') && !workflow.profile.con
 *************/
 
 // fasta input or via csv file, fasta input is deactivated if test profile is choosen
-    if (params.fasta && params.list && !workflow.profile.contains('test')) { fasta_input_ch = Channel
+    if (params.fasta && params.list && !workflow.profile.contains('test') ) { fasta_input_ch = Channel
             .fromPath( params.fasta, checkIfExists: true )
             .splitCsv()
             .map { row -> ["${row[0]}", file("${row[1]}", checkIfExists: true)] }
                 }
-    else if (params.fasta && !workflow.profile.contains('test')) { fasta_input_ch = Channel
+    else if (params.fasta && !workflow.profile.contains('test') ) { fasta_input_ch = Channel
             .fromPath( params.fasta, checkIfExists: true)
             .map { file -> tuple(file.baseName, file) }
                 }
@@ -710,8 +710,8 @@ workflow {
 // SETUP AND TESTRUNS
 if (params.setup) { setup_wf() }
 else {
-    if (workflow.profile.contains('test')) { fasta_input_ch = get_test_data() }
-    if (workflow.profile.contains('smalltest')) { fasta_input_ch = Channel.fromPath(workflow.projectDir + "/test-data/all_pos_phage.fa").map { file -> tuple(file.simpleName, file) } }
+    if (workflow.profile.contains('test') && !workflow.profile.contains('smalltest')) { fasta_input_ch = get_test_data() }
+    if (workflow.profile.contains('smalltest') ) { fasta_input_ch = Channel.fromPath(workflow.projectDir + "/test-data/all_pos_phage.fa", checkIfExists: true).map { file -> tuple(file.simpleName, file) }.view() }
 // DATABASES
     // identification
     phage_references() 
