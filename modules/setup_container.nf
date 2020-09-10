@@ -15,8 +15,12 @@ process setup_container {
         """
         else if (workflow.profile.contains('singularity'))
         """
-        download_singularity.sh ${config_file} ${workflow.launchDir}/${params.cachedir} 
-
+        if  [[ ${params.cachedir} == "/*" ]] ; then
+                download_singularity.sh ${config_file} ${params.cachedir} 
+        else
+                download_singularity.sh ${config_file} ${workflow.launchDir}/${params.cachedir} 
+        fi
+        
         touch everything_done.txt
         """
 }
