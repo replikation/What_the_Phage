@@ -8,7 +8,7 @@ process phigaro {
         tuple val(name), path("output/", type: 'dir')
     script:
         """
-        /root/miniconda3/bin/phigaro -f ${fasta} -o output -t ${task.cpus} --wtp --config /root/.phigaro/config.yml
+        phigaro -f ${fasta} -o output -t ${task.cpus} --wtp --config /root/.phigaro/config.yml
         cat output/phigaro.txt > output/phigaro_\${PWD##*/}.txt 
         echo "" >> output/phigaro_\${PWD##*/}.txt
       """
