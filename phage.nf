@@ -46,7 +46,7 @@ println "  Manually remove faulty images in $params.cachedir for a rebuild\u001B
 if (params.annotate) { println "\u001B[33mSkipping phage identification for fasta files\u001B[0m" }
 if (params.identify) { println "\u001B[33mSkipping phage annotation\u001B[0m" }
 println " "
-println "\033[2mCPUs to use: $params.cores\033[0m"
+println "\033[2mCPUs to use: $params.cores, maximal CPUs to use: $params.max_cores\033[0m"
 println " "
 
 /************* 
@@ -740,7 +740,7 @@ def helpMSG() {
     log.info """
     .
     ${c_yellow}Usage examples:${c_reset}
-    nextflow run replikation/What_the_Phage --fasta '*/*.fasta' --cores 20 \\
+    nextflow run replikation/What_the_Phage --fasta '*/*.fasta' --cores 20 --max_cores 40 \\
         --output results -profile local,docker 
 
     nextflow run phage.nf --fasta '*/*.fasta' --cores 20 \\
@@ -773,7 +773,8 @@ def helpMSG() {
 
     ${c_yellow}Options:${c_reset}
     --filter            min contig size [bp] to analyse [default: $params.filter]
-    --cores             max cores for local use [default: $params.cores]
+    --cores             max cores per process for local use [default: $params.cores]
+    --max_cores         max cores used on the machine for local use [default: $params.max_cores]    
     --output            name of the result folder [default: $params.output]
 
     ${c_yellow}Tool control:${c_reset}
