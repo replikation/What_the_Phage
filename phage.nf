@@ -1,14 +1,28 @@
 #!/usr/bin/env nextflow
-nextflow.preview.dsl=2
+nextflow.enable.dsl=2
 
 /*
 * Nextflow -- What the Phage
 * Author: christian.jena@gmail.com
 */
 
-if ( !nextflow.version.matches('20.+') ) {
-    println "This workflow requires Nextflow version 20.04.1 or greater -- You are running version $nextflow.version"
-    exit 1
+/* 
+Nextflow version check  
+Format is this: XX.YY.ZZ  (e.g. 20.07.1)
+change below
+*/
+
+XX = "20"
+YY = "07"
+ZZ = "1"
+
+if ( nextflow.version.toString().tokenize('.')[0].toInteger() < XX.toInteger() ) {
+println "\033[0;33mWtP requires at least Nextflow version " + XX + "." + YY + "." + ZZ + " -- You are using version $nextflow.version\u001B[0m"
+exit 1
+}
+else if ( nextflow.version.toString().tokenize('.')[1].toInteger() < YY.toInteger() ) {
+println "\033[0;33mWtP requires at least Nextflow version " + XX + "." + YY + "." + ZZ + " -- You are using version $nextflow.version\u001B[0m"
+exit 1
 }
 
 println "_____ _____ ____ ____ ___ ___ __ __ _ _ "
