@@ -16,7 +16,7 @@
 # What the Phage (WtP)
 * by Christian Brandt & Mike Marquet
 * **this tool is under active development,feel free to report issues and add suggestions**
-* use a release candidate for a stable experience via `-r` e.g. `-r v0.8.0`
+* use a release candidate for a stable experience via `-r` e.g. `-r v0.9.0`
   * these are extensively tested release versions of WtP
   * [releases of WtP are here](https://github.com/replikation/What_the_Phage/releases)
 
