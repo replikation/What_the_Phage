@@ -1,14 +1,28 @@
 #!/usr/bin/env nextflow
-nextflow.preview.dsl=2
+nextflow.enable.dsl=2
 
 /*
 * Nextflow -- What the Phage
 * Author: christian.jena@gmail.com
 */
 
-if ( !nextflow.version.matches('20.+') ) {
-    println "This workflow requires Nextflow version 20.04.1 or greater -- You are running version $nextflow.version"
-    exit 1
+/* 
+Nextflow version check  
+Format is this: XX.YY.ZZ  (e.g. 20.07.1)
+change below
+*/
+
+XX = "20"
+YY = "07"
+ZZ = "1"
+
+if ( nextflow.version.toString().tokenize('.')[0].toInteger() < XX.toInteger() ) {
+println "\033[0;33mWtP requires at least Nextflow version " + XX + "." + YY + "." + ZZ + " -- You are using version $nextflow.version\u001B[0m"
+exit 1
+}
+else if ( nextflow.version.toString().tokenize('.')[1].toInteger() < YY.toInteger() ) {
+println "\033[0;33mWtP requires at least Nextflow version " + XX + "." + YY + "." + ZZ + " -- You are using version $nextflow.version\u001B[0m"
+exit 1
 }
 
 println "_____ _____ ____ ____ ___ ___ __ __ _ _ "
@@ -64,6 +78,7 @@ else { exit 1, "No engine selected:  -profile EXECUTER,ENGINE" }
 if (
     workflow.profile.contains('local') ||
     workflow.profile.contains('test') ||
+    workflow.profile.contains('smalltest') ||
     workflow.profile.contains('ebi') ||
     workflow.profile.contains('slurm') ||
     workflow.profile.contains('lsf') ||
@@ -72,10 +87,10 @@ if (
 else { exit 1, "No executer selected:  -profile EXECUTER,ENGINE" }
 
 // params tests
-if (!params.setup && !workflow.profile.contains('test')) {
+if (!params.setup && !workflow.profile.contains('test') && !workflow.profile.contains('smalltest')) {
     if ( !params.fasta && !params.fastq ) {
         exit 1, "input missing, use [--fasta] or [--fastq]"}
-    if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm && params.vn && params.vb ) {
+    if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm && params.vn && params.vb && params.ph ) {
         exit 0, "What the... you deactivated all the tools"}
 }
 
@@ -85,12 +100,12 @@ if (!params.setup && !workflow.profile.contains('test')) {
 *************/
 
 // fasta input or via csv file, fasta input is deactivated if test profile is choosen
-    if (params.fasta && params.list && !workflow.profile.contains('test')) { fasta_input_ch = Channel
+    if (params.fasta && params.list && !workflow.profile.contains('test') ) { fasta_input_ch = Channel
             .fromPath( params.fasta, checkIfExists: true )
             .splitCsv()
             .map { row -> ["${row[0]}", file("${row[1]}", checkIfExists: true)] }
                 }
-    else if (params.fasta && !workflow.profile.contains('test')) { fasta_input_ch = Channel
+    else if (params.fasta && !workflow.profile.contains('test') ) { fasta_input_ch = Channel
             .fromPath( params.fasta, checkIfExists: true)
             .map { file -> tuple(file.baseName, file) }
                 }
@@ -114,55 +129,55 @@ if (!params.setup && !workflow.profile.contains('test')) {
 * MODULES
 *************/
 
-    include checkV from './modules/checkV'
-    include chromomap from './modules/chromomap'
-    include chromomap_parser from './modules/parser/chromomap_parser'
-    include deepvirfinder from './modules/tools/deepvirfinder'
-    include deepvirfinder_collect_data from './modules/raw_data_collection/deepvirfinder_collect_data'
-    include download_checkV_DB from './modules/databases/download_checkV_DB'
-    include download_references from './modules/databases/download_references'
-    include fastqTofasta from './modules/fastqTofasta'
-    include filter_PPRmeta from './modules/parser/filter_PPRmeta'
-    include filter_deepvirfinder from './modules/parser/filter_deepvirfinder'
-    include filter_marvel from './modules/parser/filter_marvel'
-    include filter_sourmash from './modules/parser/filter_sourmash'
-    include filter_tool_names from './modules/parser/filter_tool_names'
-    include filter_virfinder from './modules/parser/filter_virfinder'
-    include filter_virnet from './modules/parser/filter_virnet'
-    include hmmscan from './modules/hmmscan'
-    include input_suffix_check from './modules/input_suffix_check'
-    include marvel from './modules/tools/marvel'
-    include marvel_collect_data from './modules/raw_data_collection/marvel_collect_data'
-    include normalize_contig_size from './modules/normalize_contig_size'
-    include parse_reads from './modules/parser/parse_reads.nf'
-    include phage_references_blastDB from './modules/databases/phage_references_blastDB'
-    include ppr_download_dependencies from './modules/databases/ppr_download_dependencies'
-    include pprmeta from './modules/tools/pprmeta'
-    include pprmeta_collect_data from './modules/raw_data_collection/pprmeta_collect_data'
-    include prodigal from './modules/prodigal'
-    include {pvog_DB; vogtable_DB} from './modules/databases/download_pvog_DB'
-    include r_plot from './modules/r_plot.nf' 
-    include r_plot_reads from './modules/r_plot_reads.nf'
-    include removeSmallReads from './modules/removeSmallReads'
-    include rvdb_DB from './modules/databases/download_rvdb_DB'
-    include samtools from './modules/samtools'
-    include seqkit from './modules/seqkit'
-    include setup_container from './modules/setup_container'
-    include shuffle_reads_nts from './modules/shuffle_reads_nts'
-    include sourmash from './modules/tools/sourmash'
-    include sourmash_collect_data from './modules/raw_data_collection/sourmash_collect_data'
-    include sourmash_download_DB from './modules/databases/sourmash_download_DB'
-    include sourmash_for_tax from './modules/sourmash_for_tax'
-    include split_multi_fasta from './modules/split_multi_fasta'
-    include testprofile from './modules/testprofile'
-    include upsetr_plot from './modules/upsetr.nf'
-    include vibrant_download_DB from './modules/databases/vibrant_download_DB'
-    include virfinder from './modules/tools/virfinder'
-    include virfinder_collect_data from './modules/raw_data_collection/virfinder_collect_data'
-    include virnet from './modules/tools/virnet'
-    include virnet_collect_data from './modules/raw_data_collection/virnet_collect_data'
-    include virsorter_download_DB from './modules/databases/virsorter_download_DB'
-    include vog_DB from './modules/databases/download_vog_DB'
+    include { checkV } from './modules/checkV'
+    include { chromomap } from './modules/chromomap'
+    include { chromomap_parser } from './modules/parser/chromomap_parser'
+    include { deepvirfinder } from './modules/tools/deepvirfinder'
+    include { deepvirfinder_collect_data } from './modules/raw_data_collection/deepvirfinder_collect_data'
+    include { download_checkV_DB } from './modules/databases/download_checkV_DB'
+    include { download_references } from './modules/databases/download_references'
+    include { fastqTofasta } from './modules/fastqTofasta'
+    include { filter_PPRmeta } from './modules/parser/filter_PPRmeta'
+    include { filter_deepvirfinder } from './modules/parser/filter_deepvirfinder'
+    include { filter_marvel } from './modules/parser/filter_marvel'
+    include { filter_sourmash } from './modules/parser/filter_sourmash'
+    include { filter_tool_names } from './modules/parser/filter_tool_names'
+    include { filter_virfinder } from './modules/parser/filter_virfinder'
+    include { filter_virnet } from './modules/parser/filter_virnet'
+    include { hmmscan } from './modules/hmmscan'
+    include { input_suffix_check } from './modules/input_suffix_check'
+    include { marvel } from './modules/tools/marvel'
+    include { marvel_collect_data } from './modules/raw_data_collection/marvel_collect_data'
+    include { normalize_contig_size } from './modules/normalize_contig_size'
+    include { parse_reads } from './modules/parser/parse_reads.nf'
+    include { phage_references_blastDB } from './modules/databases/phage_references_blastDB'
+    include { ppr_download_dependencies } from './modules/databases/ppr_download_dependencies'
+    include { pprmeta } from './modules/tools/pprmeta'
+    include { pprmeta_collect_data } from './modules/raw_data_collection/pprmeta_collect_data'
+    include { prodigal } from './modules/prodigal'
+    include { pvog_DB; vogtable_DB } from './modules/databases/download_pvog_DB'
+    include { r_plot } from './modules/r_plot.nf' 
+    include { r_plot_reads } from './modules/r_plot_reads.nf'
+    include { removeSmallReads } from './modules/removeSmallReads'
+    include { rvdb_DB } from './modules/databases/download_rvdb_DB'
+    include { samtools } from './modules/samtools'
+    include { seqkit } from './modules/seqkit'
+    include { setup_container } from './modules/setup_container'
+    include { shuffle_reads_nts } from './modules/shuffle_reads_nts'
+    include { sourmash } from './modules/tools/sourmash'
+    include { sourmash_collect_data } from './modules/raw_data_collection/sourmash_collect_data'
+    include { sourmash_download_DB } from './modules/databases/sourmash_download_DB'
+    include { sourmash_for_tax } from './modules/sourmash_for_tax'
+    include { split_multi_fasta } from './modules/split_multi_fasta'
+    include { testprofile } from './modules/testprofile'
+    include { upsetr_plot } from './modules/upsetr.nf'
+    include { vibrant_download_DB } from './modules/databases/vibrant_download_DB'
+    include { virfinder } from './modules/tools/virfinder'
+    include { virfinder_collect_data } from './modules/raw_data_collection/virfinder_collect_data'
+    include { virnet } from './modules/tools/virnet'
+    include { virnet_collect_data } from './modules/raw_data_collection/virnet_collect_data'
+    include { virsorter_download_DB } from './modules/databases/virsorter_download_DB'
+    include { vog_DB } from './modules/databases/download_vog_DB'
     include { filter_metaphinder; filter_metaphinder_own_DB } from './modules/parser/filter_metaphinder'
     include { filter_vibrant; filter_vibrant_virome } from './modules/parser/filter_vibrant'
     include { filter_virsorter; filter_virsorter_virome } from './modules/parser/filter_virsorter' 
@@ -172,6 +187,8 @@ if (!params.setup && !workflow.profile.contains('test')) {
     include { vibrant_collect_data; vibrant_virome_collect_data } from './modules/raw_data_collection/vibrant_collect_data'
     include { virsorter; virsorter_virome } from './modules/tools/virsorter'
     include { virsorter_collect_data; virsorter_virome_collect_data } from './modules/raw_data_collection/virsorter_collect_data'
+    include { phigaro } from './modules/tools/phigaro'
+    include { phigaro_collect_data } from './modules/raw_data_collection/phigaro_collect_data'
 
 /************* 
 * DATABASES for Phage Identification
@@ -527,6 +544,21 @@ workflow virnet_wf {
     emit:   virnet_results
 } 
 
+
+workflow phigaro_wf {
+    take:   fasta
+
+    main:   if (!params.ph) { 
+                        phigaro(fasta)
+                        // raw data collector
+                        phigaro_collect_data(phigaro.out[1].groupTuple(remainder: true))
+                        // result channel // [0] emits filtered positive phage sequences (provided by DEV)
+                        phigaro_results = phigaro.out[0]
+                        }
+            else { phigaro_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+    emit:   phigaro_results
+} 
+
 workflow setup_wf {
     take:   
     main:       
@@ -619,6 +651,7 @@ workflow identify_fasta_MSF {
                         .concat(vibrant_wf(fasta_validation_wf.out, vibrant_DB))
                         .concat(vibrant_virome_wf(fasta_validation_wf.out, vibrant_DB))
                         .concat(virnet_wf(fasta_validation_wf.out))
+                        .concat(phigaro_wf(fasta_validation_wf.out))
                         .filter { it != 'deactivated' } // removes deactivated tool channels
                         .groupTuple()
                         
@@ -691,7 +724,8 @@ workflow {
 // SETUP AND TESTRUNS
 if (params.setup) { setup_wf() }
 else {
-    if (workflow.profile.contains('test')) { fasta_input_ch = get_test_data() }
+    if (workflow.profile.contains('test') && !workflow.profile.contains('smalltest')) { fasta_input_ch = get_test_data() }
+    if (workflow.profile.contains('smalltest') ) { fasta_input_ch = Channel.fromPath(workflow.projectDir + "/test-data/all_pos_phage.fa", checkIfExists: true).map { file -> tuple(file.simpleName, file) }.view() }
 // DATABASES
     // identification
     phage_references() 
@@ -788,6 +822,7 @@ def helpMSG() {
     --vf                deactivates virfinder
     --vn                deactivates virnet
     --vs                deactivates virsorter
+    --ph                deactivates phigaro
 
     Adjust tools individually
     --virome            deactivates virome-mode (vibrand and virsorter)

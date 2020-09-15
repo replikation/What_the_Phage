@@ -89,13 +89,13 @@ sudo usermod -a -G docker $USER
 >   * add docker to your User group via `sudo usermod -a -G docker $USER`
 >  * [Singularity installation](https://github.com/sylabs/singularity/blob/master/INSTALL.md)
 * Restart your computer
-* Try out the installation by entering the following (analyses 8 samples ~ 10h runtime)
+* Try out the installation by entering the following (analyses 1 sample with 10 phage sequences ~ 30 min runtime)
 
 ```shell
 # for docker (local use)
-nextflow run replikation/What_the_Phage -r v0.8.0 --cores 8 -profile test,local,docker
+nextflow run replikation/What_the_Phage -r v0.8.0 --cores 8 -profile smalltest,local,docker
 # for singularity (slurm use)
-nextflow run replikation/What_the_Phage -r v0.8.0 --cores 8 -profile test,slurm,singularity
+nextflow run replikation/What_the_Phage -r v0.8.0 --cores 8 -profile smalltest,slurm,singularity
 ```
 
 # Execution / Examples / Help
@@ -162,6 +162,7 @@ nextflow run replikation/What_the_Phage \
     --vf             #   deactivates virfinder
     --vn             #   deactivates virnet
     --vs             #   deactivates virsorter
+    --ph             #   deactivates phigaro 
     --identify       #   only phage identification, skips analysis
     --annotate       #   only annotation, skips phage identification
 ```
@@ -274,6 +275,7 @@ Toolname/Gitlink | Reference |
 [Sourmash](https://github.com/dib-lab/sourmash)|[sourmash: a library for MinHash sketching of DNA](https://joss.theoj.org/papers/10.21105/joss.00027)|
 [VIBRANT](https://github.com/AnantharamanLab/VIBRANT)|[Automated recovery, annotation and curation of microbial viruses, and evaluation of virome function from genomic sequences](https://www.biorxiv.org/content/biorxiv/early/2019/11/26/855387.full.pdf)
 [VirNet](https://github.com/alyosama/virnet)|[Deep attention model for viral reads identification](https://ieeexplore.ieee.org/document/8639400)
+[Phigaro]()| [Phigaro: high throughput prophage sequence annotation](https://www.biorxiv.org/content/10.1101/598243v1)
 
  
  
