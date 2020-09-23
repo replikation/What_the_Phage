@@ -4,7 +4,7 @@
 ![](https://img.shields.io/badge/licence-GPL--3.0-lightgrey.svg)
 ![](https://github.com/replikation/What_the_Phage/workflows/Syntax_check/badge.svg)
 
-![](https://img.shields.io/badge/nextflow-20.04.1-brightgreen)
+![](https://img.shields.io/badge/nextflow-20.07.1-brightgreen)
 ![](https://img.shields.io/badge/uses-docker-blue.svg)
 ![](https://img.shields.io/badge/uses-singularity-yellow.svg)
 
