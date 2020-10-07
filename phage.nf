@@ -155,6 +155,7 @@ if (!params.setup && !workflow.profile.contains('test') && !workflow.profile.con
     include { filter_sourmash } from './modules/parser/filter_sourmash'
     include { filter_tool_names } from './modules/parser/filter_tool_names'
     include { filter_virfinder } from './modules/parser/filter_virfinder'
+    include { filter_virfinder_modEPV_k8 } from './modules/parser/filter_virfinder_modEPV_k8'
     include { filter_virnet } from './modules/parser/filter_virnet'
     include { hmmscan } from './modules/hmmscan'
     include { input_suffix_check } from './modules/input_suffix_check'
@@ -186,6 +187,9 @@ if (!params.setup && !workflow.profile.contains('test') && !workflow.profile.con
     include { vibrant_download_DB } from './modules/databases/vibrant_download_DB'
     include { virfinder } from './modules/tools/virfinder'
     include { virfinder_collect_data } from './modules/raw_data_collection/virfinder_collect_data'
+    include { virfinder_download_DB } from './modules/databases/virfinder_download_DB'
+    include { virfinder_modEPV_k8 } from './modules/tools/virfinder_modEPV_k8'
+    include { virfinder_modEPV_k8_collect_data } from './modules/raw_data_collection/virfinder_modEPV_k8_collect_data'
     include { virnet } from './modules/tools/virnet'
     include { virnet_collect_data } from './modules/raw_data_collection/virnet_collect_data'
     include { virsorter_download_DB } from './modules/databases/virsorter_download_DB'
@@ -284,6 +288,20 @@ workflow vibrant_database {
         }
     emit: db
 }           
+
+workflow download_virfinder_modEPV_k8_db {
+    main:
+    // local storage via storeDir
+    if (!params.cloudProcess) { virfinder_download_DB(); db = virfinder_download_DB.out }
+    // cloud storage via db_preload.exists()
+    if (params.cloudProcess) {
+      db_preload = file("${params.databases}/virfinder_modEPV_k8/VF.modEPV_k8.rda")
+      if (db_preload.exists()) { db = db_preload }
+      else  { virfinder_download_DB(); db = virfinder_download_DB.out } 
+    }
+  emit: db    
+}
+
 
 /************* 
 * DATABASES for Phage annotation
@@ -462,6 +480,20 @@ workflow virfinder_wf {
                         }
             else { virfinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
     emit:   virfinder_results
+} 
+
+workflow virfinder_modEPV_k8_wf {
+    take:   fasta
+            virfinder_modEPV_k8_DB
+    main:   if (!params.vf_modEPV_k8) { 
+                        filter_virfinder_modEPV_k8(virfinder_modEPV_k8(fasta, virfinder_modEPV_k8_DB).groupTuple(remainder: true))
+                        // raw data collector
+                        virfinder_modEPV_k8_collect_data(virfinder_modEPV_k8.out.groupTuple(remainder: true))
+                        // result channel
+                        virfinder_modEPV_k8_results = filter_virfinder_modEPV_k8.out
+                        }
+            else { virfinder_modEPV_k8_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+    emit:   virfinder_modEPV_k8_results
 } 
 
 workflow virsorter_wf {
@@ -646,6 +678,7 @@ workflow identify_fasta_MSF {
             sourmash_DB
             vibrant_DB
             virsorter_DB
+            virfinder_modEPV_k8_DB
             virify
     main: 
         // input filter  
@@ -660,6 +693,7 @@ workflow identify_fasta_MSF {
                         .concat(metaphinder_own_DB_wf(fasta_validation_wf.out, ref_phages_DB))
                         .concat(deepvirfinder_wf(fasta_validation_wf.out))
                         .concat(virfinder_wf(fasta_validation_wf.out))
+                        .concat(virfinder_modEPV_k8_wf(fasta_validation_wf.out, virfinder_modEPV_k8_DB))
                         .concat(pprmeta_wf(fasta_validation_wf.out, ppr_deps))
                         .concat(vibrant_wf(fasta_validation_wf.out, vibrant_DB))
                         .concat(vibrant_virome_wf(fasta_validation_wf.out, vibrant_DB))
@@ -668,7 +702,7 @@ workflow identify_fasta_MSF {
                         .concat(virify) // a txt file with all contig IDs that were collected by VIRify
                         .filter { it != 'deactivated' } // removes deactivated tool channels
                         .groupTuple()
-                        
+
             filter_tool_names(results) 
                                                
         //plotting results
@@ -747,6 +781,7 @@ else {
     if (params.pp || params.annotate) { ppr_deps = Channel.from( [ 'deactivated', 'deactivated'] ) } else { ppr_deps = ppr_dependecies() }
     if (params.vb || params.annotate) { vibrant_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vibrant_DB = vibrant_database() }
     if (params.vs || params.annotate) { virsorter_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { virsorter_DB = virsorter_database() }
+    if (params.vf_modEPV_k8 || params.annotate) { virfinder_modEPV_k8_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { virfinder_model = virfinder_download_DB() }
     //  annotation
     if (params.identify) { pvog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { pvog_DB = pvog_database() }
     if (params.identify) { vog_table = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vog_table = vogtable_database() }
@@ -758,7 +793,7 @@ else {
 
 // IDENTIFY !
     if (!params.virify) { virify_input_ch = Channel.empty() }
-    if (params.fasta && !params.annotate) { identify_fasta_MSF(fasta_input_ch, ref_phages_DB, ppr_deps,sourmash_DB, vibrant_DB, virsorter_DB, virify_input_ch) }
+    if (params.fasta && !params.annotate) { identify_fasta_MSF(fasta_input_ch, ref_phages_DB, ppr_deps,sourmash_DB, vibrant_DB, virsorter_DB, virfinder_model, virify_input_ch) }
     if (params.fastq) { identify_fastq_MSF(fastq_input_ch, ref_phages_DB, ppr_deps, sourmash_DB, vibrant_DB, virsorter_DB) }
 
 // ANNOTATE & TAXONOMY !
@@ -836,6 +871,7 @@ def helpMSG() {
     --sm                deactivates sourmash
     --vb                deactivates vibrant
     --vf                deactivates virfinder
+    --vf_modEPV_k8      deactivates virfinder from VIRify
     --vn                deactivates virnet
     --vs                deactivates virsorter
     --ph                deactivates phigaro

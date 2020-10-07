@@ -9,7 +9,7 @@ process filter_tool_names {
       """
       # simplify toolnames for R (its a quick fix for now)
       for x in *.txt; do
-        if [[ \${x} == *"virify"* ]]; then
+        if [[ \${x} == *"_virify"* ]]; then
           mv \${x} virify.txt
           sed -i 's/\\./_/g' virify.txt
         else
