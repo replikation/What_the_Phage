@@ -871,18 +871,20 @@ def helpMSG() {
     --sm                deactivates sourmash
     --vb                deactivates vibrant
     --vf                deactivates virfinder
-    --vf_modEPV_k8      deactivates virfinder from VIRify
+    --vf_modEPV_k8      deactivates virfinder alternative model
     --vn                deactivates virnet
     --vs                deactivates virsorter
     --ph                deactivates phigaro
 
     Adjust tools individually
-    --virome            deactivates virome-mode (vibrand and virsorter)
-    --dv_filter         p-value cut-off [default: $params.dv_filter]
-    --mp_filter         average nucleotide identity [default: $params.mp_filter]
-    --vf_filter         p-value cut-off [default: $params.vf_filter]
-    --sm_filter         Similarity score [default: $params.sm_filter]
-    --vn_filter         Score [default: $params.vn_filter]
+    --virome                deactivates virome-mode (vibrand and virsorter)
+    --dv_filter             p-value cut-off [default: $params.dv_filter]
+    --mp_filter             average nucleotide identity [default: $params.mp_filter]
+    --vf_filter             Score cut-off [default: $params.vf_filter]
+    --vf_modEPV_k8_filter   Score cut-off [default: $params.vf_modEPV_k8_filter]
+    --vs_filter             categories [1, 2, and/or 3; default: $params.vs_filter]
+    --sm_filter             Similarity score [default: $params.sm_filter]
+    --vn_filter             Score [default: $params.vn_filter]
 
     Workflow control:
     --identify          only phage identification, skips analysis
