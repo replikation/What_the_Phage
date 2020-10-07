@@ -8,9 +8,14 @@ process filter_tool_names {
     script:
       """
       # simplify toolnames for R (its a quick fix for now)
-        for x in *.txt; do
+      for x in *.txt; do
+        if [[ \${x} == *"virify"* ]]; then
+          mv \${x} virify.txt
+          sed -i 's/\\./_/g' virify.txt
+        else
           filename_simple=\$(echo "\${x}" | cut -f 1 -d "_")
           mv \${x} \${filename_simple}.txt
-        done
+        fi
+      done
       """
 }

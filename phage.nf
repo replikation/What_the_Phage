@@ -121,6 +121,18 @@ if (!params.setup && !workflow.profile.contains('test') && !workflow.profile.con
             .map { file -> tuple(file.baseName, file) }
                 }
 
+// VIRify contig ID input via txt file
+    if (params.virify && params.list && !workflow.profile.contains('test') ) { virify_input_ch = Channel
+            .fromPath( params.virify, checkIfExists: true )
+            .splitCsv()
+            .map { row -> ["${row[0]}", file("${row[1]}", checkIfExists: true)] }
+                }
+    else if (params.virify && !workflow.profile.contains('test') ) { virify_input_ch = Channel
+            .fromPath( params.virify, checkIfExists: true)
+            .map { file -> tuple(file.baseName.replace("_virify",""), file) }
+            .view()
+                }
+
 //get-citation-file for results
     citation = Channel.fromPath(workflow.projectDir + "/docs/Citations.bib")
             .collectFile(storeDir: params.output + "/literature")
@@ -634,6 +646,7 @@ workflow identify_fasta_MSF {
             sourmash_DB
             vibrant_DB
             virsorter_DB
+            virify
     main: 
         // input filter  
         fasta_validation_wf(fasta)
@@ -652,6 +665,7 @@ workflow identify_fasta_MSF {
                         .concat(vibrant_virome_wf(fasta_validation_wf.out, vibrant_DB))
                         .concat(virnet_wf(fasta_validation_wf.out))
                         .concat(phigaro_wf(fasta_validation_wf.out))
+                        .concat(virify) // a txt file with all contig IDs that were collected by VIRify
                         .filter { it != 'deactivated' } // removes deactivated tool channels
                         .groupTuple()
                         
@@ -743,7 +757,8 @@ else {
     if (params.identify && params.sm) { sourmash_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { sourmash_DB = sourmash_database(phage_references.out) }
 
 // IDENTIFY !
-    if (params.fasta && !params.annotate) { identify_fasta_MSF(fasta_input_ch, ref_phages_DB, ppr_deps,sourmash_DB, vibrant_DB, virsorter_DB) }
+    if (!params.virify) { virify_input_ch = Channel.empty() }
+    if (params.fasta && !params.annotate) { identify_fasta_MSF(fasta_input_ch, ref_phages_DB, ppr_deps,sourmash_DB, vibrant_DB, virsorter_DB, virify_input_ch) }
     if (params.fastq) { identify_fastq_MSF(fastq_input_ch, ref_phages_DB, ppr_deps, sourmash_DB, vibrant_DB, virsorter_DB) }
 
 // ANNOTATE & TAXONOMY !
@@ -789,6 +804,7 @@ def helpMSG() {
     ${c_dim}   e.g. --fasta inputs.csv --list    
         the .csv contains per line: name,/path/to/file${c_reset}  
      --setup              skips analysis and just downloads databases and containers
+     --virify             input a list of contigs identified via virify (combines VS, VF, and PPR-Meta with own filter steps)
 
     ${c_yellow}Execution/Engine profiles:${c_reset}
      WtP supports profiles to run via different ${c_green}Executers${c_reset} and ${c_blue}Engines${c_reset} e.g.:
