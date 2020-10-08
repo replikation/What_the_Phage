@@ -1,6 +1,6 @@
 process virfinder_modEPV_k8 {
       errorStrategy { task.exitStatus = 1 ? 'ignore' :  'terminate' }
-      label 'virfinder_modEPV_k8'
+      label 'virfinder'
     
     input:
       tuple val(name), file(fasta)
