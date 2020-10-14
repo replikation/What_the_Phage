@@ -848,7 +848,7 @@ def helpMSG() {
     --virome            deactivates virome-mode (vibrand and virsorter)
     --dv_filter         p-value cut-off [default: $params.dv_filter]
     --mp_filter         average nucleotide identity [default: $params.mp_filter]
-    --vf_filter         p-value cut-off [default: $params.vf_filter]
+    --vf_filter         score cut-off [default: $params.vf_filter]
     --sm_filter         Similarity score [default: $params.sm_filter]
     --vn_filter         Score [default: $params.vn_filter]
 
