@@ -1,6 +1,6 @@
 process virsorter2 {
       label 'virsorter2'
-      //errorStrategy 'ignore'
+      errorStrategy 'ignore'
     input:
       tuple val(name), path(fasta)  
     output:
