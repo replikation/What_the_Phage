@@ -189,6 +189,9 @@ if (!params.setup && !workflow.profile.contains('test') && !workflow.profile.con
     include { virsorter_collect_data; virsorter_virome_collect_data } from './modules/raw_data_collection/virsorter_collect_data'
     include { phigaro } from './modules/tools/phigaro'
     include { phigaro_collect_data } from './modules/raw_data_collection/phigaro_collect_data'
+    include { virsorter2 } from './modules/tools/virsorter2'
+    include { filter_virsorter2 } from './modules/parser/filter_virsorter2'
+    include { virsorter2_collect_data} from './modules/raw_data_collection/virsorter2_collect_data'
 
 /************* 
 * DATABASES for Phage Identification
@@ -483,6 +486,22 @@ workflow virsorter_virome_wf {
             else { virsorter_virome_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
     emit:   virsorter_virome_results
 } 
+//---------------------------------------------------------------------
+workflow virsorter2_wf {
+    take:   fasta           
+    main:   if (!params.vs2) {
+                        virsorter2(fasta)
+                        // filtering
+                        filter_virsorter2(virsorter2.out[0].groupTuple(remainder: true))
+                        // raw data collector
+                        virsorter2_collect_data(virsorter2.out[1].groupTuple(remainder: true))
+                        // result channel
+                        virsorter2_results = filter_virsorter2.out
+                        }
+            else { virsorter2_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+    emit:   virsorter2_results
+} 
+//------------------------------------------------------------------------
 
 workflow pprmeta_wf {
     take:   fasta
@@ -640,6 +659,7 @@ workflow identify_fasta_MSF {
 
         // gather results
             results =   virsorter_wf(fasta_validation_wf.out, virsorter_DB)
+                        .concat(virsorter2_wf(fasta_validation_wf.out))
                         .concat(virsorter_virome_wf(fasta_validation_wf.out, virsorter_DB))
                         .concat(marvel_wf(fasta_validation_wf.out))      
                         .concat(sourmash_wf(fasta_validation_wf.out, sourmash_DB))
@@ -828,7 +848,8 @@ def helpMSG() {
     --virome            deactivates virome-mode (vibrand and virsorter)
     --dv_filter         p-value cut-off [default: $params.dv_filter]
     --mp_filter         average nucleotide identity [default: $params.mp_filter]
-    --vf_filter         p-value cut-off [default: $params.vf_filter]
+    --vf_filter         score cut-off [default: $params.vf_filter]
+    --vs2_filter        dsDNAphage score cut-off [default: $params.vs2_filter]
     --sm_filter         Similarity score [default: $params.sm_filter]
     --vn_filter         Score [default: $params.vn_filter]
 
