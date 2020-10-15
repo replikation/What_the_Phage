@@ -278,7 +278,6 @@ Toolname/Gitlink | Reference |
 [Phigaro](https://github.com/bobeobibo/phigaro)| [Phigaro: high throughput prophage sequence annotation](https://www.biorxiv.org/content/10.1101/598243v1)
 [Virsorter2 beta](https://github.com/jiarong/VirSorter2)|
 
-
  
  
 ### Annotation & classification
