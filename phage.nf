@@ -586,6 +586,7 @@ workflow seeker_wf {
 						filter_seeker(seeker(fasta).groupTuple(remainder: true))
 						// results channel
 						seeker_results = filter_seeker.out		
+						}
 			else { seeker_results = Channel.from( ['deactivated', 'deactivated'] ) }
 	emit:	seeker_results
 
