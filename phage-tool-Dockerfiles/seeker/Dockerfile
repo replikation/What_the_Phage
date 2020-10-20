@@ -1,5 +1,9 @@
 FROM continuumio/miniconda3:latest
 
+RUN apt-get update -y && apt-get install -y procps && \
+	apt-get clean && \
+	rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
 RUN conda config --add channels conda-forge && \
 	conda config --add channels default && \
 	conda create -y --name seeker python=3.7 pip && \
