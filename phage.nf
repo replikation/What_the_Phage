@@ -192,8 +192,8 @@ if (!params.setup && !workflow.profile.contains('test') && !workflow.profile.con
     include { virsorter2 } from './modules/tools/virsorter2'
     include { filter_virsorter2 } from './modules/parser/filter_virsorter2'
     include { virsorter2_collect_data} from './modules/raw_data_collection/virsorter2_collect_data'
-	include { seeker } from './modules/tools/seeker'
-	include { filter_seeker } from './modules/parser/filter_seeker'
+    include { seeker } from './modules/tools/seeker'
+    include { filter_seeker } from './modules/parser/filter_seeker'
 
 /************* 
 * DATABASES for Phage Identification
@@ -583,13 +583,13 @@ workflow phigaro_wf {
 workflow seeker_wf {
 	take:	fasta
 	main:	if (!params.sk) {
-						// run and filter seeker
-						filter_seeker(seeker(fasta).groupTuple(remainder: true))
-						// results channel
-						seeker_results = filter_seeker.out		
-						}
-			else { seeker_results = Channel.from( ['deactivated', 'deactivated'] ) }
-	emit:	seeker_results
+                        // run and filter seeker
+                        filter_seeker(seeker(fasta).groupTuple(remainder: true))
+                        // results channel
+                        seeker_results = filter_seeker.out		
+                        }
+            else { seeker_results = Channel.from( ['deactivated', 'deactivated'] ) }
+    emit:   seeker_results
 }
 
 workflow setup_wf {
