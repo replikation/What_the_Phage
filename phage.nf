@@ -686,7 +686,7 @@ workflow identify_fasta_MSF {
                         .concat(vibrant_virome_wf(fasta_validation_wf.out, vibrant_DB))
                         .concat(virnet_wf(fasta_validation_wf.out))
                         .concat(phigaro_wf(fasta_validation_wf.out))
-						.concat(seeker_wf(fasta_validation_wf.out))
+                        .concat(seeker_wf(fasta_validation_wf.out))
                         .filter { it != 'deactivated' } // removes deactivated tool channels
                         .groupTuple()
                         
