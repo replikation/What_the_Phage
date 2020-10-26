@@ -90,7 +90,7 @@ else { exit 1, "No executer selected:  -profile EXECUTER,ENGINE" }
 if (!params.setup && !workflow.profile.contains('test') && !workflow.profile.contains('smalltest')) {
     if ( !params.fasta && !params.fastq ) {
         exit 1, "input missing, use [--fasta] or [--fastq]"}
-    if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm && params.vn && params.vb && params.ph && params.sk ) {
+    if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm && params.vn && params.vb && params.ph && params.vs2 && params.sk ) {
         exit 0, "What the... you deactivated all the tools"}
 }
 
@@ -194,6 +194,7 @@ if (!params.setup && !workflow.profile.contains('test') && !workflow.profile.con
     include { virsorter2_collect_data} from './modules/raw_data_collection/virsorter2_collect_data'
     include { seeker } from './modules/tools/seeker'
     include { filter_seeker } from './modules/parser/filter_seeker'
+    include { seeker_collect_data } from './modules/raw_data_collection/seeker_collect_data'
 
 /************* 
 * DATABASES for Phage Identification
@@ -488,7 +489,7 @@ workflow virsorter_virome_wf {
             else { virsorter_virome_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
     emit:   virsorter_virome_results
 } 
-//---------------------------------------------------------------------
+
 workflow virsorter2_wf {
     take:   fasta           
     main:   if (!params.vs2) {
@@ -503,7 +504,6 @@ workflow virsorter2_wf {
             else { virsorter2_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
     emit:   virsorter2_results
 } 
-//------------------------------------------------------------------------
 
 workflow pprmeta_wf {
     take:   fasta
@@ -565,10 +565,8 @@ workflow virnet_wf {
     emit:   virnet_results
 } 
 
-
 workflow phigaro_wf {
     take:   fasta
-
     main:   if (!params.ph) { 
                         phigaro(fasta)
                         // raw data collector
@@ -585,6 +583,8 @@ workflow seeker_wf {
 	main:	if (!params.sk) {
                         // run and filter seeker
                         filter_seeker(seeker(fasta).groupTuple(remainder: true))
+                        // raw data collector
+                        seeker_collect_data(seeker.out.groupTuple(remainder: true))
                         // results channel
                         seeker_results = filter_seeker.out		
                         }
@@ -858,6 +858,7 @@ def helpMSG() {
     --vn                deactivates virnet
     --vs                deactivates virsorter
     --ph                deactivates phigaro
+    --vs2               deactivates virsorter2
     --sk                deactivates seeker
 
     Adjust tools individually
