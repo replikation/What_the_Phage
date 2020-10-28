@@ -1,13 +1,13 @@
 process filter_seeker {
-	label 'ubuntu'
+  	label 'ubuntu'
     input:
-      tuple val(name), file(results) 
+        tuple val(name), file(results) 
     output:
-      tuple val(name), file("seeker_*.txt")
+        tuple val(name), file("seeker_*.txt")
     shell:
-      """
-      tail -n+2 *.list | sort -gr -k3  | awk '\$3>=${params.sk_filter}' | awk '{ print \$1 }'  > seeker_\${PWD##*/}.txt
-      """
+        """
+        tail -n+2 *.list | sort -gr -k3  | awk '\$3>=${params.sk_filter}' | awk '{ print \$1 }'  > seeker_\${PWD##*/}.txt
+        """
 }
 
 /* 

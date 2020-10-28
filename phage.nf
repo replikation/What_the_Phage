@@ -94,7 +94,6 @@ if (!params.setup && !workflow.profile.contains('test') && !workflow.profile.con
         exit 0, "What the... you deactivated all the tools"}
 }
 
-
 /************* 
 * INPUT HANDLING
 *************/
