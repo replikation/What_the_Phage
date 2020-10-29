@@ -1,5 +1,5 @@
 process input_suffix_check {
-        label 'ubuntu'
+    label 'ubuntu'
     input:
         tuple val(name), file(file) 
     output:

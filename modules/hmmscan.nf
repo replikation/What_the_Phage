@@ -7,9 +7,9 @@ process hmmscan {
     output:
         tuple val(name), path("${name}_${pvog_db}_hmmscan.tbl"), path(faa) 
     script:
-    """
-    hmmscan --cpu ${task.cpus} --noali --domtblout ${name}_${pvog_db}_hmmscan.tbl ${pvog_db}/${pvog_db}.hmm ${faa}
-    """
+        """
+        hmmscan --cpu ${task.cpus} --noali --domtblout ${name}_${pvog_db}_hmmscan.tbl ${pvog_db}/${pvog_db}.hmm ${faa}
+        """
 }
 
 
