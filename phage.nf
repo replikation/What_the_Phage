@@ -837,6 +837,7 @@ def helpMSG() {
       docker
       singularity
     
+    For a test run add "test" to the profile, e.g. -profile test,local,singularity
     For a test run add "test" to the profile, e.g. -profile smalltest,local,singularity
 
     ${c_yellow}Options:${c_reset}
@@ -879,7 +880,7 @@ def helpMSG() {
                         [default: ${params.databases}]
                         ${c_dim}WtP downloads DBs if not present at this path${c_reset}
 
-    -workdir           defines the path where nextflow writes temporary files 
+    --workdir           defines the path where nextflow writes temporary files 
                         [default: $params.workdir]
 
     --cachedir          defines the path where singularity images are cached
