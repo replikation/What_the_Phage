@@ -837,9 +837,8 @@ def helpMSG() {
       docker
       singularity
     
-    For a test run add "test" to the profile, e.g. -profile test,local,singularity
-    For a test run add "test" to the profile, e.g. -profile smalltest,local,singularity
-
+    For a test run (~ 1h), add "smalltest" to the profile, e.g. -profile smalltest,local,singularity 
+    
     ${c_yellow}Options:${c_reset}
     --filter            min contig size [bp] to analyse [default: $params.filter]
     --cores             max cores per process for local use [default: $params.cores]
