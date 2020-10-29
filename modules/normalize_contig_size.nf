@@ -1,12 +1,12 @@
 process normalize_contig_size {
-      label 'sourmash'
+    label 'sourmash'
     input:
-      tuple val(name), file(fasta)
+        tuple val(name), file(fasta)
     output:
-      tuple val(name), file("${name}_fragments.fasta")
+        tuple val(name), file("${name}_fragments.fasta")
     script:
-      """
-      cut.py --size 3000 --genome ${fasta} --outfile ${name}_fragments.fasta
-      """
+        """
+        cut.py --size 3000 --genome ${fasta} --outfile ${name}_fragments.fasta
+        """
 }
 

@@ -1,5 +1,5 @@
 process filter_marvel {
-      label 'ubuntu'
+    label 'ubuntu'
     input:
       tuple val(name), file(results), file(bin_dir)
     output:

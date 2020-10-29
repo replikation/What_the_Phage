@@ -6,7 +6,7 @@ process prodigal {
     output:
         tuple val(name), path("${name}_prodigal.faa")
     script:
-    """
-    prodigal -p "meta" -a ${name}_prodigal.faa -i ${positive_contigs}
-    """
+        """
+        prodigal -p "meta" -a ${name}_prodigal.faa -i ${positive_contigs}
+        """
 }

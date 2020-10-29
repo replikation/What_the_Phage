@@ -1,16 +1,16 @@
 process pprmeta {
-      label 'pprmeta'
-      errorStrategy 'ignore'
+    label 'pprmeta'
+    errorStrategy 'ignore'
     input:
-      tuple val(name), file(fasta) 
-      file(depts) 
+        tuple val(name), file(fasta) 
+        file(depts) 
     output:
-      tuple val(name), file("${name}_*.csv")
+        tuple val(name), file("${name}_*.csv")
     script:
-      """
-      cp ${depts}/* .
-      ./PPR_Meta ${fasta} ${name}_\${PWD##*/}.csv
-      """
+        """
+        cp ${depts}/* .
+        ./PPR_Meta ${fasta} ${name}_\${PWD##*/}.csv
+        """
 }
 
  // .fasta is not working here. has to be .fa
