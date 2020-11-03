@@ -22,7 +22,7 @@
   * These are extensively tested release versions of WtP
   * [releases of WtP are listed here](https://github.com/replikation/What_the_Phage/releases)  
 
-**A detailed documentation is [here](https://mult1fractal.github.io/WtP.github.io/)**
+**A detailed documentation is [here](https://mult1fractal.github.io/wtp-documentation/)**
 
 
 ## Preprint:
