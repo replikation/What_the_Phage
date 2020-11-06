@@ -33,7 +33,7 @@
 # What is this repo
 
 #### TL;DR
-* WtP is a scalable and easy-to-use workflow for phage identification and analysis. Our tool currently combines 10 established phage [identification tools](#included-bioinformatic-tools)
+* WtP is a scalable and easy-to-use workflow for phage identification and analysis. Our tool currently combines 10 established phage identification tools 
 * An attempt to streamline the usage of various phage identification and prediction tools
 * The main focus is stability and data filtering/analysis for the user
 * The tool is intended for fasta and fastq reads to identify phages in contigs/reads
