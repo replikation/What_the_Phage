@@ -41,4 +41,10 @@
 
 
 ## A detailed documentation can be found here [here](https://mult1fractal.github.io/wtp-documentation/)
-
+* The documentation contains:
+  * General information 
+  * Installation guide
+  * Tool overview
+  * Result interpretation
+  * Troubleshooting 
+  
