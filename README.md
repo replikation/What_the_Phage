@@ -40,7 +40,7 @@
 * Proper prophage detection is not implemented (yet) - but a handful of tools report them - so they are mostly identified
 
 
-## A detailed documentation can be found here [here](https://mult1fractal.github.io/wtp-documentation/)
+## A detailed documentation can be found [here](https://mult1fractal.github.io/wtp-documentation/)
 * The documentation contains:
   * General information 
   * Installation guide
