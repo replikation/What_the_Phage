@@ -20,7 +20,7 @@ if ( nextflow.version.toString().tokenize('.')[0].toInteger() < XX.toInteger() )
 println "\033[0;33mWtP requires at least Nextflow version " + XX + "." + YY + "." + ZZ + " -- You are using version $nextflow.version\u001B[0m"
 exit 1
 }
-else if ( nextflow.version.toString().tokenize('.')[1].toInteger() < YY.toInteger() ) {
+else if ( nextflow.version.toString().tokenize('.')[1].toInteger() == XX.toInteger() && nextflow.version.toString().tokenize('.')[1].toInteger() < YY.toInteger() ) {
 println "\033[0;33mWtP requires at least Nextflow version " + XX + "." + YY + "." + ZZ + " -- You are using version $nextflow.version\u001B[0m"
 exit 1
 }
