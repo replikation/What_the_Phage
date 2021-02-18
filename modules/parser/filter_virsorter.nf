@@ -21,3 +21,5 @@ process filter_virsorter_virome {
         cat *.list  > virsorter-virome_\${PWD##*/}.txt
         """
 }
+
+// filter needs to be added

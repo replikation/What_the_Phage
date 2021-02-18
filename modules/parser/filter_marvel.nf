@@ -18,5 +18,8 @@ process filter_marvel {
         else
           touch marvel_\${PWD##*/}.txt
         fi
+
       """
 }
+
+// deprecated see issue #116

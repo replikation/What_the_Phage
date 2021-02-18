@@ -9,3 +9,5 @@ process filter_sourmash {
         cat *.list  > sourmash_\${PWD##*/}.txt
         """
 }
+
+// filter im tool (awk - remove there and put here)

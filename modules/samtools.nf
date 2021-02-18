@@ -2,9 +2,9 @@ process samtools {
         publishDir "${params.output}/${name}/phage_positive_contigs", mode: 'copy', pattern: "${name}_positive_contigs.fa"
         label 'samtools'
     input:
-        tuple val(name), file(file), file(list)
+        tuple val(name), path(file), path(list)
     output:
-        tuple val(name), file("${name}_positive_contigs.fa")
+        tuple val(name), path("${name}_positive_contigs.fa")
     script:
         """
         cat ${list} | sort | uniq > tmp_allctgs.txt
@@ -28,9 +28,9 @@ process samtools_fastq {
         publishDir "${params.output}/${name}/phage_positive_contigs", mode: 'copy', pattern: "${name}_positive_contigs.fa"
         label 'samtools'
     input:
-        tuple val(name), file(file), file(list)
+        tuple val(name), path(file), path(list)
     output:
-        tuple val(name), file("${name}_positive_contigs.fa")
+        tuple val(name), path("${name}_positive_contigs.fa")
     script:
         """
         cat ${list} | sort | uniq > tmp_allctgs.txt

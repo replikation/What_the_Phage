@@ -9,3 +9,5 @@ process filter_PPRmeta {
         cat *.csv | grep -v "Header,Length,phage_score," | grep ',phage\$' | cut -d ',' -f1 > PPRmeta_\${PWD##*/}.txt
         """
 }
+
+// filter missing
