@@ -1,9 +1,9 @@
 process checkV {
-        publishDir "${params.output}/${name}/", mode: 'copy'
+        publishDir "${params.output}/${name}/${category}", mode: 'copy'
         errorStrategy 'ignore'
         label 'checkV'
     input:
-        tuple val(name), path(fasta)
+        tuple val(name), val(category), path(fasta)
         file(database)
     output:
         tuple val(name), file("${name}_quality_summary.tsv"), file("negative_result_${name}.txt") optional true

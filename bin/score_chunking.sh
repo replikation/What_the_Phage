@@ -8,7 +8,7 @@ SCOURE_UNLIKE=$5
 # get contigIDs (from fasta)
 CONTIG_LIST=$(grep ">" $FASTA | tr -d ">")
 
-# calculate average, but with reduce "score" if less than 5 tools
+# calculate score average, but with reduce "score" if less than 5 tools
 mkdir -p scores/
 printf '%s\n' "${CONTIG_LIST[@]}" | xargs -I% -P ${CPUS} \
 	bash -c "if [[ \$(grep % *.tsv | wc -l) -gt 5 ]]; then 
@@ -29,6 +29,8 @@ bash -c "if [ \"${SCORE_HLIKE}\" = \"\$(printf \"\$(cat scores/%_file.txt)\\n${S
 	else
 		echo \"%\" >> fasta_chunks/not_likely.list
 fi"
+
+
 mkdir -p contigs
 # faidx 4 lists into fasta chunks
 for chunkfile in fasta_chunks/*.list; do

@@ -18,3 +18,8 @@ process score_based_chunking {
         """
 }
 
+/*
+annotation are available -> suggesting to modify scores based on clear phage genes (tail capsid)
+providing checkV data to further influence score
+
+*/

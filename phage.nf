@@ -646,7 +646,7 @@ workflow checkV_wf {
 
 workflow get_test_data {
     main: testprofile()
-    emit: testprofile.out.flatten().map { file -> tuple(file.simpleName, file) } // or getSimpleName
+    emit: testprofile.out.flatten().map { file -> tuple(file.simpleName, file) }
 }
 
 workflow phage_tax_classification {
@@ -744,25 +744,19 @@ workflow phage_annotation_MSF {
             fasta = fasta_and_tool_results.map {it -> tuple(it[0],it[1])}
             //annotation-process
 
-
             prodigal(fasta)
 
             hmmscan(prodigal.out, pvog_DB)
 
-
-
             score_based_chunking(hmmscan.out.join(fasta_and_tool_results), vog_table)
-            // ### determining_samtool.out.highlikely  determining_samtool.out.likely  determining_samtool.out.unlikely  determining_samtool.out.notlikely 
-            // in einen channel .mix und in einen chromomap rein
-            // ### these chunks are used to define the output dirs
-            // ### then for each chunk we do chromomap and vir
+            
+            chunk_channel=score_based_chunking.out[0].mix(score_based_chunking.out[1]).mix(score_based_chunking.out[2]).mix(score_based_chunking.out[3])
+            
+            chromomap_parser(chunk_channel.combine(hmmscan.out, by:0), vog_table)
+            chromomap(chromomap_parser.out[0].mix(chromomap_parser.out[1]))
 
-            // chromomap_parser(
-            //         fasta.join(hmmscan.out), vog_table)
-
-            // chromomap(chromomap_parser.out[0].mix(chromomap_parser.out[1]))
             // fine granular heatmap ()
-    emit:   hmmscan.out // the chunk.mix() needs to be here (one channel with val(name, (val(likely), path(...))))
+    emit:   chunk_channel
 }
 
 /************* 
@@ -803,12 +797,13 @@ else {
     else if (params.fasta && !params.annotate) { annotation_ch = identify_fasta_MSF.out }
     else if (params.fastq ) { annotation_ch = identify_fastq_MSF.out }
 
-    // Annotation & classification from this -> annotation_ch = tuple val(name), path(fasta)
+    // Annotation & classification & score based chunking
     if (!params.identify) { 
-         phage_annotation_MSF(annotation_ch, pvog_DB, vog_table, vog_DB, rvdb_DB) 
-    //     // ### chunking gets down here:
-    //     checkV_wf(annotation_ch, checkV_DB) 
-    //     phage_tax_classification(annotation_ch, sourmash_DB )
+        phage_annotation_MSF(annotation_ch, pvog_DB, vog_table, vog_DB, rvdb_DB) 
+        
+        // these workflows are using the score based chunks from phage_annotation_MSF
+        checkV_wf(phage_annotation_MSF.out, checkV_DB) 
+        phage_tax_classification(phage_annotation_MSF.out, sourmash_DB )
     }
 }}
 
