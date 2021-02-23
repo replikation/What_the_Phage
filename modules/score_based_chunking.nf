@@ -14,7 +14,7 @@ process score_based_chunking {
         tuple val(name), val("phages-not_likely"), path("contigs/not_likely_contigs.fasta"), optional: true
     script:
         """
-        score_chunking.sh ${fasta} ${task.cpus} 0.9 0.6 0.3
+        score_chunking.sh ${fasta} ${task.cpus} "0.9" "0.6" "0.3"
         """
 }
 

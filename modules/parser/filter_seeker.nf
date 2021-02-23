@@ -1,16 +1,14 @@
 process filter_seeker {
   	label 'ubuntu'
     input:
-        tuple val(name), file(results) 
+        tuple val(name), path(results) 
     output:
-        tuple val(name), file("seeker_*.tsv")
+        tuple val(name), path("seeker_*.tsv")
     shell:
         """
         tail -n+2 *.list | sort -gr -k3  | awk '{ print \$1, \$3}' OFS='\\t' > seeker_\${PWD##*/}.tsv
         """
 }
-
-// filter implemented
 
 /* 
 raw output:

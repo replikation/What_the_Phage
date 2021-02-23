@@ -1,12 +1,12 @@
 process filter_sourmash {
     label 'ubuntu'
     input:
-        tuple val(name), file(results)
+        tuple val(name), path(results)
     output:
-        tuple val(name), file("sourmash_*.txt")
+        tuple val(name), path("sourmash_*.tsv")
     shell:
         """
-        cat *.list  > sourmash_\${PWD##*/}.txt
+        cat *.list  > sourmash_\${PWD##*/}.tsv
         """
 }
 

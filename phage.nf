@@ -195,6 +195,7 @@ if (!params.setup && !workflow.profile.contains('test') && !workflow.profile.con
     include { virsorter_collect_data; virsorter_virome_collect_data } from './modules/raw_data_collection/virsorter_collect_data'
     include { virsorter_download_DB } from './modules/databases/virsorter_download_DB'
     include { vog_DB } from './modules/databases/download_vog_DB'
+    include { split_multi_fasta_2 } from './modules/split_multi_fasta'
 
 /************* 
 * DATABASES for Phage Identification
@@ -653,7 +654,7 @@ workflow phage_tax_classification {
     take:   fasta
             sourmash_database
     main:    
-            sourmash_for_tax(split_multi_fasta(fasta), sourmash_database).groupTuple(remainder: true)
+            sourmash_for_tax(split_multi_fasta_2(fasta), sourmash_database).groupTuple(remainder: true)
 }
 
 /************* 
@@ -694,7 +695,7 @@ workflow identify_fasta_MSF {
             filter_tool_names(results)
             upsetr_plot(filter_tool_names.out[0])        
 
-    emit:   output = fasta.join(results)  // val(name), path(fasta), path(scores_by_tools)
+    emit:   output = fasta_validation_wf.out.join(results)  // val(name), path(fasta), path(scores_by_tools)
 }
 
 /*

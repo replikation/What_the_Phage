@@ -9,7 +9,3 @@ process filter_virsorter2 {
         tail -n+2 *.tsv |  awk '{ print \$1, \$2 }' OFS='\\t' > virsorter2_\${PWD##*/}.tsv
         """
 }
-
-// filter included
-
-
