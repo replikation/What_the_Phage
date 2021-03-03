@@ -24,7 +24,7 @@ process sourmash {
           prediction_value=\$(grep -v "similarity,name,filename,md5" \${tempfile} |sort -r -k1 | awk 'NR == 1' | cut -d "," -f1 )
       
           if [ \$value -gt 0 ] 
-            then echo "\$filename    \$prediction_value" >> ${name}_\${PWD##*/}.list
+            then echo "\$filename,\$prediction_value" >> ${name}_\${PWD##*/}.list
           fi
         done
         """
