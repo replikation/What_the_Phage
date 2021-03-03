@@ -196,6 +196,7 @@ if (!params.setup && !workflow.profile.contains('test') && !workflow.profile.con
     include { virsorter_download_DB } from './modules/databases/virsorter_download_DB'
     include { vog_DB } from './modules/databases/download_vog_DB'
     include { split_multi_fasta_2 } from './modules/split_multi_fasta'
+    include { hue_heatmap } from './modules/hue_heatmap'
 
 /************* 
 * DATABASES for Phage Identification
@@ -757,7 +758,10 @@ workflow phage_annotation_MSF {
             chromomap(chromomap_parser.out[0].mix(chromomap_parser.out[1]))
 
             // fine granular heatmap ()
-    emit:   chunk_channel
+
+            hue_heatmap(fasta_and_tool_results)
+
+    emit:   chunk_channel.view()
 }
 
 /************* 
