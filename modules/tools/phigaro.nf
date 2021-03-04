@@ -27,4 +27,7 @@ process phigaro {
 // pos_phage_9
 //
 
+// removes empty line : sed '${/^$/d}'
+
+
 //awk -v score="1" -F"," 'BEGIN { OFS = "\\t" } {$2=score; print}'
