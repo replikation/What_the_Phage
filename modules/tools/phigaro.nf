@@ -11,6 +11,7 @@ process phigaro {
         phigaro -f ${fasta} -o output -t ${task.cpus} --wtp --config /root/.phigaro/config.yml
         cat output/phigaro.txt | awk -v score="1" -F"," 'BEGIN { OFS = "\\t" } {\$2=score; print}' > output/phigaro_\${PWD##*/}.tsv
         echo "" >> output/phigaro_\${PWD##*/}.tsv
+        sed '\${/^\$/d}' output/phigaro_\${PWD##*/}.tsv
       """
 }
 
