@@ -189,6 +189,7 @@ if (!params.setup && !workflow.profile.contains('test') && !workflow.profile.con
     include { phigaro } from './modules/tools/phigaro'
     include { phigaro_collect_data } from './modules/raw_data_collection/phigaro_collect_data'
     include { virsorter2 } from './modules/tools/virsorter2'
+    include { virsorter2_download_DB } from './modules/databases/virsorter2_download_DB' 
     include { filter_virsorter2 } from './modules/parser/filter_virsorter2'
     include { virsorter2_collect_data} from './modules/raw_data_collection/virsorter2_collect_data'
     include { seeker } from './modules/tools/seeker'
@@ -220,6 +221,19 @@ workflow virsorter_database {
             db_preload = file("${params.databases}/virsorter/virsorter-data", type: 'dir')
             if (db_preload.exists()) { db = db_preload }
             else  { virsorter_download_DB(); db = virsorter_download_DB.out } 
+        }
+    emit: db
+}
+
+workflow virsorter2_database {
+    main: 
+        // local storage via storeDir
+        if (!params.cloudProcess) { virsorter2_download_DB(); db = virsorter2_download_DB.out }
+        // cloud storage via db_preload.exists()
+        if (params.cloudProcess) {
+            db_preload = file("${params.databases}/virsorter2-db", type: 'dir')
+            if (db_preload.exists()) { db = db_preload }
+            else  { virsorter2_download_DB(); db = virsorter2_download_DB.out } 
         }
     emit: db
 }
@@ -491,6 +505,7 @@ workflow virsorter_virome_wf {
 
 workflow virsorter2_wf {
     take:   fasta           
+            virsorter2_DB
     main:   if (!params.vs2) {
                         virsorter2(fasta)
                         // filtering
@@ -620,6 +635,7 @@ workflow setup_wf {
             vog_DB = vog_database() 
             rvdb_DB = rvdb_database()
             checkV_DB = checkV_database()
+            virsorter2_DB = virsorter2_DB()
         }
 } 
 
@@ -666,6 +682,7 @@ workflow identify_fasta_MSF {
             sourmash_DB
             vibrant_DB
             virsorter_DB
+            virsorter2_DB
     main: 
         // input filter  
         fasta_validation_wf(fasta)
