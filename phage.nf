@@ -505,9 +505,9 @@ workflow virsorter_virome_wf {
 
 workflow virsorter2_wf {
     take:   fasta           
-            virsorter2_DB
-    main:   if (!params.vs2) {
-                        virsorter2(fasta)
+            virsorter2_download_DB
+    main:   if (!params.vs2) { 
+                        virsorter2(fasta, virsorter2_download_DB)
                         // filtering
                         filter_virsorter2(virsorter2.out[0].groupTuple(remainder: true))
                         // raw data collector
@@ -628,6 +628,7 @@ workflow setup_wf {
             sourmash_DB = sourmash_database (phage_references.out)
             vibrant_DB = vibrant_download_DB()
             virsorter_DB = virsorter_database()
+            virsorter2_DB = virsorter2_download_DB()
         }
         if (!params.identify) {
             vog_table = vogtable_database()
@@ -635,7 +636,6 @@ workflow setup_wf {
             vog_DB = vog_database() 
             rvdb_DB = rvdb_database()
             checkV_DB = checkV_database()
-            virsorter2_DB = virsorter2_DB()
         }
 } 
 
@@ -689,7 +689,7 @@ workflow identify_fasta_MSF {
 
         // gather results
             results =   virsorter_wf(fasta_validation_wf.out, virsorter_DB)
-                        .concat(virsorter2_wf(fasta_validation_wf.out))
+                        .concat(virsorter2_wf(fasta_validation_wf.out, virsorter2_DB))
                         .concat(virsorter_virome_wf(fasta_validation_wf.out, virsorter_DB))
                         .concat(marvel_wf(fasta_validation_wf.out))      
                         .concat(sourmash_wf(fasta_validation_wf.out, sourmash_DB))
@@ -776,7 +776,8 @@ workflow {
 if (params.setup) { setup_wf() }
 else {
     if (workflow.profile.contains('test') && !workflow.profile.contains('smalltest')) { fasta_input_ch = get_test_data() }
-    if (workflow.profile.contains('smalltest') ) { fasta_input_ch = Channel.fromPath(workflow.projectDir + "/test-data/all_pos_phage.fa", checkIfExists: true).map { file -> tuple(file.simpleName, file) }.view() }
+    if (workflow.profile.contains('smalltest') ) 
+        { fasta_input_ch = Channel.fromPath(workflow.projectDir + "/test-data/all_pos_phage.fa", checkIfExists: true).map { file -> tuple(file.simpleName, file) }.view() }
 // DATABASES
     // identification
     phage_references() 
@@ -784,6 +785,7 @@ else {
     if (params.pp || params.annotate) { ppr_deps = Channel.from( [ 'deactivated', 'deactivated'] ) } else { ppr_deps = ppr_dependecies() }
     if (params.vb || params.annotate) { vibrant_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vibrant_DB = vibrant_database() }
     if (params.vs || params.annotate) { virsorter_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { virsorter_DB = virsorter_database() }
+    if (params.vs2 || params.annotate) { virsorter2_DB = Channel.from( ['deactivated', 'deactivated'] ) } else { virsorter2_DB = virsorter2_database() }
     //  annotation
     if (params.identify) { pvog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { pvog_DB = pvog_database() }
     if (params.identify) { vog_table = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vog_table = vogtable_database() }
@@ -794,7 +796,7 @@ else {
     if (params.identify && params.sm) { sourmash_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { sourmash_DB = sourmash_database(phage_references.out) }
 
 // IDENTIFY !
-    if (params.fasta && !params.annotate) { identify_fasta_MSF(fasta_input_ch, ref_phages_DB, ppr_deps,sourmash_DB, vibrant_DB, virsorter_DB) }
+    if (params.fasta && !params.annotate) { identify_fasta_MSF(fasta_input_ch, ref_phages_DB, ppr_deps,sourmash_DB, vibrant_DB, virsorter_DB, virsorter2_DB) }
     if (params.fastq) { identify_fastq_MSF(fastq_input_ch, ref_phages_DB, ppr_deps, sourmash_DB, vibrant_DB, virsorter_DB) }
 
 // ANNOTATE & TAXONOMY !
