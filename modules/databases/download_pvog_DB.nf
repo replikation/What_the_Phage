@@ -1,6 +1,6 @@
 process pvog_DB {
     label 'noDocker'    
-    if (params.cloudProcess) { publishDir "${params.databases}/", mode: 'copy'}
+    if (params.cloudProcess) { publishDir "${params.databases}/pvogs/", mode: 'copy'}
     else { storeDir "${params.databases}/pvog" }  
     output:
         path("pvogs", type: 'dir')

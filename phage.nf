@@ -71,6 +71,7 @@ if ( workflow.profile == 'standard' ) { exit 1, "NO VALID EXECUTION PROFILE SELE
 
 if (
     workflow.profile.contains('singularity') ||
+    workflow.profile.contains('ukj_cloud') ||
     workflow.profile.contains('docker')
     ) { "engine selected" }
 else { exit 1, "No engine selected:  -profile EXECUTER,ENGINE" }
@@ -82,6 +83,7 @@ if (
     workflow.profile.contains('ebi') ||
     workflow.profile.contains('slurm') ||
     workflow.profile.contains('lsf') ||
+    workflow.profile.contains('ukj_cloud') ||
     workflow.profile.contains('git_action')
     ) { "executer selected" }
 else { exit 1, "No executer selected:  -profile EXECUTER,ENGINE" }
