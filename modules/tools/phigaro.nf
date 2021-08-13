@@ -4,13 +4,14 @@ process phigaro {
     input:
         tuple val(name), path(fasta) 
     output:
-        tuple val(name), path("output/phigaro_*.txt")
+        tuple val(name), path("output/phigaro_*.tsv")
         tuple val(name), path("output/", type: 'dir')
     script:
         """
         phigaro -f ${fasta} -o output -t ${task.cpus} --wtp --config /root/.phigaro/config.yml
-        cat output/phigaro.txt > output/phigaro_\${PWD##*/}.txt 
-        echo "" >> output/phigaro_\${PWD##*/}.txt
+        cat output/phigaro.txt | awk -v score="1" -F"," 'BEGIN { OFS = "\\t" } {\$2=score; print}' > output/phigaro_\${PWD##*/}.tsv
+        echo "" >> output/phigaro_\${PWD##*/}.tsv
+        sed '\${/^\$/d}' output/phigaro_\${PWD##*/}.tsv
       """
 }
 
@@ -25,3 +26,8 @@ process phigaro {
 // pos_phage_8$
 // pos_phage_9
 //
+
+// removes empty line : sed '${/^$/d}'
+
+
+//awk -v score="1" -F"," 'BEGIN { OFS = "\\t" } {$2=score; print}'

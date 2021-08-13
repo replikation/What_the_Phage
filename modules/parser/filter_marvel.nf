@@ -1,9 +1,9 @@
 process filter_marvel {
     label 'ubuntu'
     input:
-      tuple val(name), file(results), file(bin_dir)
+      tuple val(name), path(results), path(bin_dir)
     output:
-      tuple val(name), file("marvel_*.txt")
+      tuple val(name), path("marvel_*.txt")
     script:
       """
       
@@ -18,5 +18,8 @@ process filter_marvel {
         else
           touch marvel_\${PWD##*/}.txt
         fi
+
       """
 }
+
+// deprecated see issue #116

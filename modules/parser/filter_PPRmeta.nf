@@ -1,11 +1,11 @@
 process filter_PPRmeta {
     label 'ubuntu'
     input:
-        tuple val(name), file(results) 
+        tuple val(name), path(results) 
     output:
-        tuple val(name), file("PPRmeta_*.txt")
+        tuple val(name), path("PPRmeta_*.tsv")
     script:
         """
-        cat *.csv | grep -v "Header,Length,phage_score," | grep ',phage\$' | cut -d ',' -f1 > PPRmeta_\${PWD##*/}.txt
+        tail -n+2 *.csv | awk -F, '{print \$1, \$3}' OFS="\\t" > PPRmeta_\${PWD##*/}.tsv
         """
 }

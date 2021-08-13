@@ -141,17 +141,26 @@ if (!params.setup && !workflow.profile.contains('test') && !workflow.profile.con
     include { filter_PPRmeta } from './modules/parser/filter_PPRmeta'
     include { filter_deepvirfinder } from './modules/parser/filter_deepvirfinder'
     include { filter_marvel } from './modules/parser/filter_marvel'
+    include { filter_metaphinder; filter_metaphinder_own_DB } from './modules/parser/filter_metaphinder'
+    include { filter_seeker } from './modules/parser/filter_seeker'
     include { filter_sourmash } from './modules/parser/filter_sourmash'
     include { filter_tool_names } from './modules/parser/filter_tool_names'
+    include { filter_vibrant; filter_vibrant_virome } from './modules/parser/filter_vibrant'
     include { filter_virfinder } from './modules/parser/filter_virfinder'
     include { filter_virnet } from './modules/parser/filter_virnet'
+    include { filter_virsorter2 } from './modules/parser/filter_virsorter2'
+    include { filter_virsorter; filter_virsorter_virome } from './modules/parser/filter_virsorter' 
     include { hmmscan } from './modules/hmmscan'
     include { input_suffix_check } from './modules/input_suffix_check'
     include { marvel } from './modules/tools/marvel'
     include { marvel_collect_data } from './modules/raw_data_collection/marvel_collect_data'
+    include { metaphinder; metaphinder_own_DB} from './modules/tools/metaphinder'
+    include { metaphinder_collect_data; metaphinder_collect_data_ownDB } from './modules/raw_data_collection/metaphinder_collect_data'
     include { normalize_contig_size } from './modules/normalize_contig_size'
     include { parse_reads } from './modules/parser/parse_reads.nf'
     include { phage_references_blastDB } from './modules/databases/phage_references_blastDB'
+    include { phigaro } from './modules/tools/phigaro'
+    include { phigaro_collect_data } from './modules/raw_data_collection/phigaro_collect_data'
     include { ppr_download_dependencies } from './modules/databases/ppr_download_dependencies'
     include { pprmeta } from './modules/tools/pprmeta'
     include { pprmeta_collect_data } from './modules/raw_data_collection/pprmeta_collect_data'
@@ -162,6 +171,9 @@ if (!params.setup && !workflow.profile.contains('test') && !workflow.profile.con
     include { removeSmallReads } from './modules/removeSmallReads'
     include { rvdb_DB } from './modules/databases/download_rvdb_DB'
     include { samtools } from './modules/samtools'
+    include { score_based_chunking } from './modules/score_based_chunking'
+    include { seeker } from './modules/tools/seeker'
+    include { seeker_collect_data } from './modules/raw_data_collection/seeker_collect_data'
     include { seqkit } from './modules/seqkit'
     include { setup_container } from './modules/setup_container'
     include { shuffle_reads_nts } from './modules/shuffle_reads_nts'
@@ -172,31 +184,23 @@ if (!params.setup && !workflow.profile.contains('test') && !workflow.profile.con
     include { split_multi_fasta } from './modules/split_multi_fasta'
     include { testprofile } from './modules/testprofile'
     include { upsetr_plot } from './modules/upsetr.nf'
+    include { vibrant; vibrant_virome } from './modules/tools/vibrant'
+    include { vibrant_collect_data; vibrant_virome_collect_data } from './modules/raw_data_collection/vibrant_collect_data'
     include { vibrant_download_DB } from './modules/databases/vibrant_download_DB'
     include { virfinder } from './modules/tools/virfinder'
     include { virfinder_collect_data } from './modules/raw_data_collection/virfinder_collect_data'
     include { virnet } from './modules/tools/virnet'
     include { virnet_collect_data } from './modules/raw_data_collection/virnet_collect_data'
-    include { virsorter_download_DB } from './modules/databases/virsorter_download_DB'
-    include { vog_DB } from './modules/databases/download_vog_DB'
-    include { filter_metaphinder; filter_metaphinder_own_DB } from './modules/parser/filter_metaphinder'
-    include { filter_vibrant; filter_vibrant_virome } from './modules/parser/filter_vibrant'
-    include { filter_virsorter; filter_virsorter_virome } from './modules/parser/filter_virsorter' 
-    include { metaphinder; metaphinder_own_DB} from './modules/tools/metaphinder'
-    include { metaphinder_collect_data; metaphinder_collect_data_ownDB } from './modules/raw_data_collection/metaphinder_collect_data'
-    include { vibrant; vibrant_virome } from './modules/tools/vibrant'
-    include { vibrant_collect_data; vibrant_virome_collect_data } from './modules/raw_data_collection/vibrant_collect_data'
-    include { virsorter; virsorter_virome } from './modules/tools/virsorter'
-    include { virsorter_collect_data; virsorter_virome_collect_data } from './modules/raw_data_collection/virsorter_collect_data'
-    include { phigaro } from './modules/tools/phigaro'
-    include { phigaro_collect_data } from './modules/raw_data_collection/phigaro_collect_data'
     include { virsorter2 } from './modules/tools/virsorter2'
     include { virsorter2_download_DB } from './modules/databases/virsorter2_download_DB' 
     include { filter_virsorter2 } from './modules/parser/filter_virsorter2'
     include { virsorter2_collect_data} from './modules/raw_data_collection/virsorter2_collect_data'
-    include { seeker } from './modules/tools/seeker'
-    include { filter_seeker } from './modules/parser/filter_seeker'
-    include { seeker_collect_data } from './modules/raw_data_collection/seeker_collect_data'
+    include { virsorter; virsorter_virome } from './modules/tools/virsorter'
+    include { virsorter_collect_data; virsorter_virome_collect_data } from './modules/raw_data_collection/virsorter_collect_data'
+    include { virsorter_download_DB } from './modules/databases/virsorter_download_DB'
+    include { vog_DB } from './modules/databases/download_vog_DB'
+    include { split_multi_fasta_2 } from './modules/split_multi_fasta'
+    include { hue_heatmap } from './modules/hue_heatmap'
 
 /************* 
 * DATABASES for Phage Identification
@@ -663,14 +667,14 @@ workflow checkV_wf {
 
 workflow get_test_data {
     main: testprofile()
-    emit: testprofile.out.flatten().map { file -> tuple(file.simpleName, file) } // or getSimpleName
+    emit: testprofile.out.flatten().map { file -> tuple(file.simpleName, file) }
 }
 
 workflow phage_tax_classification {
     take:   fasta
             sourmash_database
     main:    
-            sourmash_for_tax(split_multi_fasta(fasta), sourmash_database).groupTuple(remainder: true)
+            sourmash_for_tax(split_multi_fasta_2(fasta), sourmash_database).groupTuple(remainder: true)
 }
 
 /************* 
@@ -693,7 +697,7 @@ workflow identify_fasta_MSF {
             results =   virsorter_wf(fasta_validation_wf.out, virsorter_DB)
                         .concat(virsorter2_wf(fasta_validation_wf.out, virsorter2_DB))
                         .concat(virsorter_virome_wf(fasta_validation_wf.out, virsorter_DB))
-                        .concat(marvel_wf(fasta_validation_wf.out))      
+                        // depracted due to file size explosin -> .concat(marvel_wf(fasta_validation_wf.out))      
                         .concat(sourmash_wf(fasta_validation_wf.out, sourmash_DB))
                         .concat(metaphinder_wf(fasta_validation_wf.out))
                         .concat(metaphinder_own_DB_wf(fasta_validation_wf.out, ref_phages_DB))
@@ -707,18 +711,15 @@ workflow identify_fasta_MSF {
                         .concat(seeker_wf(fasta_validation_wf.out))
                         .filter { it != 'deactivated' } // removes deactivated tool channels
                         .groupTuple()
-                        
-            filter_tool_names(results) 
                                                
-        //plotting results
-            r_plot(filter_tool_names.out)
-            upsetr_plot(filter_tool_names.out)
-        //samtools 
-            samtools(fasta_validation_wf.out.join(filter_tool_names.out))
+        //plotting overview
+            filter_tool_names(results)
+            upsetr_plot(filter_tool_names.out[0])        
 
-    emit:   samtools.out
+    emit:   output = fasta_validation_wf.out.join(results)  // val(name), path(fasta), path(scores_by_tools)
 }
 
+/*
 workflow identify_fastq_MSF { 
     take:   fastq
             ref_phages_DB
@@ -741,8 +742,8 @@ workflow identify_fastq_MSF {
         filter_tool_names(results) 
 
     //plotting results
-        r_plot_reads(parse_reads(results))
-        upsetr_plot(filter_tool_names.out)
+        r_plot_reads(parse_reads(results))   
+        upsetr_plot(filter_tool_names.out)     
     
     //samtools
         // COMMENT: all fastas have the same name which does name collision 
@@ -751,22 +752,36 @@ workflow identify_fastq_MSF {
     emit: samtools.out
 }
 
+*/
+
+
 workflow phage_annotation_MSF {
-    take :  fasta 
+    take:   fasta_and_tool_results 
             pvog_DB
             vog_table
             vog_DB
             rvdb_DB
-    main :  
+    main:  
+            
+            fasta = fasta_and_tool_results.map {it -> tuple(it[0],it[1])}
             //annotation-process
-            prodigal(fasta)      
+
+            prodigal(fasta)
 
             hmmscan(prodigal.out, pvog_DB)
 
-            chromomap_parser(
-                    fasta.join(hmmscan.out), vog_table)
-
+            score_based_chunking(hmmscan.out.join(fasta_and_tool_results), vog_table)
+            
+            chunk_channel=score_based_chunking.out[0].mix(score_based_chunking.out[1]).mix(score_based_chunking.out[2]).mix(score_based_chunking.out[3])
+            
+            chromomap_parser(chunk_channel.combine(hmmscan.out, by:0), vog_table)
             chromomap(chromomap_parser.out[0].mix(chromomap_parser.out[1]))
+
+            // fine granular heatmap ()
+
+            hue_heatmap(fasta_and_tool_results)
+
+    emit:   chunk_channel.view()
 }
 
 /************* 
@@ -809,11 +824,13 @@ else {
     else if (params.fasta && !params.annotate) { annotation_ch = identify_fasta_MSF.out }
     else if (params.fastq ) { annotation_ch = identify_fastq_MSF.out }
 
-    // Annotation & classification from this -> annotation_ch = tuple val(name), path(fasta)
+    // Annotation & classification & score based chunking
     if (!params.identify) { 
         phage_annotation_MSF(annotation_ch, pvog_DB, vog_table, vog_DB, rvdb_DB) 
-        checkV_wf(annotation_ch, checkV_DB) 
-        phage_tax_classification(annotation_ch, sourmash_DB )
+        
+        // these workflows are using the score based chunks from phage_annotation_MSF
+        checkV_wf(phage_annotation_MSF.out, checkV_DB) 
+        phage_tax_classification(phage_annotation_MSF.out, sourmash_DB )
     }
 }}
 

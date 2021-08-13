@@ -2,11 +2,11 @@ process sourmash {
     label 'sourmash'
     errorStrategy 'ignore'
     input:
-        tuple val(name), file(fasta_dir) 
-        file(database)
+        tuple val(name), path(fasta_dir) 
+        path(database)
     output:
-        tuple val(name), file("${name}_*.list")
-    shell:
+        tuple val(name), path("${name}_*.list")
+    script:
         """
         for fastafile in ${fasta_dir}/*.fa; do
           sourmash compute -p ${task.cpus} --scaled 100 -k 21 \${fastafile}
@@ -19,11 +19,12 @@ process sourmash {
         touch ${name}_\${PWD##*/}.list
 
         for tempfile in *.temporary; do
-          value=\$(grep -v "similarity,name,filename,md5" \${tempfile} | awk '\$1>=${params.sm_filter}'|wc -l)   # filtering criteria
+          value=\$(grep -v "similarity,name,filename,md5" \${tempfile} | wc -l)   # filtering criteria
           filename=\$(basename \${tempfile} .fa.sig.temporary)
+          prediction_value=\$(grep -v "similarity,name,filename,md5" \${tempfile} |sort -r -k1 | awk 'NR == 1' | cut -d "," -f1 )
       
           if [ \$value -gt 0 ] 
-            then echo "\$filename" >> ${name}_\${PWD##*/}.list
+            then echo "\$filename,\$prediction_value" >> ${name}_\${PWD##*/}.list
           fi
         done
         """
