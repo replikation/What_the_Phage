@@ -13,7 +13,7 @@ process virsorter2_download_DB {
         """
     stub:
         """
-        mkdir db
+        mkdir -p db
         """
 }
 

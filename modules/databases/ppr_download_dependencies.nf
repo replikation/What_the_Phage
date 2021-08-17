@@ -10,6 +10,6 @@ process ppr_download_dependencies {
         """
     stub:
         """
-        mkdir PPR-Meta
+        mkdir -p PPR-Meta
         """        
 }

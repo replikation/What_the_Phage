@@ -11,7 +11,7 @@ process pvog_DB {
         """
     stub:
         """
-        mkdir pvogs
+        mkdir -p pvogs
         """
 }
 

@@ -13,6 +13,6 @@ process download_checkV_DB {
         """
     stub:
         """
-        mkdir checkv-db-v0.6
+        mkdir -p checkv-db-v0.6
         """
 }
