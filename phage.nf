@@ -72,6 +72,7 @@ if ( workflow.profile == 'standard' ) { exit 1, "NO VALID EXECUTION PROFILE SELE
 if (
     workflow.profile.contains('singularity') ||
     workflow.profile.contains('ukj_cloud') ||
+    workflow.profile.contains('stub') ||
     workflow.profile.contains('docker')
     ) { "engine selected" }
 else { exit 1, "No engine selected:  -profile EXECUTER,ENGINE" }
@@ -84,6 +85,7 @@ if (
     workflow.profile.contains('slurm') ||
     workflow.profile.contains('lsf') ||
     workflow.profile.contains('ukj_cloud') ||
+    workflow.profile.contains('stub') ||
     workflow.profile.contains('git_action')
     ) { "executer selected" }
 else { exit 1, "No executer selected:  -profile EXECUTER,ENGINE" }
@@ -148,7 +150,6 @@ if (!params.setup && !workflow.profile.contains('test') && !workflow.profile.con
     include { filter_vibrant; filter_vibrant_virome } from './modules/parser/filter_vibrant'
     include { filter_virfinder } from './modules/parser/filter_virfinder'
     include { filter_virnet } from './modules/parser/filter_virnet'
-    include { filter_virsorter2 } from './modules/parser/filter_virsorter2'
     include { filter_virsorter; filter_virsorter_virome } from './modules/parser/filter_virsorter' 
     include { hmmscan } from './modules/hmmscan'
     include { input_suffix_check } from './modules/input_suffix_check'

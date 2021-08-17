@@ -8,4 +8,8 @@ process ppr_download_dependencies {
         """
         git clone https://github.com/Stormrider935/PPR-Meta.git
         """
+    stub:
+        """
+        mkdir PPR-Meta
+        """        
 }

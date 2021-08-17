@@ -25,4 +25,8 @@ process setup_container {
         
         touch everything_done.txt
         """
+    stub:
+        """
+        touch everything_done.txt
+        """
 }

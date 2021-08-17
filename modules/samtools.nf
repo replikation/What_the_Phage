@@ -22,6 +22,10 @@ process samtools {
         # old command
         # xargs samtools faidx all.fasta < tmp_allctgs.txt > ${name}_positive_contigs.fa
         """
+    stub:
+        """
+        touch ${name}_positive_contigs.fa
+        """
 }
 
 process samtools_fastq {
@@ -48,4 +52,8 @@ process samtools_fastq {
         # old command
         # xargs samtools faidx all.fasta < tmp_allctgs.txt > ${name}_positive_contigs.fa
       """
+    stub:
+        """
+        touch ${name}_positive_contigs.fa
+        """
 }

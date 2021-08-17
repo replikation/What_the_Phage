@@ -19,6 +19,10 @@ process split_multi_fasta {
       fi
         done < ${fasta}
       """
+    stub:
+        """
+        mkdir ${name}_contigs/
+        """
 }
 
 process split_multi_fasta_2 {
@@ -41,5 +45,9 @@ process split_multi_fasta_2 {
         echo "\${line}" >> ${name}_contigs/\${outfile}
       fi
         done < ${fasta}
+      """
+    stub:
+      """
+      mkdir ${name}_contigs/
       """
 }

@@ -3,10 +3,10 @@ process sourmash_for_tax {
       label 'sourmash'
     //  errorStrategy 'ignore'
     input:
-      tuple val(name), val(category), file(fasta_dir) 
+      tuple val(name), val(category), path(fasta_dir) 
       file(database)
     output:
-      tuple val(name), val(category), file("${name}_tax-class.tsv")
+      tuple val(name), val(category), path("${name}_tax-class.tsv")
     shell:
       """
       for fastafile in ${fasta_dir}/*.fa; do
@@ -49,6 +49,10 @@ process sourmash_for_tax {
       done
       sed -i 1i"contig\tprediction_value\tpredicted_organism_name" ${name}_tax-class.tsv
       """
+    stub:
+        """
+        touch ${name}_tax-class.tsv
+        """
 }
 
 /*

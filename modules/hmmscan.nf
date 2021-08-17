@@ -10,6 +10,10 @@ process hmmscan {
         """
         hmmscan --cpu ${task.cpus} ${params.hmm_params} --noali --domtblout ${name}_${pvog_db}_hmmscan.tbl ${pvog_db}/${pvog_db}.hmm ${faa}
         """
+    stub:
+        """
+        touch ${name}_${pvog_db}_hmmscan.tbl
+        """
 }
 
 

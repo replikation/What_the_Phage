@@ -11,6 +11,11 @@ process virsorter_collect_data {
         cp ${tar_files} virsorter
         tar -czf virsorter_results_${name}.tar.gz virsorter
         """
+    stub:
+        """
+        mkdir virsorter
+        tar -czf virsorter_results_${name}.tar.gz virsorter
+        """
 }
 
 process virsorter_virome_collect_data {
@@ -24,6 +29,11 @@ process virsorter_virome_collect_data {
         """
         mkdir -p virsorter
         cp ${tar_files} virsorter
+        tar -czf virsorter_virome_results_${name}.tar.gz virsorter
+        """
+    stub:
+        """
+        mkdir virsorter
         tar -czf virsorter_virome_results_${name}.tar.gz virsorter
         """
 }

@@ -9,6 +9,10 @@ process pvog_DB {
         wget -nH ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/viral-pipeline/hmmer_databases/pvogs.tar.gz && tar -zxvf pvogs.tar.gz
         rm pvogs.tar.gz
         """
+    stub:
+        """
+        mkdir pvogs
+        """
 }
 
 process vogtable_DB {
@@ -20,6 +24,10 @@ process vogtable_DB {
     script:
         """
         wget -nH http://dmk-brain.ecn.uiowa.edu/pVOGs/downloads/VOGTable.txt
+        """
+    stub:
+        """
+        touch VOGTable.txt
         """
 }
 

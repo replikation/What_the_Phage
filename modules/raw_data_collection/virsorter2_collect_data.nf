@@ -11,4 +11,9 @@ process virsorter2_collect_data {
         cp -r ${rawdir}/* virsorter2
         tar -czf virsorter2_results_${name}.tar.gz virsorter2
         """
+    stub:
+        """
+        mkdir virsorter2
+        tar -czf virsorter2_results_${name}.tar.gz virsorter2
+        """
 }

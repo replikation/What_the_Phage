@@ -13,4 +13,8 @@ process filter_virnet {
         # extract correct positive contigs
         parse_virnet.py --input all_virnet_results.txt --output virnet_\${PWD##*/}.tsv
         """
+    stub:
+        """
+        mkdir touch virnet_\${PWD##*/}.tsv
+        """
 }

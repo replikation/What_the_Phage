@@ -11,4 +11,8 @@ process download_checkV_DB {
         tar -zxvf checkv-db-v0.6.tar.gz
         rm checkv-db-v0.6.tar.gz
         """
+    stub:
+        """
+        mkdir checkv-db-v0.6
+        """
 }

@@ -14,6 +14,12 @@ process metaphinder {
         mv ${name}/output.txt ${name}_\${PWD##*/}.list
         mv ${name}/blast.out ${name}_\${PWD##*/}_blast.out
         """
+    stub:
+        """
+        echo "#contigID       classification  ANI [%] merged coverage [%]     number of hits  size[bp]" > ${name}_\${PWD##*/}.list
+        echo "pos_phage_0     phage   80.754  96.97   172     146647" >> ${name}_\${PWD##*/}.list
+        touch ${name}_\${PWD##*/}_blast.out
+        """
 }
 
 
@@ -35,5 +41,11 @@ process metaphinder_own_DB {
         MetaPhinder.py -i ${fasta} -o ${name} -d phage_blast_DB/phage_db
         mv ${name}/output.txt ${name}_\${PWD##*/}.list
         mv ${name}/blast.out ${name}_\${PWD##*/}_blast.out
+        """
+    stub:
+        """
+        echo "#contigID       classification  ANI [%] merged coverage [%]     number of hits  size[bp]" > ${name}_\${PWD##*/}.list
+        echo "pos_phage_0     phage   80.754  96.97   172     146647" >> ${name}_\${PWD##*/}.list
+        touch ${name}_\${PWD##*/}_blast.out
         """
 }

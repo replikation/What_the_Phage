@@ -9,4 +9,8 @@ process download_references {
         git clone -b WtP-v0.9 https://github.com/mult1fractal/WtP_phage_reference_db-WtP_v0.9.0.git
         cat WtP_phage_reference_db-WtP_v0.9.0/fasta-files/*.fa > phage_references.fa
         """
+    stub:
+        """
+        touch phage_references.fa
+        """        
 }

@@ -10,4 +10,9 @@ process seeker {
         predict-metagenome ${fasta} > ${name}.tsv
         cp ${name}.tsv ${name}_\${PWD##*/}.list
         """
+    stub:
+        """
+        echo "name	prediction	score" > ${name}_\${PWD##*/}.list
+        echo "pos_phage_0	Phage	0.82" >> ${name}_\${PWD##*/}.list
+        """
 }

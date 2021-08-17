@@ -38,4 +38,8 @@ process upsetr_plot {
 
       dev.off()
       """
+    stub:
+        """
+        touch upsetr.svg
+        """
 }

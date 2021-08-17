@@ -2,12 +2,12 @@ process vibrant {
     label 'vibrant'
     errorStrategy 'ignore'
     input:
-        tuple val(name), file(fasta) 
+        tuple val(name), path(fasta) 
         path(db)
     output:
-        tuple val(name), file("vibrant_*.tsv")
+        tuple val(name), path("vibrant_*.tsv")
         // output collection stream
-        tuple val(name), file("vibrant_*.tsv"), file("VIBRANT_results_*.tar.gz")
+        tuple val(name), path("vibrant_*.tsv"), path("VIBRANT_results_*.tar.gz")
     script:
         """
       
@@ -30,7 +30,16 @@ process vibrant {
       
         tar cf VIBRANT_results_\${PWD##*/}.tar.gz VIBRANT_*
         """
+    stub:
+        """
+        echo "scaffold	prediction" > vibrant_\${PWD##*/}.tsv
+        echo "pos_phage_1	virus" >> vibrant_\${PWD##*/}.tsv
+        mkdir VIBRANT_results_\${PWD##*/}.tar.gz
+        """
+
 }
+
+
 
 process vibrant_virome {
     label 'vibrant'
@@ -64,6 +73,12 @@ process vibrant_virome {
         cp VIBRANT_*/VIBRANT_results_*/VIBRANT_machine_*.tsv vibrant_\${PWD##*/}.tsv 2>/dev/null
       
         tar cf VIBRANT_results_\${PWD##*/}.tar.gz VIBRANT_*
+        """
+    stub:
+        """
+        echo "scaffold	prediction" > vibrant_\${PWD##*/}.tsv
+        echo "pos_phage_1	virus" >> vibrant_\${PWD##*/}.tsv
+        mkdir VIBRANT_results_\${PWD##*/}.tar.gz
         """
 }
 /*

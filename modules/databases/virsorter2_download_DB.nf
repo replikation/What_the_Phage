@@ -11,5 +11,9 @@ process virsorter2_download_DB {
         chmod -R a+rX db
         rm db.tgz
         """
+    stub:
+        """
+        mkdir db
+        """
 }
 
