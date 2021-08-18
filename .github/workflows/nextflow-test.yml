@@ -18,6 +18,9 @@ jobs:
     - name: fasta dry run annotate only
       run: |
           ./nextflow run phage.nf --fasta ./test-data/stub_genome.fasta -stub -profile stub --cores 2 --max_cores 2 --annotate
-    - name: fasta dry run some tools
+    - name: fasta dry run remove some tools 1
       run: |
-          ./nextflow run phage.nf --fasta ./test-data/stub_genome.fasta -stub -profile stub --cores 2 --max_cores 2 --dv --ppr --vn
+          ./nextflow run phage.nf --fasta ./test-data/stub_genome.fasta -stub -profile stub --cores 2 --max_cores 2 --dv --mp --pp --sm --vb
+    - name: fasta dry run remove some tools 2
+      run: |
+          ./nextflow run phage.nf --fasta ./test-data/stub_genome.fasta -stub -profile stub --cores 2 --max_cores 2 --vf --vn --vs --ph --vs2 --sk
