@@ -9,4 +9,8 @@ process prodigal {
         """
         prodigal -p "meta" -a ${name}_prodigal.faa -i ${positive_contigs}
         """
+    stub:
+        """
+        touch ${name}_prodigal.faa
+        """
 }

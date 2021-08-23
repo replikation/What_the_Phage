@@ -11,4 +11,9 @@ process virfinder_collect_data {
         cp ${output_lists} virfinder
         tar -czf virfinder_results_${name}.tar.gz virfinder
         """
+    stub:
+        """
+        mkdir virfinder
+        tar -czf virfinder_results_${name}.tar.gz virfinder
+        """
 }

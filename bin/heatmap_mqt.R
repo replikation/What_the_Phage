@@ -1,4 +1,4 @@
-#docker run --rm -it -v $PWD:/input rocker/tidyverse:4.1.1 R
+#docker run --rm -it -v $PWD:/input multifractal/ggplots:v4.1.1
 library(purrr)
 library(readr)
 install.packages("readr")

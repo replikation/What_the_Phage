@@ -11,4 +11,9 @@ process phigaro_collect_data {
         cp -r ${rawdir}/* phigaro
         tar -czf phigaro_results_${name}.tar.gz phigaro
         """
+    stub:
+        """
+        mkdir phigaro
+        tar -czf phigaro_results_${name}.tar.gz phigaro
+        """
 }

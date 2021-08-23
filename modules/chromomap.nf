@@ -83,4 +83,11 @@ process chromomap {
       """
       echo "nothing found" > sample_overview_${type}.html
       """
+      stub:
+        """
+        touch sample_overview_${type}.html
+        """
 }
+
+
+

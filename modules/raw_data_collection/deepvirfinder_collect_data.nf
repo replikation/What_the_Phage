@@ -12,4 +12,9 @@ process deepvirfinder_collect_data {
         tail -q -n+2 ${output_lists} >> deepvirfinder/${name}_overview.txt
         tar -czf deepvirfinder_results_${name}.tar.gz deepvirfinder
         """
+    stub:
+        """
+        mkdir deepvirfinder
+        tar -czf deepvirfinder_results_${name}.tar.gz deepvirfinder
+        """
 }

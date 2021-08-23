@@ -2,9 +2,9 @@ process pprmeta_collect_data {
     publishDir "${params.output}/${name}/raw_data", mode: 'copy', pattern: "pprmeta_results_${name}.tar.gz"
     label 'ubuntu'
     input:
-        tuple val(name), file(output_lists)
+        tuple val(name), path(output_lists)
     output:
-        tuple val(name), file("pprmeta_results_${name}.tar.gz")
+        tuple val(name), path("pprmeta_results_${name}.tar.gz")
     script:
         """
         cat ${output_lists} | head -1 > ${name}_overview.txt

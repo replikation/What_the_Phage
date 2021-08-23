@@ -24,4 +24,15 @@ process chromomap_parser {
             grep --no-messages -w "\$f1" annotationfile.tbl 1>> small/annotationfile.tbl || true
         done < small/chromosomefile.tbl
         """
+      stub:
+        """
+        mkdir small
+        mkdir large
+        
+        touch small/chromosomefile.tbl
+        touch small/annotationfile.tbl
+
+        touch large/chromosomefile.tbl
+        touch large/annotationfile.tbl
+        """
 }

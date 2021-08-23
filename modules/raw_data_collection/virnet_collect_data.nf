@@ -11,4 +11,9 @@ process virnet_collect_data {
         tail -q -n+2 ${output_lists} >> ${name}_overview.txt
         tar -czf virnet_results_${name}.tar.gz ${name}_overview.txt
         """
+    stub:
+        """
+        touch ${name}_overview.txt
+        tar -czf virnet_results_${name}.tar.gz ${name}_overview.txt
+        """
 }

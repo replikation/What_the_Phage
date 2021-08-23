@@ -15,6 +15,11 @@ process vibrant_download_DB {
         cp /opt/conda/share/vibrant-1.0.1/files/VIBRANT*.{tsv,sav} database
         tar -czf database.tar.gz database/
         """
+    stub:
+        """
+        mkdir database
+        tar -czf database.tar.gz database/
+        """
 }
 
 

@@ -1,9 +1,9 @@
 process input_suffix_check {
     label 'ubuntu'
     input:
-        tuple val(name), file(file) 
+        tuple val(name), path(file) 
     output:
-        tuple val(name), file("${name}.fa")
+        tuple val(name), path("${name}.fa")
     script:
         """
         case "${file}" in
@@ -31,6 +31,10 @@ process input_suffix_check {
         sed 's#[()|.,/ ]#_#g' -i ${name}.fa
         # remove empty lines
         sed '/^\$/d' -i ${name}.fa
+        """
+    stub:
+        """
+        touch ${name}.fa
         """
 }
 

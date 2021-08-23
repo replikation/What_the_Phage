@@ -10,6 +10,10 @@ process virsorter_download_DB {
         tar -xvzf virsorter-data-v2.tar.gz
         rm virsorter-data-v2.tar.gz
         """
+    stub:
+        """
+        mkdir -p virsorter-data
+        """
 }
 
 

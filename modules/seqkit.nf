@@ -8,4 +8,8 @@ process seqkit {
         """
         seqkit seq -m ${params.filter} ${fasta} > ${name}_filtered.fa
         """
+    stub:
+        """
+        touch ${name}_filtered.fa
+        """
 }

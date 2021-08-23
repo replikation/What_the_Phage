@@ -3,12 +3,16 @@ process sourmash_download_DB {
     else { storeDir "${params.databases}/sourmash/" }
     label 'sourmash' 
     input:
-        file(references)
+        path(references)
     output:
-        file("phages.sbt.zip")
+        path("phages.sbt.zip")
     script:
         """
         sourmash compute --scaled 100 -k 21 --singleton --seed 42 -p 8 -o phages.sig ${references}
         sourmash index phages.sbt.zip phages.sig
+        """
+    stub:
+        """
+        touch phages.sbt.zip
         """
 }

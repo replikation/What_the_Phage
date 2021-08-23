@@ -28,6 +28,11 @@ process sourmash {
           fi
         done
         """
+    stub:
+        """
+        echo "similarity,name,filename,md5" > ${name}_\${PWD##*/}.list
+        echo "pos_phage_1,1.0" >> ${name}_\${PWD##*/}.list
+        """
 }
 
 /*

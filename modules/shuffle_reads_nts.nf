@@ -32,5 +32,9 @@ process shuffle_reads_nts {
         shuffled.close
         fastq.close
       """
+stub:
+        """
+        touch ${name}_shuffled.fastq
+        """
 }
 

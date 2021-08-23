@@ -14,6 +14,11 @@ process phage_references_blastDB {
         mkdir phage_blast_DB && mv phage_db.* phage_blast_DB
         tar czf blast_database.tar.gz phage_blast_DB/
         """
+    stub:
+        """
+        mkdir phage_blast_DB
+        tar czf blast_database.tar.gz phage_blast_DB/
+        """        
 }
 
 //phage_blast_DB/phage_db.*

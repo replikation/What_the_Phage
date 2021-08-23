@@ -10,4 +10,8 @@ process hue_heatmap {
         """
         hue_heatmap_plot.py --input *.tsv --output ${name}_phage-distribution.pdf
         """
+      stub:
+        """
+        touch ${name}_phage-distribution.pdf   
+        """        
 }

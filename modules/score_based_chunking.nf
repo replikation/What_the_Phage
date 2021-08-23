@@ -16,6 +16,19 @@ process score_based_chunking {
         """
         score_chunking.sh ${fasta} ${task.cpus} "0.9" "0.6" "0.3"
         """
+    stub:
+        """
+        mkdir contigs
+        touch contigs/highly_likely_contigs.fasta
+        touch contigs/likely_contigs.fasta
+        touch contigs/unlikely_contigs.fasta
+        touch contigs/not_likely_contigs.fasta
+
+        ## phages-highly_likely=\$('1')
+        ## phages-likely=\$('2')
+        ## phages-unlikely=\$('3')
+        ## phages-not_likely=\$('4')
+        """
 }
 
 /*

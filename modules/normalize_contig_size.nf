@@ -8,5 +8,9 @@ process normalize_contig_size {
         """
         cut.py --size 3000 --genome ${fasta} --outfile ${name}_fragments.fasta
         """
+    stub:
+        """
+        touch ${name}_fragments.fasta
+        """
 }
 
