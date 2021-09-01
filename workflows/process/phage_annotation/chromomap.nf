@@ -1,10 +1,10 @@
 process chromomap {
-      publishDir "${params.output}/${name}/${category}/", mode: 'copy', pattern: "sample_overview_${type}.html"
+      publishDir "${params.output}/${name}/", mode: 'copy', pattern: "sample_overview_${type}.html"
       label 'chromomap'
       errorStrategy 'retry'
       maxRetries 4
     input:
-      tuple val(name), val(type), val(category), path(chromosome), path(annotation)
+      tuple val(name), val(type), path(chromosome), path(annotation)
     output:
       tuple val(name), path("sample_overview_${type}.html")
     script:

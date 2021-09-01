@@ -1,5 +1,5 @@
-include { pvog_DB } from './process/phage_annotation/download_pvog_DB'
-include { vogtable_DB } from './process/phage_annotation/download_vog_DB'
+include { pvog_DB; vogtable_DB } from './process/phage_annotation/download_pvog_DB'
+//include { vogtable_DB } from './process/phage_annotation/download_pvog_DB'
 include { prodigal } from './process/phage_annotation/prodigal'
 include { hmmscan } from './process/phage_annotation/hmmscan'
 include { chromomap_parser } from './process/phage_annotation/chromomap_parser'
@@ -19,9 +19,9 @@ workflow phage_annotation_wf {
                 db_preload = file("${params.databases}/pvogs/", type: 'dir')
                 if (db_preload.exists()) { db = db_preload }
                 else  { pvog_DB(); db = pvog_DB.out } 
-            }     
-            //Database for chromomap parser (protein information)     
-           // local storage via storeDir
+            }
+            //Vog table
+            // local storage via storeDir
             if (!params.cloudProcess) { vogtable_DB(); db = vogtable_DB.out }
             // cloud storage via db_preload.exists()
             if (params.cloudProcess) {
@@ -37,3 +37,9 @@ workflow phage_annotation_wf {
             // fine granular heatmap ()
             //hue_heatmap(fasta_and_tool_results)
 }
+
+
+// chromomap_parser(
+            //         fasta.join(hmmscan.out), vog_table)
+
+            // chromomap(chromomap_parser.out[0].mix(chromomap_parser.out[1]))

@@ -1,13 +1,13 @@
 process chromomap_parser {
-    publishDir "${params.output}/${name}/${category}/annotation_results", mode: 'copy'
+    publishDir "${params.output}/${name}/annotation_results", mode: 'copy'
     label 'noDocker'
     input:
-        tuple val(name), val(category), path(contigs), path(hmmscan_results), path(prodigal_out)
+        tuple val(name), path(contigs), path(hmmscan_results), path(prodigal_out)
 
         path(vogtable)
     output: 
-        tuple val(name), val("small"), val(category), path("small/chromosomefile.tbl"), path("small/annotationfile.tbl") optional true
-        tuple val(name), val("large"), val(category), path("large/chromosomefile.tbl"), path("large/annotationfile.tbl") optional true
+        tuple val(name), val("small"), path("small/chromosomefile.tbl"), path("small/annotationfile.tbl") optional true
+        tuple val(name), val("large"), path("large/chromosomefile.tbl"), path("large/annotationfile.tbl") optional true
     script:
         """
         prepare_hmmscan_for_chromomap.sh -c ${contigs} -p ${prodigal_out} -a ${hmmscan_results} -v ${vogtable}
