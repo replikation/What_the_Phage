@@ -354,6 +354,22 @@ include { phigaro_wf } from './workflows/phigaro_wf'
 include { seeker_wf } from './workflows/seeker_wf'
 include { virfinder_wf } from './workflows/virfinder_wf'
 include { virnet_wf } from './workflows/virnet_wf'
+include { pprmeta_wf } from './workflows/pprmeta_wf'
+include { metaphinder_wf } from './workflows/metaphinder_wf'
+include { metaphinder_own_DB_wf } from './workflows/metaphinder_own_DB_wf'
+include { vibrant_wf } from './workflows/vibrant_wf'
+include { vibrant_virome_wf } from './workflows/vibrant_virome_wf'
+include { virsorter_wf } from './workflows/virsorter_wf'
+include { virsorter_virome_wf } from './workflows/virsorter_virome_wf'
+include { virsorter2_wf } from './workflows/virsorter2_wf'
+include { sourmash_wf } from './workflows/sourmash_wf'
+include { prepare_results_wf } from './workflows/prepare_results_wf'
+include { phage_annotation_wf } from './workflows/phage_annotation_wf'
+
+
+
+
+
 
 workflow{
 
@@ -370,23 +386,37 @@ workflow{
 
 
 /************************** 
-* Identification
+* Prediction
 **************************/
-    results = deepvirfinder_wf(input_validation_wf.out)
+    results = deepvirfinder_wf( input_validation_wf.out)
               .concat( phigaro_wf(input_validation_wf.out))
               .concat( seeker_wf(input_validation_wf.out))
               .concat( virfinder_wf(input_validation_wf.out))
               .concat( virnet_wf(input_validation_wf.out))
+              .concat( pprmeta_wf(input_validation_wf.out))
+              .concat( metaphinder_wf(input_validation_wf.out))
+              .concat( metaphinder_own_DB_wf(input_validation_wf.out))
+              .concat( vibrant_wf(input_validation_wf.out))
+              .concat( vibrant_virome_wf(input_validation_wf.out))
+              .concat( virsorter_wf(input_validation_wf.out))
+              .concat( virsorter_virome_wf(input_validation_wf.out))
+              .concat( virsorter2_wf(input_validation_wf.out))
+              .concat( sourmash_wf(input_validation_wf.out))
               .filter { it != 'deactivated' } // removes deactivated tool channels
               .groupTuple()
 
+    prepare_results_wf(results)
+
+    output = input_validation_wf.out.join(results)
+
+    // if statement for 
 
 
 /************************** 
 * Annotation
 **************************/
 
-
+    phage_annotation_wf(output)
 
 
 
