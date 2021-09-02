@@ -6,5 +6,5 @@ workflow phage_tax_classification {
     take:   fasta
     main:    
             sourmash_for_tax(split_multi_fasta_2(fasta), sourmash_database()).groupTuple(remainder: true)
-    emit: sourmash_for_tax.out
+    emit:   sourmash_for_tax.out
 }

@@ -113,90 +113,10 @@ if (!params.setup && !workflow.profile.contains('test') && !workflow.profile.con
             .map { file -> tuple(file.baseName, file) }
                 }
     
-// fastq input or via csv file
-    if (params.fastq && params.list) { fastq_input_ch = Channel
-            .fromPath( params.fastq, checkIfExists: true )
-            .splitCsv()
-            .map { row -> ["${row[0]}", file("${row[1]}", checkIfExists: true)] }
-                }
-    else if (params.fastq) { fastq_input_ch = Channel
-            .fromPath( params.fastq, checkIfExists: true)
-            .map { file -> tuple(file.baseName, file) }
-                }
-
 //get-citation-file for results
     citation = Channel.fromPath(workflow.projectDir + "/docs/Citations.bib")
             .collectFile(storeDir: params.output + "/literature")
 
-
-/************* 
-* DATABASES for Phage annotation
-*************/
-
-workflow pvog_database {
-    main: 
-        // local storage via storeDir
-        if (!params.cloudProcess) { pvog_DB(); db = pvog_DB.out }
-        // cloud storage via db_preload.exists()
-        if (params.cloudProcess) {
-            db_preload = file("${params.databases}/pvogs/", type: 'dir')
-            if (db_preload.exists()) { db = db_preload }
-            else  { pvog_DB(); db = pvog_DB.out } 
-        }
-    emit: db
-}
-
-workflow vogtable_database {
-    main: 
-        // local storage via storeDir
-        if (!params.cloudProcess) { vogtable_DB(); db = vogtable_DB.out }
-        // cloud storage via db_preload.exists()
-        if (params.cloudProcess) {
-            db_preload = file("${params.databases}/vog_table/VOGTable.txt")
-            if (db_preload.exists()) { db = db_preload }
-            else  { vogtable_DB(); db = vogtable_DB.out } 
-        }
-    emit: db
-}
-
-workflow rvdb_database {
-    main: 
-        // local storage via storeDir
-        if (!params.cloudProcess) { rvdb_DB(); db = rvdb_DB.out }
-        // cloud storage via db_preload.exists()
-        if (params.cloudProcess) {
-            db_preload = file("${params.databases}/rvdb", type: 'dir')
-            if (db_preload.exists()) { db = db_preload }
-            else  { rvdb_DB(); db = rvdb_DB.out } 
-        }
-    emit: db
-}
-
-workflow vog_database {
-    main: 
-        // local storage via storeDir
-        if (!params.cloudProcess) { vog_DB(); db = vog_DB.out }
-        // cloud storage via db_preload.exists()
-        if (params.cloudProcess) {
-            db_preload = file("${params.databases}/vog/vogdb", type: 'dir')
-            if (db_preload.exists()) { db = db_preload }
-            else  { vog_DB(); db = vog_DB.out } 
-        }
-    emit: db
-}
-
-workflow checkV_database {
-    main: 
-        // local storage via storeDir
-        if (!params.cloudProcess) { download_checkV_DB(); db = download_checkV_DB.out }
-        // cloud storage via db_preload.exists()
-        if (params.cloudProcess) {
-            db_preload = file("${params.databases}/checkV/checkv-db-v0.6", type: 'dir')
-            if (db_preload.exists()) { db = db_preload }
-            else  { download_checkV_DB(); db = download_checkV_DB.out } 
-        }
-    emit: db
-}
 
 /************* 
 * SUB WORKFLOWS
@@ -234,26 +154,6 @@ workflow setup_wf {
             rvdb_DB = rvdb_database()
             checkV_DB = checkV_database()
         }
-} 
-
-workflow checkV_wf {
-    take:   fasta
-            database
-    main:   checkV(fasta, database)
-
-            /* filter_tool_names.out in identify_fasta_MSF is the info i need to parse into checkV overview 
-            has tuple val(name), file("*.txt")
-            
-            each txt file can be present or not
-
-            1.) parse this output into a "contig name", 1, 0" matrix still having the "value" infront of it
-
-            2.) then i could do a join first bei val(name), an then combine by val(contigname) within the channels?
-
-            3.) annoying ...
-
-            */
-    emit:   checkV.out
 } 
 
 workflow get_test_data {
@@ -365,66 +265,82 @@ include { virsorter2_wf } from './workflows/virsorter2_wf'
 include { sourmash_wf } from './workflows/sourmash_wf'
 include { prepare_results_wf } from './workflows/prepare_results_wf'
 include { phage_annotation_wf } from './workflows/phage_annotation_wf'
+include { checkV_wf } from './workflows/checkV_wf'
 
 
 
 
 
 
-workflow{
+
+workflow {
+
+/************************** 
+* WtP setup
+**************************/
+
 
 /************************** 
 * Input validation
 **************************/
-    input_validation_wf(fasta_input_ch)
-
-
+   // input_validation_wf(fasta_input_ch)
 /************************** 
-* Databases
+* worflow flow control
 **************************/
-
-
+    // create 3 "input channels" for each flow
+    if ( params.fasta && params.annotate && !params.identify ) { annotation_channel =   input_validation_wf(fasta_input_ch) }
+    else if (params.fasta && params.identify && !params.annotate ) { prediction_channel =  input_validation_wf(fasta_input_ch) }
+    else if (params.fasta && !params.identify && !params.annotate ) { prediction_channel =  input_validation_wf(fasta_input_ch) }
 
 /************************** 
 * Prediction
 **************************/
-    results = deepvirfinder_wf( input_validation_wf.out)
-              .concat( phigaro_wf(input_validation_wf.out))
-              .concat( seeker_wf(input_validation_wf.out))
-              .concat( virfinder_wf(input_validation_wf.out))
-              .concat( virnet_wf(input_validation_wf.out))
-              .concat( pprmeta_wf(input_validation_wf.out))
-              .concat( metaphinder_wf(input_validation_wf.out))
-              .concat( metaphinder_own_DB_wf(input_validation_wf.out))
-              .concat( vibrant_wf(input_validation_wf.out))
-              .concat( vibrant_virome_wf(input_validation_wf.out))
-              .concat( virsorter_wf(input_validation_wf.out))
-              .concat( virsorter_virome_wf(input_validation_wf.out))
-              .concat( virsorter2_wf(input_validation_wf.out))
-              .concat( sourmash_wf(input_validation_wf.out))
-              .filter { it != 'deactivated' } // removes deactivated tool channels
-              .groupTuple()
+    // run annotation if identify flag or no flag at all
+    if (params.fasta && params.identify && !params.annotate || params.fasta && !params.identify && !params.annotate)  { 
+    // actual tools     
+        results = deepvirfinder_wf( prediction_channel)
+                .concat( phigaro_wf(prediction_channel))
+                .concat( seeker_wf(prediction_channel))
+                .concat( virfinder_wf(prediction_channel))
+                .concat( virnet_wf(prediction_channel))
+                .concat( pprmeta_wf(prediction_channel))
+                .concat( metaphinder_wf(prediction_channel))
+                .concat( metaphinder_own_DB_wf(prediction_channel))
+                .concat( vibrant_wf(prediction_channel))
+                .concat( vibrant_virome_wf(prediction_channel))
+                .concat( virsorter_wf(prediction_channel))
+                .concat( virsorter_virome_wf(prediction_channel))
+                .concat( virsorter2_wf(prediction_channel))
+                .concat( sourmash_wf(prediction_channel))
+                .filter { it != 'deactivated' } // removes deactivated tool channels
+                .groupTuple()
 
-    prepare_results_wf(results)
-
-    output = input_validation_wf.out.join(results)
-
-    // if statement for 
+        prepare_results_wf(results)
+        //heatmap
+        //how many tools agree on contig
 
 
+
+        annotation_channel = input_validation_wf.out.join(results)
+    }
+    
 /************************** 
 * Annotation
 **************************/
+    // run annotation if annotate flag or no flag at all
+    if  ( params.fasta && params.annotate && !params.identify || params.fasta && !params.identify && !params.annotate) {
+    // actual tools    
+        phage_annotation_wf(annotation_channel)
+        // checkV_wf(annotation_channel)
+        // phage_tax_classification
+    }
 
-    phage_annotation_wf(output)
 
-
-
+/************************** 
+* Result Report
+**************************/
 
 }
-
-
-
 // workflow {
 // // SETUP AND TESTRUNS
 // if (params.setup) { setup_wf() }
@@ -523,7 +439,6 @@ def helpMSG() {
     ${c_yellow}Tool control:${c_reset}
     Deactivate tools individually by adding one or more of these flags
     --dv                deactivates deepvirfinder
-    --ma                deactivates marvel
     --mp                deactivates metaphinder
     --pp                deactivates PPRmeta
     --sm                deactivates sourmash

@@ -35,7 +35,7 @@ workflow phage_annotation_wf {
             chromomap_parser(fasta.join(hmmscan.out), vogtable_DB.out)
             chromomap(chromomap_parser.out[0].mix(chromomap_parser.out[1]))
             // fine granular heatmap ()
-            //hue_heatmap(fasta_and_tool_results)
+            //hue_heatmap(fasta_and_tool_results) 
 }
 
 
