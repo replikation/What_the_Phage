@@ -1,5 +1,6 @@
+#!/usr/bin/env Rscript
 #docker run --rm -it -v $PWD:/input multifractal/ggplots:v4.1.1
-install.packages("reshape2")
+install.packages('reshape2')
 library(purrr)
 library(readr)
 library(ggplot2)

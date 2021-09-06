@@ -13,20 +13,6 @@ process filter_vibrant {
         """
 }
 
-process filter_vibrant_virome {
-    label 'ubuntu'
-    input:
-        tuple val(name), path(results) 
-    output:
-        tuple val(name), path("vibrant-virome_*.tsv")
-    script:
-        """
-        tail -n+2 *.tsv | \
-        awk 'BEGIN {OFS=FS="\\t"; IGNORECASE=1} {if(\$2) sub(/virus/,"1"); print}' | \
-        awk 'BEGIN {OFS=FS="\\t"; IGNORECASE=1} {if(\$2) sub(/organism/,"0"); print}' | \
-        sed -r 's/_fragment_[0-9]//' > vibrant-virome_\${PWD##*/}.tsv
-        """
-}
 
 // filter needs to be addet
 
