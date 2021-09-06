@@ -1,9 +1,9 @@
 process split_multi_fasta_2 {
       label 'ubuntu'
     input:
-      tuple val(name), val(category), path(fasta) 
+      tuple val(name), path(fasta) 
     output:
-      tuple val(name), val(category), path("${name}_contigs/") 
+      tuple val(name), path("${name}_contigs/") 
     shell:
       """
       mkdir ${name}_contigs/

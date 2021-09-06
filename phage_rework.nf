@@ -123,129 +123,14 @@ if (!params.setup && !workflow.profile.contains('test') && !workflow.profile.con
 *************/
 
 
-workflow setup_wf {
-    take:   
-    main:       
-        // docker
-        if (workflow.profile.contains('docker')) {
-            config_ch = Channel.fromPath( workflow.projectDir + "/configs/container.config" , checkIfExists: true)
-            setup_container(config_ch)
-        }
-        // singularity
-        if (workflow.profile.contains('singularity')) {
-            config_ch2 = Channel.fromPath( workflow.projectDir + "/configs/container.config" , checkIfExists: true)
-            setup_container(config_ch2)
-        }
-
-        // databases
-        if (!params.annotate) {
-            phage_references() 
-            ref_phages_DB = phage_blast_DB (phage_references.out)
-            ppr_deps = ppr_dependecies()
-            sourmash_DB = sourmash_database (phage_references.out)
-            vibrant_DB = vibrant_download_DB()
-            virsorter_DB = virsorter_database()
-            virsorter2_DB = virsorter2_download_DB()
-        }
-        if (!params.identify) {
-            vog_table = vogtable_database()
-            pvog_DB = pvog_database() 
-            vog_DB = vog_database() 
-            rvdb_DB = rvdb_database()
-            checkV_DB = checkV_database()
-        }
-} 
-
 workflow get_test_data {
     main: testprofile()
     emit: testprofile.out.flatten().map { file -> tuple(file.simpleName, file) }
 }
 
-workflow phage_tax_classification {
-    take:   fasta
-            sourmash_database
-    main:    
-            sourmash_for_tax(split_multi_fasta_2(fasta), sourmash_database).groupTuple(remainder: true)
-}
-
-/************* 
-* MainSubWorkflows
-*************/
-
-workflow identify_fasta_MSF {
-    take:   fasta
-            ref_phages_DB
-            ppr_deps
-            sourmash_DB
-            vibrant_DB
-            virsorter_DB
-            virsorter2_DB
-    main: 
-        // input filter  
-        fasta_validation_wf(fasta)
-
-        // gather results
-            results =   virsorter_wf(fasta_validation_wf.out, virsorter_DB)
-                        .concat(virsorter2_wf(fasta_validation_wf.out, virsorter2_DB))
-                        .concat(virsorter_virome_wf(fasta_validation_wf.out, virsorter_DB))
-                        // depracted due to file size explosin -> .concat(marvel_wf(fasta_validation_wf.out))      
-                        .concat(sourmash_wf(fasta_validation_wf.out, sourmash_DB))
-                        .concat(metaphinder_wf(fasta_validation_wf.out))
-                        .concat(metaphinder_own_DB_wf(fasta_validation_wf.out, ref_phages_DB))
-                        .concat(deepvirfinder_wf(fasta_validation_wf.out))
-                        .concat(virfinder_wf(fasta_validation_wf.out))
-                        .concat(pprmeta_wf(fasta_validation_wf.out, ppr_deps))
-                        .concat(vibrant_wf(fasta_validation_wf.out, vibrant_DB))
-                        .concat(vibrant_virome_wf(fasta_validation_wf.out, vibrant_DB))
-                        .concat(virnet_wf(fasta_validation_wf.out))
-                        .concat(phigaro_wf(fasta_validation_wf.out))
-                        .concat(seeker_wf(fasta_validation_wf.out))
-                        .filter { it != 'deactivated' } // removes deactivated tool channels
-                        .groupTuple()
-                                               
-        //plotting overview
-            filter_tool_names(results)
-            upsetr_plot(filter_tool_names.out[0])        
-
-    emit:   output = fasta_validation_wf.out.join(results)  // val(name), path(fasta), path(scores_by_tools)
-}
-
-
-workflow phage_annotation_MSF {
-    take:   fasta_and_tool_results 
-            pvog_DB
-            vog_table
-            vog_DB
-            rvdb_DB
-    main:  
-            
-            fasta = fasta_and_tool_results.map {it -> tuple(it[0],it[1])}
-            //annotation-process
-
-            prodigal(fasta)
-
-            hmmscan(prodigal.out, pvog_DB)
-
-            score_based_chunking(hmmscan.out.join(fasta_and_tool_results), vog_table)
-            
-            chunk_channel=score_based_chunking.out[0].mix(score_based_chunking.out[1]).mix(score_based_chunking.out[2]).mix(score_based_chunking.out[3])
-            
-            chromomap_parser(chunk_channel.combine(hmmscan.out, by:0), vog_table)
-            chromomap(chromomap_parser.out[0].mix(chromomap_parser.out[1]))
-
-            // fine granular heatmap ()
-
-            hue_heatmap(fasta_and_tool_results)
-
-    emit:   chunk_channel.view()
-}
-
-/************* 
-* MAIN WORKFLOWS
-*************/
 
 /************************** 
-* Workflows
+* Workflows to call
 **************************/
 
 include { input_validation_wf } from './workflows/input_validation_wf'
@@ -266,12 +151,16 @@ include { sourmash_wf } from './workflows/sourmash_wf'
 include { prepare_results_wf } from './workflows/prepare_results_wf'
 include { phage_annotation_wf } from './workflows/phage_annotation_wf'
 include { checkV_wf } from './workflows/checkV_wf'
+include { phage_tax_classification_wf } from './workflows/phage_tax_classification_wf'
+include { setup_wf } from './workflows/setup_wf'
 
 
 
 
 
-
+/************************** 
+* WtP Workflow
+**************************/
 
 workflow {
 
@@ -279,24 +168,21 @@ workflow {
 * WtP setup
 **************************/
 
+    if ( params.setup ) { setup_wf() }
 
-/************************** 
-* Input validation
-**************************/
-   // input_validation_wf(fasta_input_ch)
 /************************** 
 * worflow flow control
 **************************/
     // create 3 "input channels" for each flow
-    if ( params.fasta && params.annotate && !params.identify ) { annotation_channel =   input_validation_wf(fasta_input_ch) }
-    else if (params.fasta && params.identify && !params.annotate ) { prediction_channel =  input_validation_wf(fasta_input_ch) }
-    else if (params.fasta && !params.identify && !params.annotate ) { prediction_channel =  input_validation_wf(fasta_input_ch) }
+    if ( params.fasta && params.annotate && !params.identify && !params.setup) { annotation_channel =   input_validation_wf(fasta_input_ch) }
+    else if (params.fasta && params.identify && !params.annotate && !params.setup ) { prediction_channel =  input_validation_wf(fasta_input_ch) }
+    else if (params.fasta && !params.identify && !params.annotate && !params.setup ) { prediction_channel =  input_validation_wf(fasta_input_ch) }
 
 /************************** 
 * Prediction
 **************************/
     // run annotation if identify flag or no flag at all
-    if (params.fasta && params.identify && !params.annotate || params.fasta && !params.identify && !params.annotate)  { 
+    if (params.fasta && params.identify && !params.annotate && !params.setup || params.fasta && !params.identify && !params.annotate && !params.setup )  { 
     // actual tools     
         results = deepvirfinder_wf( prediction_channel)
                 .concat( phigaro_wf(prediction_channel))
@@ -322,17 +208,18 @@ workflow {
 
 
         annotation_channel = input_validation_wf.out.join(results)
+        // annotationchannel needs mapping only of positive 
     }
     
 /************************** 
 * Annotation
 **************************/
     // run annotation if annotate flag or no flag at all
-    if  ( params.fasta && params.annotate && !params.identify || params.fasta && !params.identify && !params.annotate) {
+    if  ( params.fasta && params.annotate && !params.identify && !params.setup || params.fasta && !params.identify && !params.annotate && !params.setup ) {
     // actual tools    
         phage_annotation_wf(annotation_channel)
-        // checkV_wf(annotation_channel)
-        // phage_tax_classification
+        checkV_wf(annotation_channel)
+        phage_tax_classification_wf(annotation_channel)
     }
 
 

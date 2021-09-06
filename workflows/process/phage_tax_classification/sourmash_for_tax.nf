@@ -1,12 +1,12 @@
 process sourmash_for_tax {
-      publishDir "${params.output}/${name}/${category}/taxonomic-classification", mode: 'copy', pattern: "${name}_tax-class.tsv"
+      publishDir "${params.output}/${name}/taxonomic-classification", mode: 'copy', pattern: "${name}_tax-class.tsv"
       label 'sourmash'
     //  errorStrategy 'ignore'
     input:
-      tuple val(name), val(category), path(fasta_dir) 
+      tuple val(name), path(fasta_dir) 
       file(database)
     output:
-      tuple val(name), val(category), path("${name}_tax-class.tsv")
+      tuple val(name), path("${name}_tax-class.tsv")
     shell:
       """
       for fastafile in ${fasta_dir}/*.fa; do
