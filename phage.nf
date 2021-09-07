@@ -117,18 +117,6 @@ if (!params.setup && !workflow.profile.contains('test') && !workflow.profile.con
     citation = Channel.fromPath(workflow.projectDir + "/docs/Citations.bib")
             .collectFile(storeDir: params.output + "/literature")
 
-
-/************* 
-* SUB WORKFLOWS
-*************/
-
-
-workflow get_test_data {
-    main: testprofile()
-    emit: testprofile.out.flatten().map { file -> tuple(file.simpleName, file) }
-}
-
-
 /************************** 
 * Workflows to call
 **************************/
@@ -153,10 +141,7 @@ include { phage_annotation_wf } from './workflows/phage_annotation_wf'
 include { checkV_wf } from './workflows/checkV_wf'
 include { phage_tax_classification_wf } from './workflows/phage_tax_classification_wf'
 include { setup_wf } from './workflows/setup_wf'
-
-
-
-
+include { get_test_data_wf } from './workflows/get_test_data_wf'
 
 /************************** 
 * WtP Workflow
@@ -169,7 +154,11 @@ workflow {
 **************************/
 
     if ( params.setup ) { setup_wf() }
-
+    else {
+    if (workflow.profile.contains('test') && !workflow.profile.contains('smalltest')) { fasta_input_ch = get_test_data_wf() }
+    if (workflow.profile.contains('smalltest') ) 
+        { fasta_input_ch = Channel.fromPath(workflow.projectDir + "/test-data/all_pos_phage.fa", checkIfExists: true).map { file -> tuple(file.simpleName, file) }.view() }
+    }
 /************************** 
 * worflow flow control
 **************************/
@@ -228,51 +217,6 @@ workflow {
 **************************/
 
 }
-// workflow {
-// // SETUP AND TESTRUNS
-// if (params.setup) { setup_wf() }
-// else {
-//     if (workflow.profile.contains('test') && !workflow.profile.contains('smalltest')) { fasta_input_ch = get_test_data() }
-//     if (workflow.profile.contains('smalltest') ) 
-//         { fasta_input_ch = Channel.fromPath(workflow.projectDir + "/test-data/all_pos_phage.fa", checkIfExists: true).map { file -> tuple(file.simpleName, file) }.view() }
-// // DATABASES
-//     // identification
-//     //phage_references() 
-//     if (params.mp || params.annotate) { ref_phages_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { ref_phages_DB = phage_blast_DB(phage_references.out) }
-//     if (params.pp || params.annotate) { ppr_deps = Channel.from( [ 'deactivated', 'deactivated'] ) } else { ppr_deps = ppr_dependecies() }
-//     if (params.vb || params.annotate) { vibrant_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vibrant_DB = vibrant_database() }
-//     if (params.vs || params.annotate) { virsorter_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { virsorter_DB = virsorter_database() }
-//     if (params.vs2 || params.annotate) { virsorter2_DB = Channel.from( ['deactivated', 'deactivated'] ) } else { virsorter2_DB = virsorter2_database() }
-//     //  annotation
-//     if (params.identify) { pvog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { pvog_DB = pvog_database() }
-//     if (params.identify) { vog_table = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vog_table = vogtable_database() }
-//     if (params.identify) { vog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vog_DB = vog_database() }
-//     if (params.identify) { rvdb_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { rvdb_DB = rvdb_database() }
-//     if (params.identify) { checkV_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { checkV_DB = checkV_database() }
-//     // sourmash (used in identify and annotate)
-//     if (params.identify && params.sm) { sourmash_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { sourmash_DB = sourmash_database(phage_references.out) }
-
-// // IDENTIFY !
-//     if (params.fasta && !params.annotate) { identify_fasta_MSF(fasta_input_ch, ref_phages_DB, ppr_deps,sourmash_DB, vibrant_DB, virsorter_DB, virsorter2_DB) }
-//     if (params.fastq) { identify_fastq_MSF(fastq_input_ch, ref_phages_DB, ppr_deps, sourmash_DB, vibrant_DB, virsorter_DB) }
-
-// // ANNOTATE & TAXONOMY !
-//     // generate "annotation_ch" based on input types (fasta/fastq and annotate)
-//     if (params.fasta && params.fastq && params.annotate) { annotation_ch = identify_fastq_MSF.out.mix(fasta_validation_wf(fasta_input_ch)) }
-//     else if (params.fasta && params.fastq && !params.annotate) { annotation_ch = identify_fastq_MSF.out.mix(identify_fasta_MSF.out) }
-//     else if (params.fasta && params.annotate) { annotation_ch = fasta_validation_wf(fasta_input_ch)}
-//     else if (params.fasta && !params.annotate) { annotation_ch = identify_fasta_MSF.out }
-//     else if (params.fastq ) { annotation_ch = identify_fastq_MSF.out }
-
-//     // Annotation & classification & score based chunking
-//     if (!params.identify) { 
-//         phage_annotation_MSF(annotation_ch, pvog_DB, vog_table, vog_DB, rvdb_DB) 
-        
-//         // these workflows are using the score based chunks from phage_annotation_MSF
-//         checkV_wf(phage_annotation_MSF.out, checkV_DB) 
-//         phage_tax_classification(phage_annotation_MSF.out, sourmash_DB )
-//     }
-// }}
 
 /*************  
 * --help
