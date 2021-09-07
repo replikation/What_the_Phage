@@ -15,7 +15,8 @@ process contigs_by_tools {
         """
         touch all_overview.tsv
         touch tools_used_for_phage_prediction.txt
-        toolagreement_per_contig.tsv
-
+        touch toolagreement_per_contig.tsv
+        mkdir tool_agreements/
+        touch tool_agreements/stub.tsv
         """        
 }
