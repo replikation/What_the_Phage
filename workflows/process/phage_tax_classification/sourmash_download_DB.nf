@@ -15,7 +15,7 @@ process sourmash_download_DB {
         sourmash index phages.sbt.zip phages.sig
         """
 
-        if (task.attempt.toString() == '2')
+        else if (task.attempt.toString() == '2')
         """
         wget https://osf.io/wm3gt/download -O sourmash.tar.gz
         tar -xvzf sourmash.tar.gz

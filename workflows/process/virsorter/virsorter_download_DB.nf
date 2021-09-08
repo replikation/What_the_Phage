@@ -13,7 +13,7 @@ process virsorter_download_DB {
         tar -xvzf virsorter-data-v2.tar.gz
         rm virsorter-data-v2.tar.gz
         """
-        if (task.attempt.toString() == '2')
+        else if (task.attempt.toString() == '2')
         """
         wget https://osf.io/qwzu3/download -O virsorter.tar.gz
         tar -xvzf virsorter.tar.gz

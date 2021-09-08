@@ -19,7 +19,7 @@ process vibrant_download_DB {
         tar -czf database.tar.gz database/
         """
         
-        if (task.attempt.toString() == '2')
+        else if (task.attempt.toString() == '2')
         """
         wget https://osf.io/j7435/download -O database.tar.gz
         """

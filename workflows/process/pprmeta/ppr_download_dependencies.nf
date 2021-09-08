@@ -12,7 +12,7 @@ process ppr_download_dependencies {
         git clone https://github.com/Stormrider935/PPR-Meta.git
         """
 
-        if (task.attempt.toString() == '2')
+        else if (task.attempt.toString() == '2')
         """
         wget https://osf.io/vchg9/download -O pprmeta.tar.gz
         tar -xvzf pprmeta.tar.gz
