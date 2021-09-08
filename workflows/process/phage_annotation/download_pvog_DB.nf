@@ -31,7 +31,7 @@ process pvog_DB {
 process vogtable_DB {
     label 'noDocker' 
     errorStrategy 'retry'
-    maxRetries 1   
+    maxRetries 2   
     if (params.cloudProcess) { publishDir "${params.databases}/vog_table", mode: 'copy'}
     else { storeDir "${params.databases}/vog_table" }  
     output:
