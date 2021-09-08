@@ -191,13 +191,9 @@ workflow {
                 .groupTuple()
 
         prepare_results_wf(results)
-        //heatmap
-        //how many tools agree on contig
 
-
-
+        // map identify output for input of annotaion tools
         annotation_channel = input_validation_wf.out.join(results)
-        // annotationchannel needs mapping only of positive 
     }
     
 /************************** 
@@ -215,6 +211,8 @@ workflow {
 /************************** 
 * Result Report
 **************************/
+
+    // TBC
 
 }
 
