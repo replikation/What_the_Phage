@@ -190,7 +190,7 @@ workflow {
                 .filter { it != 'deactivated' } // removes deactivated tool channels
                 .groupTuple()
 
-        prepare_results_wf(results)
+        prepare_results_wf(results, prediction_channel)
 
         // map identify output for input of annotaion tools
         annotation_channel = input_validation_wf.out.join(results)
