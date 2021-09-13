@@ -6,7 +6,7 @@ process filter_virsorter2 {
         tuple val(name), path("virsorter2_*.tsv")
     script:
         """
-        tail -n+2 *.tsv |  awk '{ print \$1, \$2 }' OFS='\\t' > virsorter2_\${PWD##*/}.tsv
+        tail -n+2 *.tsv |  awk '{ print \$1, \$2 }' OFS='\\t' | awk '{ print \$1, \$2 }' OFS='||' | cut -d "|" -f1,5 | awk -F"|" '{ print \$1, \$2 }' OFS='\t' > virsorter2_\${PWD##*/}.tsv
         """
 }
 
@@ -18,3 +18,4 @@ ctg3_len=25734||full    0.973   0.253   0.973   dsDNAphage      25304   24      
 ctg6_len=5303||full     0.967   0.733   0.967   dsDNAphage      3585    1       40.000  0.000 */
 
 //awk '{ gsub(/||full/,"", $3); print }' OFS='\t' tmp_result.tsv > tmp_results2.tsv
+//awk '{ print \$1, \$2 }' OFS='||' virsorter2_\${PWD##*/}.tsv
