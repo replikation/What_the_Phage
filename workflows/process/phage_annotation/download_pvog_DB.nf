@@ -30,19 +30,19 @@ process pvog_DB {
 
 process vogtable_DB {
     label 'noDocker' 
-    errorStrategy 'retry'
-    maxRetries 2   
+    //errorStrategy 'retry'
+    //maxRetries 1   
     if (params.cloudProcess) { publishDir "${params.databases}/vog_table", mode: 'copy'}
     else { storeDir "${params.databases}/vog_table" }  
     output:
         path("VOGTable.txt")
     script:
-    if (task.attempt.toString() == '1')
-        """
-        wget -nH http://dmk-brain.ecn.uiowa.edu/pVOGs/downloads/VOGTable.txt   
-        """
+    // if (task.attempt.toString() == '1')
+    //     """
+    //     wget -nH http://dmk-brain.ecn.uiowa.edu/pVOGs/downloads/VOGTable.txt   
+    //     """
     
-    else if (task.attempt.toString() == '2')
+    // else if (task.attempt.toString() == '2')
         """
         ## wget https://osf.io/nr6yb/download -O VOGTable.txt
 

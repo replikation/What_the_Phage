@@ -20,8 +20,7 @@ workflow prepare_results_wf {
             heatmap_input = contigs_by_tools.out.map {it -> tuple(it[0],it[1])}
             hue_heatmap(heatmap_input)
 
-            // module to      
+    
 
     emit: fasta // val(name), path(fasta), path(scores_by_tools)
-    //emit: output = fasta_validation_wf.out.join(results)  // val(name), path(fasta), path(scores_by_tools)
 }
