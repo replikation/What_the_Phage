@@ -204,7 +204,7 @@ workflow {
     if  ( params.fasta && params.annotate && !params.identify && !params.setup || params.fasta && !params.identify && !params.annotate && !params.setup ) {
     // actual tools    
         phage_annotation_wf(annotation_channel)
-        checkV_wf(annotation_channel).view()
+        checkV_wf(annotation_channel)
         phage_tax_classification_wf(annotation_channel)
     }
 
