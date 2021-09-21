@@ -1,6 +1,6 @@
 process checkV {
         publishDir "${params.output}/${name}/CheckV/", mode: 'copy' , pattern: "*.tsv"
-        //errorStrategy 'ignore'
+        errorStrategy 'ignore'
         label 'checkV'
     input:
         tuple val(name), path(fasta)

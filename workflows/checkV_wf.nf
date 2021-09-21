@@ -19,7 +19,6 @@ workflow checkV_wf {
             checkV(fasta, download_checkV_DB.out)
             checkV_collect = checkV.out.map {it -> tuple(it[0],it[2])}
             checkV_collect_data(checkV_collect)
-    emit: checkV.out.view()
 }
 
             /* filter_tool_names.out in identify_fasta_MSF is the info i need to parse into checkV overview 
