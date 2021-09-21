@@ -1,5 +1,6 @@
 include { download_checkV_DB } from './process/checkV/download_checkV_DB'
 include { checkV } from './process/checkV/checkV'
+include { checkV_collect_data } from './process/checkV/checkV_collect_data'
 
 
 workflow checkV_wf {
@@ -16,6 +17,9 @@ workflow checkV_wf {
             }
             // tool prediction
             checkV(fasta, download_checkV_DB.out)
+            checkV_collect = checkV.out.map {it -> tuple(it[0],it[3])}.view()
+            checkV_collect_data(checkV_collect)
+    emit: checkV_collect
 }
 
             /* filter_tool_names.out in identify_fasta_MSF is the info i need to parse into checkV overview 

@@ -5,8 +5,7 @@ process contigs_by_tools {
     input:
         tuple val(name), path(files)
     output:
-        tuple val(name), path("all_overview.tsv"), path("tools_used_for_phage_prediction.tsv"), path("toolagreement_per_contig.tsv"), path("tool_agreements/*") optional true
-
+        tuple val(name), path("contig_tool_p-value_overview.tsv"), path("tools_used_for_phage_prediction.tsv"), path("toolagreement_per_contig.tsv"), path("tool_agreements/*") optional true
     script:
         """
         contig_by_tool_count.sh

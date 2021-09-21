@@ -13,7 +13,7 @@ process hue_heatmap {
         if (( \${linenumbers} == 0 )) ; then
             echo "No Phages found" > results.txt
         else
-            heatmap_mqt.R all_overview.tsv
+            heatmap_mqt.R contig_tool_p-value_overview.tsv
         fi
         ##S
         """

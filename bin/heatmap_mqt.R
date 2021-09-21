@@ -17,6 +17,7 @@ library(ggplot2)
 # setwd ("/input")
 # df <- read.table("all_overview_small.tsv", sep="\t", header = TRUE)
 # df <- read.table("all_overview_large.tsv", sep="\t", header = TRUE)
+# df <- read.table("all_overview_huge.tsv", sep="\t", header = TRUE)
 ##############
 
 
@@ -36,8 +37,8 @@ uniformtheme <- theme_classic() +
 
 dt_contigs <- df[!duplicated(df[,c('contig_name')]),]
 dt_tools <- df[!duplicated(df[,c('toolname')]),]
-resize_h <- ( (nrow(dt_contigs)*2.0))		
-resize_w <- ( (nrow(dt_tools)*3.5)	)	
+resize_h <- ( (nrow(dt_contigs) * 0.5) +5 )		
+resize_w <- ( (nrow(dt_tools) * 1.5) + 5	)	
                         ## * 0.4 ) + 4 )
 plot <- ggplot(data = df, aes(x=toolname, y=contig_name, fill=p_value)) + 
     geom_tile(width=0.99, height=0.99) +
@@ -50,7 +51,8 @@ plot <- ggplot(data = df, aes(x=toolname, y=contig_name, fill=p_value)) +
 print(plot)
 
 
-pdf("phage-distribution.pdf",height = 20, width = 20) 
+pdf("phage-distribution.pdf",height = resize_h, width = resize_w) 
+#ggsave(paste0("phage_contig_heatmap_test.jpeg"), plot, limitsize = FALSE, width = resize_w, height = resize_h, dpi = 300, device="jpeg")
 
 plot
 dev.off()
