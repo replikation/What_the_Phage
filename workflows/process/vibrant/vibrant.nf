@@ -39,48 +39,6 @@ process vibrant {
 
 }
 
-
-
-process vibrant_virome {
-    label 'vibrant'
-    errorStrategy 'ignore'
-    input:
-        tuple val(name), file(fasta) 
-        path(db)
-    output:
-        tuple val(name), file("vibrant_*.tsv")
-        // output collection stream
-        tuple val(name), file("vibrant_*.tsv"), file("VIBRANT_results_*.tar.gz")
-    script:
-        """
-      
-        tar xzf ${db}
-
-        VIBRANT_run.py -i ${fasta} -t ${task.cpus} \
-        -virome \
-        -k database/KEGG_profiles_prokaryotes.HMM \
-        -p database/Pfam-A_v32.HMM \
-        -v database/VOGDB94_phage.HMM \
-        -e database/Pfam-A_plasmid_v32.HMM \
-        -a database/Pfam-A_phage_v32.HMM \
-        -c database/VIBRANT_categories.tsv \
-        -n database/VIBRANT_names.tsv \
-        -s database/VIBRANT_KEGG_pathways_summary.tsv \
-        -m database/VIBRANT_machine_model.sav \
-        -g database/VIBRANT_AMGs.tsv 
-
-        # error control via touch
-        cp VIBRANT_*/VIBRANT_results_*/VIBRANT_machine_*.tsv vibrant_\${PWD##*/}.tsv 2>/dev/null
-      
-        tar cf VIBRANT_results_\${PWD##*/}.tar.gz VIBRANT_*
-        """
-    stub:
-        """
-        echo "scaffold	prediction" > vibrant_\${PWD##*/}.tsv
-        echo "pos_phage_1	virus" >> vibrant_\${PWD##*/}.tsv
-        mkdir VIBRANT_results_\${PWD##*/}.tar.gz
-        """
-}
 /*
 
 slows pc down massively.... while tar proces 

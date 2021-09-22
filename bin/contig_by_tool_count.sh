@@ -21,8 +21,8 @@ cut -f1 tmp_results2.tsv | sort -u > contig_list.txt
 mkdir tool_agreements
 inputfile='contig_list.txt'
 while read line; do
-    toolcount=$(tail -n+2 all_overview.tsv | grep $line | cut -f3 | sort -u | wc -l)
-    ctg=$(tail -n+2 all_overview.tsv | grep $line | cut -f1 | sort -u)
+    toolcount=$(tail -n+2 contig_tool_p-value_overview.tsv | grep $line | cut -f3 | sort -u | wc -l)
+    ctg=$(tail -n+2 contig_tool_p-value_overview.tsv | grep $line | cut -f1 | sort -u)
     touch tool_agreements/"$toolcount"_tools_agree.txt | echo "$ctg" >> tool_agreements/"$toolcount"_tools_agree.txt
     echo "$line    $toolcount"
 done < $inputfile > toolagreement_per_contig.tsv

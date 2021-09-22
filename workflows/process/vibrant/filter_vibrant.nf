@@ -11,6 +11,7 @@ process filter_vibrant {
         awk 'BEGIN {OFS=FS="\\t"; IGNORECASE=1} {if(\$2) sub(/organism/,"0"); print}' | \
         awk 'BEGIN {OFS=FS="\\t"; IGNORECASE=1} {if(\$2) sub(/plasmid/,"0"); print}' | \
         sed -r 's/_fragment_[0-9]//' > vibrant_\${PWD##*/}.tsv
+        rm ${results}
         """
 }
 
