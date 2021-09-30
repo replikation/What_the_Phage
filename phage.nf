@@ -113,727 +113,109 @@ if (!params.setup && !workflow.profile.contains('test') && !workflow.profile.con
             .map { file -> tuple(file.baseName, file) }
                 }
     
-// fastq input or via csv file
-    if (params.fastq && params.list) { fastq_input_ch = Channel
-            .fromPath( params.fastq, checkIfExists: true )
-            .splitCsv()
-            .map { row -> ["${row[0]}", file("${row[1]}", checkIfExists: true)] }
-                }
-    else if (params.fastq) { fastq_input_ch = Channel
-            .fromPath( params.fastq, checkIfExists: true)
-            .map { file -> tuple(file.baseName, file) }
-                }
-
 //get-citation-file for results
     citation = Channel.fromPath(workflow.projectDir + "/docs/Citations.bib")
             .collectFile(storeDir: params.output + "/literature")
 
-/************* 
-* MODULES
-*************/
+/************************** 
+* Workflows to call
+**************************/
 
-    include { checkV } from './modules/checkV'
-    include { chromomap } from './modules/chromomap'
-    include { chromomap_parser } from './modules/parser/chromomap_parser'
-    include { deepvirfinder } from './modules/tools/deepvirfinder'
-    include { deepvirfinder_collect_data } from './modules/raw_data_collection/deepvirfinder_collect_data'
-    include { download_checkV_DB } from './modules/databases/download_checkV_DB'
-    include { download_references } from './modules/databases/download_references'
-    include { fastqTofasta } from './modules/fastqTofasta'
-    include { filter_PPRmeta } from './modules/parser/filter_PPRmeta'
-    include { filter_deepvirfinder } from './modules/parser/filter_deepvirfinder'
-    include { filter_marvel } from './modules/parser/filter_marvel'
-    include { filter_metaphinder; filter_metaphinder_own_DB } from './modules/parser/filter_metaphinder'
-    include { filter_seeker } from './modules/parser/filter_seeker'
-    include { filter_sourmash } from './modules/parser/filter_sourmash'
-    include { filter_tool_names } from './modules/parser/filter_tool_names'
-    include { filter_vibrant; filter_vibrant_virome } from './modules/parser/filter_vibrant'
-    include { filter_virfinder } from './modules/parser/filter_virfinder'
-    include { filter_virnet } from './modules/parser/filter_virnet'
-    include { filter_virsorter; filter_virsorter_virome } from './modules/parser/filter_virsorter' 
-    include { hmmscan } from './modules/hmmscan'
-    include { input_suffix_check } from './modules/input_suffix_check'
-    include { marvel } from './modules/tools/marvel'
-    include { marvel_collect_data } from './modules/raw_data_collection/marvel_collect_data'
-    include { metaphinder; metaphinder_own_DB} from './modules/tools/metaphinder'
-    include { metaphinder_collect_data; metaphinder_collect_data_ownDB } from './modules/raw_data_collection/metaphinder_collect_data'
-    include { normalize_contig_size } from './modules/normalize_contig_size'
-    include { parse_reads } from './modules/parser/parse_reads.nf'
-    include { phage_references_blastDB } from './modules/databases/phage_references_blastDB'
-    include { phigaro } from './modules/tools/phigaro'
-    include { phigaro_collect_data } from './modules/raw_data_collection/phigaro_collect_data'
-    include { ppr_download_dependencies } from './modules/databases/ppr_download_dependencies'
-    include { pprmeta } from './modules/tools/pprmeta'
-    include { pprmeta_collect_data } from './modules/raw_data_collection/pprmeta_collect_data'
-    include { prodigal } from './modules/prodigal'
-    include { pvog_DB; vogtable_DB } from './modules/databases/download_pvog_DB'
-    include { r_plot } from './modules/r_plot.nf' 
-    include { r_plot_reads } from './modules/r_plot_reads.nf'
-    include { removeSmallReads } from './modules/removeSmallReads'
-    include { rvdb_DB } from './modules/databases/download_rvdb_DB'
-    include { samtools } from './modules/samtools'
-    include { score_based_chunking } from './modules/score_based_chunking'
-    include { seeker } from './modules/tools/seeker'
-    include { seeker_collect_data } from './modules/raw_data_collection/seeker_collect_data'
-    include { seqkit } from './modules/seqkit'
-    include { setup_container } from './modules/setup_container'
-    include { shuffle_reads_nts } from './modules/shuffle_reads_nts'
-    include { sourmash } from './modules/tools/sourmash'
-    include { sourmash_collect_data } from './modules/raw_data_collection/sourmash_collect_data'
-    include { sourmash_download_DB } from './modules/databases/sourmash_download_DB'
-    include { sourmash_for_tax } from './modules/sourmash_for_tax'
-    include { split_multi_fasta } from './modules/split_multi_fasta'
-    include { testprofile } from './modules/testprofile'
-    include { upsetr_plot } from './modules/upsetr.nf'
-    include { vibrant; vibrant_virome } from './modules/tools/vibrant'
-    include { vibrant_collect_data; vibrant_virome_collect_data } from './modules/raw_data_collection/vibrant_collect_data'
-    include { vibrant_download_DB } from './modules/databases/vibrant_download_DB'
-    include { virfinder } from './modules/tools/virfinder'
-    include { virfinder_collect_data } from './modules/raw_data_collection/virfinder_collect_data'
-    include { virnet } from './modules/tools/virnet'
-    include { virnet_collect_data } from './modules/raw_data_collection/virnet_collect_data'
-    include { virsorter2 } from './modules/tools/virsorter2'
-    include { virsorter2_download_DB } from './modules/databases/virsorter2_download_DB' 
-    include { filter_virsorter2 } from './modules/parser/filter_virsorter2'
-    include { virsorter2_collect_data} from './modules/raw_data_collection/virsorter2_collect_data'
-    include { virsorter; virsorter_virome } from './modules/tools/virsorter'
-    include { virsorter_collect_data; virsorter_virome_collect_data } from './modules/raw_data_collection/virsorter_collect_data'
-    include { virsorter_download_DB } from './modules/databases/virsorter_download_DB'
-    include { vog_DB } from './modules/databases/download_vog_DB'
-    include { split_multi_fasta_2 } from './modules/split_multi_fasta'
-    include { hue_heatmap } from './modules/hue_heatmap'
-
-/************* 
-* DATABASES for Phage Identification
-*************/
-workflow ppr_dependecies {
-    main: 
-        // local storage via storeDir
-        if (!params.cloudProcess) { ppr_download_dependencies(); db = ppr_download_dependencies.out }
-        // cloud storage via db_preload.exists()
-        if (params.cloudProcess) {
-            db_preload = file("${params.databases}/pprmeta/PPR-Meta", type: 'dir')
-            if (db_preload.exists()) { db = db_preload }
-            else  { ppr_download_dependencies(); db = ppr_download_dependencies.out } 
-        }
-    emit: db
-}        
-
-workflow virsorter_database {
-    main: 
-        // local storage via storeDir
-        if (!params.cloudProcess) { virsorter_download_DB(); db = virsorter_download_DB.out }
-        // cloud storage via db_preload.exists()
-        if (params.cloudProcess) {
-            db_preload = file("${params.databases}/virsorter/virsorter-data", type: 'dir')
-            if (db_preload.exists()) { db = db_preload }
-            else  { virsorter_download_DB(); db = virsorter_download_DB.out } 
-        }
-    emit: db
-}
-
-workflow virsorter2_database {
-    main: 
-        // local storage via storeDir
-        if (!params.cloudProcess) { virsorter2_download_DB(); db = virsorter2_download_DB.out }
-        // cloud storage via db_preload.exists()
-        if (params.cloudProcess) {
-            db_preload = file("${params.databases}/virsorter2-db", type: 'dir')
-            if (db_preload.exists()) { db = db_preload }
-            else  { virsorter2_download_DB(); db = virsorter2_download_DB.out } 
-        }
-    emit: db
-}
-
-workflow sourmash_database {
-    take: references
-    main: 
-        // local storage via storeDir
-        if (!params.cloudProcess) { sourmash_download_DB(references); db = sourmash_download_DB.out }
-        // cloud storage via db_preload.exists()
-        if (params.cloudProcess) {
-            db_preload = file("${params.databases}/sourmash/phages.sbt.zip")
-            if (db_preload.exists()) { db = db_preload }
-            else  { sourmash_download_DB(references); db = sourmash_download_DB.out } 
-        }
-    emit: db
-} 
-
-workflow phage_references {
-    main: 
-        // local storage via storeDir
-        if (!params.cloudProcess) { download_references(); db = download_references.out }
-        // cloud storage via db_preload.exists()
-        if (params.cloudProcess) {
-            db_preload = file("${params.databases}/references/phage_references.fa")
-            if (db_preload.exists()) { db = db_preload }
-            else  { download_references(); db = download_references.out } 
-        }
-    emit: db
-} 
-
-workflow phage_blast_DB {
-    take: references
-    main: 
-        // local storage via storeDir
-        if (!params.cloudProcess) { phage_references_blastDB(references); db = phage_references_blastDB.out }
-        // cloud storage via db_preload.exists()
-        if (params.cloudProcess) {
-            db_preload = file("${params.databases}/blast_DB_phage/blast_database.tar.gz", type: 'dir')
-            if (db_preload.exists()) { db = db_preload }
-            else  { phage_references_blastDB(references); db = phage_references_blastDB.out } 
-        }
-    emit: db
-} 
-
-workflow vibrant_database {
-    main: 
-        // local storage via storeDir
-        if (!params.cloudProcess) { vibrant_download_DB(); db = vibrant_download_DB.out }
-        //cloud storage via db_preload.exists()
-        if (params.cloudProcess) {
-            db_preload = file("${params.databases}/Vibrant/database.tar.gz")
-            if (db_preload.exists()) { db = db_preload }
-            else  { vibrant_download_DB(); db = vibrant_download_DB.out } 
-        }
-    emit: db
-}           
-
-/************* 
-* DATABASES for Phage annotation
-*************/
-
-workflow pvog_database {
-    main: 
-        // local storage via storeDir
-        if (!params.cloudProcess) { pvog_DB(); db = pvog_DB.out }
-        // cloud storage via db_preload.exists()
-        if (params.cloudProcess) {
-            db_preload = file("${params.databases}/pvogs/", type: 'dir')
-            if (db_preload.exists()) { db = db_preload }
-            else  { pvog_DB(); db = pvog_DB.out } 
-        }
-    emit: db
-}
-
-workflow vogtable_database {
-    main: 
-        // local storage via storeDir
-        if (!params.cloudProcess) { vogtable_DB(); db = vogtable_DB.out }
-        // cloud storage via db_preload.exists()
-        if (params.cloudProcess) {
-            db_preload = file("${params.databases}/vog_table/VOGTable.txt")
-            if (db_preload.exists()) { db = db_preload }
-            else  { vogtable_DB(); db = vogtable_DB.out } 
-        }
-    emit: db
-}
-
-workflow rvdb_database {
-    main: 
-        // local storage via storeDir
-        if (!params.cloudProcess) { rvdb_DB(); db = rvdb_DB.out }
-        // cloud storage via db_preload.exists()
-        if (params.cloudProcess) {
-            db_preload = file("${params.databases}/rvdb", type: 'dir')
-            if (db_preload.exists()) { db = db_preload }
-            else  { rvdb_DB(); db = rvdb_DB.out } 
-        }
-    emit: db
-}
-
-workflow vog_database {
-    main: 
-        // local storage via storeDir
-        if (!params.cloudProcess) { vog_DB(); db = vog_DB.out }
-        // cloud storage via db_preload.exists()
-        if (params.cloudProcess) {
-            db_preload = file("${params.databases}/vog/vogdb", type: 'dir')
-            if (db_preload.exists()) { db = db_preload }
-            else  { vog_DB(); db = vog_DB.out } 
-        }
-    emit: db
-}
-
-workflow checkV_database {
-    main: 
-        // local storage via storeDir
-        if (!params.cloudProcess) { download_checkV_DB(); db = download_checkV_DB.out }
-        // cloud storage via db_preload.exists()
-        if (params.cloudProcess) {
-            db_preload = file("${params.databases}/checkV/checkv-db-v0.6", type: 'dir')
-            if (db_preload.exists()) { db = db_preload }
-            else  { download_checkV_DB(); db = download_checkV_DB.out } 
-        }
-    emit: db
-}
-
-/************* 
-* SUB WORKFLOWS
-*************/
-
-workflow fasta_validation_wf {
-    take:   fasta
-    main:   seqkit(input_suffix_check(fasta)) 
-    emit:   seqkit.out
-}
-
-workflow read_validation_wf {
-    take:   fastq
-    main:   fastqTofasta(removeSmallReads(fastq.splitFastq(by: 1000, file: true)))
-    emit:   fastqTofasta.out
-}
-
-workflow read_shuffling_wf {
-    take:   fastq
-    main:   fastqTofasta(shuffle_reads_nts(removeSmallReads(fastq.splitFastq(by: 10000, file: true))))
-    emit:   fastqTofasta.out
-} 
-
-workflow sourmash_wf {
-    take:   fasta
-            sourmash_database
-    main:   
-            if (!params.sm) { 
-                        filter_sourmash(sourmash(split_multi_fasta(fasta), sourmash_database).groupTuple(remainder: true))
-                        // raw data collector
-                        sourmash_collect_data(sourmash.out.groupTuple(remainder: true))
-                        // result channel
-                        sourmash_results = filter_sourmash.out
-                        }
-            else { sourmash_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-
-    emit:   sourmash_results
-} 
-
-workflow deepvirfinder_wf {
-    take:   fasta
-    main:   
-            if (!params.dv) { 
-                        filter_deepvirfinder(deepvirfinder(fasta).groupTuple(remainder: true))
-                        // raw data collector
-                        deepvirfinder_collect_data(deepvirfinder.out.groupTuple(remainder: true))
-                        // result channel
-                        deepvirfinder_results = filter_deepvirfinder.out
-                        }
-            else { deepvirfinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   deepvirfinder_results 
-} 
-
-workflow marvel_wf {
-    take:   fasta
-    main:   if (!params.ma) { 
-                        // filtering
-                        filter_marvel(marvel(split_multi_fasta(fasta)).groupTuple(remainder: true))
-                        // raw data collector
-                        marvel_collect_data(marvel.out.groupTuple(remainder: true))
-                        // result channel
-                        marvel_results = filter_marvel.out 
-                        }
-            else { marvel_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   marvel_results 
-}
-
-workflow metaphinder_wf {
-    take:   fasta
-    main:   if (!params.mp) { 
-                        metaphinder(fasta)
-                        // filtering
-                        filter_metaphinder(metaphinder.out[0].groupTuple(remainder: true))
-                        // raw data collector
-                        metaphinder_collect_data(metaphinder.out[1].groupTuple(remainder: true))
-                        // result channel
-                        metaphinder_results = filter_metaphinder.out
-                        }
-            else { metaphinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   metaphinder_results
-} 
-
-workflow metaphinder_own_DB_wf {
-    take:   fasta
-            blast_db
-    main:   if (!params.mp) {
-                        metaphinder_own_DB(fasta, blast_db)
-                        // filtering
-                        filter_metaphinder_own_DB(metaphinder_own_DB.out[0].groupTuple(remainder: true))
-                        // raw data collector
-                        metaphinder_collect_data_ownDB(metaphinder_own_DB.out[1].groupTuple(remainder: true))
-                        // result channel
-                        metaphinder_results = filter_metaphinder_own_DB.out
-                        }
-            else { metaphinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   metaphinder_results 
-} 
-
-workflow virfinder_wf {
-    take:   fasta
-    main:   if (!params.vf) { 
-                        filter_virfinder(virfinder(fasta).groupTuple(remainder: true))
-                        // raw data collector
-                        virfinder_collect_data(virfinder.out.groupTuple(remainder: true))
-                        // result channel
-                        virfinder_results = filter_virfinder.out
-                        }
-            else { virfinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   virfinder_results
-} 
-
-workflow virsorter_wf {
-    take:   fasta
-            virsorter_DB
-    main:   if (!params.vs) {
-                        virsorter(fasta, virsorter_DB)
-                        // filtering
-                        filter_virsorter(virsorter.out[0].groupTuple(remainder: true))
-                        // raw data collector
-                        virsorter_collect_data(virsorter.out[1].groupTuple(remainder: true))
-                        // result channel
-                        virsorter_results = filter_virsorter.out
-                        }
-            else { virsorter_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   virsorter_results
-} 
-
-workflow virsorter_virome_wf {
-    take:   fasta
-            virsorter_DB
-    main:   if (!params.vs && !params.virome) {
-                        virsorter_virome(fasta, virsorter_DB)
-                        // filtering
-                        filter_virsorter_virome(virsorter_virome.out[0].groupTuple(remainder: true))
-                        // raw data collector
-                        virsorter_virome_collect_data(virsorter_virome.out[1].groupTuple(remainder: true))
-                        // result channel
-                        virsorter_virome_results = filter_virsorter_virome.out
-                        }
-            else { virsorter_virome_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   virsorter_virome_results
-} 
-
-workflow virsorter2_wf {
-    take:   fasta           
-            virsorter2_download_DB
-    main:   if (!params.vs2) { 
-                        virsorter2(fasta, virsorter2_download_DB)
-                        // filtering
-                        filter_virsorter2(virsorter2.out[0].groupTuple(remainder: true))
-                        // raw data collector
-                        virsorter2_collect_data(virsorter2.out[1].groupTuple(remainder: true))
-                        // result channel
-                        virsorter2_results = filter_virsorter2.out
-                        }
-            else { virsorter2_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   virsorter2_results
-} 
-
-workflow pprmeta_wf {
-    take:   fasta
-            ppr_deps
-    main:   if (!params.pp) { 
-                        filter_PPRmeta(pprmeta(fasta, ppr_deps).groupTuple(remainder: true))
-                        // raw data collector
-                        pprmeta_collect_data(pprmeta.out.groupTuple(remainder: true))
-                        // result channel
-                        pprmeta_results = filter_PPRmeta.out
-                        }
-            else { pprmeta_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   pprmeta_results 
-} 
-
-workflow vibrant_wf {
-    take:   fasta
-            vibrant_download_DB
-    main:    if (!params.vb) {
-                        vibrant(fasta, vibrant_download_DB)
-                        // filtering
-                        filter_vibrant(vibrant.out[0].groupTuple(remainder: true))
-                        // raw data collector
-                        vibrant_collect_data(vibrant.out[1].groupTuple(remainder: true))
-                        // result channel
-                        vibrant_results = filter_vibrant.out
-                        }
-            else { vibrant_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   vibrant_results
-}
-
-workflow vibrant_virome_wf {
-    take:   fasta
-            vibrant_download_DB
-    main:   if (!params.vb && !params.virome) {
-                        vibrant_virome(fasta, vibrant_download_DB)
-                        // filtering
-                        filter_vibrant_virome(vibrant_virome.out[0].groupTuple(remainder: true))
-                        // raw data collector
-                        vibrant_virome_collect_data(vibrant_virome.out[1].groupTuple(remainder: true))
-                        // result channel
-                        vibrant_virome_results = filter_vibrant_virome.out
-                        }
-            else { vibrant_virome_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   vibrant_virome_results
-}
-
-workflow virnet_wf {
-    take:   fasta
-
-    main:   if (!params.vn) { 
-                        filter_virnet(virnet(normalize_contig_size(fasta)).groupTuple(remainder: true))
-                        // raw data collector
-                        virnet_collect_data(virnet.out.groupTuple(remainder: true))
-                        // result channel
-                        virnet_results = filter_virnet.out
-                        }
-            else { virnet_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   virnet_results
-} 
-
-workflow phigaro_wf {
-    take:   fasta
-    main:   if (!params.ph) { 
-                        phigaro(fasta)
-                        // raw data collector
-                        phigaro_collect_data(phigaro.out[1].groupTuple(remainder: true))
-                        // result channel // [0] emits filtered positive phage sequences (provided by DEV)
-                        phigaro_results = phigaro.out[0]
-                        }
-            else { phigaro_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   phigaro_results
-}
-
-workflow seeker_wf {
-	take:	fasta
-	main:	if (!params.sk) {
-                        // run and filter seeker
-                        filter_seeker(seeker(fasta).groupTuple(remainder: true))
-                        // raw data collector
-                        seeker_collect_data(seeker.out.groupTuple(remainder: true))
-                        // results channel
-                        seeker_results = filter_seeker.out		
-                        }
-            else { seeker_results = Channel.from( ['deactivated', 'deactivated'] ) }
-    emit:   seeker_results
-}
-
-workflow setup_wf {
-    take:   
-    main:       
-        // docker
-        if (workflow.profile.contains('docker')) {
-            config_ch = Channel.fromPath( workflow.projectDir + "/configs/container.config" , checkIfExists: true)
-            setup_container(config_ch)
-        }
-        // singularity
-        if (workflow.profile.contains('singularity')) {
-            config_ch2 = Channel.fromPath( workflow.projectDir + "/configs/container.config" , checkIfExists: true)
-            setup_container(config_ch2)
-        }
-
-        // databases
-        if (!params.annotate) {
-            phage_references() 
-            ref_phages_DB = phage_blast_DB (phage_references.out)
-            ppr_deps = ppr_dependecies()
-            sourmash_DB = sourmash_database (phage_references.out)
-            vibrant_DB = vibrant_download_DB()
-            virsorter_DB = virsorter_database()
-            virsorter2_DB = virsorter2_download_DB()
-        }
-        if (!params.identify) {
-            vog_table = vogtable_database()
-            pvog_DB = pvog_database() 
-            vog_DB = vog_database() 
-            rvdb_DB = rvdb_database()
-            checkV_DB = checkV_database()
-        }
-} 
-
-workflow checkV_wf {
-    take:   fasta
-            database
-    main:   checkV(fasta, database)
-
-            /* filter_tool_names.out in identify_fasta_MSF is the info i need to parse into checkV overview 
-            has tuple val(name), file("*.txt")
-            
-            each txt file can be present or not
-
-            1.) parse this output into a "contig name", 1, 0" matrix still having the "value" infront of it
-
-            2.) then i could do a join first bei val(name), an then combine by val(contigname) within the channels?
-
-            3.) annoying ...
-
-            */
-    emit:   checkV.out
-} 
-
-workflow get_test_data {
-    main: testprofile()
-    emit: testprofile.out.flatten().map { file -> tuple(file.simpleName, file) }
-}
-
-workflow phage_tax_classification {
-    take:   fasta
-            sourmash_database
-    main:    
-            sourmash_for_tax(split_multi_fasta_2(fasta), sourmash_database).groupTuple(remainder: true)
-}
-
-/************* 
-* MainSubWorkflows
-*************/
-
-workflow identify_fasta_MSF {
-    take:   fasta
-            ref_phages_DB
-            ppr_deps
-            sourmash_DB
-            vibrant_DB
-            virsorter_DB
-            virsorter2_DB
-    main: 
-        // input filter  
-        fasta_validation_wf(fasta)
-
-        // gather results
-            results =   virsorter_wf(fasta_validation_wf.out, virsorter_DB)
-                        .concat(virsorter2_wf(fasta_validation_wf.out, virsorter2_DB))
-                        .concat(virsorter_virome_wf(fasta_validation_wf.out, virsorter_DB))
-                        // depracted due to file size explosin -> .concat(marvel_wf(fasta_validation_wf.out))      
-                        .concat(sourmash_wf(fasta_validation_wf.out, sourmash_DB))
-                        .concat(metaphinder_wf(fasta_validation_wf.out))
-                        .concat(metaphinder_own_DB_wf(fasta_validation_wf.out, ref_phages_DB))
-                        .concat(deepvirfinder_wf(fasta_validation_wf.out))
-                        .concat(virfinder_wf(fasta_validation_wf.out))
-                        .concat(pprmeta_wf(fasta_validation_wf.out, ppr_deps))
-                        .concat(vibrant_wf(fasta_validation_wf.out, vibrant_DB))
-                        .concat(vibrant_virome_wf(fasta_validation_wf.out, vibrant_DB))
-                        .concat(virnet_wf(fasta_validation_wf.out))
-                        .concat(phigaro_wf(fasta_validation_wf.out))
-                        .concat(seeker_wf(fasta_validation_wf.out))
-                        .filter { it != 'deactivated' } // removes deactivated tool channels
-                        .groupTuple()
-                                               
-        //plotting overview
-            filter_tool_names(results)
-            upsetr_plot(filter_tool_names.out[0])        
-
-    emit:   output = fasta_validation_wf.out.join(results)  // val(name), path(fasta), path(scores_by_tools)
-}
-
-/*
-workflow identify_fastq_MSF { 
-    take:   fastq
-            ref_phages_DB
-            ppr_deps
-            sourmash_DB
-            vibrant_DB
-            virsorter_DB
-    main:
-    // input filter
-        read_validation_wf(fastq)
-   
-    // gather results
-        results =   metaphinder_wf(read_validation_wf.out)
-                    .concat(metaphinder_own_DB_wf(read_validation_wf.out, ref_phages_DB))
-                    .concat(virfinder_wf(read_validation_wf.out))
-                    .concat(pprmeta_wf(read_validation_wf.out, ppr_deps))
-                    .filter { it != 'deactivated' } // removes deactivated tool channels
-                    .groupTuple()
-        
-        filter_tool_names(results) 
-
-    //plotting results
-        r_plot_reads(parse_reads(results))   
-        upsetr_plot(filter_tool_names.out)     
-    
-    //samtools
-        // COMMENT: all fastas have the same name which does name collision 
-       samtools(read_validation_wf.out.groupTuple(remainder: true).join(results)) 
-
-    emit: samtools.out
-}
-
-*/
+include { input_validation_wf } from './workflows/input_validation_wf'
+include { deepvirfinder_wf } from './workflows/deepvirfinder_wf.nf'
+include { phigaro_wf } from './workflows/phigaro_wf'
+include { seeker_wf } from './workflows/seeker_wf'
+include { virfinder_wf } from './workflows/virfinder_wf'
+include { virnet_wf } from './workflows/virnet_wf'
+include { pprmeta_wf } from './workflows/pprmeta_wf'
+include { metaphinder_wf } from './workflows/metaphinder_wf'
+include { metaphinder_own_DB_wf } from './workflows/metaphinder_own_DB_wf'
+include { vibrant_wf } from './workflows/vibrant_wf'
+include { vibrant_virome_wf } from './workflows/vibrant_virome_wf'
+include { virsorter_wf } from './workflows/virsorter_wf'
+include { virsorter_virome_wf } from './workflows/virsorter_virome_wf'
+include { virsorter2_wf } from './workflows/virsorter2_wf'
+include { sourmash_wf } from './workflows/sourmash_wf'
+include { prepare_results_wf } from './workflows/prepare_results_wf'
+include { phage_annotation_wf } from './workflows/phage_annotation_wf'
+include { checkV_wf } from './workflows/checkV_wf'
+include { phage_tax_classification_wf } from './workflows/phage_tax_classification_wf'
+include { setup_wf } from './workflows/setup_wf'
+include { get_test_data_wf } from './workflows/get_test_data_wf'
 
 
-workflow phage_annotation_MSF {
-    take:   fasta_and_tool_results 
-            pvog_DB
-            vog_table
-            vog_DB
-            rvdb_DB
-    main:  
-            
-            fasta = fasta_and_tool_results.map {it -> tuple(it[0],it[1])}
-            //annotation-process
-
-            prodigal(fasta)
-
-            hmmscan(prodigal.out, pvog_DB)
-
-            score_based_chunking(hmmscan.out.join(fasta_and_tool_results), vog_table)
-            
-            chunk_channel=score_based_chunking.out[0].mix(score_based_chunking.out[1]).mix(score_based_chunking.out[2]).mix(score_based_chunking.out[3])
-            
-            chromomap_parser(chunk_channel.combine(hmmscan.out, by:0), vog_table)
-            chromomap(chromomap_parser.out[0].mix(chromomap_parser.out[1]))
-
-            // fine granular heatmap ()
-
-            hue_heatmap(fasta_and_tool_results)
-
-    emit:   chunk_channel.view()
-}
-
-/************* 
-* MAIN WORKFLOWS
-*************/
+/************************** 
+* WtP Workflow
+**************************/
 
 workflow {
-// SETUP AND TESTRUNS
-if (params.setup) { setup_wf() }
-else {
-    if (workflow.profile.contains('test') && !workflow.profile.contains('smalltest')) { fasta_input_ch = get_test_data() }
+
+/************************** 
+* WtP setup
+**************************/
+
+    if ( params.setup ) { setup_wf() }
+    else {
+    if (workflow.profile.contains('test') && !workflow.profile.contains('smalltest')) { fasta_input_ch = get_test_data_wf() }
     if (workflow.profile.contains('smalltest') ) 
         { fasta_input_ch = Channel.fromPath(workflow.projectDir + "/test-data/all_pos_phage.fa", checkIfExists: true).map { file -> tuple(file.simpleName, file) }.view() }
-// DATABASES
-    // identification
-    phage_references() 
-    if (params.mp || params.annotate) { ref_phages_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { ref_phages_DB = phage_blast_DB(phage_references.out) }
-    if (params.pp || params.annotate) { ppr_deps = Channel.from( [ 'deactivated', 'deactivated'] ) } else { ppr_deps = ppr_dependecies() }
-    if (params.vb || params.annotate) { vibrant_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vibrant_DB = vibrant_database() }
-    if (params.vs || params.annotate) { virsorter_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { virsorter_DB = virsorter_database() }
-    if (params.vs2 || params.annotate) { virsorter2_DB = Channel.from( ['deactivated', 'deactivated'] ) } else { virsorter2_DB = virsorter2_database() }
-    //  annotation
-    if (params.identify) { pvog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { pvog_DB = pvog_database() }
-    if (params.identify) { vog_table = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vog_table = vogtable_database() }
-    if (params.identify) { vog_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { vog_DB = vog_database() }
-    if (params.identify) { rvdb_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { rvdb_DB = rvdb_database() }
-    if (params.identify) { checkV_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { checkV_DB = checkV_database() }
-    // sourmash (used in identify and annotate)
-    if (params.identify && params.sm) { sourmash_DB = Channel.from( [ 'deactivated', 'deactivated'] ) } else { sourmash_DB = sourmash_database(phage_references.out) }
-
-// IDENTIFY !
-    if (params.fasta && !params.annotate) { identify_fasta_MSF(fasta_input_ch, ref_phages_DB, ppr_deps,sourmash_DB, vibrant_DB, virsorter_DB, virsorter2_DB) }
-    if (params.fastq) { identify_fastq_MSF(fastq_input_ch, ref_phages_DB, ppr_deps, sourmash_DB, vibrant_DB, virsorter_DB) }
-
-// ANNOTATE & TAXONOMY !
-    // generate "annotation_ch" based on input types (fasta/fastq and annotate)
-    if (params.fasta && params.fastq && params.annotate) { annotation_ch = identify_fastq_MSF.out.mix(fasta_validation_wf(fasta_input_ch)) }
-    else if (params.fasta && params.fastq && !params.annotate) { annotation_ch = identify_fastq_MSF.out.mix(identify_fasta_MSF.out) }
-    else if (params.fasta && params.annotate) { annotation_ch = fasta_validation_wf(fasta_input_ch)}
-    else if (params.fasta && !params.annotate) { annotation_ch = identify_fasta_MSF.out }
-    else if (params.fastq ) { annotation_ch = identify_fastq_MSF.out }
-
-    // Annotation & classification & score based chunking
-    if (!params.identify) { 
-        phage_annotation_MSF(annotation_ch, pvog_DB, vog_table, vog_DB, rvdb_DB) 
-        
-        // these workflows are using the score based chunks from phage_annotation_MSF
-        checkV_wf(phage_annotation_MSF.out, checkV_DB) 
-        phage_tax_classification(phage_annotation_MSF.out, sourmash_DB )
     }
-}}
+/************************** 
+* worflow flow control
+**************************/
+    // create 3 "input channels" for each flow
+    if ( params.fasta && params.annotate && !params.identify && !params.setup) { annotation_channel =   input_validation_wf(fasta_input_ch) }
+    else if (params.fasta && params.identify && !params.annotate && !params.setup ) { prediction_channel =  input_validation_wf(fasta_input_ch) }
+    else if (params.fasta && !params.identify && !params.annotate && !params.setup ) { prediction_channel =  input_validation_wf(fasta_input_ch) }
+
+/************************** 
+* Prediction
+**************************/
+    // run annotation if identify flag or no flag at all
+    if (params.fasta && params.identify && !params.annotate && !params.setup || params.fasta && !params.identify && !params.annotate && !params.setup )  { 
+    // actual tools     
+        results = deepvirfinder_wf( prediction_channel)
+                .concat( phigaro_wf(prediction_channel))
+                .concat( seeker_wf(prediction_channel))
+                .concat( virfinder_wf(prediction_channel))
+                .concat( virnet_wf(prediction_channel))
+                .concat( pprmeta_wf(prediction_channel))
+                .concat( metaphinder_wf(prediction_channel))
+                .concat( metaphinder_own_DB_wf(prediction_channel))
+                .concat( vibrant_wf(prediction_channel))
+                .concat( vibrant_virome_wf(prediction_channel))
+                .concat( virsorter_wf(prediction_channel))
+                .concat( virsorter_virome_wf(prediction_channel))
+                .concat( virsorter2_wf(prediction_channel))
+                .concat( sourmash_wf(prediction_channel))
+                .filter { it != 'deactivated' } // removes deactivated tool channels
+                .groupTuple()
+
+        prepare_results_wf(results, prediction_channel)
+
+        // map identify output for input of annotaion tools
+        annotation_channel = input_validation_wf.out.join(results)
+    }
+    
+/************************** 
+* Annotation
+**************************/
+    // run annotation if annotate flag or no flag at all
+    if  ( params.fasta && params.annotate && !params.identify && !params.setup || params.fasta && !params.identify && !params.annotate && !params.setup ) {
+    // actual tools    
+        phage_annotation_wf(annotation_channel)
+        checkV_wf(annotation_channel)
+        phage_tax_classification_wf(annotation_channel)
+    }
+
+
+/************************** 
+* Result Report
+**************************/
+
+    // TBC
+
+}
 
 /*************  
 * --help
@@ -887,7 +269,6 @@ def helpMSG() {
     ${c_yellow}Tool control:${c_reset}
     Deactivate tools individually by adding one or more of these flags
     --dv                deactivates deepvirfinder
-    --ma                deactivates marvel
     --mp                deactivates metaphinder
     --pp                deactivates PPRmeta
     --sm                deactivates sourmash
