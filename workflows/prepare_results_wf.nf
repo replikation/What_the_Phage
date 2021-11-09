@@ -12,15 +12,12 @@ workflow prepare_results_wf {
         //plotting overview
             filter_tool_names(results)
             upsetr_plot(filter_tool_names.out[0])
-
             contigs_by_tools(results)
-            samtools_input = contigs_by_tools.out.map {it -> tuple(it[0], it[3])}.join(fasta) // sample input name ,toolagreement_per_contig, fasta
-            seqkit_tool_agreements(samtools_input)
+            //seqkit_tool_agreements(contigs_by_tools.out.tool_agreements_per_contig_ch, fasta)
+            hue_heatmap(contigs_by_tools.out.overview_ch)
 
-            heatmap_input = contigs_by_tools.out.map {it -> tuple(it[0],it[1])}
-            hue_heatmap(heatmap_input)
+        // markdown report collecter
+            report_prepare_results = contigs_by_tools.out.overview_ch//.join(contigs_by_tools.out.tool_agreements_per_contig_ch)
 
-    
-
-    emit: fasta // val(name), path(fasta), path(scores_by_tools)
+    emit:  report_prepare_results
 }

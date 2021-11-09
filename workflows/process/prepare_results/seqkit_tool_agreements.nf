@@ -3,7 +3,8 @@ process seqkit_tool_agreements {
 /*         errorStrategy 'ignore' */
         label 'seqkit'
     input:
-        tuple val(name), path(toolagreement_per_contig), path(fasta)
+        tuple val(name), path(toolagreement_per_contig)
+        tuple val(name), path(fasta)
     output:
         tuple val(name), path("*_tool_match/*.fasta")
     script:

@@ -17,8 +17,9 @@ workflow checkV_wf {
             }
             // tool prediction
             checkV(fasta, download_checkV_DB.out)
-            checkV_collect = checkV.out.map {it -> tuple(it[0],it[2])}
-            checkV_collect_data(checkV_collect)
+            //checkV_collect = checkV.out.map {it -> tuple(it[0],it[2])}
+            checkV_collect_data(checkV.out.checkV_results_ch)
+    emit:   checkV.out.sample_quality_ch
 }
 
             /* filter_tool_names.out in identify_fasta_MSF is the info i need to parse into checkV overview 

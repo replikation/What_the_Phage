@@ -5,7 +5,10 @@ process contigs_by_tools {
     input:
         tuple val(name), path(files)
     output:
-        tuple val(name), path("contig_tool_p-value_overview.tsv"), path("tools_used_for_phage_prediction.tsv"), path("toolagreement_per_contig.tsv"), path("tool_agreements/*") optional true
+        tuple val(name), path("contig_tool_p-value_overview.tsv"), emit: overview_ch optional true
+        tuple val(name), path("tools_used_for_phage_prediction.tsv"), emit: tools_used_ch optional true
+        tuple val(name), path("toolagreement_per_contig.tsv"), emit: tool_agreements_per_contig_ch optional true
+        tuple val(name), path("tool_agreements/*"), emit: tool_agreements_fasta_ch optional true 
     script:
         """
         contig_by_tool_count.sh 

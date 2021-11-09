@@ -142,7 +142,7 @@ include { checkV_wf } from './workflows/checkV_wf'
 include { phage_tax_classification_wf } from './workflows/phage_tax_classification_wf'
 include { setup_wf } from './workflows/setup_wf'
 include { get_test_data_wf } from './workflows/get_test_data_wf'
-
+include { markdown_report_wf } from './workflows/markdown_report_wf'
 
 /************************** 
 * WtP Workflow
@@ -158,14 +158,17 @@ workflow {
     else {
     if (workflow.profile.contains('test') && !workflow.profile.contains('smalltest')) { fasta_input_ch = get_test_data_wf() }
     if (workflow.profile.contains('smalltest') ) 
-        { fasta_input_ch = Channel.fromPath(workflow.projectDir + "/test-data/all_pos_phage.fa", checkIfExists: true).map { file -> tuple(file.simpleName, file) }.view() }
+        { fasta_input_ch = Channel.fromPath(workflow.projectDir + "/test-data/all_pos_phage.fa", checkIfExists: true).map { file -> tuple(file.simpleName, file) } }
     }
 /************************** 
 * worflow flow control
 **************************/
     // create 3 "input channels" for each flow
+    // Annotation only
     if ( params.fasta && params.annotate && !params.identify && !params.setup) { annotation_channel =   input_validation_wf(fasta_input_ch) }
+    // Identify only
     else if (params.fasta && params.identify && !params.annotate && !params.setup ) { prediction_channel =  input_validation_wf(fasta_input_ch) }
+    // Full run
     else if (params.fasta && !params.identify && !params.annotate && !params.setup ) { prediction_channel =  input_validation_wf(fasta_input_ch) }
 
 /************************** 
@@ -193,6 +196,9 @@ workflow {
 
         prepare_results_wf(results, prediction_channel)
 
+        // markdown report collector
+        identify_markdown = prepare_results_wf.out//.view()
+
         // map identify output for input of annotaion tools
         annotation_channel = input_validation_wf.out.join(results)
     }
@@ -206,14 +212,34 @@ workflow {
         phage_annotation_wf(annotation_channel)
         checkV_wf(annotation_channel)
         phage_tax_classification_wf(annotation_channel)
+
+        // markdown report collector
+        annotation_markdown = phage_annotation_wf.out.concat(checkV_wf.out)//.view()
+
+
+
+
+        // [all_pos_phage, large, /tmp/nextflow-phages-mike/7f/8f2fc9e2d84a96b149f8df56d9b85a/large/chromosomefile.tbl, /tmp/nextflow-phages-mike/7f/8f2fc9e2d84a96b149f8df56d9b85a/large/annotationfile.tbl, all_pos_phage, /tmp/nextflow-phages-mike/92/22d3a7d3cada17ec8fab7470800720/all_pos_phage_quality_summary.tsv]
+        //[all_pos_phage, small, /tmp/nextflow-phages-mike/7f/8f2fc9e2d84a96b149f8df56d9b85a/small/chromosomefile.tbl, /tmp/nextflow-phages-mike/7f/8f2fc9e2d84a96b149f8df56d9b85a/small/annotationfile.tbl, all_pos_phage, /tmp/nextflow-phages-mike/92/22d3a7d3cada17ec8fab7470800720/all_pos_phage_quality_summary.tsv]
     }
 
 
 /************************** 
 * Result Report
 **************************/
+    // Annotation only
+   // if ( params.fasta && params.annotate && !params.identify && !params.setup) {  }
+    // Identify only
+    //else if (params.fasta && params.identify && !params.annotate && !params.setup ) { }
+    // Full run
+        //map inputs into one channel samplewise
+        markdown_result_files = identify_markdown.concat(annotation_markdown)//.view()
 
-    // TBC
+    if (params.fasta && !params.identify && !params.annotate && !params.setup ) { 
+      markdown_report_wf(identify_markdown, phage_annotation_wf.out, checkV_wf.out )
+   
+   
+   }
 
 }
 
