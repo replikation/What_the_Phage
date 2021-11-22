@@ -17,7 +17,8 @@ workflow prepare_results_wf {
             hue_heatmap(contigs_by_tools.out.overview_ch)
 
         // markdown report collecter
-            report_prepare_results = contigs_by_tools.out.overview_ch//.join(contigs_by_tools.out.tool_agreements_per_contig_ch)
-
-    emit:  report_prepare_results
+            heatmap_table_markdown_input = contigs_by_tools.out.overview_ch//.join(contigs_by_tools.out.tool_agreements_per_contig_ch)
+            upsetr_plot_markdown_input = upsetr_plot.out
+    emit:   heatmap_table_markdown_input
+            upsetr_plot_markdown_input
 }

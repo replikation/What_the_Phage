@@ -196,8 +196,9 @@ workflow {
 
         prepare_results_wf(results, prediction_channel)
 
-        // markdown report collector
-        identify_markdown = prepare_results_wf.out//.view()
+        // markdown report input
+        //identify_markdown = prepare_results_wf.out//.view()
+        //upsetr_markdown = prepare_results_wf.out
 
         // map identify output for input of annotaion tools
         annotation_channel = input_validation_wf.out.join(results)
@@ -213,9 +214,9 @@ workflow {
         checkV_wf(annotation_channel)
         phage_tax_classification_wf(annotation_channel)
 
-        // markdown report collector
-        annotation_markdown = phage_annotation_wf.out.concat(checkV_wf.out)//.view()
-
+        // markdown report input
+        //annotation_markdown = phage_annotation_wf.out.concat(checkV_wf.out)//.view()
+        phage_annotation_wf.out.view()
 
 
 
@@ -233,10 +234,13 @@ workflow {
     //else if (params.fasta && params.identify && !params.annotate && !params.setup ) { }
     // Full run
         //map inputs into one channel samplewise
-        markdown_result_files = identify_markdown.concat(annotation_markdown)//.view()
+        //markdown_result_files = identify_markdown.concat(annotation_markdown)//.view()
 
     if (params.fasta && !params.identify && !params.annotate && !params.setup ) { 
-      markdown_report_wf(identify_markdown, phage_annotation_wf.out, checkV_wf.out )
+       markdown_report_wf(  prepare_results_wf.out.upsetr_plot_markdown_input,
+                            prepare_results_wf.out.heatmap_table_markdown_input,
+                            phage_annotation_wf.out.annotationtable_markdown_input, 
+                            checkV_wf.out )
    
    
    }

@@ -3,7 +3,8 @@ include { markdown_preparation } from './process/markdown_report/markdown_prepar
 workflow markdown_report_wf {
     take:   //basefiles
             // collectfile
-            overview_file
+            upsetR_file
+            heatmap_overview_file
             annotationtable
             checkV_file
             
@@ -18,18 +19,29 @@ workflow markdown_report_wf {
         test = annotationtable.map {it -> tuple(it[0],it[1],it[2])}.view()
         //checkV_file.view()
             //contig by tool  // category
-            markdown_preparation(overview_file, annotationtable, checkV_file)
+            markdown_preparation(heatmap_overview_file, annotationtable, checkV_file)
         
         // create markdown report
 /*         // 0 load reports
-            // toolreports
-            WTPreport=Channel.fromPath(workflow.projectDir + "/submodule/rmarkdown_reports/rmarkdown_reports/templates/wtp.Rmd", checkIfExists: true)
+            // toolreports/subtabs
+            UpsetR_report=Channel.fromPath(workflow.projectDir + "/submodule_report/UpsetR.Rmd", checkIfExists: true)
+            Heatmap_table_report=Channel.fromPath(workflow.projectDir + "/submodule_report/Heatmap_table.Rmd", checkIfExists: true)
+            //tool_agreements_category_report=Channel.fromPath(workflow.projectDir + "/submodule_report/tool_agreements_category.Rmd", checkIfExists: true)
+            
             // sample and summary report
-            sampleheaderreport=Channel.fromPath(workflow.projectDir + "/submodule/rmarkdown_reports/rmarkdown_reports/templates/sampleheader.Rmd", checkIfExists: true)
-            report=Channel.fromPath(workflow.projectDir + "/submodule/rmarkdown_reports/rmarkdown_reports/templates/Report.Rmd", checkIfExists: true)
+            sampleheader_report=Channel.fromPath(workflow.projectDir + "/submodule_report/sampleheader.Rmd", checkIfExists: true)
+            report=Channel.fromPath(workflow.projectDir + "/submodule_report/Report.Rmd", checkIfExists: true)
 
 
         // 1 create reports for each tool and samples its: reportprocess(inputchannel.combine(rmarkdowntemplate))
+            // für jednen subheader also upset heat toolagree...nen process
+
+            upset_report(UpsetR_report.combine(upsetR_file))
+            heatmap_table(Heatmap_table_report.combine(heatmap_overview_file))
+
+
+
+
 
             WTP_report(WTP_report_ch.combine(WTPreport))
 

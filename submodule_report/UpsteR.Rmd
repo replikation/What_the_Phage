@@ -1,0 +1,21 @@
+### General Information 
+
+#### **Prediction tool performance overview**  
+
+![](upsetr.svg)
+</center>
+
+#### **How to read this plot**  
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+The "UpSet" plot (Venn-diagramm) is summarizing the prediction performance of each tool for your sample.  
+The total amount of identified phage-contigs per tool is shown in blue bars on the left.  
+Black bars visualize the number of contigs that each tool or tool combination has uniquely identified.   
+Each tool combination is shown below the barplot as a dot matrix.
+</div>
+
+
+<a href="#top">Back to top</a>

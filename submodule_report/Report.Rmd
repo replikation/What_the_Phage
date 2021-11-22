@@ -1,0 +1,13 @@
+---
+title: "Results summary"
+output:
+  html_document:
+    #theme: darkly
+    theme: spacelab
+    highlight: tango
+    code_folding: hide
+    # number_sections: TRUE
+---
+![](logo-wtp_small.png)
+
+This Report summary should help you identifying possible predicted phages

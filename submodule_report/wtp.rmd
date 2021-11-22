@@ -1,0 +1,219 @@
+---
+title: "Results summary"
+output:
+  html_document:
+    #theme: darkly
+    theme: spacelab
+    highlight: tango
+    code_folding: hide
+    # number_sections: TRUE
+---
+![](logo-wtp_small.png)
+
+This Report summary should help you identifying possible predicted phages
+
+
+## Your command
+`nextflow run replikation/What_the_Phage -profile local,docker,test --cores 20`
+
+
+***
+
+
+## Phage prediction tools used
+tool| version|
+|-|-|
+Virsorter       | v1
+deepvirfinder   | v1.2
+seeker          | v1.1
+
+***
+
+## Storage 
+* your run was stored here:  
+  * `Path/to/dir/`  
+
+***
+
+# **Samples** {.tabset .tabset-fade}
+
+## input.fasta {.tabset .tabset-fade .tabset-pills}
+
+### General Information 
+
+#### **Prediction tool performance overview**  
+
+![](upsetr.svg)
+</center>
+
+#### **How to read this plot**  
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+
+The "UpSet" plot (Venn-diagramm) is summarizing the prediction performance of each tool for your sample.  
+The total amount of identified phage-contigs per tool is shown in blue bars on the left.  
+Black bars visualize the number of contigs that each tool or tool combination has uniquely identified.   
+Each tool combination is shown below the barplot as a dot matrix.
+</div>
+
+
+<a href="#top">Back to top</a>
+
+### Contig by scores
+
+#### **Phage prediction overview**
+
+```{r, echo=FALSE}
+suppressMessages(library(DT))
+suppressMessages(library(dplyr))
+suppressMessages(library(tidyr))
+
+dt = read.table(file = 'T7_draft/tool_agreements_per_contig/contig_tool_p-value_overview.tsv', sep = '\t', header = TRUE)
+
+## make wide dataframe
+wide = dt %>% 
+  spread(toolname, p_value)
+rownames(wide) <- wide[, 1]
+wide2 <- wide[, -1]
+col_count = ncol(wide2)
+
+wide3 = wide2 %>%                        # Compute row sums
+  replace(is.na(.), 0) %>%
+  mutate(sum_normed = rowSums(.)/col_count) %>%   # norm sum of pvalue of tooles
+  mutate_if(is.numeric,
+            round,
+            digits = 3)
+
+## pre sort table
+wide3 <- wide3 %>% 
+ # desc orders from largest to smallest
+  arrange(desc(sum_normed))
+
+datatable(wide3, rownames = TRUE, class = 'hover', extensions  = 'Buttons', filter = "top", options = list(columnDefs = list(list(visible=FALSE, targets=col_count+1)),
+    dom = 'Bfrtip', buttons = c('copy', 'csv', 'excel', 'pdf', 'colvis'))) %>% formatStyle(names(wide3),
+  background = styleColorBar(range(wide3), 'lightblue'),
+  backgroundSize = '98% 88%',
+  backgroundRepeat = 'no-repeat',
+  backgroundPosition = 'center')
+##columnDefs = list(list(visible=FALSE, targets=col_count+1) ## hides last column
+
+```
+
+#### **How to interpret the data**
+
+WtP uses several phage prediction tools that generate different outputs.  
+To give you a better overview, WtP aggregates the p-values in the table above.
+Contigs with the overall highest p-values are displayed at the top of the table, contigs with overall lowest p-values are displayed at the bottom of the table     
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+**Note:**   
+Some tools don't generate p-values as output, instead they generate categories with likelyhoods, or directly predict and assign the contigs as phage.  
+in cases where no p-value is given we assigned specific values (see table below).    
+</div>
+
+The phage prediction overview table is **interactive**: 
+
+* you can filter each column  
+* adjust the table to yor likings  
+* export the adjusted table as .csv, .pdf, .excel  
+* play with the data  
+
+
+#### **Extract contigs of interest**
+
+1. Choose/filter for the contigs of interest  
+2. Download as .csv file   
+3. Execute the the following commands to extract the desired contigs from your .fasta  
+```shell 
+for i in bla ;
+    hier kommt noch was
+    oranage: #F79A30
+    pink    #E35E9F
+    lila    #8F2ABF
+done 
+```
+
+
+#### **Prediction tool output **
+
+
+#```{r, echo=FALSE}
+#install.packages("kableExtra")
+#suppressMessages(library(kableExtra))
+#ds = read.table(file = 'tool_output_overview.tsv.tsv', sep = '\t', header = TRUE)
+#ds %>%
+#  ds() %>%
+#  kable_material_dark()
+#```
+
+
+
+tool | standard output | wtp displayed value | 
+|-|-|-|
+|deepvirfinder  |p-value: 0.99          | 0.99  |
+|metaphinder    |string: phage          | 1     |
+|metaphinder own| string: phage         | 1     |
+|phigaro        | score: 0.99           | 0.99  |
+|pprmeta        |phage_score: 0.99      | 0.99  |
+|seeker         |score: 0.99            | 0.99  |
+|sourmash       |similarity: 0.99       | 0.99  |
+|vibrant        |prediction: virus      | 1     |
+|vibrant-virome |prediction: virus      | 1     |
+|virfinder      |p-value: 0.99          | 0.99  |
+|virnet         |score: 0.99            | 0.99  |
+|virsorter      |category 1, category 2, category 3| 1, 0.5, 0  |
+|virsorter-virome|category 1, category 2, category 3| 1, 0.5, 0  |
+|virsorter2     |dsDNAphage: 1          | 1     |
+
+<a href="#top">Back to top</a>
+
+
+### x-y_tools
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+**Note:**   
+In this section you will find all contigs that meet the following requirements:  
+p-value >= 0.5     
+</div>
+
+
+#### **CheckV output**
+```{r, echo=FALSE}
+du = read.table(file = 'T7_draft/CheckV/T7_draft_quality_summary.tsv', sep = '\t', header = TRUE)
+
+datatable(du, rownames = FALSE, class = 'hover', extensions  = 'Buttons', options = list(
+    dom = 'Bfrtip', buttons = c('copy', 'csv', 'excel', 'pdf', 'colvis')))
+
+```
+
+
+#### **Annotation table**
+```{r, echo=FALSE}
+dv = read.table(file = 'T7_draft/annotation_results/small/annotationfile.tbl', sep = '\t', header = FALSE)
+colnames(dv) <- c("gene_prediction","contig_name","start","end","category")
+datatable(dv, rownames = FALSE, class = 'hover', extensions  = 'Buttons', options = list(
+    dom = 'Bfrtip', buttons = c('copy', 'csv', 'excel', 'pdf', 'colvis')))
+```
+
+
+#### tax classification
+
+contig|  prediction_value|        predicted_organism_name|
+|-|-|-|
+ctg1_len=102949 0.53    gi_265524965_gb_GU071091.1___Enterobacteria__phage__T7,__complete__genome 
+
+<a href="#top">Back to top</a>
+
+### Citations
+
+wkrgnwepirbngwüeorpbm
+
+## input2.fasta {.tabset .tabset-fade .tabset-pills}

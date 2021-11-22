@@ -8,6 +8,7 @@ process chromomap_parser {
     output: 
         tuple val(name), val("small"), path("small/chromosomefile.tbl"), path("small/annotationfile.tbl") optional true
         tuple val(name), val("large"), path("large/chromosomefile.tbl"), path("large/annotationfile.tbl") optional true
+        tuple val(name), path("annotationfile_combined.tbl"), emit: annotationfile_combined_ch optional true
     script:
         """
         prepare_hmmscan_for_chromomap.sh -c ${contigs} -p ${prodigal_out} -a ${hmmscan_results} -v ${vogtable}
@@ -23,6 +24,13 @@ process chromomap_parser {
         while read -r f1 f2 f3; do
             grep --no-messages -w "\$f1" annotationfile.tbl 1>> small/annotationfile.tbl || true
         done < small/chromosomefile.tbl
+
+        ## create combined annotationfile for ez markdownreport
+            ##need error handling?
+        touch annotationfile_combined.tbl
+        cat large/annotationfile.tbl >> annotationfile_combined.tbl
+        cat small/annotationfile.tbl >> annotationfile_combined.tbl
+
         """
       stub:
         """
