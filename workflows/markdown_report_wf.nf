@@ -1,8 +1,7 @@
 include { markdown_preparation } from './process/markdown_report/markdown_preparation'
 
 workflow markdown_report_wf {
-    take:   //basefiles
-            // collectfile
+    take:   
             upsetR_file
             heatmap_overview_file
             annotationtable
@@ -12,13 +11,7 @@ workflow markdown_report_wf {
 
     main:                          
         // prepare tables for markdown
-
-
-        //overview_file.view()
-        annotationtable.view()
-        test = annotationtable.map {it -> tuple(it[0],it[1],it[2])}.view()
-        //checkV_file.view()
-            //contig by tool  // category
+        //contig by tool  // category
             markdown_preparation(heatmap_overview_file, annotationtable, checkV_file)
         
         // create markdown report
