@@ -7,7 +7,10 @@ suppressMessages(library(DT))
 suppressMessages(library(dplyr))
 suppressMessages(library(tidyr))
 
-dt = read.table(file = 'T7_draft/tool_agreements_per_contig/contig_tool_p-value_overview.tsv', sep = '\t', header = TRUE)
+input_file <- "#RESULTSENV#"
+sample_name <- "#NAMEENV#"
+
+dt = read.table(file = input_file, sep = '\t', header = TRUE)
 
 ## make wide dataframe
 wide = dt %>% 

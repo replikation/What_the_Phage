@@ -8,6 +8,6 @@ output:
     code_folding: hide
     # number_sections: TRUE
 ---
-![](logo-wtp_small.png)
+##![](logo-wtp_small.png)
 
 This Report summary should help you identifying possible predicted phages

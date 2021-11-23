@@ -2,7 +2,14 @@
 
 #### **Prediction tool performance overview**  
 
-![](upsetr.svg)
+
+```{r,echo=FALSE}
+# Only change this variables
+input_file <- "#RESULTSENV#"
+sample_name <- "#NAMEENV#"
+```
+
+![](input_file)
 </center>
 
 #### **How to read this plot**  

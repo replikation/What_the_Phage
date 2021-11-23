@@ -1,8 +1,16 @@
 include { markdown_preparation } from './process/markdown_report/markdown_preparation'
+include { upsetr_report } from './process/markdown_report/upsetr_report.nf'
+include { heatmap_table_report } from './process/markdown_report/heatmap_table_report.nf'
+include { sample_report } from './process/markdown_report/sample_report.nf'
+include { summary } from './process/markdown_report/summary_report.nf'
+
+
+
+
 
 workflow markdown_report_wf {
     take:   
-            upsetR_file
+            upsetR_file //.svg
             heatmap_overview_file
             annotationtable
             checkV_file
@@ -12,36 +20,34 @@ workflow markdown_report_wf {
     main:                          
         // prepare tables for markdown
         //contig by tool  // category
+
             markdown_preparation(heatmap_overview_file, annotationtable, checkV_file)
         
         // create markdown report
-/*         // 0 load reports
+        // 0 load reports
             // toolreports/subtabs
-            UpsetR_report=Channel.fromPath(workflow.projectDir + "/submodule_report/UpsetR.Rmd", checkIfExists: true)
-            Heatmap_table_report=Channel.fromPath(workflow.projectDir + "/submodule_report/Heatmap_table.Rmd", checkIfExists: true)
+            upsetRreport=Channel.fromPath(workflow.projectDir + "/submodule_report/UpsetR.Rmd", checkIfExists: true)
+            heatmap_tablereport=Channel.fromPath(workflow.projectDir + "/submodule_report/Heatmap_table.Rmd", checkIfExists: true)
             //tool_agreements_category_report=Channel.fromPath(workflow.projectDir + "/submodule_report/tool_agreements_category.Rmd", checkIfExists: true)
             
             // sample and summary report
-            sampleheader_report=Channel.fromPath(workflow.projectDir + "/submodule_report/sampleheader.Rmd", checkIfExists: true)
+            sampleheaderreport=Channel.fromPath(workflow.projectDir + "/submodule_report/sampleheader.Rmd", checkIfExists: true)
             report=Channel.fromPath(workflow.projectDir + "/submodule_report/Report.Rmd", checkIfExists: true)
 
 
         // 1 create reports for each tool and samples its: reportprocess(inputchannel.combine(rmarkdowntemplate))
             // für jednen subheader also upset heat toolagree...nen process
-
-            upset_report(UpsetR_report.combine(upsetR_file))
-            heatmap_table(Heatmap_table_report.combine(heatmap_overview_file))
-
-
+            test = upsetR_file.combine(upsetRreport).view()
+            upsetr_report(upsetR_file.combine(upsetRreport))
+            heatmap_table_report(heatmap_overview_file.combine(heatmap_tablereport))
 
 
-
-            WTP_report(WTP_report_ch.combine(WTPreport))
 
         // 2 collect tool reports PER sample (add new via .mix(NAME_report.out))
-            samplereportinput =     WTP_report.out
+            samplereportinput =     upsetr_report.out
+                                    .mix(heatmap_table_report.out)
                                     .groupTuple(by: 0)
-                                    .map{it -> tuple (it[0],it[1],it[2].flatten())}
+                                    .map{it -> tuple (it[0],it[1],it[2].flatten())}.view()
 
             sample_report(samplereportinput.combine(sampleheaderreport))
 
@@ -50,4 +56,4 @@ workflow markdown_report_wf {
             summary(sample_report.out.flatten().collect(), report)
 
     emit:  report
- */}
+ }
