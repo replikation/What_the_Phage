@@ -14,7 +14,7 @@ process summary {
             cp *.input render_dir/
             cp *.svg render_dir/ 2>/dev/null || :
         # append sample Rmds to final report
-            for FILE in *_sample_report.Rmd; do
+            for FILE in *_report*.Rmd; do
                 printf "\\n" >> render_dir/final_report.Rmd
                 cat  \${FILE} >> render_dir/final_report.Rmd
                 printf "\\n" >> render_dir/final_report.Rmd

@@ -1,7 +1,7 @@
 process heatmap_table_report {
         label 'ubuntu'  
     input:
-        tuple val(name), path(markdown), path(heatmap_overview_file)
+        tuple val(name), path(heatmap_overview_file), path(markdown)
     output:
         tuple val(name), path("${name}_report_heatmap_table.input"), path("${name}_report_heatmap_table.Rmd")
     script:

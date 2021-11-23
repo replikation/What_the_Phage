@@ -1,15 +1,16 @@
+<br>
 ### General Information 
-
+<br>
 #### **Prediction tool performance overview**  
-
+<br>
 
 ```{r,echo=FALSE}
 # Only change this variables
-input_file <- "#RESULTSENV#"
+input_file_upset <- "#RESULTSENV#"
 sample_name <- "#NAMEENV#"
 ```
 
-![](input_file)
+![](#RESULTSENV#)
 </center>
 
 #### **How to read this plot**  

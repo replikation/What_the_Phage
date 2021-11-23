@@ -1,16 +1,20 @@
+<br>
+
 ### Contig by scores
+<br>
 
 #### **Phage prediction overview**
+<br>
 
 ```{r, echo=FALSE}
 suppressMessages(library(DT))
 suppressMessages(library(dplyr))
 suppressMessages(library(tidyr))
 
-input_file <- "#RESULTSENV#"
+input_file_heatmap <- "#RESULTSENV#"
 sample_name <- "#NAMEENV#"
 
-dt = read.table(file = input_file, sep = '\t', header = TRUE)
+dt = read.table(file = input_file_heatmap, sep = '\t', header = TRUE)
 
 ## make wide dataframe
 wide = dt %>% 
