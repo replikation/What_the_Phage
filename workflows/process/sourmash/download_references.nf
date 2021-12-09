@@ -15,7 +15,7 @@ process download_references {
 
         else if (task.attempt.toString() == '2')
         """
-        wget https://osf.io/6ukfx/download -O references.tar.gz
+        wget --no-check-certificate https://osf.io/6ukfx/download -O references.tar.gz
         tar -xvzf references.tar.gz
         mv references/*.fa .
         rm -r references

@@ -9,13 +9,13 @@ process virsorter_download_DB {
     script:
         if (task.attempt.toString() == '1')
         """
-        wget https://zenodo.org/record/1168727/files/virsorter-data-v2.tar.gz 
+        wget --no-check-certificate https://zenodo.org/record/1168727/files/virsorter-data-v2.tar.gz 
         tar -xvzf virsorter-data-v2.tar.gz
         rm virsorter-data-v2.tar.gz
         """
         else if (task.attempt.toString() == '2')
         """
-        wget https://osf.io/qwzu3/download -O virsorter.tar.gz
+        wget --no-check-certificate https://osf.io/qwzu3/download -O virsorter.tar.gz
         tar -xvzf virsorter.tar.gz
         mv virsorter/virsorter-data/ .
         rm -r virsorter/

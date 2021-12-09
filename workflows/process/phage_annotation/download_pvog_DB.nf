@@ -9,13 +9,13 @@ process pvog_DB {
     script:
         if (task.attempt.toString() == '1')
         """
-        wget -nH ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/viral-pipeline/hmmer_databases/pvogs.tar.gz && tar -zxvf pvogs.tar.gz
+        wget --no-check-certificate -nH ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/viral-pipeline/hmmer_databases/pvogs.tar.gz && tar -zxvf pvogs.tar.gz
         rm pvogs.tar.gz
         """
 
         else if (task.attempt.toString() == '2')
         """
-        https://osf.io/n6ph5/download -O pvog.tar.gz
+        wget --no-check-certificate https://osf.io/n6ph5/download -O pvog.tar.gz
         tar -xvzf pvog.tar.gz
         cp -r pvog/pvogs/ .
         rm -r pvog
