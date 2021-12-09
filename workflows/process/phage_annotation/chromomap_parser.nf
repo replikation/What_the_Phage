@@ -28,8 +28,10 @@ process chromomap_parser {
         ## create combined annotationfile for ez markdownreport
             ##need error handling?
         touch annotationfile_combined.tbl
-        cat large/annotationfile.tbl >> annotationfile_combined.tbl
-        cat small/annotationfile.tbl >> annotationfile_combined.tbl
+        ## cat large/annotationfile.tbl small/annotationfile.tbl >> annotationfile_combined.tbl 2>/dev/null
+        [ -f large/annotationfile.tbl ] && cat large/annotationfile.tbl >> annotationfile_combined.tbl
+        [ -f small/annotationfile.tbl ] && cat small/annotationfile.tbl >> annotationfile_combined.tbl
+
 
         """
       stub:

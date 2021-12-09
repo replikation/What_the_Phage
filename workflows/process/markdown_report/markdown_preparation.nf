@@ -15,14 +15,14 @@ process markdown_preparation {
         contig_by_tool_markdown.py --overview_file ${overview} --output ${name}_contig_by_tool_category.tsv
 
         ## cat annotationfiles 
-        tail -n+2 ${name}_contig_by_tool_category.tsv | sort -u -k3 | cut -d"," -f3 > category_list.txt
+        tail -n+2 ${name}_contig_by_tool_category.tsv | cut -d"," -f3 | sort -u > category_list.txt
         ##make list of contigs from each category
         filename='category_list.txt'
         while read line; do
             grep \$line ${name}_contig_by_tool_category.tsv | cut -d"," -f1 > "\$line"_contig_list.lst     
             ## create files with header first
-            head -1 ${annotationtable} > "\$line"_annotationfile.tbl
-            head -1 ${checkVtable} > "\$line"_draft_quality_summary.tsv
+            touch "\$line"_annotationfile.tbl
+            head -1 ${checkVtable} > "\$line"_${name}_draft_quality_summary.tsv
             while read ctgline; do
                 ## grep contigs and fill header files
                 grep \$ctgline ${annotationtable} >> "\$line"_${name}_annotationfile.tbl
