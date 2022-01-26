@@ -9,5 +9,5 @@ output:
     # number_sections: TRUE
 ---
 
-This Report summary should help you identifying possible predicted phages
+This summary report should help you identify the possibly predicted phages.
 <br>

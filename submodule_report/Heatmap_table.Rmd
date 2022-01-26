@@ -48,7 +48,7 @@ datatable(wide3, rownames = TRUE, class = 'hover', extensions  = 'Buttons', filt
 #### **How to interpret the data**
 
 WtP uses several phage prediction tools that generate different outputs.  
-To give you a better overview, WtP aggregates the p-values in the table above.
+To give you a better overview, WtP aggregates the **p-values** in the **table above**.
 Contigs with the overall highest p-values are displayed at the top of the table, contigs with overall lowest p-values are displayed at the bottom of the table     
 
 <style>

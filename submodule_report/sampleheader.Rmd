@@ -3,4 +3,4 @@
 ## **Samples** {.tabset .tabset-fade}
 <br>
 
-Below you will find all the results for #SAMPLENAME#.
+Below you will find the results for #SAMPLENAME#.

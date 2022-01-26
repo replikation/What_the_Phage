@@ -236,9 +236,26 @@ workflow {
         //map inputs into one channel samplewise
         //markdown_result_files = identify_markdown.concat(annotation_markdown)//.view()
 
+    // NO FLAG
     if (params.fasta && !params.identify && !params.annotate && !params.setup ) { 
        markdown_report_wf(  prepare_results_wf.out.upsetr_plot_markdown_input,
                             prepare_results_wf.out.heatmap_table_markdown_input,
+                            phage_annotation_wf.out.annotationtable_markdown_input, 
+                            checkV_wf.out )
+    }
+    // --IDENTIFY
+    // dummy channel simulate the output from --annotate
+    if (params.fasta && params.identify && !params.annotate && !params.setup ) { 
+       markdown_report_wf(  prepare_results_wf.out.upsetr_plot_markdown_input,
+                            prepare_results_wf.out.heatmap_table_markdown_input,
+                            dummy_A = Channel.from( [ 'deactivated', 'deactivated']),
+                            dummy_B = Channel.from( [ 'deactivated', 'deactivated']))
+    }
+    // --ANNOTATE
+    // dummy channel simulate the output from --identify
+    if (params.fasta && !params.identify && params.annotate && !params.setup ) { 
+       markdown_report_wf(  dummy_A = Channel.from( [ 'deactivated', 'deactivated']),
+                            dummy_B = Channel.from( [ 'deactivated', 'deactivated']), 
                             phage_annotation_wf.out.annotationtable_markdown_input, 
                             checkV_wf.out )
    
