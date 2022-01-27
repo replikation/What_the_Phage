@@ -1,0 +1,44 @@
+<br>
+
+### Annotationtable
+
+<br>
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+**Note:**   
+In this section you will find all contigs that meet the following requirements:  
+p-value >= 0.5     
+</div>
+
+
+<br>
+
+#### **Annotation table**
+
+<br>
+
+```{r, echo=FALSE}
+suppressMessages(library(DT))
+suppressMessages(library(dplyr))
+suppressMessages(library(tidyr))
+
+annotationtable <- "#RESULTSENV#"
+sample_name <- "#NAMEENV#"
+
+dv = read.table(file = annotationtable, sep = '\t', header = FALSE)
+colnames(dv) <- c("gene_prediction","contig_name","start","end","category")
+datatable(dv, rownames = FALSE, class = 'hover', extensions  = 'Buttons', options = list(
+    dom = 'Bfrtip', buttons = c('copy', 'csv', 'excel', 'pdf', 'colvis')))
+```
+
+
+#### tax classification
+
+contig|  prediction_value|        predicted_organism_name|
+|-|-|-|
+ctg1_len=102949 0.53    gi_265524965_gb_GU071091.1___Enterobacteria__phage__T7,__complete__genome 
+
+<a href="#top">Back to top</a>
