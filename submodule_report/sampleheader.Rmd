@@ -1,6 +1,7 @@
 <br>
 
-## **Samples** {.tabset .tabset-fade}
-<br>
 
-Below you will find the results for #SAMPLENAME#.
+## #SAMPLENAME# {.tabset .tabset-fade .tabset-pills}
+
+
+<br>

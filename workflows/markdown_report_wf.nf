@@ -27,6 +27,8 @@ workflow markdown_report_wf {
         // create markdown report
         // 0 load reports
             // toolreports/subtabs
+            logo_channel=Channel.fromPath(workflow.projectDir + "/figures/logo-wtp_small.png", checkIfExists: true)
+
             // STD WORKFLOW AND --IDENTIFY
             if (params.fasta && !params.identify && !params.annotate && !params.setup  || params.fasta && params.identify && !params.annotate && !params.setup ) { 
                 upsetRreport=Channel.fromPath(workflow.projectDir + "/submodule_report/UpsetR.Rmd", checkIfExists: true)

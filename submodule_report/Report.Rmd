@@ -1,5 +1,5 @@
 ---
-title: "Results summary"
+title: "What the Phage Result Summary"
 output:
   html_document:
     #theme: darkly
@@ -8,6 +8,10 @@ output:
     code_folding: hide
     # number_sections: TRUE
 ---
+![](logo-wtp_small.png)
+# Samples {.tabset .tabset-fade}
+
+<br>
 
 This summary report should help you identify the possibly predicted phages.
 <br>

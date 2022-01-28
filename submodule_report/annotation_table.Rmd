@@ -4,17 +4,6 @@
 
 <br>
 
-<style>
-div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
-</style>
-<div class = "blue">
-**Note:**   
-In this section you will find all contigs that meet the following requirements:  
-p-value >= 0.5     
-</div>
-
-
-<br>
 
 #### **Annotation table**
 
