@@ -1,11 +1,14 @@
 <br>
 
-### Contig by scores
+### Phage prediction by contig
 
 <br>
 
-#### **Phage prediction overview**
-<br>
+#### **Phage prediction table**
+
+
+**Tab. 1:** Interactive phage prediction table is. The scores/p-values of each column can be filtered.
+The adjusted table can be exported as a .csv, .pdf or .excel.
 
 ```{r, echo=FALSE}
 suppressMessages(library(DT))
@@ -48,33 +51,48 @@ datatable(wide3, rownames = TRUE, class = 'hover', extensions  = 'Buttons', filt
 
 #### **How to interpret the data**
 
-WtP uses several phage prediction tools that generate different outputs.  
-To give you a better overview, WtP aggregates the **p-values** in the **table above**.
-Contigs with the overall highest p-values are displayed at the top of the table, contigs with overall lowest p-values are displayed at the bottom of the table     
-
 <style>
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
-**Note:**   
-Some tools don't generate p-values as output, instead they generate categories with likelyhoods, or directly predict and assign the contigs as phage.  
-in cases where no p-value is given we assigned specific values (see table below).    
+WtP uses several phage prediction tools that work differently and generate different outputs. 
+Contigs with the overall highest p-values/scores are displayed at the top, and contigs with low p-values/scores are at the bottom of the table.
+Each tool's p-value/score can be individually adjusted and filtered in Table 1. 
+Some tools don't generate p-values or scores as output, instead they generate categories with likelyhoods, or directly predict and assign the contigs as phage.  
+The tool's output and what WtP assigns is shown in the Table below.    
 </div>
 
-The phage prediction overview table is **interactive**: 
 
-* you can filter each column  
-* adjust the table to yor likings  
-* export the adjusted table as .csv, .pdf, .excel  
-* play with the data  
+#### **Explanation tool output**
+
+**Tab.2**: The output of each tool and what WtP puts in Tab. 1.
+  
+Tool | Standard output | WtP displayed value | 
+|-|-|-|
+|deepvirfinder  |p-value: 0 to 1          | 0 to 1  |
+|metaphinder    |string: phage          | 1     |
+|metaphinder own| string: phage         | 1     |
+|phigaro        | score: 0 to 1           | 0 to 1  |
+|pprmeta        |phage_score: 0 to 1      | 0 to 1  |
+|seeker         |score: 0 to 1            | 0 to 1  |
+|sourmash       |similarity: 0 to 1       | 0 to 1  |
+|vibrant        |prediction: virus      | 1     |
+|vibrant-virome |prediction: virus      | 1     |
+|virfinder      |p-value: 0 to 1         | 0 to 1  |
+|virnet         |score: 0 to 1           | 0 to 1  |
+|virsorter      |category 1, category 2, category 3| 1, 0.5, 0  |
+|virsorter-virome|category 1, category 2, category 3| 1, 0.5, 0  |
+|virsorter2     |dsDNAphage: 1          | 1     |
 
 
-#### **Extract contigs of interest**
 
-1. Choose/filter for the contigs of interest  
-2. Download as .csv file   
-3. Execute the the following commands to extract the desired contigs from your .fasta  
+#### **How to extract contigs of interest**
+
+1. Choose/filter for the contigs of interest in Table 1.
+2. Export and download the table as a .csv file   
+3. Execute the the following bash commands to extract the desired contigs from your .fasta  
 ```shell 
+# make sure that the fasta and .csv file are in the same directory
 for i in bla ;
     hier kommt noch was
     oranage: #F79A30
@@ -82,37 +100,5 @@ for i in bla ;
     lila    #8F2ABF
 done 
 ```
-
-
-#### **Prediction tool output **
-
-
-#```{r, echo=FALSE}
-#install.packages("kableExtra")
-#suppressMessages(library(kableExtra))
-#ds = read.table(file = 'tool_output_overview.tsv.tsv', sep = '\t', header = TRUE)
-#ds %>%
-#  ds() %>%
-#  kable_material_dark()
-#```
-
-
-
-tool | standard output | wtp displayed value | 
-|-|-|-|
-|deepvirfinder  |p-value: 0.99          | 0.99  |
-|metaphinder    |string: phage          | 1     |
-|metaphinder own| string: phage         | 1     |
-|phigaro        | score: 0.99           | 0.99  |
-|pprmeta        |phage_score: 0.99      | 0.99  |
-|seeker         |score: 0.99            | 0.99  |
-|sourmash       |similarity: 0.99       | 0.99  |
-|vibrant        |prediction: virus      | 1     |
-|vibrant-virome |prediction: virus      | 1     |
-|virfinder      |p-value: 0.99          | 0.99  |
-|virnet         |score: 0.99            | 0.99  |
-|virsorter      |category 1, category 2, category 3| 1, 0.5, 0  |
-|virsorter-virome|category 1, category 2, category 3| 1, 0.5, 0  |
-|virsorter2     |dsDNAphage: 1          | 1     |
 
 <a href="#top">Back to top</a>

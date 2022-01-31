@@ -60,7 +60,7 @@ println "  Manually remove faulty images in $params.cachedir for a rebuild\u001B
 if (params.annotate) { println "\u001B[33mSkipping phage identification for fasta files\u001B[0m" }
 if (params.identify) { println "\u001B[33mSkipping phage annotation\u001B[0m" }
 println " "
-println "\033[2mCPUs to use: $params.cores, maximal CPUs to use: $params.max_cores\033[0m"
+println "\033[2mCPUs per process: $params.cores, maximal CPUs to use: $params.max_cores\033[0m"
 println " "
 
 /************* 

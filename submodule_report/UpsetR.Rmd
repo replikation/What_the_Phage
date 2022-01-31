@@ -1,9 +1,9 @@
 <br>
 
-### General Information 
+### Overview 
 <br>
 
-#### **Prediction tool performance overview**  
+#### **Performance of each identification tool**  
 <br>
 
 ```{r,echo=FALSE}
@@ -12,8 +12,11 @@ input_file_upset <- "#RESULTSENV#"
 sample_name <- "#NAMEENV#"
 ```
 
+
+
 ![](#RESULTSENV#)
-</center>
+
+**Fig.1**: UpSetR plot summarizes each tool's performance. Additionally, it shows which tools (black dots) identified the same contigs (black bars). 
 
 #### **How to read this plot**  
 <style>
@@ -21,10 +24,10 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
 
-The "UpSet" plot (Venn-diagramm) is summarizing the prediction performance of each tool for your sample.  
+The "UpSet" plot is an alternative but more detailed Venn diagram, and it summarizes the prediction performance of each tool for your sample.  
 The total amount of identified phage-contigs per tool is shown in blue bars on the left.  
-Black bars visualize the number of contigs that each tool or tool combination has uniquely identified.   
-Each tool combination is shown below the barplot as a dot matrix.
+Black bars visualize the number of contigs that each tool or tool combination has uniquely identified, and each tool combination is shown below each black bar as a dot matrix. 
+E.g., a black bar with two dots below it means that these two tools identified the same contigs as phages.
 </div>
 
 

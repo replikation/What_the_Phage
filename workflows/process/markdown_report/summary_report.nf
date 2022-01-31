@@ -4,6 +4,7 @@ process summary {
     input:
         path(files)
         path(markdown)
+        path(logo)
     output:
         path("final_report.html")
     script:
@@ -13,6 +14,7 @@ process summary {
             cp ${markdown} render_dir/final_report.Rmd
             cp *.input render_dir/
             cp *.svg render_dir/ 2>/dev/null || :
+            cp logo-wtp_small.png render_dir/logo.png
         # append sample Rmds to final report
             for FILE in *_report*.Rmd; do
                 printf "\\n" >> render_dir/final_report.Rmd

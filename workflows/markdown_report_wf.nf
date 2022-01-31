@@ -28,6 +28,7 @@ workflow markdown_report_wf {
         // 0 load reports
             // toolreports/subtabs
             logo_channel=Channel.fromPath(workflow.projectDir + "/figures/logo-wtp_small.png", checkIfExists: true)
+            logo_channel.view()
 
             // STD WORKFLOW AND --IDENTIFY
             if (params.fasta && !params.identify && !params.annotate && !params.setup  || params.fasta && params.identify && !params.annotate && !params.setup ) { 
@@ -71,7 +72,7 @@ workflow markdown_report_wf {
                                     .mix(checkV_report.out)
                                     .mix(annotation_table_report.out)
                                     .groupTuple(by: 0)
-                                    .map{it -> tuple (it[0],it[1],it[2].flatten())}.view()
+                                    .map{it -> tuple (it[0],it[1],it[2].flatten())}
 
                 sample_report(samplereportinput.combine(sampleheaderreport))
             }
@@ -80,7 +81,7 @@ workflow markdown_report_wf {
                 samplereportinput =     upsetr_report.out
                                     .mix(heatmap_table_report.out)
                                     .groupTuple(by: 0)
-                                    .map{it -> tuple (it[0],it[1],it[2].flatten())}.view()
+                                    .map{it -> tuple (it[0],it[1],it[2].flatten())}
 
                 sample_report(samplereportinput.combine(sampleheaderreport))
             }
@@ -89,13 +90,13 @@ workflow markdown_report_wf {
                 samplereportinput =     checkV_report.out
                                     .mix(annotation_table_report.out)
                                     .groupTuple(by: 0)
-                                    .map{it -> tuple (it[0],it[1],it[2].flatten())}.view()
+                                    .map{it -> tuple (it[0],it[1],it[2].flatten())}
 
                 sample_report(samplereportinput.combine(sampleheaderreport))
             }
 
         // 3 sumarize sample reports
-            summary(sample_report.out.flatten().collect(), report).view()
+            summary(sample_report.out.flatten().collect(), report, logo_channel).view()
 
     emit:  report
 }

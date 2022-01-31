@@ -1,13 +1,11 @@
 <br>
 
-### Annotationtable
+### Phage annotations
 
 <br>
 
+**Tab.1:** Gene annotation of contigs based on Hmmer and Prodigal, using  [this database](ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/viral-pipeline/hmmer_databases/pvogs.tar.gz)
 
-#### **Annotation table**
-
-<br>
 
 ```{r, echo=FALSE}
 suppressMessages(library(DT))

@@ -1,7 +1,4 @@
-<br>
 
+  
 
-## #SAMPLENAME# {.tabset .tabset-fade .tabset-pills}
-
-
-<br>
+## #SAMPLENAME# {.tabset .tabset-fade .tabset-pills}  
