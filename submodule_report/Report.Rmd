@@ -8,7 +8,7 @@ output:
     code_folding: hide
     # number_sections: TRUE
 ---
-![](logo-wtp_small.png)
+
 # Samples {.tabset .tabset-fade}
 
 <br>

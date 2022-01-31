@@ -95,7 +95,7 @@ workflow markdown_report_wf {
             }
 
         // 3 sumarize sample reports
-            summary(sample_report.out.flatten().collect(), report)
+            summary(sample_report.out.flatten().collect(), report).view()
 
     emit:  report
 }
