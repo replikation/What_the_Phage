@@ -5,6 +5,7 @@ include { sample_report } from './process/markdown_report/sample_report.nf'
 include { summary } from './process/markdown_report/summary_report.nf'
 include { checkV_report } from './process/markdown_report/checkV_report.nf'
 include { annotation_table_report } from './process/markdown_report/annotation_table_report.nf'
+include { taxonomic_classification_report } from './process/markdown_report/taxonomic_classification_report.nf'
 
 
 
@@ -18,6 +19,7 @@ workflow markdown_report_wf {
             heatmap_overview_file
             annotationtable
             checkV_file
+            taxonomic_classification_file
     main:                          
         // prepare tables for markdown
         //contig by tool  // category
@@ -40,6 +42,7 @@ workflow markdown_report_wf {
             if (params.fasta && !params.identify && !params.annotate && !params.setup  || params.fasta && !params.identify && params.annotate && !params.setup ) {  
                 checkV_quality_table=Channel.fromPath(workflow.projectDir + "/submodule_report/checkV_quality_table.Rmd", checkIfExists: true)
                 annotation_table=Channel.fromPath(workflow.projectDir + "/submodule_report/annotation_table.Rmd", checkIfExists: true)
+                taxonomic_classification_table=Channel.fromPath(workflow.projectDir + "/submodule_report/taxonomic_classification.Rmd", checkIfExists: true)
             }
 
             // sample and summary report
@@ -57,7 +60,8 @@ workflow markdown_report_wf {
             // STD WORKFLOW AND --ANNOTATE
             if (params.fasta && !params.identify && !params.annotate && !params.setup  || params.fasta && !params.identify && params.annotate && !params.setup ) {  
                 checkV_report(checkV_file.combine(checkV_quality_table))
-                annotation_table_report(annotationtable.combine(annotation_table))
+                annotation_table_report(annotationtable.combine(annotation_table))  
+                taxonomic_classification_report(taxonomic_classification_file.combine(taxonomic_classification_table))
             }
 
 
@@ -71,6 +75,7 @@ workflow markdown_report_wf {
                                     .mix(heatmap_table_report.out)
                                     .mix(checkV_report.out)
                                     .mix(annotation_table_report.out)
+                                    .mix(taxonomic_classification_report.out)
                                     .groupTuple(by: 0)
                                     .map{it -> tuple (it[0],it[1],it[2].flatten())}
 
@@ -89,6 +94,7 @@ workflow markdown_report_wf {
             if (params.fasta && !params.identify && params.annotate && !params.setup ){
                 samplereportinput =     checkV_report.out
                                     .mix(annotation_table_report.out)
+                                    .mix(taxonomic_classification_report.out)
                                     .groupTuple(by: 0)
                                     .map{it -> tuple (it[0],it[1],it[2].flatten())}
 

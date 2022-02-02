@@ -6,7 +6,7 @@ process sourmash_for_tax {
       tuple val(name), path(fasta_dir) 
       file(database)
     output:
-      tuple val(name), path("${name}_tax-class.tsv")
+      tuple val(name), path("${name}_tax-class.tsv"), emit: tax_class_ch optional true
     shell:
       """
       for fastafile in ${fasta_dir}/*.fa; do

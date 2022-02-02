@@ -4,7 +4,7 @@
 
 <br>
 
-#### **CheckV output**
+**Tab. 1:** CheckV output
 
 <br>
 
@@ -22,6 +22,7 @@ du = read.table(file = CheckV_table, sep = '\t', header = TRUE)
 
 datatable(du, rownames = FALSE, class = 'hover', extensions  = 'Buttons', options = list(
     dom = 'Bfrtip', buttons = c('copy', 'csv', 'excel', 'pdf', 'colvis')))
+
 
 ```
 

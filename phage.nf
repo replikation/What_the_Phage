@@ -216,7 +216,7 @@ workflow {
 
         // markdown report input
         //annotation_markdown = phage_annotation_wf.out.concat(checkV_wf.out)//.view()
-        phage_annotation_wf.out.view()
+        phage_annotation_wf.out
 
 
 
@@ -228,20 +228,15 @@ workflow {
 /************************** 
 * Result Report
 **************************/
-    // Annotation only
-   // if ( params.fasta && params.annotate && !params.identify && !params.setup) {  }
-    // Identify only
-    //else if (params.fasta && params.identify && !params.annotate && !params.setup ) { }
-    // Full run
-        //map inputs into one channel samplewise
-        //markdown_result_files = identify_markdown.concat(annotation_markdown)//.view()
 
     // NO FLAG
     if (params.fasta && !params.identify && !params.annotate && !params.setup ) { 
        markdown_report_wf(  prepare_results_wf.out.upsetr_plot_markdown_input,
                             prepare_results_wf.out.heatmap_table_markdown_input,
                             phage_annotation_wf.out.annotationtable_markdown_input, 
-                            checkV_wf.out )
+                            checkV_wf.out,
+                            phage_tax_classification_wf.out
+                            )
     }
     // --IDENTIFY
     // dummy channel simulate the output from --annotate
@@ -249,7 +244,8 @@ workflow {
        markdown_report_wf(  prepare_results_wf.out.upsetr_plot_markdown_input,
                             prepare_results_wf.out.heatmap_table_markdown_input,
                             dummy_A = Channel.from( [ 'deactivated', 'deactivated']),
-                            dummy_B = Channel.from( [ 'deactivated', 'deactivated']))
+                            dummy_B = Channel.from( [ 'deactivated', 'deactivated']),
+                            dummy_C = Channel.from( [ 'deactivated', 'deactivated']))
     }
     // --ANNOTATE
     // dummy channel simulate the output from --identify
@@ -257,10 +253,9 @@ workflow {
        markdown_report_wf(  dummy_A = Channel.from( [ 'deactivated', 'deactivated']),
                             dummy_B = Channel.from( [ 'deactivated', 'deactivated']), 
                             phage_annotation_wf.out.annotationtable_markdown_input, 
-                            checkV_wf.out )
-   
-   
-   }
+                            checkV_wf.out,
+                            phage_tax_classification_wf.out )
+    }
 
 }
 

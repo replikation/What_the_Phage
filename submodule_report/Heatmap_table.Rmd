@@ -7,7 +7,7 @@
 #### **Phage prediction table**
 
 
-**Tab. 1:** Interactive phage prediction table is. The scores/p-values of each column can be filtered.
+**Tab. 1:** Interactive phage prediction table. The scores/p-values of each column can be filtered.
 The adjusted table can be exported as a .csv, .pdf or .excel.
 
 ```{r, echo=FALSE}
