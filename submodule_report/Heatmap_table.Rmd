@@ -20,10 +20,7 @@ sample_name <- "#NAMEENV#"
 
 dt = read.table(file = input_file_heatmap, sep = '\t', header = TRUE)
 
-wide = dt %>% 
-  mutate(row = row_number()) %>%
-  spread(toolname, p_value) %>%
-  select(-row)
+wide <- spread(dt, toolname, p_value)
 
 col_count = ncol(wide)-1
 wide3 = wide %>% 
