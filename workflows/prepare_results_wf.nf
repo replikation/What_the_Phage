@@ -14,7 +14,7 @@ workflow prepare_results_wf {
             upsetr_plot(filter_tool_names.out[0])
             contigs_by_tools(results)
             //seqkit_tool_agreements(contigs_by_tools.out.tool_agreements_per_contig_ch, fasta)
-            hue_heatmap(contigs_by_tools.out.overview_ch)
+            //hue_heatmap(contigs_by_tools.out.overview_ch)
 
         // markdown report collecter
             heatmap_table_markdown_input = contigs_by_tools.out.overview_ch//.join(contigs_by_tools.out.tool_agreements_per_contig_ch)

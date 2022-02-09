@@ -9,11 +9,11 @@ process checkV_collect_data {
         """
         mkdir -p CheckV_results_${name}
         cp -r ${results}/* CheckV_results_${name}
-        tar -czf CheckV_results_${name}.tar.gz CheckV_results_${name}
+        tar -czf CheckV_results_${name}.tar.gz CheckV_results_${name} ##--warning=no-file-changed
         """
     stub:
         """
         mkdir CheckV
-        tar -czf CheckV_results_${name}.tar.gz CheckV
+        tar -czf CheckV_results_${name}.tar.gz CheckV --warning=no-file-changed
         """
 }

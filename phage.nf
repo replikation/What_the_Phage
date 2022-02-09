@@ -12,9 +12,9 @@ Format is this: XX.YY.ZZ  (e.g. 20.07.1)
 change below
 */
 
-XX = "20"
-YY = "07"
-ZZ = "1"
+XX = "21"
+YY = "04"
+ZZ = "0"
 
 if ( nextflow.version.toString().tokenize('.')[0].toInteger() < XX.toInteger() ) {
 println "\033[0;33mWtP requires at least Nextflow version " + XX + "." + YY + "." + ZZ + " -- You are using version $nextflow.version\u001B[0m"
@@ -41,7 +41,6 @@ println "\u001B[32mProfile: $workflow.profile\033[0m"
 println " "
 println "\033[2mCurrent User: $workflow.userName"
 println "Nextflow-version: $nextflow.version"
-println "WtP intended for Nextflow-version: 20.01.0"
 println "Starting time: $nextflow.timestamp"
 println "Workdir location [--workdir]:"
 println "  $workflow.workDir"

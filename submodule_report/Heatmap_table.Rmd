@@ -20,31 +20,30 @@ sample_name <- "#NAMEENV#"
 
 dt = read.table(file = input_file_heatmap, sep = '\t', header = TRUE)
 
-## make wide dataframe
 wide = dt %>% 
-  spread(toolname, p_value)
-rownames(wide) <- wide[, 1]
-wide2 <- wide[, -1]
-col_count = ncol(wide2)
+  mutate(row = row_number()) %>%
+  spread(toolname, p_value) %>%
+  select(-row)
 
-wide3 = wide2 %>%                        # Compute row sums
-  replace(is.na(.), 0) %>%
-  mutate(sum_normed = rowSums(.)/col_count) %>%   # norm sum of pvalue of tooles
-  mutate_if(is.numeric,
+col_count = ncol(wide)-1
+wide3 = wide %>% 
+    replace(is.na(.), 0) %>%
+    mutate(sum_normed = rowSums(across(where(is.numeric)))/col_count) %>%   # norm sum of pvalue of tooles
+    mutate_if(is.numeric,
             round,
             digits = 3)
-
 ## pre sort table
 wide3 <- wide3 %>% 
  # desc orders from largest to smallest
   arrange(desc(sum_normed))
 
-datatable(wide3, rownames = TRUE, class = 'hover', extensions  = 'Buttons', filter = "top", options = list(columnDefs = list(list(visible=FALSE, targets=col_count+1)),
+datatable(wide3, rownames = TRUE , class = 'hover', extensions  = 'Buttons', filter = "top", options = list(
     dom = 'Bfrtip', buttons = c('copy', 'csv', 'excel', 'pdf', 'colvis'))) %>% formatStyle(names(wide3),
-  background = styleColorBar(range(wide3), 'lightblue'),
+  background = styleColorBar(range(wide3[,-1]), 'lightblue'),
   backgroundSize = '98% 88%',
   backgroundRepeat = 'no-repeat',
   backgroundPosition = 'center')
+
 ##columnDefs = list(list(visible=FALSE, targets=col_count+1) ## hides last column
 
 ```

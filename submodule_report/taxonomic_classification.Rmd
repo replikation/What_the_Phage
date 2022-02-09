@@ -1,0 +1,29 @@
+<br>
+
+### Taxonomic Phage classification
+
+<br>
+
+**Tab. 1:**  Taxonomic classification of predicted phages based on sourmash using  [this database](http://147.8.185.62/VirMiner/downloads/phage_genome/public_phage_genomes.fasta)
+Each column can be filtered. The adjusted table can be exported as a .csv, .pdf or .excel.
+
+<br>
+
+
+```{r, echo=FALSE}
+suppressMessages(library(DT))
+suppressMessages(library(dplyr))
+suppressMessages(library(tidyr))
+
+
+tax_table <- "#RESULTSENV#"
+sample_name <- "#NAMEENV#"
+
+du = read.table(file = tax_table, sep = '\t', header = TRUE)
+
+datatable(du, rownames = FALSE, class = 'hover', extensions  = 'Buttons', options = list(
+    dom = 'Bfrtip', buttons = c('copy', 'csv', 'excel', 'pdf', 'colvis')))
+
+```
+
+<a href="#top">Back to top</a>
