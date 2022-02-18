@@ -12,7 +12,9 @@ process virsorter2 {
         virsorter run -d ${database} \
         -w virsorter2_\${PWD##*/}.out \
         -i ${fasta} \
-        -j ${task.cpus}
+        -j ${task.cpus} \
+        --provirus-off
+        
         """
     stub:
         """
