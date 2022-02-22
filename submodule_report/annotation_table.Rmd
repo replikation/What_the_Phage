@@ -21,11 +21,4 @@ datatable(dv, rownames = FALSE, class = 'hover', extensions  = 'Buttons', option
     dom = 'Bfrtip', buttons = c('copy', 'csv', 'excel', 'pdf', 'colvis')))
 ```
 
-
-#### tax classification
-
-contig|  prediction_value|        predicted_organism_name|
-|-|-|-|
-ctg1_len=102949 0.53    gi_265524965_gb_GU071091.1___Enterobacteria__phage__T7,__complete__genome 
-
 <a href="#top">Back to top</a>

@@ -27,8 +27,4 @@ datatable(du, rownames = FALSE, class = 'hover', extensions  = 'Buttons', option
 ```
 
 
-
-
-hier nochn satz was der wert ist probability
-
 <a href="#top">Back to top</a>

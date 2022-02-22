@@ -38,8 +38,13 @@
 * The main focus is stability and data filtering/analysis for the user
 * The tool is intended for fasta and fastq reads to identify phages in contigs/reads
 * Proper prophage detection is not implemented (yet) - but a handful of tools report them - so they are mostly identified
+- Test result output can be found [here](https://htmlpreview.github.io/?https://github.com/replikation/poreCov/blob/master/figures/wtp_paper_final_report.html):
+<p align="left">
+    <a href="https://htmlpreview.github.io/?https://github.com/replikation/poreCov/blob/master/figures/wtp_paper_final_report.html">
+        <img src="figures/Result_report_example_picture.PNG" width="500" title="Report file">
+</p>
 
-
+--------------------------------------------------------------
 ## A detailed documentation can be found [here](https://mult1fractal.github.io/wtp-documentation/)
 * The documentation contains:
   * General information 

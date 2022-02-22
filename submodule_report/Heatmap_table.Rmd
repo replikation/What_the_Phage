@@ -20,13 +20,8 @@ sample_name <- "#NAMEENV#"
 
 dt = read.table(file = input_file_heatmap, sep = '\t', header = TRUE)
 
-###########################################################################################################
-#dt = read.table(file = 'ERR576945_raw_assembly_report_heatmap_table.input', sep = '\t', header = TRUE)
-
-#dt = distinct(dt)
-##rownames(dt) = make.names(c(rownames), unique=TRUE)
 wide <- spread(dt, toolname, p_value)
-############################################################################################################
+
 col_count = ncol(wide)-1
 wide3 = wide %>% 
     replace(is.na(.), 0) %>%
@@ -85,21 +80,5 @@ Tool | Standard output | WtP displayed value |
 |virsorter-virome|category 1, category 2, category 3| 1, 0.5, 0  |
 |virsorter2     |dsDNAphage: 0 to 1          | 0 to 1     |
 
-
-
-#### **How to extract contigs of interest**
-
-1. Choose/filter for the contigs of interest in Table 1.
-2. Export and download the table as a .csv file   
-3. Execute the the following bash commands to extract the desired contigs from your .fasta  
-```shell 
-# make sure that the fasta and .csv file are in the same directory
-for i in bla ;
-    hier kommt noch was
-    oranage: #F79A30
-    pink    #E35E9F
-    lila    #8F2ABF
-done 
-```
 
 <a href="#top">Back to top</a>
