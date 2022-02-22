@@ -196,9 +196,6 @@ workflow {
         prepare_results_wf(results, prediction_channel)
 
         // markdown report input
-        //identify_markdown = prepare_results_wf.out//.view()
-        //upsetr_markdown = prepare_results_wf.out
-
         // map identify output for input of annotaion tools
         annotation_channel = input_validation_wf.out.join(results)
     }
@@ -212,15 +209,8 @@ workflow {
         phage_annotation_wf(annotation_channel)
         checkV_wf(annotation_channel)
         phage_tax_classification_wf(annotation_channel)
-
         // markdown report input
-        //annotation_markdown = phage_annotation_wf.out.concat(checkV_wf.out)//.view()
         phage_annotation_wf.out
-
-
-
-        // [all_pos_phage, large, /tmp/nextflow-phages-mike/7f/8f2fc9e2d84a96b149f8df56d9b85a/large/chromosomefile.tbl, /tmp/nextflow-phages-mike/7f/8f2fc9e2d84a96b149f8df56d9b85a/large/annotationfile.tbl, all_pos_phage, /tmp/nextflow-phages-mike/92/22d3a7d3cada17ec8fab7470800720/all_pos_phage_quality_summary.tsv]
-        //[all_pos_phage, small, /tmp/nextflow-phages-mike/7f/8f2fc9e2d84a96b149f8df56d9b85a/small/chromosomefile.tbl, /tmp/nextflow-phages-mike/7f/8f2fc9e2d84a96b149f8df56d9b85a/small/annotationfile.tbl, all_pos_phage, /tmp/nextflow-phages-mike/92/22d3a7d3cada17ec8fab7470800720/all_pos_phage_quality_summary.tsv]
     }
 
 
@@ -321,15 +311,6 @@ def helpMSG() {
     --vs2               deactivates virsorter2
     --sk                deactivates seeker
 
-    Adjust tools individually
-    --virome            deactivates virome-mode (vibrand and virsorter)
-    --dv_filter         p-value cut-off [default: $params.dv_filter]
-    --mp_filter         average nucleotide identity [default: $params.mp_filter]
-    --vf_filter         score cut-off [default: $params.vf_filter]
-    --vs2_filter        dsDNAphage score cut-off [default: $params.vs2_filter]
-    --sm_filter         Similarity score [default: $params.sm_filter]
-    --vn_filter         Score [default: $params.vn_filter]
-    --sk_filter         score cut-off [default: $params.sk_filter]
 
     Workflow control:
     --identify          only phage identification, skips analysis

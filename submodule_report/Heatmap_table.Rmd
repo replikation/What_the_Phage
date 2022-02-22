@@ -20,8 +20,13 @@ sample_name <- "#NAMEENV#"
 
 dt = read.table(file = input_file_heatmap, sep = '\t', header = TRUE)
 
-wide <- spread(dt, toolname, p_value)
+###########################################################################################################
+#dt = read.table(file = 'ERR576945_raw_assembly_report_heatmap_table.input', sep = '\t', header = TRUE)
 
+#dt = distinct(dt)
+##rownames(dt) = make.names(c(rownames), unique=TRUE)
+wide <- spread(dt, toolname, p_value)
+############################################################################################################
 col_count = ncol(wide)-1
 wide3 = wide %>% 
     replace(is.na(.), 0) %>%
@@ -79,6 +84,5 @@ Tool | Standard output | WtP displayed value |
 |virsorter      |category 1, category 2, category 3| 1, 0.5, 0  |
 |virsorter-virome|category 1, category 2, category 3| 1, 0.5, 0  |
 |virsorter2     |dsDNAphage: 0 to 1          | 0 to 1     |
-
 
 <a href="#top">Back to top</a>

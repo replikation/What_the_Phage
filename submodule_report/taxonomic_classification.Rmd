@@ -26,5 +26,4 @@ datatable(du, rownames = FALSE, class = 'hover', extensions  = 'Buttons', option
 
 ```
 
-
 <a href="#top">Back to top</a>

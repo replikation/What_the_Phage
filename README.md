@@ -45,6 +45,7 @@
 </p>
 
 --------------------------------------------------------------
+
 ## A detailed documentation can be found [here](https://mult1fractal.github.io/wtp-documentation/)
 * The documentation contains:
   * General information 
