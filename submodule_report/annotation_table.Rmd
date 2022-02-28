@@ -1,0 +1,24 @@
+<br>
+
+### Phage annotations
+
+<br>
+
+**Tab.1:** Gene annotation of contigs based on Hmmer and Prodigal, using  [this database](ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/viral-pipeline/hmmer_databases/pvogs.tar.gz)
+
+
+```{r, echo=FALSE}
+suppressMessages(library(DT))
+suppressMessages(library(dplyr))
+suppressMessages(library(tidyr))
+
+annotationtable <- "#RESULTSENV#"
+sample_name <- "#NAMEENV#"
+
+dv = read.table(file = annotationtable, sep = '\t', header = FALSE)
+colnames(dv) <- c("gene_prediction","contig_name","start","end","category")
+datatable(dv, rownames = FALSE, class = 'hover', extensions  = 'Buttons', options = list(
+    dom = 'Bfrtip', buttons = c('copy', 'csv', 'excel', 'pdf', 'colvis')))
+```
+
+<a href="#top">Back to top</a>

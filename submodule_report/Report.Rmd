@@ -1,0 +1,25 @@
+<style type="text/css">
+.main-container {
+  max-width: 1000px;
+  margin-left: 10%;
+  margin-right: 10%;
+}
+</style>
+---
+title: "  "
+output:
+  html_document:
+    #theme: darkly
+    theme: spacelab
+    highlight: tango
+    code_folding: hide
+    # number_sections: TRUE
+---
+![](logo.png)
+
+# Results {.tabset .tabset-fade}  
+
+Below you find for each supplied fasta file an individual tab.
+Each tab contains all the results and explanations to help you identify the possible phages.  
+The results are also grouped by blue tabs.
+All the citations can be found in the results directory as a `.bib` file

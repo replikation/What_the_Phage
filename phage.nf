@@ -12,9 +12,9 @@ Format is this: XX.YY.ZZ  (e.g. 20.07.1)
 change below
 */
 
-XX = "20"
-YY = "07"
-ZZ = "1"
+XX = "21"
+YY = "04"
+ZZ = "0"
 
 if ( nextflow.version.toString().tokenize('.')[0].toInteger() < XX.toInteger() ) {
 println "\033[0;33mWtP requires at least Nextflow version " + XX + "." + YY + "." + ZZ + " -- You are using version $nextflow.version\u001B[0m"
@@ -41,7 +41,6 @@ println "\u001B[32mProfile: $workflow.profile\033[0m"
 println " "
 println "\033[2mCurrent User: $workflow.userName"
 println "Nextflow-version: $nextflow.version"
-println "WtP intended for Nextflow-version: 20.01.0"
 println "Starting time: $nextflow.timestamp"
 println "Workdir location [--workdir]:"
 println "  $workflow.workDir"
@@ -60,7 +59,7 @@ println "  Manually remove faulty images in $params.cachedir for a rebuild\u001B
 if (params.annotate) { println "\u001B[33mSkipping phage identification for fasta files\u001B[0m" }
 if (params.identify) { println "\u001B[33mSkipping phage annotation\u001B[0m" }
 println " "
-println "\033[2mCPUs to use: $params.cores, maximal CPUs to use: $params.max_cores\033[0m"
+println "\033[2mCPUs per process: $params.cores, maximal CPUs to use: $params.max_cores\033[0m"
 println " "
 
 /************* 
@@ -142,7 +141,7 @@ include { checkV_wf } from './workflows/checkV_wf'
 include { phage_tax_classification_wf } from './workflows/phage_tax_classification_wf'
 include { setup_wf } from './workflows/setup_wf'
 include { get_test_data_wf } from './workflows/get_test_data_wf'
-
+include { markdown_report_wf } from './workflows/markdown_report_wf'
 
 /************************** 
 * WtP Workflow
@@ -158,14 +157,17 @@ workflow {
     else {
     if (workflow.profile.contains('test') && !workflow.profile.contains('smalltest')) { fasta_input_ch = get_test_data_wf() }
     if (workflow.profile.contains('smalltest') ) 
-        { fasta_input_ch = Channel.fromPath(workflow.projectDir + "/test-data/all_pos_phage.fa", checkIfExists: true).map { file -> tuple(file.simpleName, file) }.view() }
+        { fasta_input_ch = Channel.fromPath(workflow.projectDir + "/test-data/all_pos_phage.fa", checkIfExists: true).map { file -> tuple(file.simpleName, file) } }
     }
 /************************** 
 * worflow flow control
 **************************/
     // create 3 "input channels" for each flow
+    // Annotation only
     if ( params.fasta && params.annotate && !params.identify && !params.setup) { annotation_channel =   input_validation_wf(fasta_input_ch) }
+    // Identify only
     else if (params.fasta && params.identify && !params.annotate && !params.setup ) { prediction_channel =  input_validation_wf(fasta_input_ch) }
+    // Full run
     else if (params.fasta && !params.identify && !params.annotate && !params.setup ) { prediction_channel =  input_validation_wf(fasta_input_ch) }
 
 /************************** 
@@ -193,6 +195,7 @@ workflow {
 
         prepare_results_wf(results, prediction_channel)
 
+        // markdown report input
         // map identify output for input of annotaion tools
         annotation_channel = input_validation_wf.out.join(results)
     }
@@ -206,6 +209,8 @@ workflow {
         phage_annotation_wf(annotation_channel)
         checkV_wf(annotation_channel)
         phage_tax_classification_wf(annotation_channel)
+        // markdown report input
+        phage_annotation_wf.out
     }
 
 
@@ -213,7 +218,33 @@ workflow {
 * Result Report
 **************************/
 
-    // TBC
+    // NO FLAG
+    if (params.fasta && !params.identify && !params.annotate && !params.setup ) { 
+       markdown_report_wf(  prepare_results_wf.out.upsetr_plot_markdown_input,
+                            prepare_results_wf.out.heatmap_table_markdown_input,
+                            phage_annotation_wf.out.annotationtable_markdown_input, 
+                            checkV_wf.out,
+                            phage_tax_classification_wf.out
+                            )
+    }
+    // --IDENTIFY
+    // dummy channel simulate the output from --annotate
+    if (params.fasta && params.identify && !params.annotate && !params.setup ) { 
+       markdown_report_wf(  prepare_results_wf.out.upsetr_plot_markdown_input,
+                            prepare_results_wf.out.heatmap_table_markdown_input,
+                            dummy_A = Channel.from( [ 'deactivated', 'deactivated']),
+                            dummy_B = Channel.from( [ 'deactivated', 'deactivated']),
+                            dummy_C = Channel.from( [ 'deactivated', 'deactivated']))
+    }
+    // --ANNOTATE
+    // dummy channel simulate the output from --identify
+    if (params.fasta && !params.identify && params.annotate && !params.setup ) { 
+       markdown_report_wf(  dummy_A = Channel.from( [ 'deactivated', 'deactivated']),
+                            dummy_B = Channel.from( [ 'deactivated', 'deactivated']), 
+                            phage_annotation_wf.out.annotationtable_markdown_input, 
+                            checkV_wf.out,
+                            phage_tax_classification_wf.out )
+    }
 
 }
 
@@ -280,15 +311,6 @@ def helpMSG() {
     --vs2               deactivates virsorter2
     --sk                deactivates seeker
 
-    Adjust tools individually
-    --virome            deactivates virome-mode (vibrand and virsorter)
-    --dv_filter         p-value cut-off [default: $params.dv_filter]
-    --mp_filter         average nucleotide identity [default: $params.mp_filter]
-    --vf_filter         score cut-off [default: $params.vf_filter]
-    --vs2_filter        dsDNAphage score cut-off [default: $params.vs2_filter]
-    --sm_filter         Similarity score [default: $params.sm_filter]
-    --vn_filter         Score [default: $params.vn_filter]
-    --sk_filter         score cut-off [default: $params.sk_filter]
 
     Workflow control:
     --identify          only phage identification, skips analysis

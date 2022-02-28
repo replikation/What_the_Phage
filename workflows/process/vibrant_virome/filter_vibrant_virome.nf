@@ -7,10 +7,8 @@ process filter_vibrant_virome {
     script:
         """
         tail -n+2 *.tsv | \
-        awk 'BEGIN {OFS=FS="\\t"; IGNORECASE=1} {if(\$2) sub(/virus/,"1"); print}' | \
-        awk 'BEGIN {OFS=FS="\\t"; IGNORECASE=1} {if(\$2) sub(/organism/,"0"); print}' | \
-        awk 'BEGIN {OFS=FS="\\t"; IGNORECASE=1} {if(\$2) sub(/plasmid/,"0"); print}' | \
-        sed -r 's/_fragment_[0-9]//' > vibrant-virome_\${PWD##*/}.tsv
+        awk 'BEGIN {OFS=FS="\\t"} \$2 == "virus" { print \$1, \$2 }' | \
+        awk 'BEGIN {OFS=FS="\\t"; IGNORECASE=1} {if(\$2) sub(/virus/,"1"); print}' > vibrant-virome_\${PWD##*/}.tsv
         """
 }
 

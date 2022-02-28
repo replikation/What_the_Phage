@@ -6,7 +6,8 @@ process checkV {
         tuple val(name), path(fasta)
         file(database)
     output:
-        tuple val(name), path("${name}_quality_summary.tsv"), path("${name}_results/") optional true
+        tuple val(name), path("${name}_quality_summary.tsv"), emit: sample_quality_ch optional true
+        tuple val(name), path("${name}_results/"), emit: checkV_results_ch optional true
     script:
         """
         checkv completeness ${fasta} -d ${database} -t ${task.cpus} ${name}_results  

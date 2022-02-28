@@ -1,0 +1,88 @@
+<br>
+
+### Phage prediction by contig
+
+<br>
+
+#### **Phage prediction table**
+
+
+**Tab. 1:** Interactive phage prediction table. The scores/p-values of each column can be filtered.
+The adjusted table can be exported as a .csv, .pdf or .excel.
+
+```{r, echo=FALSE}
+suppressMessages(library(DT))
+suppressMessages(library(dplyr))
+suppressMessages(library(tidyr))
+
+input_file_heatmap <- "#RESULTSENV#"
+sample_name <- "#NAMEENV#"
+
+dt = read.table(file = input_file_heatmap, sep = '\t', header = TRUE)
+
+###########################################################################################################
+#dt = read.table(file = 'ERR576945_raw_assembly_report_heatmap_table.input', sep = '\t', header = TRUE)
+
+#dt = distinct(dt)
+##rownames(dt) = make.names(c(rownames), unique=TRUE)
+wide <- spread(dt, toolname, p_value)
+############################################################################################################
+col_count = ncol(wide)-1
+wide3 = wide %>% 
+    replace(is.na(.), 0) %>%
+    mutate(sum_normed = rowSums(across(where(is.numeric)))/col_count) %>%   # norm sum of pvalue of tooles
+    mutate_if(is.numeric,
+            round,
+            digits = 3)
+## pre sort table
+wide3 <- wide3 %>% 
+ # desc orders from largest to smallest
+  arrange(desc(sum_normed))
+
+datatable(wide3, rownames = TRUE , class = 'hover', extensions  = 'Buttons', filter = "top", options = list(
+    dom = 'Bfrtip', buttons = c('copy', 'csv', 'excel', 'pdf', 'colvis'))) %>% formatStyle(names(wide3),
+  background = styleColorBar(range(wide3[,-1]), 'lightblue'),
+  backgroundSize = '98% 88%',
+  backgroundRepeat = 'no-repeat',
+  backgroundPosition = 'center')
+
+##columnDefs = list(list(visible=FALSE, targets=col_count+1) ## hides last column
+
+```
+
+#### **How to interpret the data**
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+WtP uses several phage prediction tools that work differently and generate different outputs. 
+Contigs with the overall highest p-values/scores are displayed at the top, and contigs with low p-values/scores are at the bottom of the table.
+Each tool's p-value/score can be individually adjusted and filtered in Table 1. 
+Some tools don't generate p-values or scores as output, instead they generate categories with likelyhoods, or directly predict and assign the contigs as phage.  
+The tool's output and what WtP assigns is shown in the Table below.    
+</div>
+
+
+#### **Explanation tool output**
+
+**Tab.2**: The output of each tool and what WtP puts in Tab. 1.
+  
+Tool | Standard output | WtP displayed value | 
+|-|-|-|
+|deepvirfinder  |p-value: 0 to 1          | 0 to 1  |
+|metaphinder    |string: phage          | 1     |
+|metaphinder own| string: phage         | 1     |
+|phigaro        | score: 0 to 1           | 0 to 1  |
+|pprmeta        |phage_score: 0 to 1      | 0 to 1  |
+|seeker         |score: 0 to 1            | 0 to 1  |
+|sourmash       |similarity: 0 to 1       | 0 to 1  |
+|vibrant        |prediction: virus      | 1     |
+|vibrant-virome |prediction: virus      | 1     |
+|virfinder      |p-value: 0 to 1         | 0 to 1  |
+|virnet         |score: 0 to 1           | 0 to 1  |
+|virsorter      |category 1, category 2, category 3| 1, 0.5, 0  |
+|virsorter-virome|category 1, category 2, category 3| 1, 0.5, 0  |
+|virsorter2     |dsDNAphage: 0 to 1          | 0 to 1     |
+
+<a href="#top">Back to top</a>
