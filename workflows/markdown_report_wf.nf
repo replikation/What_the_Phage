@@ -7,12 +7,6 @@ include { checkV_report } from './process/markdown_report/checkV_report.nf'
 include { annotation_table_report } from './process/markdown_report/annotation_table_report.nf'
 include { taxonomic_classification_report } from './process/markdown_report/taxonomic_classification_report.nf'
 
-
-
-
-
-
-
 workflow markdown_report_wf {
     take:   
             upsetR_file //.svg

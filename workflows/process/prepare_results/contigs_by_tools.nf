@@ -15,9 +15,11 @@ process contigs_by_tools {
         """
       stub:
         """
-        touch all_overview.tsv
+        touch contig_tool_p-value_overview.tsv
         touch tools_used_for_phage_prediction.txt
         touch toolagreement_per_contig.tsv
+        echo "contig    p_value    tool" >> toolagreement_per_contig.tsv
+        echo "abc_123    0.5    mikefinder" >> toolagreement_per_contig.tsv
         mkdir tool_agreements/
         touch tool_agreements/stub.tsv
         """        
