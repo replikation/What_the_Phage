@@ -33,12 +33,12 @@
 # What is this repo
 
 #### TL;DR
-* WtP is a scalable and easy-to-use workflow for phage identification and analysis. Our tool currently combines 10 established phage identification tools 
+* WtP is a scalable and easy-to-use workflow for phage identification and analysis. Our tool currently combines 12 established phage identification tools 
 * An attempt to streamline the usage of various phage identification and prediction tools
 * The main focus is stability and data filtering/analysis for the user
-* The tool is intended for fasta and fastq reads to identify phages in contigs/reads
-* Proper prophage detection is not implemented (yet) - but a handful of tools report them - so they are mostly identified
-* The full testprofile report can be found [here](https://htmlpreview.github.io/?https://github.com/replikation/What_the_Phage/blob/master/figures/wtp_paper_final_report.html)
+* The tool is intended for assembled fasta files to identify phages in contigs
+* Proper prophage detection is not implemented - but a CheckV report them
+* A full report can be found [here](https://replikation.github.io/What_the_Phage/)
 
 
 <p align="left">
