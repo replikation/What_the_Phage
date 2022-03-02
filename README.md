@@ -18,7 +18,7 @@
 
 * by Christian Brandt & Mike Marquet
 * **this tool is under active development,feel free to report issues and add suggestions**
-* Use a release candidate for a stable experience via `-r` e.g. `-r v1.0.2`
+* Use a release candidate for a stable experience via `-r` e.g. `-r v1.1.0`
   * These are extensively tested release versions of WtP
   * [releases of WtP are listed here](https://github.com/replikation/What_the_Phage/releases)  
 
