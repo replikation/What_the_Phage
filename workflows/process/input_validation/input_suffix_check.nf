@@ -1,9 +1,10 @@
 process input_suffix_check {
+    publishDir "${params.output}/${name}/Input_fasta", mode: 'copy', pattern: "${name}.fa.gz"
     label 'ubuntu'
     input:
         tuple val(name), path(file) 
     output:
-        tuple val(name), path("${name}.fa")
+        tuple val(name), path("${name}.fa.gz")
     script:
         """
         case "${file}" in
@@ -31,6 +32,8 @@ process input_suffix_check {
         sed 's#[()|.,/ ]#_#g' -i ${name}.fa
         # remove empty lines
         sed '/^\$/d' -i ${name}.fa
+        # pack file
+        gzip ${name}.fa
         """
     stub:
         """

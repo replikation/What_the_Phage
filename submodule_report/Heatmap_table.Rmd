@@ -20,13 +20,8 @@ sample_name <- "#NAMEENV#"
 
 dt = read.table(file = input_file_heatmap, sep = '\t', header = TRUE)
 
-###########################################################################################################
-#dt = read.table(file = 'ERR576945_raw_assembly_report_heatmap_table.input', sep = '\t', header = TRUE)
-
-#dt = distinct(dt)
-##rownames(dt) = make.names(c(rownames), unique=TRUE)
 wide <- spread(dt, toolname, p_value)
-############################################################################################################
+
 col_count = ncol(wide)-1
 wide3 = wide %>% 
     replace(is.na(.), 0) %>%
@@ -50,6 +45,7 @@ datatable(wide3, rownames = TRUE , class = 'hover', extensions  = 'Buttons', fil
 
 ```
 
+
 #### **How to interpret the data**
 
 <style>
@@ -59,14 +55,43 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 WtP uses several phage prediction tools that work differently and generate different outputs. 
 Contigs with the overall highest p-values/scores are displayed at the top, and contigs with low p-values/scores are at the bottom of the table.
 Each tool's p-value/score can be individually adjusted and filtered in Table 1. 
-Some tools don't generate p-values or scores as output, instead they generate categories with likelyhoods, or directly predict and assign the contigs as phage.  
-The tool's output and what WtP assigns is shown in the Table below.    
+Some tools don't generate p-values or scores as output; instead, they generate categories with likelihoods or directly predict and assign the contigs as phage.  
+The tool's output and what WtP assigns are shown in the table below.
+   
 </div>
+
+
+
+#### **Extract contigs of interest**
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+```shell
+# Filter the Phage prediction by contig table to your liking   
+# Click on the CSV-Button (this will download the Phage prediction by contig table)     
+# Open your Linux-Terminal     
+mkdir contigs_of_interest 
+cd  contigs_of_interest  
+# Copy the downloaded Phage prediction by contig table to the contig_IDs_of_interest -folder  
+# Copy the input_fasta to the contig_IDs_of_interest -folder  
+cp WtP_results/your_sample/Input_fasta/your_input_fasta.fa.gz /foo/bar/contigs_of_interest  
+# Get contig IDs of interest  
+tail -n+2 final_report.utf8.csv | tr -d '"' | cut -f2 -d"," > contig_IDs_of_interest.txt  
+# via Docker: use Seqkit to extract contigs of interest of your input fasta-file  
+docker run --rm -it -v $PWD:/input nanozoo/seqkit:0.13.2--cd66104  
+cd input  
+seqkit grep --pattern-file contig_IDs_of_interest.txt your_input_fasta.fa.gz > contigs_of_interest.fa    
+# Finally, close the docker with ctrl + d  
+```   
+</div>
+
 
 
 #### **Explanation tool output**
 
-**Tab.2**: The output of each tool and what WtP puts in Tab. 1.
+**Tab.2**: The output of each tool and the values WtP assigns in Tab.1 .
   
 Tool | Standard output | WtP displayed value | 
 |-|-|-|

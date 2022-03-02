@@ -21,4 +21,19 @@ datatable(dv, rownames = FALSE, class = 'hover', extensions  = 'Buttons', option
     dom = 'Bfrtip', buttons = c('copy', 'csv', 'excel', 'pdf', 'colvis')))
 ```
 
+#### **Visual representation of annotated genes via chromoMap**
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+Visual annotation of phage contigs and annotated protein-coding genes via chromoMap is stored by default here:   
+```shell
+results/your_sample/sample_overview_large.html
+results/your_sample/sample_overview_small.html
+```
+
+</div>
+
+
 <a href="#top">Back to top</a>
