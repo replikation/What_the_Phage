@@ -37,7 +37,7 @@ process input_suffix_check {
         """
     stub:
         """
-        touch ${name}.fa
+        touch ${name}.fa.gz
         """
 }
 
