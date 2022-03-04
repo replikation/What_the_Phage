@@ -42,7 +42,7 @@
 
 
 <p align="left">
-    <a href="https://htmlpreview.github.io/?https://github.com/replikation/What_the_Phage/blob/master/figures/wtp_paper_final_report.html">
+    <a href="https://replikation.github.io/What_the_Phage/">
         <img src="figures/Result_report_example_picture.PNG" width="500" title="Report file">
 </p>
 
