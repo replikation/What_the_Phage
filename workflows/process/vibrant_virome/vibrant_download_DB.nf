@@ -21,7 +21,7 @@ process vibrant_download_DB {
         
         else if (task.attempt.toString() == '2')
         """
-        wget https://osf.io/j7435/download -O database.tar.gz
+        wget --no-check-certificate https://osf.io/j7435/download -O database.tar.gz
         """
 
 

@@ -18,7 +18,7 @@ process phage_references_blastDB {
 
         else if (task.attempt.toString() == '2')
         """
-        wget https://osf.io/7gcky/download -O blast_database.tar.gz
+        wget --no-check-certificate https://osf.io/7gcky/download -O blast_database.tar.gz
         """
 
     stub:

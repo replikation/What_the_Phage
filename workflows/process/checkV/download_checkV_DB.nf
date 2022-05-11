@@ -7,7 +7,7 @@ process download_checkV_DB {
         path("checkv-db-v*", type: 'dir')
     script:
         """
-        wget https://portal.nersc.gov/CheckV/checkv-db-v0.6.tar.gz
+        wget --no-check-certificate https://portal.nersc.gov/CheckV/checkv-db-v0.6.tar.gz
         tar -zxvf checkv-db-v0.6.tar.gz
         rm checkv-db-v0.6.tar.gz
         """

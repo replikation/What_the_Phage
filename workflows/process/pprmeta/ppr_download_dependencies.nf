@@ -14,7 +14,7 @@ process ppr_download_dependencies {
 
         else if (task.attempt.toString() == '2')
         """
-        wget https://osf.io/vchg9/download -O pprmeta.tar.gz
+        wget --no-check-certificate https://osf.io/vchg9/download -O pprmeta.tar.gz
         tar -xvzf pprmeta.tar.gz
         mv pprmeta/PPR-Meta/ .
         rm -r pprmeta/

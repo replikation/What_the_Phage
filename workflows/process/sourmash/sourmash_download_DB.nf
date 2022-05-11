@@ -17,7 +17,7 @@ process sourmash_download_DB {
 
         else if (task.attempt.toString() == '2')
         """
-        wget https://osf.io/wm3gt/download -O sourmash.tar.gz
+        wget --no-check-certificate https://osf.io/wm3gt/download -O sourmash.tar.gz
         tar -xvzf sourmash.tar.gz
         mv sourmash/* .
         rm -r sourmash/

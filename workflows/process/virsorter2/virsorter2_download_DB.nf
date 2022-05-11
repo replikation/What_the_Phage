@@ -6,7 +6,7 @@ process virsorter2_download_DB {
         path('db', type: 'dir')
     script:
         """
-        wget https://osf.io/v46sc/download -O db.tgz
+        wget --no-check-certificate https://osf.io/v46sc/download -O db.tgz
         tar -zxvf db.tgz
         chmod -R a+rX db
         rm db.tgz
