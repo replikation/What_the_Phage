@@ -93,21 +93,21 @@ seqkit grep --pattern-file contig_IDs_of_interest.txt your_input_fasta.fa.gz > c
 
 **Tab.2**: The output of each tool and the values WtP assigns in Tab.1 .
   
-Tool | Standard output | WtP displayed value | 
-|-|-|-|
-|deepvirfinder  |p-value: 0 to 1          | 0 to 1  |
-|metaphinder    |string: phage          | 1     |
-|metaphinder own| string: phage         | 1     |
-|phigaro        | score: 0 to 1           | 0 to 1  |
-|pprmeta        |phage_score: 0 to 1      | 0 to 1  |
-|seeker         |score: 0 to 1            | 0 to 1  |
-|sourmash       |similarity: 0 to 1       | 0 to 1  |
-|vibrant        |prediction: virus      | 1     |
-|vibrant-virome |prediction: virus      | 1     |
-|virfinder      |p-value: 0 to 1         | 0 to 1  |
-|virnet         |score: 0 to 1           | 0 to 1  |
-|virsorter      |category 1, category 2, category 3| 1, 0.5, 0  |
-|virsorter-virome|category 1, category 2, category 3| 1, 0.5, 0  |
-|virsorter2     |dsDNAphage: 0 to 1          | 0 to 1     |
+Tool            | Standard output                     | WtP displayed value | F1 scores
+|-|-|-|-|
+|deepvirfinder  | p-value: 0 to 1                      | 0 to 1      | >0.83
+|metaphinder    | string: phage                        | 1           | >0.83
+|metaphinder own| string: phage                        | 1           |
+|phigaro        | score: 0 to 1                        | 0 to 1      |
+|pprmeta        | phage_score: 0 to 1                  | 0 to 1      | 0.92
+|seeker         | score: 0 to 1                        | 0 to 1      | <0.5
+|sourmash       | similarity: 0 to 1                   | 0 to 1      |
+|vibrant        | prediction: virus                    | 1           | >0.83
+|vibrant-virome | prediction: virus                    | 1           |
+|virfinder      | p-value: 0 to 1                      | 0 to 1      | >0.83
+|virnet         | score: 0 to 1                        | 0 to 1      |
+|virsorter      | category 1, category 2, category 3   | 1, 0.5, 0   | >0.83
+|virsorter-virome|category 1, category 2, category 3   | 1, 0.5, 0   |
+|virsorter2     | dsDNAphage: 0 to 1                   | 0 to 1      | 0.93
 
 <a href="#top">Back to top</a>

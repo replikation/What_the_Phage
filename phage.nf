@@ -171,11 +171,37 @@ workflow {
     else if (params.fasta && !params.identify && !params.annotate && !params.setup ) { prediction_channel =  input_validation_wf(fasta_input_ch) }
 
 /************************** 
-* Prediction
+* Prediction via benchmarked tools only
 **************************/
     // run annotation if identify flag or no flag at all
-    if (params.fasta && params.identify && !params.annotate && !params.setup || params.fasta && !params.identify && !params.annotate && !params.setup )  { 
+    if (params.fasta && params.identify && !params.annotate && !params.setup && !params.all_tools || params.fasta  && !params.identify && !params.annotate && !params.setup && !params.all_tools )  { 
     // actual tools     
+        results = deepvirfinder_wf( prediction_channel)
+                .concat( seeker_wf(prediction_channel))
+                .concat( virfinder_wf(prediction_channel))
+                .concat( pprmeta_wf(prediction_channel))
+                .concat( metaphinder_wf(prediction_channel))
+                .concat( vibrant_wf(prediction_channel))
+                .concat( vibrant_virome_wf(prediction_channel))
+                .concat( virsorter_wf(prediction_channel))
+                .concat( virsorter_virome_wf(prediction_channel))
+                .concat( virsorter2_wf(prediction_channel))
+                .filter { it != 'deactivated' } // removes deactivated tool channels
+                .groupTuple()
+    
+        prepare_results_wf(results, prediction_channel)
+
+        // markdown report input
+        // map identify output for input of annotaion tools
+        annotation_channel = input_validation_wf.out.join(results)
+    }
+    //&& !params.all_tools
+/************************** 
+* Prediction via all tools
+**************************/
+    // run annotation if identify flag or no flag at all
+    if (params.fasta && params.all_tools && params.identify && !params.annotate && !params.setup || params.fasta && params.all_tools && !params.identify && !params.annotate && !params.setup )  { 
+    // benchmarked tools     
         results = deepvirfinder_wf( prediction_channel)
                 .concat( phigaro_wf(prediction_channel))
                 .concat( seeker_wf(prediction_channel))
@@ -199,7 +225,7 @@ workflow {
         // map identify output for input of annotaion tools
         annotation_channel = input_validation_wf.out.join(results)
     }
-    
+
 /************************** 
 * Annotation
 **************************/
