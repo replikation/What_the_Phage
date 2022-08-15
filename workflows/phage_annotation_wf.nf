@@ -8,7 +8,11 @@ include { chromomap } from './process/phage_annotation/chromomap'
 workflow phage_annotation_wf {
     take:   fasta_and_tool_results
     main:
-           
+           // Input for custom annotation database
+           if (params.annotation_db) { annotation_custom_db_ch = Channel
+                                            .fromPath( params.annotation_db, checkIfExists: true)
+                                            .view()}
+            // map input for prodigal
             fasta = fasta_and_tool_results.map {it -> tuple(it[0],it[1])}
             //Databases 
             //Database for hmmscan
@@ -31,7 +35,8 @@ workflow phage_annotation_wf {
             }
             //annotation-process
             prodigal(fasta)
-            hmmscan(prodigal.out, pvog_DB.out)            
+            if (!params.annotation_db) {hmmscan(prodigal.out, pvog_DB.out)}
+            else {hmmscan(prodigal.out, annotation_custom_db_ch)}         
             chromomap_parser(fasta.join(hmmscan.out), vogtable_DB.out)
             chromomap(chromomap_parser.out[0].mix(chromomap_parser.out[1]))
 
