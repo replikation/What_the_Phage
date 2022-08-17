@@ -32,7 +32,7 @@ process upsetr_plot {
 
       #nsets = 20, nintersects = 40
       upset(fromList(sets), sets = names(sets),
-          mainbar.y.label = "No. of shared phage contigs", sets.x.label = "Number of phage contigs \\nper tool ", 
+          mainbar.y.label = "No. of shared phage contigs", sets.x.label = "Number of phage \\ncontigs per tool ", 
           order.by = "freq", sets.bar.color = "#56B4E9", keep.order = F, 
           text.scale = 1.4, point.size = 2.6, line.size = 0.8, set_size.show = FALSE)
 
