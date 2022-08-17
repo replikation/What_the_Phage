@@ -24,10 +24,11 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
 
-The "UpSet" plot is an alternative but more detailed Venn diagram, and it summarizes the prediction performance of each tool for your sample.  
-The total amount of identified phage-contigs per tool is shown in blue bars on the left.  
-Black bars visualize the number of contigs that each tool or tool combination has uniquely identified, and each tool combination is shown below each black bar as a dot matrix. 
-E.g., a black bar with two dots below it means that these two tools identified the same contigs as phages.
+The total amount of identified phage contigs per tool is shown in blue bars on the left.  
+Black, vertical bars visualize the number of contigs that each tool or tool combination has uniquely identified.  
+Each tool combination is shown below the vertical barplot as a dot matrix. How to read the diagram: For example, 53 phage contigs are found by six tools (DeepVirFinder, Metaphinder-own-DB, Metaphinder, PPRmeta, Seeker and VirFinder).  
+Another 42 contigs are found by these tools but also virnet.
+
 </div>
 
 

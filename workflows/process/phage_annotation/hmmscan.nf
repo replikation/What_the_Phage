@@ -3,16 +3,24 @@ process hmmscan {
         label 'hmmscan'
     input:
         tuple val(name), path(faa) 
-        path(pvog_db)
+        path(annotation_db)
     output:
-        tuple val(name), path("${name}_${pvog_db}_hmmscan.tbl"), path(faa) 
+        tuple val(name), path("${name}_${annotation_db}_hmmscan.tbl"), path(faa) 
     script:
+        if (!params.annotation_db)
         """
-        hmmscan --cpu ${task.cpus} ${params.hmm_params} --noali --domtblout ${name}_${pvog_db}_hmmscan.tbl ${pvog_db}/${pvog_db}.hmm ${faa}
+        hmmscan --cpu ${task.cpus} ${params.hmm_params} --noali --domtblout ${name}_${annotation_db}_hmmscan.tbl ${annotation_db}/${annotation_db}.hmm ${faa}
         """
+        else
+        """
+        mkdir custom_annotation_db
+        tar -xvzf ${annotation_db} -C custom_annotation_db
+        hmmscan --cpu ${task.cpus} ${params.hmm_params} --noali --domtblout ${name}_${annotation_db}_hmmscan.tbl custom_annotation_db/*.hmm ${faa}
+        """
+
     stub:
         """
-        touch ${name}_${pvog_db}_hmmscan.tbl
+        touch ${name}_${annotation_db}_hmmscan.tbl
         """
 }
 

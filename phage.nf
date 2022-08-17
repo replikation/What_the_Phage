@@ -171,11 +171,37 @@ workflow {
     else if (params.fasta && !params.identify && !params.annotate && !params.setup ) { prediction_channel =  input_validation_wf(fasta_input_ch) }
 
 /************************** 
-* Prediction
+* Prediction via benchmarked tools only
 **************************/
     // run annotation if identify flag or no flag at all
-    if (params.fasta && params.identify && !params.annotate && !params.setup || params.fasta && !params.identify && !params.annotate && !params.setup )  { 
+    if (params.fasta && params.identify && !params.annotate && !params.setup && !params.all_tools || params.fasta  && !params.identify && !params.annotate && !params.setup && !params.all_tools )  { 
     // actual tools     
+        results = deepvirfinder_wf( prediction_channel)
+                .concat( seeker_wf(prediction_channel))
+                .concat( virfinder_wf(prediction_channel))
+                .concat( pprmeta_wf(prediction_channel))
+                .concat( metaphinder_wf(prediction_channel))
+                .concat( vibrant_wf(prediction_channel))
+                .concat( vibrant_virome_wf(prediction_channel))
+                .concat( virsorter_wf(prediction_channel))
+                .concat( virsorter_virome_wf(prediction_channel))
+                .concat( virsorter2_wf(prediction_channel))
+                .filter { it != 'deactivated' } // removes deactivated tool channels
+                .groupTuple()
+    
+        prepare_results_wf(results, prediction_channel)
+
+        // markdown report input
+        // map identify output for input of annotaion tools
+        annotation_channel = input_validation_wf.out.join(results)
+    }
+    //&& !params.all_tools
+/************************** 
+* Prediction via all tools
+**************************/
+    // run annotation if identify flag or no flag at all
+    if (params.fasta  && params.identify && !params.annotate && !params.setup && params.all_tools|| params.fasta && params.all_tools && !params.identify && !params.annotate && !params.setup )  { 
+    // benchmarked tools     
         results = deepvirfinder_wf( prediction_channel)
                 .concat( phigaro_wf(prediction_channel))
                 .concat( seeker_wf(prediction_channel))
@@ -199,7 +225,7 @@ workflow {
         // map identify output for input of annotaion tools
         annotation_channel = input_validation_wf.out.join(results)
     }
-    
+
 /************************** 
 * Annotation
 **************************/
@@ -256,10 +282,11 @@ def helpMSG() {
     c_reset = "\033[0m";
     c_yellow = "\033[0;33m";
     c_blue = "\033[0;34m";
+    c_purple = "\033[0;35m";
     c_dim = "\033[2m";
     log.info """
     .
-    ${c_yellow}Usage examples:${c_reset}
+    ${c_purple}Usage examples:${c_reset}
     nextflow run replikation/What_the_Phage --fasta '*/*.fasta' --cores 20 --max_cores 40 \\
         --output results -profile local,docker 
 
@@ -268,7 +295,7 @@ def helpMSG() {
         --cachedir /images/singularity_images \\
         --databases /databases/WtP_databases/ 
 
-    ${c_yellow}Input:${c_reset}
+    ${c_purple}Input:${c_reset}
      --fasta             '*.fasta'   -> assembly file(s)
      --fastq             '*.fastq'   -> long read file(s)
     ${c_dim}  ..change above input to csv via --list ${c_reset}  
@@ -276,7 +303,7 @@ def helpMSG() {
         the .csv contains per line: name,/path/to/file${c_reset}  
      --setup              skips analysis and just downloads databases and containers
 
-    ${c_yellow}Execution/Engine profiles:${c_reset}
+    ${c_purple}Execution/Engine profiles:${c_reset}
      WtP supports profiles to run via different ${c_green}Executers${c_reset} and ${c_blue}Engines${c_reset} e.g.:
      -profile ${c_green}local${c_reset},${c_blue}docker${c_reset}
 
@@ -291,13 +318,16 @@ def helpMSG() {
     
     For a test run (~ 1h), add "smalltest" to the profile, e.g. -profile smalltest,local,singularity 
     
-    ${c_yellow}Options:${c_reset}
+    ${c_purple}Options:${c_reset}
     --filter            min contig size [bp] to analyse [default: $params.filter]
     --cores             max cores per process for local use [default: $params.cores]
     --max_cores         max cores used on the machine for local use [default: $params.max_cores]    
     --output            name of the result folder [default: $params.output]
 
-    ${c_yellow}Tool control:${c_reset}
+    ${c_purple}Tool control:${c_reset}
+    Deploy all integrated phage prediction tools
+    --all_tools         activate all phage prediction tools     
+
     Deactivate tools individually by adding one or more of these flags
     --dv                deactivates deepvirfinder
     --mp                deactivates metaphinder
@@ -311,8 +341,12 @@ def helpMSG() {
     --vs2               deactivates virsorter2
     --sk                deactivates seeker
 
+    ${c_purple}Custom phage annotation Database:${c_reset}
+    --annotation_db     /path/to/your/custom_phage_annotation_db.tar.gz
+                        Please provide a custom_phage_annotation_db.tar.gz archive that contains the following file formats:
+                        *.hmm  *.hmm.h3f  *.hmm.h3i  *.hmm.h3m  *.hmm.h3p
 
-    Workflow control:
+    ${c_yellow}Workflow control:${c_reset}
     --identify          only phage identification, skips analysis
     --annotate          only annotation, skips phage identification
 

@@ -3,7 +3,7 @@ process phage_references_blastDB {
     else { storeDir "${params.databases}/blast_DB_phage" }
     label 'metaphinder'
     errorStrategy = "retry"
-    maxRetries = 1
+    maxRetries = 2
     input:
         path(references)
     output:
