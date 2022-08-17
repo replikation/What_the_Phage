@@ -10,7 +10,6 @@ awk '{ gsub(/.txt/,"", $3); print }' OFS='\t' tmp_result.tsv > tmp_results2.tsv
 rm *.txt
 sed -e '1i\contig_name\tp_value\ttoolname' tmp_results2.tsv > tmp_results3.tsv
 
-###
 ## if r markdown code breaks .... these are the files can generate the error 
 ## error prevention
 grep -E -v ".txt" tmp_results3.tsv > contig_tool_p-value_overview.tsv

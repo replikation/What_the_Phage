@@ -24,10 +24,10 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
 
- The total amount of identified phage contigs per tool is shown in blue bars on the left.  
- Black, vertical bars visualize the number of contigs that each tool or tool combination has uniquely identified.  
- Each tool combination is shown below the vertical barplot as a dot matrix. How to read the diagram: For example, 53 phage contigs are found by six tools (DeepVirFinder, Metaphinder-own-DB, Metaphinder, PPRmeta, Seeker and VirFinder).  
- Another 42 contigs are found by these tools but also virnet.
+The total amount of identified phage contigs per tool is shown in blue bars on the left.  
+Black, vertical bars visualize the number of contigs that each tool or tool combination has uniquely identified.  
+Each tool combination is shown below the vertical barplot as a dot matrix. How to read the diagram: For example, 53 phage contigs are found by six tools (DeepVirFinder, Metaphinder-own-DB, Metaphinder, PPRmeta, Seeker and VirFinder).  
+Another 42 contigs are found by these tools but also virnet.
 
 </div>
 
