@@ -1,0 +1,44 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+ - family-names: "Marquet"
+   given-names: "Mike"
+ - family-names: "Hölzer"
+   given-names: "Martin"
+ - family-names: "Pletz"
+   given-names: "Mathias W."
+ - family-names: "Viehweger"
+   given-names: "Adrian"
+ - family-names: "Makarewicz"
+   given-names: "Oliwia"
+ - family-names: "Ehricht"
+   given-names: "Ralf"
+ - family-names: "Brandt"
+   given-names: "Christian"
+title: "What the Phage: a scalable workflow for the identification and analysis of phage sequences"
+version: v1.2.0
+date-released: 2022-11-18
+url: "https://github.com/replikation/What_the_Phage"
+preferred-citation:
+  type: article
+  authors:
+ - family-names: "Marquet"
+   given-names: "Mike"
+ - family-names: "Hölzer"
+   given-names: "Martin"
+ - family-names: "Pletz"
+   given-names: "Mathias W."
+ - family-names: "Viehweger"
+   given-names: "Adrian"
+ - family-names: "Makarewicz"
+   given-names: "Oliwia"
+ - family-names: "Ehricht"
+   given-names: "Ralf"
+ - family-names: "Brandt"
+   given-names: "Christian"
+  doi: "10.1093/gigascience/giac110"
+  journal: "Gigascience"
+  month: 11
+  title: "What the Phage: a scalable workflow for the identification and analysis of phage sequences"
+  year: 2022
+  issn: 2047-217X
