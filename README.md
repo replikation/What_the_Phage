@@ -8,7 +8,7 @@
 ![](https://img.shields.io/badge/uses-docker-blue.svg)
 ![](https://img.shields.io/badge/uses-singularity-yellow.svg)
 
-[![Generic badge](https://img.shields.io/badge/Preprint-bioRxiv-red.svg)](https://www.biorxiv.org/content/10.1101/2020.07.24.219899v2)
+[![Generic badge](https://img.shields.io/badge/Publication-blueviolet.svg)](https://academic.oup.com/gigascience/article/doi/10.1093/gigascience/giac110/6833029)
 [![Generic badge](https://img.shields.io/badge/Documentation-available-purple.svg)](https://mult1fractal.github.io/wtp-documentation/)
 
 [![Twitter Follow](https://img.shields.io/twitter/follow/gcloudChris.svg?style=social)](https://twitter.com/gcloudChris) 
