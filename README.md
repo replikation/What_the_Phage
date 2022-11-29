@@ -22,13 +22,13 @@
   * These are extensively tested release versions of WtP
   * [releases of WtP are listed here](https://github.com/replikation/What_the_Phage/releases)  
 
-## Preprint:
+## Publication:
 
 > **What the Phage: A scalable workflow for the identification and analysis of phage sequences**
 >
 > M. Marquet, M. Hölzer, M. W. Pletz, A. Viehweger, O. Makarewicz, R. Ehricht, C. Brandt
 >
-> doi: https://doi.org/10.1101/2020.07.24.219899
+> doi: https://doi.org/10.1093/gigascience/giac110
 
 # What is this repo
 
