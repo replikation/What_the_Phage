@@ -8,7 +8,7 @@
 ![](https://img.shields.io/badge/uses-docker-blue.svg)
 ![](https://img.shields.io/badge/uses-singularity-yellow.svg)
 
-[![Generic badge](https://img.shields.io/badge/Preprint-bioRxiv-red.svg)](https://www.biorxiv.org/content/10.1101/2020.07.24.219899v2)
+[![Generic badge](https://img.shields.io/badge/Publication-Gigascience-blueviolet.svg)](https://academic.oup.com/gigascience/article/doi/10.1093/gigascience/giac110/6833029)
 [![Generic badge](https://img.shields.io/badge/Documentation-available-purple.svg)](https://mult1fractal.github.io/wtp-documentation/)
 
 [![Twitter Follow](https://img.shields.io/twitter/follow/gcloudChris.svg?style=social)](https://twitter.com/gcloudChris) 
@@ -22,13 +22,13 @@
   * These are extensively tested release versions of WtP
   * [releases of WtP are listed here](https://github.com/replikation/What_the_Phage/releases)  
 
-## Preprint:
+## Publication:
 
 > **What the Phage: A scalable workflow for the identification and analysis of phage sequences**
 >
 > M. Marquet, M. Hölzer, M. W. Pletz, A. Viehweger, O. Makarewicz, R. Ehricht, C. Brandt
 >
-> doi: https://doi.org/10.1101/2020.07.24.219899
+> doi: https://doi.org/10.1093/gigascience/giac110
 
 # What is this repo
 

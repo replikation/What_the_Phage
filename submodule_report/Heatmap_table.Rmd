@@ -94,8 +94,8 @@ div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 # Open your Linux-Terminal     
 mkdir contigs_of_interest 
 cd  contigs_of_interest  
-# Copy the downloaded Phage prediction by contig table to the contig_IDs_of_interest -folder  
-# Copy the input_fasta to the contig_IDs_of_interest -folder  
+# Copy the downloaded Phage prediction by contig table to the contigs_of_interest -folder  
+# Copy the input_fasta to the contigs_of_interest -folder  
 cp WtP_results/your_sample/Input_fasta/your_input_fasta.fa.gz /foo/bar/contigs_of_interest  
 # Get contig IDs of interest  
 tail -n+2 final_report.utf8.csv | tr -d '"' | cut -f2 -d"," > contig_IDs_of_interest.txt  
