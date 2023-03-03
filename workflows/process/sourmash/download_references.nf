@@ -18,8 +18,7 @@ process download_references {
         wget --no-check-certificate https://osf.io/6ukfx/download -O references.tar.gz
         tar -xvzf references.tar.gz
         mv references/*.fa .
-        rm -r references
-        references.tar.gz
+        rm -r references.tar.gz
         """
     stub:
         """

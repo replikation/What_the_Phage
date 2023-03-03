@@ -66,7 +66,7 @@ The tool's output and what WtP assigns are shown in the table below.
   
 Tool            | Standard output                     | WtP displayed value | F1 scores by Ho et al.
 |-|-|-|-|
-|deepvirfinder  | p-value: 0 to 1                      | 0 to 1      | >0.83
+|deepvirfinder  | score: 0 to 1                        | 0 to 1      | >0.83
 |metaphinder    | string: phage                        | 1           | >0.83
 |metaphinder own| string: phage                        | 1           | N/A
 |phigaro        | score: 0 to 1                        | 0 to 1      | N/A
@@ -75,7 +75,7 @@ Tool            | Standard output                     | WtP displayed value | F1
 |sourmash       | similarity: 0 to 1                   | 0 to 1      | N/A
 |vibrant        | prediction: virus                    | 1           | >0.83
 |vibrant-virome | prediction: virus                    | 1           | N/A
-|virfinder      | p-value: 0 to 1                      | 0 to 1      | >0.83
+|virfinder      | score: 0 to 1                        | 0 to 1      | >0.83
 |virnet         | score: 0 to 1                        | 0 to 1      | N/A
 |virsorter      | category 1, category 2, category 3   | 1, 0.5, 0   | >0.83
 |virsorter-virome|category 1, category 2, category 3   | 1, 0.5, 0   | N/A
