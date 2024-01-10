@@ -6,13 +6,8 @@ include { ppr_download_dependencies } from './process/pprmeta/ppr_download_depen
 workflow pprmeta_wf {
     take:   fasta
     main:   if (!params.pp) { 
-                if (!params.cloudProcess) { ppr_download_dependencies(); db = ppr_download_dependencies.out }
+                ppr_download_dependencies()
                 // cloud storage via db_preload.exists()
-                if (params.cloudProcess) {
-                db_preload = file("${params.databases}/pprmeta/PPR-Meta", type: 'dir')
-                if (db_preload.exists()) { db = db_preload }
-                else  { ppr_download_dependencies(); db = ppr_download_dependencies.out } 
-                }
                 
                 filter_PPRmeta(pprmeta(fasta, ppr_download_dependencies.out).groupTuple(remainder: true))
                 // raw data collector
