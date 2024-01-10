@@ -8,13 +8,9 @@ workflow checkV_wf {
     main:   
             fasta = fasta_and_tool_results.map {it -> tuple(it[0],it[1])}
             // local storage via storeDir
-            if (!params.cloudProcess) { download_checkV_DB(); db = download_checkV_DB.out }
+            download_checkV_DB()
             // cloud storage via db_preload.exists()
-            if (params.cloudProcess) {
-                db_preload = file("${params.databases}/checkV/checkv-db-v0.6", type: 'dir')
-                if (db_preload.exists()) { db = db_preload }
-                else  { download_checkV_DB(); db = download_checkV_DB.out } 
-            }
+
             // tool prediction
             checkV(fasta, download_checkV_DB.out)
             //checkV_collect = checkV.out.map {it -> tuple(it[0],it[2])}

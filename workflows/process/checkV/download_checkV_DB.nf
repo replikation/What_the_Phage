@@ -1,8 +1,7 @@
 
 process download_checkV_DB {
     label 'noDocker'    
-    if (params.cloudProcess) { publishDir "${params.databases}/checkV", mode: 'copy' }
-    else { storeDir "${params.databases}/checkV" }  
+    storeDir "${params.databases}/checkV"
     output:
         path("checkv-db-v*", type: 'dir')
     script:

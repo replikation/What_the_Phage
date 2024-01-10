@@ -2,8 +2,7 @@ process ppr_download_dependencies {
     errorStrategy 'retry'
     maxRetries 1
     label 'noDocker'
-    if (params.cloudProcess) { publishDir "${params.databases}/pprmeta/", mode: 'copy', pattern: "PPR-Meta" }
-    else { storeDir "${params.databases}/pprmeta/" }    
+    storeDir "${params.databases}/pprmeta/"   
     output:
         path("PPR-Meta", type: 'dir')
     script:

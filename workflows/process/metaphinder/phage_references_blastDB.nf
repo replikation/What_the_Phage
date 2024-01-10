@@ -1,6 +1,5 @@
 process phage_references_blastDB {
-    if (params.cloudProcess) { publishDir "${params.databases}/blast_DB_phage", mode: 'copy', pattern: "blast_database.tar.gz" }
-    else { storeDir "${params.databases}/blast_DB_phage" }
+    storeDir "${params.databases}/blast_DB_phage"
     label 'metaphinder'
     errorStrategy = "retry"
     maxRetries = 2

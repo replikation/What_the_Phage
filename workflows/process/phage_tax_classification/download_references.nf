@@ -2,8 +2,7 @@ process download_references {
     label 'noDocker'
     errorStrategy 'retry'
     maxRetries 1   
-    if (params.cloudProcess) { publishDir "${params.databases}/references/", mode: 'copy', pattern: "phage_references.fa" }
-    else { storeDir "${params.databases}/references/" }    
+    storeDir "${params.databases}/references/"
     output:
         path("phage_references.fa")
     script:

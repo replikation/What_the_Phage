@@ -2,8 +2,7 @@ process virsorter_download_DB {
     errorStrategy 'retry'
     maxRetries 1
     label 'noDocker'    
-    if (params.cloudProcess) { publishDir "${params.databases}/virsorter/", mode: 'copy', pattern: "virsorter-data" }
-    else { storeDir "${params.databases}/virsorter/" }
+    storeDir "${params.databases}/virsorter/"
     output:
         path("virsorter-data", type: 'dir')
     script:

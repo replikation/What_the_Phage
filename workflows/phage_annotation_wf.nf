@@ -14,30 +14,16 @@ workflow phage_annotation_wf {
                                             .view()}
             // map input for prodigal
             fasta = fasta_and_tool_results.map {it -> tuple(it[0],it[1])}
-            //Databases 
-            //Database for hmmscan
-            // local storage via storeDir
-            if (!params.cloudProcess) { pvog_DB(); dbpvog = pvog_DB.out }
-            // cloud storage via db_preload.exists()
-            if (params.cloudProcess) {
-                db_preload = file("${params.databases}/pvogs/", type: 'dir')
-                if (db_preload.exists()) { dbpvog = db_preload }
-                else  { pvog_DB(); dbpvog = pvog_DB.out } 
-            }
-            //Vog table
-            // local storage via storeDir
-            if (!params.cloudProcess) { vogtable_DB(); db = vogtable_DB.out }
-            // cloud storage via db_preload.exists()
-            if (params.cloudProcess) {
-                db_preload = file("${params.databases}/vog_table/VOGTable.txt")
-                if (db_preload.exists()) { db = db_preload }
-                else  { vogtable_DB(); db = vogtable_DB.out } 
-            }
+
+            // Database for hmmscan
+            pvog_DB()
+            vogtable_DB()
+
             //annotation-process
             prodigal(fasta)
-            if (!params.annotation_db) {hmmscan(prodigal.out, dbpvog)}
+            if (!params.annotation_db) {hmmscan(prodigal.out, pvog_DB.out)}
             else {hmmscan(prodigal.out, annotation_custom_db_ch)}         
-            chromomap_parser(fasta.join(hmmscan.out), db)
+            chromomap_parser(fasta.join(hmmscan.out), vogtable_DB.out)
             chromomap(chromomap_parser.out[0].mix(chromomap_parser.out[1]))
 
             annotationtable_markdown_input = chromomap_parser.out.annotationfile_combined_ch

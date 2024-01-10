@@ -8,13 +8,7 @@ workflow virsorter_wf {
     take:   fasta
     main:   if (!params.vs) {
                 // local storage via storeDir
-                if (!params.cloudProcess) { virsorter_download_DB(); db = virsorter_download_DB.out }
-                // cloud storage via db_preload.exists()
-                if (params.cloudProcess) {
-                db_preload = file("${params.databases}/virsorter/virsorter-data", type: 'dir')
-                if (db_preload.exists()) { db = db_preload }
-                else  { virsorter_download_DB(); db = virsorter_download_DB.out } 
-                }
+                virsorter_download_DB()
                 // tool prediction
                 virsorter(fasta, virsorter_download_DB.out)
                 // filtering

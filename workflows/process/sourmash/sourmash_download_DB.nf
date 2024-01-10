@@ -2,8 +2,7 @@ process sourmash_download_DB {
     label 'sourmash' 
     errorStrategy 'retry'
     maxRetries 1
-    if (params.cloudProcess) { publishDir "${params.databases}/sourmash/", mode: 'copy', pattern: "phages.sbt.zip" }
-    else { storeDir "${params.databases}/sourmash/" }
+    storeDir "${params.databases}/sourmash/"
     input:
         path(references)
     output:

@@ -2,8 +2,7 @@ process vibrant_download_DB {
     errorStrategy 'retry'
     maxRetries 1
     label 'vibrant'
-    if (params.cloudProcess) { publishDir "${params.databases}/Vibrant/", mode: 'copy', pattern: "database.tar.gz" }
-    else { storeDir "${params.databases}/Vibrant" }    
+    storeDir "${params.databases}/Vibrant"   
     output:
         path("database.tar.gz")
     script:

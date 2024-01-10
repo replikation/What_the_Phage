@@ -1,7 +1,6 @@
 process virsorter2_download_DB {
     label 'noDocker'    
-    if (params.cloudProcess) { publishDir "${params.databases}/virsorter2-db", mode: 'copy' }
-    else { storeDir "${params.databases}/virsorter2-db" }  
+    storeDir "${params.databases}/virsorter2-db"
     output:
         path('db', type: 'dir')
     script:

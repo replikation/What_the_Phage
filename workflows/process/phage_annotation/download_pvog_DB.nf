@@ -2,8 +2,7 @@ process pvog_DB {
     label 'noDocker'
     errorStrategy 'retry'
     maxRetries 1    
-    if (params.cloudProcess) { publishDir "${params.databases}/pvogs/", mode: 'copy'}
-    else { storeDir "${params.databases}/pvog" }  
+    storeDir "${params.databases}/pvog"
     output:
         path("pvogs", type: 'dir')
     script:
@@ -32,8 +31,7 @@ process vogtable_DB {
     label 'noDocker' 
     //errorStrategy 'retry'
     //maxRetries 1   
-    if (params.cloudProcess) { publishDir "${params.databases}/vog_table", mode: 'copy'}
-    else { storeDir "${params.databases}/vog_table" }  
+    storeDir "${params.databases}/vog_table" 
     output:
         path("VOGTable.txt")
     script:

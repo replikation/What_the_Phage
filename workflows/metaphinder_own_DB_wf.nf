@@ -8,23 +8,11 @@ workflow metaphinder_own_DB_wf {
     take:   fasta
     main:   if (!params.mp) {
             // download references for blast db build
-            // local storage via storeDir
-            if (!params.cloudProcess) { download_references(); db = download_references.out }
-            // cloud storage via db_preload.exists()
-            if (params.cloudProcess) {
-            db_preload = file("${params.databases}/references/phage_references.fa")
-            if (db_preload.exists()) { db = db_preload }
-            else  { download_references(); db = download_references.out } 
-            }
+            download_references()
+
             // blast db build
-            // local storage via storeDir
-            if (!params.cloudProcess) { phage_references_blastDB(download_references.out); db = phage_references_blastDB.out }
-            // cloud storage via db_preload.exists()
-            if (params.cloudProcess) {
-            db_preload = file("${params.databases}/blast_DB_phage/blast_database.tar.gz", type: 'dir')
-            if (db_preload.exists()) { db = db_preload }
-            else  { phage_references_blastDB(references); db = phage_references_blastDB.out } 
-            }
+            phage_references_blastDB(download_references.out)
+
             // tool prediction
             metaphinder_own_DB(fasta, phage_references_blastDB.out)
             // filtering
