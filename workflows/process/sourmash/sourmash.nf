@@ -9,7 +9,7 @@ process sourmash {
     script:
         """
         for fastafile in ${fasta_dir}/*.fa; do
-          sourmash compute -p ${task.cpus} --scaled 100 -k 21 \${fastafile}
+          sourmash sketch dna -p k=21,scaled=100 \${fastafile}
         done
 
         for signature in *.sig; do
@@ -19,9 +19,9 @@ process sourmash {
         touch ${name}_\${PWD##*/}.list
 
         for tempfile in *.temporary; do
-          value=\$(grep -v "similarity,name,filename,md5" \${tempfile} | wc -l)   # filtering criteria
+          value=\$(grep -v "similarity,md5,filename,name,query_filename,query_name,query_md5,ani" \${tempfile} | wc -l)   # filtering criteria
           filename=\$(basename \${tempfile} .fa.sig.temporary)
-          prediction_value=\$(grep -v "similarity,name,filename,md5" \${tempfile} |sort -r -k1 | awk 'NR == 1' | cut -d "," -f1 )
+          prediction_value=\$(grep -v "similarity,md5,filename,name,query_filename,query_name,query_md5,ani" \${tempfile} |sort -r -k1 | awk 'NR == 1' | cut -d "," -f1 )
       
           if [ \$value -gt 0 ] 
             then echo "\$filename,\$prediction_value" >> ${name}_\${PWD##*/}.list
@@ -30,7 +30,7 @@ process sourmash {
         """
     stub:
         """
-        echo "similarity,name,filename,md5" > ${name}_\${PWD##*/}.list
+        echo "similarity,md5,filename,name,query_filename,query_name,query_md5,ani" > ${name}_\${PWD##*/}.list
         echo "pos_phage_1,1.0" >> ${name}_\${PWD##*/}.list
         """
 }
@@ -38,3 +38,13 @@ process sourmash {
 /*
 filtering criteria is at line 24 (awk part) with a current similiarity of 0.5 or higher to known phages
 */
+
+// for tempfile in *.temporary; do
+//           value=$(grep -v "similarity,name,filename,md5" ${tempfile} | wc -l)   # filtering criteria
+//           filename=$(basename ${tempfile} .fa.sig.temporary)
+//           prediction_value=\$(grep -v "similarity,name,filename,md5" \${tempfile} |sort -r -k1 | awk 'NR == 1' | cut -d "," -f1 )
+      
+//           if [ \$value -gt 0 ] 
+//             then echo "\$filename,\$prediction_value" >> ${name}_\${PWD##*/}.list
+//           fi
+//         done
