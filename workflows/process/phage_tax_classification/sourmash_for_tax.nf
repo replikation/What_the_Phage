@@ -9,6 +9,8 @@ process sourmash_for_tax {
       tuple val(name), path("${name}_tax-class.tsv"), emit: tax_class_ch optional true
     shell:
       """
+      set -euxo pipefail
+      
       for fastafile in ${fasta_dir}/*.fa; do
         sourmash sketch dna -p k=21,scaled=100 \${fastafile}
       done
