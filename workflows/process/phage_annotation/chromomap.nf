@@ -25,6 +25,9 @@ process chromomap {
             legend=T, lg_x = 300,
             left_margin = 340, canvas_width = 1500, canvas_height = sizeh, chr_length = 12, ch_gap = 6)
       htmlwidgets::saveWidget(as_widget(p), "sample_overview_${type}.html")
+
+     
+
       """
 
     else if (task.attempt.toString() == '2')
@@ -79,6 +82,11 @@ process chromomap {
             left_margin = 340, canvas_width = 1400, canvas_height = sizeh, chr_length = 8, ch_gap = 6)
       htmlwidgets::saveWidget(as_widget(p), "sample_overview_${type}.html")
       """
+
+
+  
+      
+//       """
     else if (task.attempt.toString() == '5')
       """
       echo "nothing found" > sample_overview_${type}.html
@@ -89,5 +97,14 @@ process chromomap {
         """
 }
 
+//       """ 
+// #!/bin/bash
+//       for i in sample_overview_${type}.html;
+//       htmlwidgedid=\$(grep "chromoMap html-widget"  sample_overview_small.html | cut -f2 -d'"' | cut -d'-' -f2)
+//       sed -i 's/<div id="htmlwidget-'\$htmlwidgedid'" class="chromoMap html-widget" style="width:960px;height:500px;">/<div id="htmlwidget-'\$htmlwidgedid'" class="chromoMap html-widget" style="width:960px;height:500px;overflow:auto;">/g' file.txt
+//
+// original_line=$(grep "chromoMap html-widget"  sample_overview_large.html)
+// htmlwidgedid=$(grep "chromoMap html-widget"  sample_overview_small.html | cut -f2 -d'"' | cut -d'-' -f2)
+// sed -i 's/<div id="htmlwidget-'$htmlwidgedid'" class="chromoMap html-widget" style="width:960px;height:500px;">/<div id="htmlwidget-'$htmlwidgedid'" class="chromoMap html-widget" style="width:960px;height:500px;overflow:auto;">/g' file.txt
 
 
