@@ -23,6 +23,7 @@ process sourmash {
           filename=\$(basename \${tempfile} .fa.sig.temporary)
           prediction_value=\$(grep -v "similarity,md5,filename,name,query_filename,query_name,query_md5,ani" \${tempfile} |sort -r -k1 | awk 'NR == 1' | cut -d "," -f1 )
       
+	  touch ${name}_\${PWD##*/}.list
           if [ \$value -gt 0 ] 
             then echo "\$filename,\$prediction_value" >> ${name}_\${PWD##*/}.list
           fi

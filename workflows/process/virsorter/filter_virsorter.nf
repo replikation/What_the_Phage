@@ -26,10 +26,14 @@ process filter_virsorter {
                 echo "\$line,0" >> pro_phage_virsorter.tsv
             fi
         done < virsorter_categorized_contigs_*.list
-        grep ">" virsorter_phage.tsv | \\
-        sed -e s/\\>VIRSorter_//g | \\
-        sed -e s/\\-cat_[1-3]//g | \\
-        awk -F, '{print \$1, \$2}' OFS="\\t"  > virsorter_\${PWD##*/}.tsv
-        rm virsorter_phage.tsv
+	if [ -s virsorter_phage.tsv ]; then
+           grep ">" virsorter_phage.tsv | \\
+           sed -e s/\\>VIRSorter_//g | \\
+           sed -e s/\\-cat_[1-3]//g | \\
+           awk -F, '{print \$1, \$2}' OFS="\\t"  > virsorter_\${PWD##*/}.tsv
+           rm virsorter_phage.tsv
+	else
+	 touch virsorter_\${PWD##*/}.tsv
+	fi
         """
 }

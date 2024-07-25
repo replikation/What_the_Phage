@@ -27,10 +27,14 @@ process filter_virsorter_virome {
             fi
         done < virsorter_categorized_contigs_*.list
 
-        grep ">" virsorter_phage.tsv | \\
-        sed -e s/\\>VIRSorter_//g | \\
-        sed -e s/\\-cat_[1-3]//g | \\
-        awk -F, '{print \$1, \$2}' OFS="\\t" > virsorter-virome_\${PWD##*/}.tsv
-        rm virsorter_phage.tsv
+	if [ -s virsorter_phage.tsv ]; then
+           grep ">" virsorter_phage.tsv | \\
+           sed -e s/\\>VIRSorter_//g | \\
+           sed -e s/\\-cat_[1-3]//g | \\
+           awk -F, '{print \$1, \$2}' OFS="\\t" > virsorter-virome_\${PWD##*/}.tsv
+           rm virsorter_phage.tsv
+	else
+	   touch virsorter-virome_\${PWD##*/}.tsv
+	fi
         """
 }
