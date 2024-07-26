@@ -231,9 +231,9 @@ workflow {
 **************************/
     // run annotation if annotate flag or no flag at all
     if  ( params.fasta && params.annotate && !params.identify && !params.setup || params.fasta && !params.identify && !params.annotate && !params.setup ) {
-    // actual tools    
-        phage_annotation_wf(annotation_channel)
+    // actual tools     
         checkV_wf(annotation_channel)
+        phage_annotation_wf(annotation_channel, checkV_wf.out)
         phage_tax_classification_wf(annotation_channel)
         // markdown report input
         phage_annotation_wf.out

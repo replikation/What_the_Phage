@@ -4,9 +4,12 @@ include { prodigal } from './process/phage_annotation/prodigal'
 include { hmmscan } from './process/phage_annotation/hmmscan'
 include { chromomap_parser } from './process/phage_annotation/chromomap_parser'
 include { chromomap } from './process/phage_annotation/chromomap'
+include { pharokka } from './process/phage_annotation/pharokka'
+include { pharokka_plotter } from './process/phage_annotation/pharokka'
 
 workflow phage_annotation_wf {
     take:   fasta_and_tool_results
+            checkv
     main:
            // Input for custom annotation database
            if (params.annotation_db) { annotation_custom_db_ch = Channel
@@ -27,6 +30,15 @@ workflow phage_annotation_wf {
             chromomap(chromomap_parser.out[0].mix(chromomap_parser.out[1]))
 
             annotationtable_markdown_input = chromomap_parser.out.annotationfile_combined_ch
+
+            //annotation via pharokka
+            pharokka(fasta)
+
+            fasta.view()
+            pharokka.out.pharokka_folder_ch.view()
+            checkv.view()
+
+            pharokka_plotter(fasta,pharokka.out.pharokka_folder_ch,checkv)
 
     emit: annotationtable_markdown_input
 
