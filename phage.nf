@@ -349,6 +349,7 @@ def helpMSG() {
     ${c_yellow}Workflow control:${c_reset}
     --identify          only phage identification, skips analysis
     --annotate          only annotation, skips phage identification
+    --plot_completeness  pharokka (annotation) will plot Phage-contigs with CheckV-completeness > 75.00 (or you provide your cutoff value, e.g. 80.00)
 
     ${c_yellow}Databases, file, container behaviour:${c_reset}
     --databases         specifiy download location of databases 

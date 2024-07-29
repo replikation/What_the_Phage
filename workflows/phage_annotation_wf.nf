@@ -14,7 +14,7 @@ workflow phage_annotation_wf {
            // Input for custom annotation database
            if (params.annotation_db) { annotation_custom_db_ch = Channel
                                             .fromPath( params.annotation_db, checkIfExists: true)
-                                            .view()}
+                                            }
             // map input for prodigal
             fasta = fasta_and_tool_results.map {it -> tuple(it[0],it[1])}
 
@@ -33,10 +33,6 @@ workflow phage_annotation_wf {
 
             //annotation via pharokka
             pharokka(fasta)
-
-            fasta.view()
-            pharokka.out.pharokka_folder_ch.view()
-            checkv.view()
 
             pharokka_plotter(fasta,pharokka.out.pharokka_folder_ch,checkv)
 
