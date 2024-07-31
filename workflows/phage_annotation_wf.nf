@@ -34,7 +34,11 @@ workflow phage_annotation_wf {
             //annotation via pharokka
             pharokka(fasta)
 
-            pharokka_plotter(fasta,pharokka.out.pharokka_folder_ch,checkv)
+            plot_in= fasta
+                .join( pharokka.out)
+                .join( checkv)
+            plot_in.view()
+            pharokka_plotter(plot_in)
 
     emit: annotationtable_markdown_input
 
