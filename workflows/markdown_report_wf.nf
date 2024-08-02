@@ -24,7 +24,7 @@ workflow markdown_report_wf {
         // 0 load reports
             // toolreports/subtabs
             logo_channel=Channel.fromPath(workflow.projectDir + "/figures/logo-wtp_small.png", checkIfExists: true)
-            logo_channel.view()
+            //logo_channel.view()
 
             // STD WORKFLOW AND --IDENTIFY
             if (params.fasta && !params.identify && !params.annotate && !params.setup  || params.fasta && params.identify && !params.annotate && !params.setup ) { 
@@ -96,7 +96,7 @@ workflow markdown_report_wf {
             }
 
         // 3 sumarize sample reports
-            summary(sample_report.out.flatten().collect(), report, logo_channel).view()
+            summary(sample_report.out.flatten().collect(), report, logo_channel)
 
     emit:  report
 }

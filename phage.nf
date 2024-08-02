@@ -231,9 +231,9 @@ workflow {
 **************************/
     // run annotation if annotate flag or no flag at all
     if  ( params.fasta && params.annotate && !params.identify && !params.setup || params.fasta && !params.identify && !params.annotate && !params.setup ) {
-    // actual tools    
-        phage_annotation_wf(annotation_channel)
+    // actual tools     
         checkV_wf(annotation_channel)
+        phage_annotation_wf(annotation_channel, checkV_wf.out)
         phage_tax_classification_wf(annotation_channel)
         // markdown report input
         phage_annotation_wf.out
@@ -349,6 +349,7 @@ def helpMSG() {
     ${c_yellow}Workflow control:${c_reset}
     --identify          only phage identification, skips analysis
     --annotate          only annotation, skips phage identification
+    --plot_completeness  pharokka (annotation) will plot Phage-contigs with CheckV-completeness > 75.00 (or you provide your cutoff value, e.g. 80.00)
 
     ${c_yellow}Databases, file, container behaviour:${c_reset}
     --databases         specifiy download location of databases 
