@@ -8,7 +8,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Help_test
-      run: curl -s https://get.nextflow.io | bash && NXF_VER=24.11.0 ./nextflow info && ./nextflow run phage.nf --help
+      run: curl -s https://get.nextflow.io | bash && NXF_VER=24.11.0-edge ./nextflow info && ./nextflow run phage.nf --help
     - name: fasta dry run whole wf
       run: |
           ./nextflow run phage.nf --fasta ./test-data/stub_genome.fasta -stub -profile stub --cores 2 --max_cores 2
