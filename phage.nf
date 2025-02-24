@@ -341,6 +341,9 @@ def helpMSG() {
     --vs2               deactivates virsorter2
     --sk                deactivates seeker
 
+    Activate Pharokka Plot
+    --pharokka
+
     ${c_purple}Custom phage annotation Database:${c_reset}
     --annotation_db     /path/to/your/custom_phage_annotation_db.tar.gz
                         Please provide a custom_phage_annotation_db.tar.gz archive that contains the following file formats:

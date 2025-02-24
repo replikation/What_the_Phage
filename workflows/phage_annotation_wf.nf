@@ -32,13 +32,15 @@ workflow phage_annotation_wf {
             annotationtable_markdown_input = chromomap_parser.out.annotationfile_combined_ch
 
             //annotation via pharokka
-            pharokka(fasta)
-
-            plot_in= fasta
-                .join( pharokka.out)
-                .join( checkv)
+            if (params.pharokka) {pharokka(fasta) 
+                                    plot_in= fasta
+                                        .join( pharokka.out)
+                                        .join( checkv) 
+                                    pharokka_plotter(plot_in)
+                                 }
             
-            pharokka_plotter(plot_in)
+
+            
 
     emit: annotationtable_markdown_input
 

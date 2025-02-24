@@ -1,9 +1,9 @@
 process chromomap_parser {
     publishDir "${params.output}/${name}/annotation_results", mode: 'copy'
     label 'noDocker'
+    errorStrategy 'ignore'
     input:
         tuple val(name), path(contigs), path(hmmscan_results), path(prodigal_out)
-
         path(vogtable)
     output: 
         tuple val(name), val("small"), path("small/chromosomefile.tbl"), path("small/annotationfile.tbl") optional true
