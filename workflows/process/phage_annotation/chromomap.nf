@@ -26,15 +26,3 @@ process chromomap {
         touch sample_overview_${type}.html
         """
 }
-
-//       """ 
-// #!/bin/bash
-//       for i in sample_overview_${type}.html;
-//       htmlwidgedid=\$(grep "chromoMap html-widget"  sample_overview_small.html | cut -f2 -d'"' | cut -d'-' -f2)
-//       sed -i 's/<div id="htmlwidget-'\$htmlwidgedid'" class="chromoMap html-widget" style="width:960px;height:500px;">/<div id="htmlwidget-'\$htmlwidgedid'" class="chromoMap html-widget" style="width:960px;height:500px;overflow:auto;">/g' file.txt
-//
-// original_line=$(grep "chromoMap html-widget"  sample_overview_large.html)
-// htmlwidgedid=$(grep "chromoMap html-widget"  sample_overview_small.html | cut -f2 -d'"' | cut -d'-' -f2)
-// sed -i 's/<div id="htmlwidget-'$htmlwidgedid'" class="chromoMap html-widget" style="width:960px;height:500px;">/<div id="htmlwidget-'$htmlwidgedid'" class="chromoMap html-widget" style="width:960px;height:500px;overflow:auto;">/g' file.txt
-
-
