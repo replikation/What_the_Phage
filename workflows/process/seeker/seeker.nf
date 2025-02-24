@@ -14,5 +14,6 @@ process seeker {
         """
         echo "name	prediction	score" > ${name}_\${PWD##*/}.list
         echo "pos_phage_0	Phage	0.82" >> ${name}_\${PWD##*/}.list
+        
         """
 }
