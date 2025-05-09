@@ -1,10 +1,11 @@
-process sourmash_for_tax {
+process sourmash_tax {
       publishDir "${params.output}/${name}/taxonomic-classification", mode: 'copy', pattern: "${name}_tax-class.tsv"
       label 'sourmash'
     //  errorStrategy 'ignore'
     input:
       tuple val(name), path(fasta_dir) 
       file(database)
+      file(metadata)
     output:
       tuple val(name), path("${name}_tax-class.tsv"), emit: tax_class_ch optional true
     shell:
@@ -51,11 +52,85 @@ process sourmash_for_tax {
       done
       sed -i 1i"contig\tprediction_value\tpredicted_organism_name" ${name}_tax-class.tsv
       """
+
     stub:
         """
         touch ${name}_tax-class.tsv
         """
 }
+
+
+
+ touch name_tax-class.tsv
+
+ for taxfile in *.temporary; do
+        phagename=$(if [ $(wc -l <$taxfile) == 0 ]
+                     then
+                      echo "no match found"
+                     else 
+                      grep -v "similarity,md5,filename,name,query_filename,query_name,query_md5,ani" $taxfile \
+                    | sort -nrk1,1 | head -1 | cut -d"," -f4
+                    fi )
+
+        
+        similarity=$(if [ $(wc -l <$classfile) == 0 ]
+                      then
+                        echo "0"
+                      else          
+                        grep -v "similarity,md5,filename,name,query_filename,query_name,query_md5,ani" $classfile \
+                        | sort -nrk1,1 | head -1 \
+                        | tr -d '"' \
+                        | tr "|" "," \
+                        | tr -s _ \
+                        | awk -F "\\"*,\\"*" '{print \$1}' \
+                        | awk '{printf "%.2f\\n",\$1}' 
+                      fi )
+        
+        filename=$(basename ${classfile} .fa.sig.temporary)
+                
+                
+        echo "$filename\t$similarity\t${phagename}\t$metadata" >> name_tax-class.tsv
+      done
+      sed -i 1i"contig\tprediction_value\tpredicted_organism_name\tPhage_ID\tLength\tGC_content\tTaxonomy\tCompleteness\tHost\tLifestyle\tCluster" name_tax-class.tsv
+      
+        ## get metadata
+        metadata=$(	while read LINE; do
+ 				grep  "${phagename}" $LINE
+			done < refseq_phage_meta_data.tsv
+
+      	grep  "${phagename}" $LINE
+                   )
+Phage_ID	Length	GC_content	Taxonomy	Completeness	Host	Lifestyle	Cluster	Subcluster
+
+NC_052655.1	147009	37.51062860097001	Caudovirales	High-quality	Escherichia coli str. K-12 substr. MG1655	virulent	cluster_22505	subcluster_28196
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*
 filtering criteria is at line 24 (awk part) with a current similiarity of 0.5 or higher to known phages

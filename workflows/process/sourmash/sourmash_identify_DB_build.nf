@@ -1,8 +1,8 @@
-process sourmash_download_DB {
+process sourmash_identify_DB_build {
     label 'sourmash' 
     errorStrategy 'retry'
     maxRetries 1
-    storeDir "${params.databases}/sourmash/"
+    storeDir "${params.databases}/sourmash_identify/"
     input:
         path(references)
     output:
@@ -10,7 +10,7 @@ process sourmash_download_DB {
     script:
         if (task.attempt.toString() == '1')
         """
-        sourmash compute --scaled 100 -k 21 --singleton --seed 42 -p 8 -o phages.sig ${references}
+        sourmash sketch dna -p scaled=100,k=21,seed=42,abund ${references} --name-from-first --singleton
         sourmash index phages.sbt.zip phages.sig
         """
 

@@ -2,7 +2,7 @@ include { setup_container } from './process/setup/setup_container'
 include { download_references } from './process/sourmash/download_references' // phage references
 include { phage_references_blastDB } from './process/metaphinder_own_DB/phage_references_blastDB' // methaphinder own db
 include { ppr_download_dependencies } from './process/pprmeta/ppr_download_dependencies' 
-include { sourmash_download_DB } from './process/sourmash/sourmash_download_DB'
+include { sourmash_identify_DB_build } from './process/sourmash/sourmash_identify_DB_build'
 include { vibrant_download_DB } from './process/vibrant/vibrant_download_DB'
 include { virsorter_download_DB } from './process/virsorter/virsorter_download_DB'
 include { virsorter2_download_DB } from './process/virsorter2/virsorter2_download_DB'
@@ -29,7 +29,7 @@ workflow setup_wf {
             download_references() // phage_references()
             ref_phages_DB = phage_references_blastDB (download_references.out)
             ppr_deps = ppr_download_dependencies()
-            sourmash_DB = sourmash_download_DB (download_references.out)
+            sourmash_DB = sourmash_identify_DB_build (download_references.out)
             vibrant_DB = vibrant_download_DB()
             virsorter_DB = virsorter_download_DB()
             virsorter2_DB = virsorter2_download_DB()

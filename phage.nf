@@ -134,7 +134,7 @@ include { vibrant_virome_wf } from './workflows/vibrant_virome_wf'
 include { virsorter_wf } from './workflows/virsorter_wf'
 include { virsorter_virome_wf } from './workflows/virsorter_virome_wf'
 include { virsorter2_wf } from './workflows/virsorter2_wf'
-include { sourmash_wf } from './workflows/sourmash_wf'
+include { sourmash_identify_wf } from './workflows/sourmash_identify_wf'
 include { prepare_results_wf } from './workflows/prepare_results_wf'
 include { phage_annotation_wf } from './workflows/phage_annotation_wf'
 include { checkV_wf } from './workflows/checkV_wf'
@@ -215,7 +215,7 @@ workflow {
                 .concat( virsorter_wf(prediction_channel))
                 .concat( virsorter_virome_wf(prediction_channel))
                 .concat( virsorter2_wf(prediction_channel))
-                .concat( sourmash_wf(prediction_channel))
+                .concat( sourmash_identify_wf(prediction_channel))
                 .filter { it != 'deactivated' } // removes deactivated tool channels
                 .groupTuple()
 
