@@ -73,25 +73,27 @@ process sourmash_tax {
                     fi )
 
         
-        similarity=$(if [ $(wc -l <$classfile) == 0 ]
+        similarity=$(if [ $(wc -l <$taxfile) == 0 ]
                       then
                         echo "0"
                       else          
-                        grep -v "similarity,md5,filename,name,query_filename,query_name,query_md5,ani" $classfile \
+                        grep -v "similarity,md5,filename,name,query_filename,query_name,query_md5,ani" $taxfile \
                         | sort -nrk1,1 | head -1 \
                         | tr -d '"' \
                         | tr "|" "," \
                         | tr -s _ \
-                        | awk -F "\\"*,\\"*" '{print \$1}' \
-                        | awk '{printf "%.2f\\n",\$1}' 
+                        | awk -F "\"*,\"*" '{print $1}' \
+                        | awk '{printf "%.2f\\n",$1}' 
                       fi )
         
-        filename=$(basename ${classfile} .fa.sig.temporary)
+        filename=$(basename ${taxfile} .fa.sig.temporary)
+
+        #metadata=$(grep "$phagename" refseq_phage_meta_data.tsv )
                 
                 
-        echo "$filename\t$similarity\t${phagename}\t$metadata" >> name_tax-class.tsv
+        echo "$filename    $similarity    ${phagename}    $metadata" >> name_tax-class.tsv
       done
-      sed -i 1i"contig\tprediction_value\tpredicted_organism_name\tPhage_ID\tLength\tGC_content\tTaxonomy\tCompleteness\tHost\tLifestyle\tCluster" name_tax-class.tsv
+      sed -i 1i"contig    prediction_value    predicted_organism_name    Phage_ID    Length    GC_content    Taxonomy    Completeness    Host    Lifestyle    Cluster" name_tax-class.tsv
       
         ## get metadata
         metadata=$(	while read LINE; do
