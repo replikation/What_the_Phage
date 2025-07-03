@@ -10,7 +10,7 @@ process sourmash_tax {
       tuple val(name), path("${name}_tax-class.tsv"), emit: tax_class_ch optional true
     shell:
       """
-      ### set -euxo pipefail
+     ###set -euxo pipefail
       
       for fastafile in ${fasta_dir}/*.fa; do
         sourmash sketch dna -p k=21,scaled=100 \${fastafile}
@@ -22,35 +22,31 @@ process sourmash_tax {
     
       touch ${name}_tax-class.tsv
 
-      for classfile in *.temporary; do
-        phagename=\$(if [ \$(wc -l <\$classfile) == 0 ]
-                     then
+
+      ## phagescope-result-parsing
+      touch all_pos_phage_tax-class.tsv
+
+      for taxfile in *.temporary; do
+
+                      
+        similarity_and_name=\$(if [ \$(wc -l < \$taxfile) == 0 ]
+                    then
                       echo "no match found"
-                     else 
-                      grep -v "similarilsty,md5,filename,name,query_filename,query_name,query_md5,ani" \$classfile \
-                    | sort -nrk1,1 | head -1 \
-                    | grep -o '".*"' \
-                    | tr -d '"'
+                    else 
+                        grep -v "similarity,md5,filename,name,query_filename,query_name,query_md5,ani" \$taxfile | sort -t',' -k1,1r |head -1 |  cut -d"," -f1,4 | tr ',' '\\t'
                     fi )
-        
-        similarity=\$(if [ \$(wc -l <\$classfile) == 0 ]
-                      then
-                        echo "0"
-                      else          
-                        grep -v "similarity,md5,filename,name,query_filename,query_name,query_md5,ani" \$classfile \
-                        | sort -nrk1,1 | head -1 \
-                        | tr -d '"' \
-                        | tr "|" "," \
-                        | tr -s _ \
-                        | awk -F "\\"*,\\"*" '{print \$1}' \
-                        | awk '{printf "%.2f\\n",\$1}' 
-                      fi )
-        
-        filename=\$(basename \${classfile} .fa.sig.temporary)
                 
-        echo "\$filename\t\$similarity\t\${phagename} " >> ${name}_tax-class.tsv
+
+          filename=\$(basename \${taxfile} .fa.sig.temporary)
+          phage_tax_name=\$(echo "\$similarity_and_name" |cut -f2)
+          phagemetadata=\$(grep "\$phage_tax_name" ${metadata} | cut -f4,6,7)
+
+        #printf "%s\\t%s\\t%s\\t%s\\n" "\$filename" "\$similarity_and_name" "\$phagemetadata" >> ${name}_tax-class.tsv
+        echo "\$filename\t\$similarity_and_name\t\$phagemetadata" >> ${name}_tax-class.tsv
       done
-      sed -i 1i"contig\tprediction_value\tpredicted_organism_name" ${name}_tax-class.tsv
+      sed -i 1i"Contig\\tPrediction_value\\tPredicted_accession_number\\tTaxonomy\\tHost_of_Predicted_accession_number\\tLifestyle_of_Predicted_accession_number" ${name}_tax-class.tsv
+
+
       """
 
     stub:
@@ -61,50 +57,45 @@ process sourmash_tax {
 
 
 
- touch name_tax-class.tsv
+//  touch name_tax-class.tsv
 
- for taxfile in *.temporary; do
-        phagename=$(if [ $(wc -l <$taxfile) == 0 ]
-                     then
-                      echo "no match found"
-                     else 
-                      grep -v "similarity,md5,filename,name,query_filename,query_name,query_md5,ani" $taxfile \
-                    | sort -nrk1,1 | head -1 | cut -d"," -f4
-                    fi )
+//  for taxfile in *.temporary; do
+//         phagename=$(if [ $(wc -l <$taxfile) == 0 ]
+//                      then
+//                       echo "no match found"
+//                      else 
+//                       grep -v "similarity,md5,filename,name,query_filename,query_name,query_md5,ani" $taxfile \
+//                     | sort -nrk1,1 | head -1 | cut -d"," -f4
+//                     fi )
 
         
-        similarity=$(if [ $(wc -l <$taxfile) == 0 ]
-                      then
-                        echo "0"
-                      else          
-                        grep -v "similarity,md5,filename,name,query_filename,query_name,query_md5,ani" $taxfile \
-                        | sort -nrk1,1 | head -1 \
-                        | tr -d '"' \
-                        | tr "|" "," \
-                        | tr -s _ \
-                        | awk -F "\"*,\"*" '{print $1}' \
-                        | awk '{printf "%.2f\\n",$1}' 
-                      fi )
+//         similarity=$(if [ $(wc -l <$taxfile) == 0 ]
+//                       then
+//                         echo "0"
+//                       else          
+//                         grep -v "similarity,md5,filename,name,query_filename,query_name,query_md5,ani" $taxfile \
+//                         | sort -nrk1,1 | head -1 \
+//                         | tr -d '"' \
+//                         | tr "|" "," \
+//                         | tr -s _ \
+//                         | awk -F "\"*,\"*" '{print $1}' \
+//                         | awk '{printf "%.2f\\n",$1}' 
+//                       fi )
         
-        filename=$(basename ${taxfile} .fa.sig.temporary)
+//         filename=$(basename ${taxfile} .fa.sig.temporary)
 
-        #metadata=$(grep "$phagename" refseq_phage_meta_data.tsv )
+//         metadata=$(grep "$phagename" refseq_phage_meta_data.tsv )
                 
                 
-        echo "$filename    $similarity    ${phagename}    $metadata" >> name_tax-class.tsv
-      done
-      sed -i 1i"contig    prediction_value    predicted_organism_name    Phage_ID    Length    GC_content    Taxonomy    Completeness    Host    Lifestyle    Cluster" name_tax-class.tsv
+//         echo "$filename    $similarity    ${phagename}    $metadata" >> name_tax-class.tsv
+//       done
+//       sed -i 1i"contig    prediction_value    predicted_organism_name    Phage_ID    Length    GC_content    Taxonomy    Completeness    Host    Lifestyle    Cluster" name_tax-class.tsv
       
-        ## get metadata
-        metadata=$(	while read LINE; do
- 				grep  "${phagename}" $LINE
-			done < refseq_phage_meta_data.tsv
+      
+                   
+// Phage_ID	Length	GC_content	Taxonomy	Completeness	Host	Lifestyle	Cluster	Subcluster
 
-      	grep  "${phagename}" $LINE
-                   )
-Phage_ID	Length	GC_content	Taxonomy	Completeness	Host	Lifestyle	Cluster	Subcluster
-
-NC_052655.1	147009	37.51062860097001	Caudovirales	High-quality	Escherichia coli str. K-12 substr. MG1655	virulent	cluster_22505	subcluster_28196
+// NC_052655.1	147009	37.51062860097001	Caudovirales	High-quality	Escherichia coli str. K-12 substr. MG1655	virulent	cluster_22505	subcluster_28196
 
 
 
@@ -112,6 +103,39 @@ NC_052655.1	147009	37.51062860097001	Caudovirales	High-quality	Escherichia coli 
 
 
 
+
+      // for taxfile in *.temporary; do
+      //   phage_tax_name=\$(if [ \$(wc -l <\$taxfile) == 0 ]
+      //                then
+      //                 echo "no match found"
+      //                else 
+      //                #grep -v "similarilsty,md5,filename,name,query_filename,query_name,query_md5,ani" \$taxfile | sort -nrk1,1 | head -1 | cut -d"," -f4
+      //                 grep -v "similarilsty,md5,filename,name,query_filename,query_name,query_md5,ani" \$taxfile \
+      //               | sort -nrk1,1 | head -1 \
+      //               | grep -o '".*"' \
+      //               | tr -d '"'
+      //               fi )
+        
+      //   similarity=\$(if [ \$(wc -l <\$taxfile) == 0 ]
+      //                 then
+      //                   echo "0"
+      //                 else          
+      //                   grep -v "similarity,md5,filename,name,query_filename,query_name,query_md5,ani" \$taxfile \
+      //                   | sort -nrk1,1 | head -1 \
+      //                   | tr -d '"' \
+      //                   | tr "|" "," \
+      //                   | tr -s _ \
+      //                   | awk -F "\\"*,\\"*" '{print \$1}' \
+      //                   | awk '{printf "%.2f\\n",\$1}' 
+      //                 fi )
+        
+      //   filename=\$(basename \${taxfile} .fa.sig.temporary)
+
+      //   phagemetadata=\$(grep "\$phagename" ${metadata} )
+                
+      //   echo "\$filename\t\$similarity\t\${phagename}\t\$phagemetadata " >> ${name}_tax-class.tsv
+      // done
+      // sed -i 1i"contig    prediction_value    predicted_organism_name    Phage_ID    Length    GC_content    Taxonomy    Completeness    Host    Lifestyle    Cluster" ${name}_tax-class.tsv
 
 
 

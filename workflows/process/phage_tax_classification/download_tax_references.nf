@@ -54,7 +54,7 @@ process download_references_phage_scope {
     storeDir "${params.databases}/phage_scope_tax" 
     output:
         path("*.fasta"), emit: phage_ref_ch
-        path("*_meta_data.tsv"), emit:  phagescope_tax_metadata_ch
+        path("*_metadata*.tsv"), emit:  phagescope_tax_metadata_ch
     script:
         """
         wget --no-check-certificate https://osf.io/ew8jg/download -O phagescope-phage_sequences_part_001.tar.gz
@@ -66,8 +66,8 @@ process download_references_phage_scope {
         tar -xzvf phagescope-phage_sequences_part_003.tar.gz
 
         cat phage_scope_sourmash_*/*.fasta > all_phagescope-phage_sequences.fasta
-        #gzip all_phagescope-phage_sequences.fasta  very slow :\
-        mv phage_scope_sourmash_1/all_phagescope_metadata_*.tsv .
+        # gzip all_phagescope-phage_sequences.fasta  very slow
+        mv  phage_scope_sourmash_1/all_phagescope_metadata_*_V1.tsv .
         
         rm -r phage_scope_sourmash_*
         """

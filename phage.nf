@@ -344,6 +344,10 @@ def helpMSG() {
     Activate Pharokka Plot
     --pharokka
 
+    switch databases for Phage tax classification
+    --ncbi_tax          4700 sequences + metadata
+    --phage_scope_tax   800000 sequences + metadata  curated phagescope-Database
+
     ${c_purple}Custom phage annotation Database:${c_reset}
     --annotation_db     /path/to/your/custom_phage_annotation_db.tar.gz
                         Please provide a custom_phage_annotation_db.tar.gz archive that contains the following file formats:
