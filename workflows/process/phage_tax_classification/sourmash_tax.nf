@@ -50,7 +50,7 @@ process sourmash_tax {
         #printf "%s\\t%s\\t%s\\t%s\\n" "\$filename" "\$similarity_and_name" "\$phagemetadata" >> ${name}_tax-class.tsv
         echo "\$filename\t\$similarity_and_name\t\$phagemetadata" >> ${name}_tax-class.tsv
       done
-      sed -i 1i"Contig\\tPrediction_value\\tPredicted_accession_number\\tTaxonomy\\tHost_of_Predicted_accession_number\\tLifestyle_of_Predicted_accession_number" ${name}_tax-class.tsv
+      sed -i 1i"Contig\\tSimilarity\\tPredicted_accession_number\\tTaxonomy\\tHost_of_Predicted_accession_number\\tLifestyle_of_Predicted_accession_number" ${name}_tax-class.tsv
 
 
       """

@@ -20,7 +20,8 @@ tax_table <- "#RESULTSENV#"
 sample_name <- "#NAMEENV#"
 
 du = read.table(file = tax_table, sep = '\t', header = TRUE)
-du$Prediction_value <- round(du$Prediction_value, 2)
+suppressWarnings(round(as.numeric(du$Prediction_value), 2))
+#du$Prediction_value <- round(du$Prediction_value, 2)
 
 datatable(du, rownames = FALSE, class = 'hover', extensions  = 'Buttons', options = list(
     dom = 'Bfrtip', buttons = c('copy', 'csv', 'excel', 'pdf', 'colvis')))
