@@ -31,7 +31,7 @@ process sourmash_tax {
                       
         similarity_and_name=\$(if [ \$(wc -l < \$taxfile) == 0 ]
                     then
-                      echo "no match found"
+                      echo "0\tno match found"
                     else 
                         grep -v "similarity,md5,filename,name,query_filename,query_name,query_md5,ani" \$taxfile | sort -t',' -k1,1r |head -1 |  cut -d"," -f1,4 | tr ',' '\\t'
                     fi )
@@ -39,7 +39,13 @@ process sourmash_tax {
 
           filename=\$(basename \${taxfile} .fa.sig.temporary)
           phage_tax_name=\$(echo "\$similarity_and_name" |cut -f2)
-          phagemetadata=\$(grep "\$phage_tax_name" ${metadata} | cut -f4,6,7)
+          phagemetadata=\$(if [[ "\$similarity_and_name" == *"no match found" ]]
+                              then
+                                echo "no match found\tno match found\tno match found"
+                              else          
+                                grep "\$phage_tax_name" ${metadata} | cut -f4,6,7
+                              fi )
+          
 
         #printf "%s\\t%s\\t%s\\t%s\\n" "\$filename" "\$similarity_and_name" "\$phagemetadata" >> ${name}_tax-class.tsv
         echo "\$filename\t\$similarity_and_name\t\$phagemetadata" >> ${name}_tax-class.tsv
