@@ -120,28 +120,29 @@ if (!params.setup && !workflow.profile.contains('test') && !workflow.profile.con
 * Workflows to call
 **************************/
 
-include { input_validation_wf } from './workflows/input_validation_wf'
-include { deepvirfinder_wf } from './workflows/deepvirfinder_wf.nf'
-include { phigaro_wf } from './workflows/phigaro_wf'
-include { seeker_wf } from './workflows/seeker_wf'
-include { virfinder_wf } from './workflows/virfinder_wf'
-include { virnet_wf } from './workflows/virnet_wf'
-include { pprmeta_wf } from './workflows/pprmeta_wf'
-include { metaphinder_wf } from './workflows/metaphinder_wf'
-include { metaphinder_own_DB_wf } from './workflows/metaphinder_own_DB_wf'
-include { vibrant_wf } from './workflows/vibrant_wf'
-include { vibrant_virome_wf } from './workflows/vibrant_virome_wf'
-include { virsorter_wf } from './workflows/virsorter_wf'
-include { virsorter_virome_wf } from './workflows/virsorter_virome_wf'
-include { virsorter2_wf } from './workflows/virsorter2_wf'
-include { sourmash_identify_wf } from './workflows/sourmash_identify_wf'
+include { input_validation_wf } from './workflows/input_validation_wf/input_validation_wf'
+include { deepvirfinder_wf } from './workflows/phage_identification_wf/deepvirfinder_wf.nf'
+include { phigaro_wf } from './workflows/phage_identification_wf/phigaro_wf'
+include { seeker_wf } from './workflows/phage_identification_wf/seeker_wf'
+include { virfinder_wf } from './workflows/phage_identification_wf/virfinder_wf'
+include { virnet_wf } from './workflows/phage_identification_wf/virnet_wf'
+include { pprmeta_wf } from './workflows/phage_identification_wf/pprmeta_wf'
+include { metaphinder_wf } from './workflows/phage_identification_wf/metaphinder_wf'
+include { metaphinder_own_DB_wf } from './workflows/phage_identification_wf/metaphinder_own_DB_wf'
+include { vibrant_wf } from './workflows/phage_identification_wf/vibrant_wf'
+include { vibrant_virome_wf } from './workflows/phage_identification_wf/vibrant_virome_wf'
+include { virsorter_wf } from './workflows/phage_identification_wf/virsorter_wf'
+include { virsorter_virome_wf } from './workflows/phage_identification_wf/virsorter_virome_wf'
+include { virsorter2_wf } from './workflows/phage_identification_wf/virsorter2_wf'
+include { sourmash_identify_wf } from './workflows/phage_identification_wf/sourmash_identify_wf'
 include { prepare_results_wf } from './workflows/prepare_results_wf'
-include { phage_annotation_wf } from './workflows/phage_annotation_wf'
-include { checkV_wf } from './workflows/checkV_wf'
+include { phage_annotation_wf } from './workflows/annotation_wf/phage_annotation_wf'
+include { checkV_wf } from './workflows/quality_control_wf/checkV_wf'
 include { phage_tax_classification_wf } from './workflows/phage_tax_classification_wf'
 include { setup_wf } from './workflows/setup_wf'
 include { get_test_data_wf } from './workflows/get_test_data_wf'
 include { markdown_report_wf } from './workflows/markdown_report_wf'
+include { host_lifecycle_wf } from './workflows/host_lifecycle_wf/host_lifecycle_wf'
 
 /************************** 
 * WtP Workflow
@@ -216,6 +217,7 @@ workflow {
                 .concat( virsorter_virome_wf(prediction_channel))
                 .concat( virsorter2_wf(prediction_channel))
                 .concat( sourmash_identify_wf(prediction_channel))
+                .concat( phabox_identify_wf(prediction_channel))
                 .filter { it != 'deactivated' } // removes deactivated tool channels
                 .groupTuple()
 

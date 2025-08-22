@@ -20,11 +20,11 @@ process sourmash_tax {
         sourmash search -k 21 \${signature} phages.sbt.zip -o \${signature}.temporary
       done
     
-      touch ${name}_tax-class.tsv
 
 
       ## phagescope-result-parsing
-      touch all_pos_phage_tax-class.tsv
+      touch ${name}_tax-class.tsv
+
 
       for taxfile in *.temporary; do
 
