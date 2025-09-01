@@ -25,7 +25,7 @@ process phabox2_host_lifecycle {
         """
     stub:
         """
-        touch ${name}_gene_annotation_\${PWD##*/}.tsv
+        touch ${name}_cherry_prediction_\${PWD##*/}.tsv
         """
 }
 

@@ -6,18 +6,18 @@ workflow phabox_wf {
             checkV completenes and likelyhood  threshold
     main:   if (!params.pb) { 
                         
-                        
-                        phabox2_identify(fasta )
+                    phabox2_identify(fasta)
 
-                        
-                        filter_phabox2(metaphinder.out[0].groupTuple(remainder: true))
-                        // raw data collector
-                        // metaphinder_collect_data(metaphinder.out[1].groupTuple(remainder: true))
-                        // result channel
-                        // metaphinder_results = filter_metaphinder.out
-                        }
-            else { phabox2_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-    emit:   metaphinder_results
+
+                    filter_phabox2_identify(phabox2_identify.out.phabox_results_ch)
+                    phabox2_collect_data(phabox2_identify.out.phabox_collect_raw_ch)
+
+                    // result channel
+                    phabox2_identify_results = filter_phabox2_identify.out
+                    }
+
+            else { phabox2_identify_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+    emit:   phabox2_identify_results
 } 
 
 

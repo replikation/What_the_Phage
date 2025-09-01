@@ -5,12 +5,13 @@ process phabox2_identify {
     input:
         tuple val(name), path(fasta)
     output:
-        tuple val(name), path("${name}_phamer_prediction_*.tsv"), emit: checkV_results_ch optional true
+        tuple val(name), path("${name}_phamer_prediction_*.tsv"), emit: phabox_results_ch , optional true
+        tuple val(name), path("${name}_results_identify/"), emit: phabox_collect_raw_ch , optional true
     script:
         """
         phabox2 --task phamer --dbdir /phabox_db_v2_1/ --outpth ${name}_results_identify_\${PWD##*/}/ --contigs ${fasta}
         mv ${name}_results_identify/final_prediction/phamer_prediction.tsv ${name}_results_identify/final_prediction/${name}_phamer_prediction_\${PWD##*/}.tsv
-        mv ${name}_results_identify/final_prediction/${name}_phamer_prediction_\${PWD##*/}.tsv .
+        cp ${name}_results_identify/final_prediction/${name}_phamer_prediction_\${PWD##*/}.tsv .
 
         """
     stub:
