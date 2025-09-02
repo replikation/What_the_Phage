@@ -1,11 +1,11 @@
-include { sourmash_tax } from './process/phage_tax_classification/sourmash_tax'
-include { split_multi_fasta_2 } from './process/phage_tax_classification/split_multi_fasta'
-include { download_references_standard } from './process/phage_tax_classification/download_tax_references'
-include { download_references_NCBI } from './process/phage_tax_classification/download_tax_references'
-include { download_references_phage_scope } from './process/phage_tax_classification/download_tax_references'
-include { sourmash_standard_tax_build } from './process/phage_tax_classification/sourmash_tax_build_DB'
-include { sourmash_NCBI_tax_build } from './process/phage_tax_classification/sourmash_tax_build_DB'
-include { sourmash_phage_scope_tax_build } from './process/phage_tax_classification/sourmash_tax_build_DB'
+include { sourmash_tax } from './process/sourmash_tax'
+include { split_multi_fasta_2 } from './process/split_multi_fasta'
+include { download_references_standard } from './process/download_tax_references'
+include { download_references_NCBI } from './process/download_tax_references'
+include { download_references_phage_scope } from './process/download_tax_references'
+include { sourmash_standard_tax_build } from './process/sourmash_tax_build_DB'
+include { sourmash_NCBI_tax_build } from './process/sourmash_tax_build_DB'
+include { sourmash_phage_scope_tax_build } from './process/sourmash_tax_build_DB'
 
 
 workflow phage_tax_classification_wf {

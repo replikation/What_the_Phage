@@ -1,24 +1,29 @@
 process phabox2_identify {
         publishDir "${params.output}/${name}/phabox2/", mode: 'copy' , pattern: "*.tsv"
-        errorStrategy 'ignore'
+        // errorStrategy 'ignore'
         label 'phabox2'
     input:
         tuple val(name), path(fasta)
     output:
-        tuple val(name), path("${name}_phamer_prediction_*.tsv"), emit: phabox_results_ch , optional true
-        tuple val(name), path("${name}_results_identify/"), emit: phabox_collect_raw_ch , optional true
+        tuple val(name), path("${name}_phamer_prediction_*.tsv"), emit: phabox2_results_ch optional true
+        tuple val(name), path("${name}_results_identify/"), emit: phabox2_collect_raw_ch optional true
     script:
         """
-        phabox2 --task phamer --dbdir /phabox_db_v2_1/ --outpth ${name}_results_identify_\${PWD##*/}/ --contigs ${fasta}
-        mv ${name}_results_identify/final_prediction/phamer_prediction.tsv ${name}_results_identify/final_prediction/${name}_phamer_prediction_\${PWD##*/}.tsv
-        cp ${name}_results_identify/final_prediction/${name}_phamer_prediction_\${PWD##*/}.tsv .
+        phabox2 -h
+        ##phabox2 --task phamer --dbdir /phabox_db_v2_1/ --outpth ${name}_results_identify_\${PWD##*/}/ --contigs ${fasta}
+        ##mv ${name}_results_identify/final_prediction/phamer_prediction.tsv ${name}_results_identify/final_prediction/${name}_phamer_prediction_\${PWD##*/}.tsv
+        ##cp ${name}_results_identify/final_prediction/${name}_phamer_prediction_\${PWD##*/}.tsv .
 
         """
     stub:
         """
         touch ${name}_phamer_prediction_\${PWD##*/}.tsv 
+        mkdir ${name}_results_identify/
         """
 }
+
+
+// nextflow run phage.nf --fasta test-data/all_pos_phage.fasta --all_tools --dv --pp --mp --vb --sm --vf --vn --vs --ph --sk --vs2 --identify -profile local,docker -work-dir /mnt/6tb_1/work/ --output results/testing_phabox_identify -resume
 
 
 // root@bcf3d50100e5:/# cat phabox2_identify/final_prediction/phamer_prediction.tsv 

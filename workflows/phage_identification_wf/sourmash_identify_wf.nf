@@ -3,17 +3,17 @@ include { filter_sourmash } from './process/sourmash/filter_sourmash'
 include { sourmash_collect_data } from './process/sourmash/sourmash_collect_data'
 include { sourmash_identify_DB_build } from './process/sourmash/sourmash_identify_DB_build'
 include { split_multi_fasta } from './process/sourmash/split_multi_fasta'
-include { download_references } from './process/sourmash/download_references'
+include { download_references_NCBI_identify } from './process/sourmash/download_references'
 
 workflow sourmash_identify_wf {
     take:   fasta
     main:   
             if (!params.sm) {
                     // local storage via storeDir
-                    download_references()
+                    download_references_NCBI_identify()
                     
                     // sourmash db build    
-                    sourmash_identify_DB_build(download_references.out) 
+                    sourmash_identify_DB_build(download_references_NCBI_identify.out) 
                     
                     // sourmash prediction
                     filter_sourmash(sourmash(split_multi_fasta(fasta), sourmash_identify_DB_build.out).groupTuple(remainder: true))

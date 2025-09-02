@@ -1,5 +1,5 @@
-include { input_suffix_check } from './process/input_validation/input_suffix_check'
-include { seqkit } from './process/input_validation/seqkit'
+include { input_suffix_check } from './process/input_suffix_check'
+include { seqkit } from './process/seqkit'
 
 workflow input_validation_wf {
     take:   fasta

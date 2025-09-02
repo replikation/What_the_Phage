@@ -1,11 +1,11 @@
-include { pvog_DB; vogtable_DB } from './process/phage_annotation/download_pvog_DB'
+include { pvog_DB; vogtable_DB } from './process/download_pvog_DB'
 //include { vogtable_DB } from './process/phage_annotation/download_pvog_DB'
-include { prodigal } from './process/phage_annotation/prodigal'
-include { hmmscan } from './process/phage_annotation/hmmscan'
-include { chromomap_parser } from './process/phage_annotation/chromomap_parser'
-include { chromomap } from './process/phage_annotation/chromomap'
-include { pharokka } from './process/phage_annotation/pharokka'
-include { pharokka_plotter } from './process/phage_annotation/pharokka'
+include { prodigal } from './process/prodigal'
+include { hmmscan } from './process/hmmscan'
+include { chromomap_parser } from './process/chromomap_parser'
+include { chromomap } from './process/chromomap'
+include { pharokka } from './process/pharokka'
+include { pharokka_plotter } from './process/pharokka'
 
 workflow phage_annotation_wf {
     take:   fasta_and_tool_results

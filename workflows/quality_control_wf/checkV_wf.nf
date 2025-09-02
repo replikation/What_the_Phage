@@ -1,6 +1,6 @@
-include { download_checkV_DB } from './process/checkV/download_checkV_DB'
-include { checkV } from './process/checkV/checkV'
-include { checkV_collect_data } from './process/checkV/checkV_collect_data'
+include { download_checkV_DB } from './process/download_checkV_DB'
+include { checkV } from './process/checkV'
+include { checkV_collect_data } from './process/checkV_collect_data'
 
 
 workflow checkV_wf {

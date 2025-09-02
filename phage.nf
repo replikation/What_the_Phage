@@ -3,7 +3,7 @@ nextflow.enable.dsl=2
 
 /*
 * Nextflow -- What the Phage
-* Author: christian.jena@gmail.com
+* Author: @github: mult1fractal & christian.jena@gmail.com
 */
 
 /* 
@@ -135,14 +135,15 @@ include { virsorter_wf } from './workflows/phage_identification_wf/virsorter_wf'
 include { virsorter_virome_wf } from './workflows/phage_identification_wf/virsorter_virome_wf'
 include { virsorter2_wf } from './workflows/phage_identification_wf/virsorter2_wf'
 include { sourmash_identify_wf } from './workflows/phage_identification_wf/sourmash_identify_wf'
+include { phabox2_identify_wf } from './workflows/phage_identification_wf/phabox2_identify_wf'
 include { prepare_results_wf } from './workflows/prepare_results_wf'
 include { phage_annotation_wf } from './workflows/annotation_wf/phage_annotation_wf'
 include { checkV_wf } from './workflows/quality_control_wf/checkV_wf'
-include { phage_tax_classification_wf } from './workflows/phage_tax_classification_wf'
+include { phage_tax_classification_wf } from './workflows/taxonomic_classification_wf/phage_tax_classification_wf'
 include { setup_wf } from './workflows/setup_wf'
 include { get_test_data_wf } from './workflows/get_test_data_wf'
 include { markdown_report_wf } from './workflows/markdown_report_wf'
-include { host_lifecycle_wf } from './workflows/host_lifecycle_wf/host_lifecycle_wf'
+//include { host_lifecycle_wf } from './workflows/host_lifecycle_wf/host_lifecycle_wf'
 
 /************************** 
 * WtP Workflow
@@ -217,7 +218,7 @@ workflow {
                 .concat( virsorter_virome_wf(prediction_channel))
                 .concat( virsorter2_wf(prediction_channel))
                 .concat( sourmash_identify_wf(prediction_channel))
-                .concat( phabox_identify_wf(prediction_channel))
+                .concat( phabox2_identify_wf(prediction_channel))
                 .filter { it != 'deactivated' } // removes deactivated tool channels
                 .groupTuple()
 
@@ -342,6 +343,7 @@ def helpMSG() {
     --ph                deactivates phigaro
     --vs2               deactivates virsorter2
     --sk                deactivates seeker
+    --pb2               deactivates phabox2_phamer
 
     Activate Pharokka Plot
     --pharokka

@@ -1,4 +1,4 @@
-process download_references {
+process download_references_NCBI_identify {
     label 'noDocker'
     errorStrategy 'retry'
     maxRetries 1   
@@ -8,8 +8,9 @@ process download_references {
     script:
         if (task.attempt.toString() == '1')
         """
-        git clone -b WtP-v0.9 https://github.com/mult1fractal/WtP_phage_reference_db-WtP_v0.9.0.git
-        cat WtP_phage_reference_db-WtP_v0.9.0/fasta-files/*.fa > phage_references.fa
+        wget --no-check-certificate https://osf.io/4t7zh/download -O NCBI-Refseq_phages.tar.gz
+        tar -xzvf NCBI-Refseq_phages.tar.gz
+        mv NCBI-Refseq_phages/*.fa .
         """
 
         else if (task.attempt.toString() == '2')
@@ -24,3 +25,5 @@ process download_references {
         touch phage_references.fa
         """        
 }
+
+
