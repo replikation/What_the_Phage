@@ -4,7 +4,7 @@ process filter_virsorter_virome {
         tuple val(name), path(results), path(dir)
     output:
         tuple val(name), path("virsorter-virome_*.tsv")
-    shell:
+    script:
         """
         while IFS= read -r line; do
             if  [[ "\$line" == *-cat_1 ]]  ; then

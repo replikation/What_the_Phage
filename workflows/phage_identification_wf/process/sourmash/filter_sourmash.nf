@@ -4,7 +4,7 @@ process filter_sourmash {
         tuple val(name), path(results)
     output:
         tuple val(name), path("sourmash_*.tsv")
-    shell:
+    script:
         """
         awk -F, '{print \$1, \$2}' OFS="\\t" *.list  > sourmash_\${PWD##*/}.tsv
         """

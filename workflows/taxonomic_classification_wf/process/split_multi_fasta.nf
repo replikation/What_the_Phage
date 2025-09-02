@@ -4,7 +4,7 @@ process split_multi_fasta_2 {
       tuple val(name), path(fasta) 
     output:
       tuple val(name), path("${name}_contigs/") 
-    shell:
+    script:
       """
       mkdir ${name}_contigs/
 

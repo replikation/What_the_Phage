@@ -4,7 +4,7 @@ process filter_seeker {
         tuple val(name), path(results) 
     output:
         tuple val(name), path("seeker_*.tsv")
-    shell:
+    script:
         """
         tail -n+2 *.list | sort -gr -k3  | awk '{ print \$1, \$3}' OFS='\\t' > seeker_\${PWD##*/}.tsv
         """

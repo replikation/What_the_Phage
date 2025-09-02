@@ -4,7 +4,7 @@ process filter_deepvirfinder {
         tuple val(name), path(results) 
     output:
         tuple val(name), path("deepvirfinder_*.tsv")
-    shell:
+    script:
         """
         tail -n+2 *.list | sort -g  -k4,4  | awk '{ print \$1, \$3 }' OFS='\\t' > deepvirfinder_\${PWD##*/}.tsv
         """
