@@ -15,9 +15,8 @@ process phabox2_identify {
         
         ## phabox2 -h
         phabox2 --task phamer --dbdir /phabox_db_v2_1/ --outpth ${name}_results_identify_\${PWD##*/}/ --contigs ${fasta}
-        mv ${name}_results_identify/final_prediction/phamer_prediction.tsv ${name}_results_identify/final_prediction/${name}_phamer_prediction_\${PWD##*/}.tsv
-        cp ${name}_results_identify/final_prediction/${name}_phamer_prediction_\${PWD##*/}.tsv .
-
+        mv ${name}_results_identify_*/final_prediction/phamer_prediction.tsv .
+        mv phamer_prediction.tsv ${name}_phamer_prediction_\${PWD##*/}.tsv
 
         """
     stub:
