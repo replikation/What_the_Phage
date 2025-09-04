@@ -1,19 +1,22 @@
 process phabox2_annotation {
         publishDir "${params.output}/${name}/annotation/phabox2/", mode: 'copy' , pattern: "*.tsv"
-        errorStrategy 'ignore'
+        // errorStrategy 'ignore'
         label 'phabox2'
     input:
         tuple val(name), path(fasta)
     output:
-        
-        tuple val(name), path("${name}_gene_annotation_*.tsv"), emit: phabox2_annotation, optional true
+        tuple val(name), path("${name}_gene_annotation_*.tsv"), emit: phabox2_annotation_ch optional true
     script:
         """
-        phabox2 --task phavip --dbdir /phabox_db_v2_1/ --outpth ${name}_results_annotation --contigs ${fasta}
+        # activate conda environment
+        source /opt/conda/etc/profile.d/conda.sh
+        conda activate phabox2
 
-        mv ${name}_results_annotation/final_prediction/phavip_supplementary/gene_annotation.tsv ${name}_results_annotation/final_prediction/phavip_supplementary/${name}_gene_annotation_\${PWD##*/}.tsv
-        mv ${name}_results_annotation/final_prediction/phavip_supplementary/${name}_gene_annotation_\${PWD##*/}.tsv .
-        
+        # annotation
+        phabox2 --task phavip --dbdir /phabox_db_v2_1/ --outpth ${name}_results_annotation_\${PWD##*/}/ --contigs ${fasta}
+
+        #mv ${name}_results_annotation_*/final_prediction/phavip_supplementary/gene_annotation.tsv .
+        #mv gene_annotation.tsv ${name}_gene_annotation_\${PWD##*/}.tsv        
 
         """
     stub:

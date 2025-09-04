@@ -1,6 +1,6 @@
 process phabox2_identify {
         publishDir "${params.output}/${name}/phabox2/", mode: 'copy' , pattern: "*.tsv"
-        // errorStrategy 'ignore'
+        errorStrategy 'ignore'
         label 'phabox2'
     input:
         tuple val(name), path(fasta)
