@@ -198,6 +198,8 @@ workflow {
         annotation_channel = input_validation_wf.out.join(results)
     }
     //&& !params.all_tools
+
+    
 /************************** 
 * Prediction via all tools
 **************************/

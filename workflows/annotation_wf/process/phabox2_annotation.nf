@@ -1,57 +1,25 @@
-process phabox2_annotation_plot {
+process phabox2_annotation {
         publishDir "${params.output}/${name}/annotation/phabox2/", mode: 'copy' , pattern: "*.tsv"
         // errorStrategy 'ignore'
         label 'phabox2'
     input:
         tuple val(name), path(fasta)
-        tuple val(name_checkv), path(checkv_results)
     output:
         tuple val(name), path("${name}_gene_annotation_*.tsv"), emit: phabox2_annotation_ch optional true
     script:
         """
-        ## i could plot everything, but only put plots with > 09 completeness into the report
 
-        # 1. get high quality contigs to plot
-        ## split fasta to single contigs needed
-        ## LC_ALL=C allow awk to use float numbers
-        LC_ALL=C awk '{if(\$9>${params.plot_completeness} && \$2>5000)print\$1}' < ${checkv_results} |tail -n+2 > tmp_contigs_to_plot_${name}.tsv
-        
-        
-      
+        # activate conda environment
+        source /opt/conda/etc/profile.d/conda.sh
+        conda activate phabox2
 
+        # annotation
+        phabox2 --task phavip --dbdir /phabox_db_v2_1/ --outpth ${name}_results_annotation_\${PWD##*/}/ --contigs ${fasta}
 
-
-        # 2. split fasta 
-
-        mkdir ${name}_contigs/
-
-        while read line
-            do
-        if [[ \${line:0:1} == '>' ]]
-        then
-            outfile=\${line#>}.fa
-            echo "\${line}" > ${name}_contigs/\${outfile}
-        else
-            echo "\${line}" >> ${name}_contigs/\${outfile}
-        fi
-            done < ${fasta}
+        mv ${name}_results_annotation_*/final_prediction/phavip_supplementary/gene_annotation.tsv .
+        mv gene_annotation.tsv ${name}_gene_annotation_\${PWD##*/}.tsv  
 
 
-        3. get fasta 
-
-        4. run Rscript to plot
-        ## check if tmp file is empty
-        if [ -s tmp_contigs_to_plot_${name}.tsv ]; then
-            # The file is not-empty.
-            ## plot
-            while read LINE; do
-               Plot command
-            done < tmp_contigs_to_plot_${name}.tsv
-
-        else
-            # The file is empty.
-            touch pharokka_plots/nothing_to_plot.txt
-        fi
 
         """
     stub:

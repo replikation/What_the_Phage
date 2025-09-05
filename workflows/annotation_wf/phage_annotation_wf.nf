@@ -7,6 +7,7 @@ include { chromomap } from './process/chromomap'
 include { pharokka } from './process/pharokka'
 include { pharokka_plotter } from './process/pharokka'
 include { phabox2_annotation } from './process/phabox2_annotation'
+include { phabox2_annotation_plot } from './process/phabox2_annotation_plot'
 
 workflow phage_annotation_wf {
     take:   fasta_and_tool_results
@@ -45,7 +46,7 @@ workflow phage_annotation_wf {
             // lol.view()
             // fasta.view()
             phabox2_annotation(fasta)
-            // phabox2_plot_annotation(phabox2_annotation.out, checkv)
+            phabox2_annotation_plot(fasta, phabox2_annotation.out, checkv)
             
 
     emit: annotationtable_markdown_input

@@ -1,28 +1,29 @@
+#!/usr/bin/env Rscript
+
 # phage plasmid plot
 
+
+        #  if (!require("BiocManager", quietly = TRUE))
+        #    install.packages("BiocManager")
+        #  BiocManager::install("ComplexHeatmap")
+
+        # # split fasta into single contig files
+        # if (!requireNamespace("BiocManager", quietly = TRUE))
+        #     install.packages("BiocManager")
+        #  BiocManager::install("Biostrings")
+
+
+# call my librarys
+library("ComplexHeatmap")
 library("circlize")
 library("dplyr")
 library("grid")
 library("gridBase")
 library("ggplot2")
-
-if (!require("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-BiocManager::install("ComplexHeatmap")
-library("ComplexHeatmap")
-
-
-# split fasta into single contig files
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-BiocManager::install("Biostrings")
-
-library(Biostrings)
+library("Biostrings")
 
 
 # 9.2 Customize chromosome track https://jokergoo.github.io/circlize_book/book/initialize-genomic-plot.html#customize-chromosome-track
-
-
 
 # Plot for Phabox 2 annotation output
 # Genome	ORF	Start	End	Strand	GC	Annotation	pident	coverage
@@ -30,27 +31,29 @@ library(Biostrings)
 # pos.phage.0	pos.phage.0_2	624	986	1	0.43	membrane protein	99.2	1
 # pos.phage.0	pos.phage.0_3	1214	1474	1	0.421	hypothetical protein	100	1
 
-fasta_file <- "your_multifasta_file.fasta"
-fasta_sequences <- readDNAStringSet(fasta_file)
 
+# get inputs
+args <- commandArgs(trailingOnly = TRUE)
 
-for (i in seq_along(fasta_sequences)) {
-  seq_name <- names(fasta_sequences)[i]
-  seq_data <- fasta_sequences[i]
-  writeXStringSet(seq_data, filepath = paste0(seq_name, ".fasta"))
-}
-
-sequence_lengths <- width(fasta_sequences)
-length_table <- data.frame(Name = names(fasta_sequences), Length = sequence_lengths)
-print(length_table)
+# Example usage:
+fasta_file <- args[1]
+phabox2_annotation <- args[2]  # annotation file from phabox2
+phage_df <- read.table(phabox2_annotation, sep='\t', header=TRUE)
 
 
 
 # ---------------------------------read phage annotation file from phabox ------------------------------#
 
-df <- read.delim("single_phage_phabox_annotation.tsv", sep = "\t", header = TRUE)
+# df <- read.delim("single_phage_phabox_annotation.tsv", sep = "\t", header = TRUE)
+# phage_df <- df
+# fasta_file <- "pos.phage.0.fasta"
 
-phage_df <- df
+
+# get length of fasta, name of fasta and extract only the corresponding contigs from the bedfile
+fasta_sequence <- readDNAStringSet(fasta_file)
+fasta_lengths <- width(fasta_sequence)
+contig_name <- names(fasta_sequence)
+phage_df <- phage_df[phage_df$Genome %in% contig_name, ]
 
 # ---------------------------------subsample to strand specific and bedfile ------------------------------#
 
@@ -106,9 +109,12 @@ genomic_label_df_all$LabelColor <- type_colors[match(genomic_label_df_all$Type, 
 # ---------------------------------set a contig to plot ------------------------------#
 
 # get contigname (so genomic label is working)
-contig_name <- unique(phage_df[[1]]) # error handling missing for when i have multiple contigs by accident
+# contig_name <- unique(phage_df[[1]]) # error handling missing for when i have multiple contigs by accident
 
 # ---------------------------------Plotting ------------------------------#
+png(paste(contig_name, "_map.png", sep=""))
+
+
 plot.new()
 # create a legend
 circle_size = unit(1, "snpc") # snpc unit gives you a square region
@@ -123,11 +129,13 @@ lgd_points <- Legend(at = c("Structural genes", "Modification genes", "Lysis gen
                      title = "Gene Categories")
 lgd_combined <- packLegend(lgd_points)
 # ---------------------------------circular plot ------------------------------#
+
+
 # initialize Plot
 circos.par(start.degree = 90, cell.padding = c(0.02, 0, 0.02, 0),gap.after = 13)
 circos.initialize(
   factors = contig_name,
-  xlim = c(0, max(phage_df$End))
+  xlim = c(0, fasta_lengths)  ## potential error?
 )
 # Genomic labels  col = as.numeric(factor(phage_df[[10]])), line_col = as.numeric(factor(phage_df[[10]]))
 # cex- size of lable
@@ -196,4 +204,4 @@ upViewport()
 
 draw(lgd_combined, x = unit(4, "mm"), y = unit(4, "mm"), just = c("left", "bottom"))
 
-
+dev.off()

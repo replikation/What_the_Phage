@@ -1,22 +1,51 @@
-process phabox2_annotation {
-        publishDir "${params.output}/${name}/annotation/phabox2/", mode: 'copy' , pattern: "*.tsv"
+process phabox2_annotation_plot {
+        publishDir "${params.output}/${name}/annotation/phabox2/plots", mode: 'copy' , pattern: "*.png"
         // errorStrategy 'ignore'
-        label 'phabox2'
+        label 'r_circlize'
     input:
         tuple val(name), path(fasta)
+        tuple val(name), path(annotation_file)
+        tuple val(name_checkv), path(checkv_results)
     output:
-        tuple val(name), path("${name}_gene_annotation_*.tsv"), emit: phabox2_annotation_ch optional true
+        tuple val(name), path("*.png"), emit: phabox2_plots_ch optional true
     script:
         """
-        # activate conda environment
-        source /opt/conda/etc/profile.d/conda.sh
-        conda activate phabox2
+        ## 1. get high quality contigs to plot
 
-        # annotation
-        phabox2 --task phavip --dbdir /phabox_db_v2_1/ --outpth ${name}_results_annotation_\${PWD##*/}/ --contigs ${fasta}
+        ## split fasta to single contigs needed
+        ## LC_ALL=C allow awk to use float numbers
+        LC_ALL=C awk '{if(\$9>${params.plot_completeness} && \$2>5000)print\$1}' < ${checkv_results} |tail -n+2 > tmp_contigs_to_plot_${name}.tsv
+        
+        
 
-        #mv ${name}_results_annotation_*/final_prediction/phavip_supplementary/gene_annotation.tsv .
-        #mv gene_annotation.tsv ${name}_gene_annotation_\${PWD##*/}.tsv        
+        ## 2. split fasta 
+
+        mkdir contigs_to_plot
+        ## Define input files
+        FASTA="${fasta}"
+        LIST="tmp_contigs_to_plot_${name}.tsv"
+
+        ## Loop through each contig name
+        while read -r contig; do
+
+            contig_name=\$(echo "\$contig")
+
+            # Extract the contig using awk
+            awk -v id="\$contig" '
+                BEGIN {RS=">"; FS="\\n"}
+                \$1 == id {
+                    print ">"\$0
+                }
+            ' "\$FASTA" > "contigs_to_plot/\${contig_name}.fasta"
+        done < "\$LIST"
+
+        ## 3. get fasta 
+
+        for i in contigs_to_plot/*.fasta; do
+            # Rscript phage_cyrclize.R  "\$i" ${annotation_file}
+            R phage_cyrclize.R  "\$i" ${annotation_file}
+        done
+        ls 
 
         """
     stub:
