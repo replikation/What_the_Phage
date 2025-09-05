@@ -1,5 +1,5 @@
 process phabox2_annotation {
-        publishDir "${params.output}/${name}/annotation/phabox2/", mode: 'copy' , pattern: "*.tsv"
+        publishDir "${params.output}/${name}/annotation_results/phabox2/", mode: 'copy' , pattern: "*.tsv"
         // errorStrategy 'ignore'
         label 'phabox2'
     input:

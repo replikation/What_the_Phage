@@ -1,5 +1,5 @@
 process phabox2_annotation_plot {
-        publishDir "${params.output}/${name}/annotation/phabox2/plots", mode: 'copy' , pattern: "*.png"
+        publishDir "${params.output}/${name}/annotation_results/phabox2/plots", mode: 'copy' , pattern: "*.png"
         // errorStrategy 'ignore'
         label 'r_circlize'
     input:
