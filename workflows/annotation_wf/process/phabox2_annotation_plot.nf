@@ -7,7 +7,7 @@ process phabox2_annotation_plot {
         tuple val(name), path(annotation_file)
         tuple val(name_checkv), path(checkv_results)
     output:
-        tuple val(name), path("*.png"), emit: phabox2_plots_ch optional true
+        tuple val(name), path("*.png"), emit: phabox2_plots_ch 
     script:
         """
         ## 1. get high quality contigs to plot
@@ -42,10 +42,9 @@ process phabox2_annotation_plot {
         ## 3. get fasta 
 
         for i in contigs_to_plot/*.fasta; do
-            # Rscript phage_cyrclize.R  "\$i" ${annotation_file}
-            R phage_cyrclize.R  "\$i" ${annotation_file}
+            phage_cyrclize.R  "\$i" ${annotation_file}
+            # R phage_cyrclize.R  "\$i" ${annotation_file}
         done
-        ls 
 
         """
     stub:
