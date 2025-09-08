@@ -28,6 +28,7 @@ workflow markdown_report_wf {
 
             // STD WORKFLOW AND --IDENTIFY
             if (params.fasta && !params.identify && !params.annotate && !params.setup  || params.fasta && params.identify && !params.annotate && !params.setup ) { 
+                checkV_quality_table=Channel.fromPath(workflow.projectDir + "/submodule_report/checkV_quality_table.Rmd", checkIfExists: true)
                 upsetRreport=Channel.fromPath(workflow.projectDir + "/submodule_report/UpsetR.Rmd", checkIfExists: true)
                 heatmap_tablereport=Channel.fromPath(workflow.projectDir + "/submodule_report/Heatmap_table.Rmd", checkIfExists: true)
             }
@@ -47,6 +48,7 @@ workflow markdown_report_wf {
         // für jednen subheader also upset heat toolagree...nen process
             // STD WORKFLOW AND --IDENTIFY
             if (params.fasta && !params.identify && !params.annotate && !params.setup  || params.fasta && params.identify && !params.annotate && !params.setup ) { 
+                checkV_report(checkV_file.combine(checkV_quality_table))
                 upsetr_report(upsetR_file.combine(upsetRreport))
                 heatmap_table_report(heatmap_overview_file.combine(heatmap_tablereport))
             }
@@ -78,6 +80,7 @@ workflow markdown_report_wf {
             // --IDENTIFY
             if (params.fasta && params.identify && !params.annotate && !params.setup ){
                 samplereportinput =     upsetr_report.out
+                                    .mix(checkV_report.out)
                                     .mix(heatmap_table_report.out)
                                     .groupTuple(by: 0)
                                     .map{it -> tuple (it[0],it[1],it[2].flatten())}

@@ -196,10 +196,11 @@ workflow {
         // markdown report input
         // map identify output for input of annotaion tools
         annotation_channel = input_validation_wf.out.join(results)
+        checkV_wf(annotation_channel)
     }
     //&& !params.all_tools
 
-    
+
 /************************** 
 * Prediction via all tools
 **************************/
@@ -229,6 +230,7 @@ workflow {
         // markdown report input
         // map identify output for input of annotaion tools
         annotation_channel = input_validation_wf.out.join(results)
+        checkV_wf(annotation_channel)
     }
 
 /************************** 
@@ -264,8 +266,10 @@ workflow {
        markdown_report_wf(  prepare_results_wf.out.upsetr_plot_markdown_input,
                             prepare_results_wf.out.heatmap_table_markdown_input,
                             dummy_A = Channel.from( [ 'deactivated', 'deactivated']),
+                            checkV_wf.out,
                             dummy_B = Channel.from( [ 'deactivated', 'deactivated']),
-                            dummy_C = Channel.from( [ 'deactivated', 'deactivated']))
+                            // dummy_C = Channel.from( [ 'deactivated', 'deactivated']),
+                            )
     }
     // --ANNOTATE
     // dummy channel simulate the output from --identify
@@ -351,7 +355,7 @@ def helpMSG() {
     --pharokka
 
     switch databases for Phage tax classification
-    --ncbi_tax          4700 sequences + metadata
+    default database    NCBI 4700 sequences + metadata
     --phage_scope_tax   800000 sequences + metadata  curated phagescope-Database
 
     ${c_purple}Custom phage annotation Database:${c_reset}
@@ -362,7 +366,7 @@ def helpMSG() {
     ${c_yellow}Workflow control:${c_reset}
     --identify          only phage identification, skips analysis
     --annotate          only annotation, skips phage identification
-    --plot_completeness  pharokka (annotation) will plot Phage-contigs with CheckV-completeness > 75.00 (or you provide your cutoff value, e.g. 80.00)
+    --plot_completeness will plot Phage-contigs with CheckV-completeness > 75.00 (or you provide your cutoff value, e.g. 80.00)
 
     ${c_yellow}Databases, file, container behaviour:${c_reset}
     --databases         specifiy download location of databases 

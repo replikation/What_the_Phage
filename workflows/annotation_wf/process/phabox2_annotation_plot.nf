@@ -4,7 +4,7 @@ process phabox2_annotation_plot {
         label 'r_circlize'
     input:
         tuple val(name), path(fasta)
-        tuple val(name), path(annotation_file)
+        tuple val(name_annotation), path(annotation_file)
         tuple val(name_checkv), path(checkv_results)
     output:
         tuple val(name), path("*.png"), emit: phabox2_plots_ch 
@@ -49,7 +49,7 @@ process phabox2_annotation_plot {
         """
     stub:
         """
-        touch ${name}_gene_annotation_\${PWD##*/}.tsv
+        touch test.tsv
         """
 }
 
