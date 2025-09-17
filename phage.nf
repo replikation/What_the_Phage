@@ -173,8 +173,11 @@ workflow {
         input_validation_wf(fasta_input_ch)
         // identification Workflow
         identification_wf(input_validation_wf.out)
-        // annotation and Taxonomy workflow
 
+        // quality control via checkV
+        checkV_wf(input_validation_wf.out)
+        // annotation and Taxonomy workflow
+        phage_annotation_taxonomy_wf(input_validation_wf.out, checkV_wf)
         // prophage workflow
         
         // host prediction workflow

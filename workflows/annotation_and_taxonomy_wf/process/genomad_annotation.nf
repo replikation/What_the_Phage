@@ -6,7 +6,8 @@ process genomad_annotation {
         tuple val(name), path(fasta)
         path(database)
     output:
-        tuple val(name), path("*_filtered_genes.tsv"), emit: genomad_annotation_ch optional true
+        tuple val(name), path("*_filtered_genes.tsv"), val("genomad"), emit: genomad_annotation_ch optional true
+        tuple val(name), path("$*_filtered_taxonomy_genomad.tsv"), val("genomad") emit: genomad_taxonomy_ch optional true
     script:
         """
         source /opt/conda/etc/profile.d/conda.sh
@@ -18,7 +19,12 @@ process genomad_annotation {
         # genomad command
         genomad annotate ${fasta} ${name}_genomad_output genomad_db
 
-        rm ${name}_genomad_output/${name}_filtered_annotate/${name}_filtered_taxonomy.tsv
+        mv ${name}_genomad_output/${name}_filtered_annotate/${name}_filtered_genes.tsv .
+        mv ${name}_filtered_genes_genomad.tsv
+
+
+        mv ${name}_genomad_output/${name}_filtered_annotate/${name}_filtered_taxonomy.tsv .
+        mv ${name}_filtered_taxonomy_genomad.tsv
         
         # reduce footprint
         rm -r genomad_db

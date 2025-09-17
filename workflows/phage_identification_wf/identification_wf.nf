@@ -76,299 +76,299 @@ include { hue_heatmap } from './process/prepare_results/hue_heatmap'
 include { contigs_by_tools } from './process/prepare_results/contigs_by_tools'
 
 workflow identification_wf {
-    take:   fasta
-    main:   
-            if (!params.dv) { 
-                        filter_deepvirfinder(deepvirfinder(fasta).groupTuple(remainder: true))
-                        // raw data collector
-                        deepvirfinder_collect_data(deepvirfinder.out.groupTuple(remainder: true))
+        take:   fasta
+        main:   
+                if (!params.dv) { 
+                            filter_deepvirfinder(deepvirfinder(fasta).groupTuple(remainder: true))
+                            // raw data collector
+                            deepvirfinder_collect_data(deepvirfinder.out.groupTuple(remainder: true))
+                            // result channel
+                            deepvirfinder_results = filter_deepvirfinder.out
+                            }
+                else { deepvirfinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+
+                ///////////////////////////////////////////////////////////////
+                /////
+                ///////////////////////////////////////////////////////////////
+
+
+                if (!params.mp) {
+                // download references for blast db build
+                download_references()
+
+                // blast db build
+                phage_references_blastDB(download_references.out)
+
+                // tool prediction
+                metaphinder_own_DB(fasta, phage_references_blastDB.out)
+                // filtering
+                filter_metaphinder_own_DB(metaphinder_own_DB.out[0].groupTuple(remainder: true))
+                // raw data collector
+                metaphinder_collect_data_ownDB(metaphinder_own_DB.out[1].groupTuple(remainder: true))
+                // result channel
+                metaphinder_own_db_results = filter_metaphinder_own_DB.out
+                }
+                else { metaphinder_own_db_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+
+                ///////////////////////////////////////////////////////////////
+                /////
+                ///////////////////////////////////////////////////////////////
+                if (!params.mp) { 
+                            metaphinder(fasta)
+                            // filtering
+                            filter_metaphinder(metaphinder.out[0].groupTuple(remainder: true))
+                            // raw data collector
+                            metaphinder_collect_data(metaphinder.out[1].groupTuple(remainder: true))
+                            // result channel
+                            metaphinder_results = filter_metaphinder.out
+                            }
+                else { metaphinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+
+                ///////////////////////////////////////////////////////////////
+                /////
+                ///////////////////////////////////////////////////////////////
+
+                if (!params.pb2) { 
+                            
+                        phabox2_identify(fasta)
+                        result_filter_input_ch = phabox2_identify.out.phabox2_results_ch
+                        collect_data_ch = phabox2_identify.out.phabox2_collect_raw_ch
+
+                        filter_phabox2_identify(result_filter_input_ch)
+                        phabox2_identify_collect_data(collect_data_ch)
+
                         // result channel
-                        deepvirfinder_results = filter_deepvirfinder.out
+                        phabox2_identify_results = filter_phabox2_identify.out
                         }
-            else { deepvirfinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
 
-            ///////////////////////////////////////////////////////////////
-            /////
-            ///////////////////////////////////////////////////////////////
+                else { phabox2_identify_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
 
+                ///////////////////////////////////////////////////////////////
+                /////
+                ///////////////////////////////////////////////////////////////
 
-            if (!params.mp) {
-            // download references for blast db build
-            download_references()
+                if (!params.ph) { 
+                            phigaro(fasta)
+                            // raw data collector
+                            phigaro_collect_data(phigaro.out[1].groupTuple(remainder: true))
+                            // result channel // [0] emits filtered positive phage sequences (provided by DEV)
+                            phigaro_results = phigaro.out[0]
+                            }
+                else { phigaro_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
 
-            // blast db build
-            phage_references_blastDB(download_references.out)
+                ///////////////////////////////////////////////////////////////
+                /////
+                ///////////////////////////////////////////////////////////////
 
-            // tool prediction
-            metaphinder_own_DB(fasta, phage_references_blastDB.out)
-            // filtering
-            filter_metaphinder_own_DB(metaphinder_own_DB.out[0].groupTuple(remainder: true))
-            // raw data collector
-            metaphinder_collect_data_ownDB(metaphinder_own_DB.out[1].groupTuple(remainder: true))
-            // result channel
-            metaphinder_own_db_results = filter_metaphinder_own_DB.out
-            }
-            else { metaphinder_own_db_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-
-            ///////////////////////////////////////////////////////////////
-            /////
-            ///////////////////////////////////////////////////////////////
-            if (!params.mp) { 
-                        metaphinder(fasta)
-                        // filtering
-                        filter_metaphinder(metaphinder.out[0].groupTuple(remainder: true))
-                        // raw data collector
-                        metaphinder_collect_data(metaphinder.out[1].groupTuple(remainder: true))
-                        // result channel
-                        metaphinder_results = filter_metaphinder.out
-                        }
-            else { metaphinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-
-            ///////////////////////////////////////////////////////////////
-            /////
-            ///////////////////////////////////////////////////////////////
-
-            if (!params.pb2) { 
-                        
-                    phabox2_identify(fasta)
-                    result_filter_input_ch = phabox2_identify.out.phabox2_results_ch
-                    collect_data_ch = phabox2_identify.out.phabox2_collect_raw_ch
-
-                    filter_phabox2_identify(result_filter_input_ch)
-                    phabox2_identify_collect_data(collect_data_ch)
-
+                if (!params.pp) { 
+                    ppr_download_dependencies()
+                    // cloud storage via db_preload.exists()
+                    
+                    filter_PPRmeta(pprmeta(fasta, ppr_download_dependencies.out).groupTuple(remainder: true))
+                    // raw data collector
+                    pprmeta_collect_data(pprmeta.out.groupTuple(remainder: true))
                     // result channel
-                    phabox2_identify_results = filter_phabox2_identify.out
+                    pprmeta_results = filter_PPRmeta.out
                     }
-
-            else { phabox2_identify_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-
-            ///////////////////////////////////////////////////////////////
-            /////
-            ///////////////////////////////////////////////////////////////
-
-            if (!params.ph) { 
-                        phigaro(fasta)
-                        // raw data collector
-                        phigaro_collect_data(phigaro.out[1].groupTuple(remainder: true))
-                        // result channel // [0] emits filtered positive phage sequences (provided by DEV)
-                        phigaro_results = phigaro.out[0]
-                        }
-            else { phigaro_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-
-            ///////////////////////////////////////////////////////////////
-            /////
-            ///////////////////////////////////////////////////////////////
-
-            if (!params.pp) { 
-                ppr_download_dependencies()
-                // cloud storage via db_preload.exists()
+                else { pprmeta_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
                 
-                filter_PPRmeta(pprmeta(fasta, ppr_download_dependencies.out).groupTuple(remainder: true))
-                // raw data collector
-                pprmeta_collect_data(pprmeta.out.groupTuple(remainder: true))
-                // result channel
-                pprmeta_results = filter_PPRmeta.out
-                }
-            else { pprmeta_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-            
-            ///////////////////////////////////////////////////////////////
-            /////
-            ///////////////////////////////////////////////////////////////
+                ///////////////////////////////////////////////////////////////
+                /////
+                ///////////////////////////////////////////////////////////////
 
-            if (!params.sk) {
-                        // run and filter seeker
-                        filter_seeker(seeker(fasta).groupTuple(remainder: true))
+                if (!params.sk) {
+                            // run and filter seeker
+                            filter_seeker(seeker(fasta).groupTuple(remainder: true))
+                            // raw data collector
+                            seeker_collect_data(seeker.out.groupTuple(remainder: true))
+                            // results channel
+                            seeker_results = filter_seeker.out		
+                            }
+                else { seeker_results = Channel.from( ['deactivated', 'deactivated'] ) }
+
+                ///////////////////////////////////////////////////////////////
+                /////
+                ///////////////////////////////////////////////////////////////
+
+                if (!params.sm) {
+                        // local storage via storeDir
+                        download_references_NCBI_identify()
+                        
+                        // sourmash db build    
+                        sourmash_identify_DB_build(download_references_NCBI_identify.out) 
+                        
+                        // sourmash prediction
+                        filter_sourmash(sourmash(split_multi_fasta(fasta), sourmash_identify_DB_build.out).groupTuple(remainder: true))
                         // raw data collector
-                        seeker_collect_data(seeker.out.groupTuple(remainder: true))
-                        // results channel
-                        seeker_results = filter_seeker.out		
-                        }
-            else { seeker_results = Channel.from( ['deactivated', 'deactivated'] ) }
-
-            ///////////////////////////////////////////////////////////////
-            /////
-            ///////////////////////////////////////////////////////////////
-
-            if (!params.sm) {
-                    // local storage via storeDir
-                    download_references_NCBI_identify()
-                    
-                    // sourmash db build    
-                    sourmash_identify_DB_build(download_references_NCBI_identify.out) 
-                    
-                    // sourmash prediction
-                    filter_sourmash(sourmash(split_multi_fasta(fasta), sourmash_identify_DB_build.out).groupTuple(remainder: true))
-                    // raw data collector
-                    sourmash_collect_data(sourmash.out.groupTuple(remainder: true))
-                    // result channel
-                    sourmash_identify_results = filter_sourmash.out
-                    }
-            else { sourmash_identify_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-
-            ///////////////////////////////////////////////////////////////
-            /////
-            ///////////////////////////////////////////////////////////////
-
-            if (!params.vb && !params.virome) {
-                    // local storage via storeDir
-                    vibrant_download_DB()
-                    // tool prediction
-                    vibrant_virome(fasta, vibrant_download_DB.out)
-                    // filtering
-                    filter_vibrant_virome(vibrant_virome.out[0].groupTuple(remainder: true))
-                    // raw data collector
-                    vibrant_virome_collect_data(vibrant_virome.out[1].groupTuple(remainder: true))
-                    // result channel
-                    vibrant_virome_results = filter_vibrant_virome.out
-                    }
-            else { vibrant_virome_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-
-            ///////////////////////////////////////////////////////////////
-            /////
-            ///////////////////////////////////////////////////////////////
-
-            if (!params.vb) {
-                    // local storage via storeDir
-                    vibrant_download_DB()
-                    // tool prediction
-                    vibrant(fasta, vibrant_download_DB.out)
-                    // filtering
-                    filter_vibrant(vibrant.out[0].groupTuple(remainder: true))
-                    // raw data collector
-                    vibrant_collect_data(vibrant.out[1].groupTuple(remainder: true))
-                    // result channel
-                    vibrant_results = filter_vibrant.out
-                    }
-            else { vibrant_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-            
-            ///////////////////////////////////////////////////////////////
-            /////
-            ///////////////////////////////////////////////////////////////
-
-            if (!params.vf) { 
-                        filter_virfinder(virfinder(fasta).groupTuple(remainder: true))
-                        // raw data collector
-                        virfinder_collect_data(virfinder.out.groupTuple(remainder: true))
+                        sourmash_collect_data(sourmash.out.groupTuple(remainder: true))
                         // result channel
-                        virfinder_results = filter_virfinder.out
+                        sourmash_identify_results = filter_sourmash.out
                         }
-            else { virfinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+                else { sourmash_identify_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
 
-            ///////////////////////////////////////////////////////////////
-            /////
-            ///////////////////////////////////////////////////////////////
+                ///////////////////////////////////////////////////////////////
+                /////
+                ///////////////////////////////////////////////////////////////
 
-            if (!params.vn) { 
-                        filter_virnet(virnet(normalize_contig_size(fasta)).groupTuple(remainder: true))
+                if (!params.vb && !params.virome) {
+                        // local storage via storeDir
+                        vibrant_download_DB()
+                        // tool prediction
+                        vibrant_virome(fasta, vibrant_download_DB.out)
+                        // filtering
+                        filter_vibrant_virome(vibrant_virome.out[0].groupTuple(remainder: true))
                         // raw data collector
-                        virnet_collect_data(virnet.out.groupTuple(remainder: true))
+                        vibrant_virome_collect_data(vibrant_virome.out[1].groupTuple(remainder: true))
                         // result channel
-                        virnet_results = filter_virnet.out
+                        vibrant_virome_results = filter_vibrant_virome.out
                         }
-            else { virnet_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
-            
-            ///////////////////////////////////////////////////////////////
-            /////
-            ///////////////////////////////////////////////////////////////
+                else { vibrant_virome_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
 
-            if (!params.vs && !params.virome) {
-                // local storage via storeDir
-                virsorter_download_DB()
-                // tool prediction
-                virsorter_virome(fasta, virsorter_download_DB.out)
-                // filtering
-                filter_virsorter_virome(virsorter_virome.out[0].groupTuple(remainder: true))
-                // raw data collector
-                virsorter_virome_collect_data(virsorter_virome.out[1].groupTuple(remainder: true))
-                // result channel
-                virsorter_virome_results = filter_virsorter_virome.out
-                }
-            else { virsorter_virome_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+                ///////////////////////////////////////////////////////////////
+                /////
+                ///////////////////////////////////////////////////////////////
 
-            ///////////////////////////////////////////////////////////////
-            /////
-            ///////////////////////////////////////////////////////////////
+                if (!params.vb) {
+                        // local storage via storeDir
+                        vibrant_download_DB()
+                        // tool prediction
+                        vibrant(fasta, vibrant_download_DB.out)
+                        // filtering
+                        filter_vibrant(vibrant.out[0].groupTuple(remainder: true))
+                        // raw data collector
+                        vibrant_collect_data(vibrant.out[1].groupTuple(remainder: true))
+                        // result channel
+                        vibrant_results = filter_vibrant.out
+                        }
+                else { vibrant_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+                
+                ///////////////////////////////////////////////////////////////
+                /////
+                ///////////////////////////////////////////////////////////////
 
-            if (!params.vs) {
-                // local storage via storeDir
-                virsorter_download_DB()
-                // tool prediction
-                virsorter(fasta, virsorter_download_DB.out)
-                // filtering
-                filter_virsorter(virsorter.out[0].groupTuple(remainder: true))
-                // raw data collector
-                virsorter_collect_data(virsorter.out[1].groupTuple(remainder: true))
-                // result channel
-                virsorter_results = filter_virsorter.out
-                }
-            else { virsorter_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+                if (!params.vf) { 
+                            filter_virfinder(virfinder(fasta).groupTuple(remainder: true))
+                            // raw data collector
+                            virfinder_collect_data(virfinder.out.groupTuple(remainder: true))
+                            // result channel
+                            virfinder_results = filter_virfinder.out
+                            }
+                else { virfinder_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
 
-            ///////////////////////////////////////////////////////////////
-            /////
-            ///////////////////////////////////////////////////////////////
+                ///////////////////////////////////////////////////////////////
+                /////
+                ///////////////////////////////////////////////////////////////
 
-            if (!params.vs2) { 
+                if (!params.vn) { 
+                            filter_virnet(virnet(normalize_contig_size(fasta)).groupTuple(remainder: true))
+                            // raw data collector
+                            virnet_collect_data(virnet.out.groupTuple(remainder: true))
+                            // result channel
+                            virnet_results = filter_virnet.out
+                            }
+                else { virnet_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+                
+                ///////////////////////////////////////////////////////////////
+                /////
+                ///////////////////////////////////////////////////////////////
 
+                if (!params.vs && !params.virome) {
                     // local storage via storeDir
-                    virsorter2_download_DB()
+                    virsorter_download_DB()
                     // tool prediction
-                    virsorter2(fasta, virsorter2_download_DB.out)
+                    virsorter_virome(fasta, virsorter_download_DB.out)
                     // filtering
-                    filter_virsorter2(virsorter2.out[0].groupTuple(remainder: true))
+                    filter_virsorter_virome(virsorter_virome.out[0].groupTuple(remainder: true))
                     // raw data collector
-                    virsorter2_collect_data(virsorter2.out[1].groupTuple(remainder: true))
+                    virsorter_virome_collect_data(virsorter_virome.out[1].groupTuple(remainder: true))
                     // result channel
-                    virsorter2_results = filter_virsorter2.out
+                    virsorter_virome_results = filter_virsorter_virome.out
                     }
-            else { virsorter2_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+                else { virsorter_virome_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+
+                ///////////////////////////////////////////////////////////////
+                /////
+                ///////////////////////////////////////////////////////////////
+
+                if (!params.vs) {
+                    // local storage via storeDir
+                    virsorter_download_DB()
+                    // tool prediction
+                    virsorter(fasta, virsorter_download_DB.out)
+                    // filtering
+                    filter_virsorter(virsorter.out[0].groupTuple(remainder: true))
+                    // raw data collector
+                    virsorter_collect_data(virsorter.out[1].groupTuple(remainder: true))
+                    // result channel
+                    virsorter_results = filter_virsorter.out
+                    }
+                else { virsorter_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+
+                ///////////////////////////////////////////////////////////////
+                /////
+                ///////////////////////////////////////////////////////////////
+
+                if (!params.vs2) { 
+
+                        // local storage via storeDir
+                        virsorter2_download_DB()
+                        // tool prediction
+                        virsorter2(fasta, virsorter2_download_DB.out)
+                        // filtering
+                        filter_virsorter2(virsorter2.out[0].groupTuple(remainder: true))
+                        // raw data collector
+                        virsorter2_collect_data(virsorter2.out[1].groupTuple(remainder: true))
+                        // result channel
+                        virsorter2_results = filter_virsorter2.out
+                        }
+                else { virsorter2_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
 
 
 
-            // collect all tools
-            if (params.fasta  && params.identify && !params.annotate && !params.setup && params.all_tools|| params.fasta && params.all_tools && !params.identify && !params.annotate && !params.setup )  { 
-            results = deepvirfinder_results
-                .concat( phigaro_results )
-                .concat( seeker_results )
-                .concat( virfinder_results )
-                .concat( virnet_results )
-                .concat( pprmeta_results )
-                .concat( metaphinder_results )
-                .concat( metaphinder_own_db_results )
-                .concat( vibrant_results )
-                .concat( vibrant_virome_results )
-                .concat( virsorter_results )
-                .concat( virsorter_virome_results )
-                .concat( virsorter2_results )
-                .concat( sourmash_identify_results )
-                .concat( phabox2_identify_results )
-                .filter { it != 'deactivated' } // removes deactivated tool channels
-                .groupTuple()
-            }
-            // collect benchmarked tools
-            else {
-            results = deepvirfinder_results
-                .concat( seeker_results )
-                .concat( virfinder_results )
-                .concat( pprmeta_results )
-                .concat( metaphinder_results )
-                .concat( vibrant_results )
-                .concat( vibrant_virome_results )
-                .concat( virsorter_results )
-                .concat( virsorter_virome_results )
-                .concat( virsorter2_results )
-                .filter { it != 'deactivated' } // removes deactivated tool channels
-                .groupTuple()
-            }
+                // collect all tools
+                if (params.fasta  && params.identify && !params.annotate && !params.setup && params.all_tools|| params.fasta && params.all_tools && !params.identify && !params.annotate && !params.setup )  { 
+                results = deepvirfinder_results
+                    .concat( phigaro_results )
+                    .concat( seeker_results )
+                    .concat( virfinder_results )
+                    .concat( virnet_results )
+                    .concat( pprmeta_results )
+                    .concat( metaphinder_results )
+                    .concat( metaphinder_own_db_results )
+                    .concat( vibrant_results )
+                    .concat( vibrant_virome_results )
+                    .concat( virsorter_results )
+                    .concat( virsorter_virome_results )
+                    .concat( virsorter2_results )
+                    .concat( sourmash_identify_results )
+                    .concat( phabox2_identify_results )
+                    .filter { it != 'deactivated' } // removes deactivated tool channels
+                    .groupTuple()
+                }
+                // collect benchmarked tools
+                else {
+                results = deepvirfinder_results
+                    .concat( seeker_results )
+                    .concat( virfinder_results )
+                    .concat( pprmeta_results )
+                    .concat( metaphinder_results )
+                    .concat( vibrant_results )
+                    .concat( vibrant_virome_results )
+                    .concat( virsorter_results )
+                    .concat( virsorter_virome_results )
+                    .concat( virsorter2_results )
+                    .filter { it != 'deactivated' } // removes deactivated tool channels
+                    .groupTuple()
+                }
 
-            //plotting overview
-                filter_tool_names(results)
-                upsetr_plot(filter_tool_names.out[0])
-                contigs_by_tools(results)
+                //plotting overview
+                    filter_tool_names(results)
+                    upsetr_plot(filter_tool_names.out[0])
+                    contigs_by_tools(results)
 
-            // markdown report collecter
-                heatmap_table_markdown_input = contigs_by_tools.out.overview_ch//.join(contigs_by_tools.out.tool_agreements_per_contig_ch)
-                upsetr_plot_markdown_input = upsetr_plot.out
+                // markdown report collecter
+                    heatmap_table_markdown_input = contigs_by_tools.out.overview_ch//.join(contigs_by_tools.out.tool_agreements_per_contig_ch)
+                    upsetr_plot_markdown_input = upsetr_plot.out
 
         emit:   heatmap_table_markdown_input
                 upsetr_plot_markdown_input 

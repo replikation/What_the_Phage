@@ -4,9 +4,9 @@ include { checkV_collect_data } from './process/checkV_collect_data'
 
 
 workflow checkV_wf {
-    take:   fasta_and_tool_results 
+    take:   fasta
     main:   
-            fasta = fasta_and_tool_results.map {it -> tuple(it[0],it[1])}
+            // fasta = fasta_and_tool_results.map {it -> tuple(it[0],it[1])}
             // local storage via storeDir
             download_checkV_DB()
             // cloud storage via db_preload.exists()
