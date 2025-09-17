@@ -120,7 +120,11 @@ if (!params.setup && !workflow.profile.contains('test') && !workflow.profile.con
 * Workflows to call
 **************************/
 
+// input validation
 include { input_validation_wf } from './workflows/input_validation_wf/input_validation_wf'
+include { get_test_data_wf } from './workflows/get_test_data_wf'
+include { setup_wf } from './workflows/setup_wf'
+// identification
 include { deepvirfinder_wf } from './workflows/phage_identification_wf/deepvirfinder_wf.nf'
 include { phigaro_wf } from './workflows/phage_identification_wf/phigaro_wf'
 include { seeker_wf } from './workflows/phage_identification_wf/seeker_wf'
@@ -137,11 +141,12 @@ include { virsorter2_wf } from './workflows/phage_identification_wf/virsorter2_w
 include { sourmash_identify_wf } from './workflows/phage_identification_wf/sourmash_identify_wf'
 include { phabox2_identify_wf } from './workflows/phage_identification_wf/phabox2_identify_wf'
 include { prepare_results_wf } from './workflows/prepare_results_wf'
+// annotation & taxonomy
 include { phage_annotation_wf } from './workflows/annotation_wf/phage_annotation_wf'
-include { checkV_wf } from './workflows/quality_control_wf/checkV_wf'
 include { phage_tax_classification_wf } from './workflows/taxonomic_classification_wf/phage_tax_classification_wf'
-include { setup_wf } from './workflows/setup_wf'
-include { get_test_data_wf } from './workflows/get_test_data_wf'
+// quiality
+include { checkV_wf } from './workflows/quality_control_wf/checkV_wf'
+//report
 include { markdown_report_wf } from './workflows/markdown_report_wf'
 //include { host_lifecycle_wf } from './workflows/host_lifecycle_wf/host_lifecycle_wf'
 
@@ -245,7 +250,6 @@ workflow {
         // markdown report input
         phage_annotation_wf.out
     }
-
 
 /************************** 
 * Result Report

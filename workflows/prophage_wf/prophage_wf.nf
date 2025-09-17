@@ -1,22 +1,30 @@
-include { phabox2 } from './process/phabox2/phabox2'
+include { phabox2_prophage } from './process/phabox2/phabox2'
+include { download_genomad_DB } from './process/download_prophage_genomad_DB'
+include { genomad_prophage } from './process/genomad_prophage'
+
 
 // change to prophage
 
-workflow phabox_wf {
+workflow prophage_wf {
     take:   fasta
-            checkV completenes and likelyhood  threshold
-    main:   if (!params.pb) { 
-                        
-                        
-                        phabox2(fasta )
+    main:   
 
-                        }
-                        filter_phabox2(metaphinder.out[0].groupTuple(remainder: true))
-                        // raw data collector
-                        // metaphinder_collect_data(metaphinder.out[1].groupTuple(remainder: true))
-                        // result channel
-                        // metaphinder_results = filter_metaphinder.out
-                        }
-            else { phabox2_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
+
+            // phabox2 prophage-detection 
+            //phabox2_annotation(fasta)
+            //phabox2_annotation_plot(fasta, phabox2_annotation.out, checkv)
+
+            //genomad prophage-detection
+            download_genomad_DB()
+            genomad_prophage(fasta, download_genomad_DB.out)
+
+            //virsorter2_prophage
+            //phigaro(fasta)
+            
+
+                        
+
+
+            
     emit:   metaphinder_results
 } 
