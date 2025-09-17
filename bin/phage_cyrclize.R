@@ -37,7 +37,7 @@ library("Biostrings")
 # get inputs
 args <- commandArgs(trailingOnly = TRUE)
 
-# Example usage:
+# import input files
 fasta_file <- args[1]
 phabox2_annotation <- args[2]  # annotation file from phabox2
 phage_df <- read.table(phabox2_annotation, sep='\t', header=TRUE)
@@ -141,7 +141,7 @@ circos.initialize(
 )
 # Genomic labels  col = as.numeric(factor(phage_df[[10]])), line_col = as.numeric(factor(phage_df[[10]]))
 # cex- size of lable
-circos.genomicLabels(genomic_label_df_all, labels.column = 4, side = "outside", cex = 0.8, ,labels_height = mm_h(5) ,connection_height= 0.1, col = genomic_label_df_all$LabelColor, line_col = genomic_label_df_all$LabelColor )
+circos.genomicLabels(genomic_label_df_all, labels.column = 4, side = "outside", cex = 0.8, labels_height = mm_h(5) ,connection_height= 0.1, col = genomic_label_df_all$LabelColor, line_col = genomic_label_df_all$LabelColor )
 
 # Track for Strand 1
 circos.track(ylim = c(0, 1), panel.fun = function(x, y) {

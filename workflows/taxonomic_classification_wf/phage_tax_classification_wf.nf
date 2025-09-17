@@ -1,12 +1,11 @@
 include { sourmash_tax } from './process/sourmash_tax'
 include { split_multi_fasta_2 } from './process/split_multi_fasta'
-
 include { download_references_NCBI } from './process/download_tax_references'
 include { download_references_phage_scope } from './process/download_tax_references'
-
 include { sourmash_NCBI_tax_build } from './process/sourmash_tax_build_DB'
 include { sourmash_phage_scope_tax_build } from './process/sourmash_tax_build_DB'
-
+include { download_genomad_DB } from './process/download_tax_genomad_DB'
+include { genomad_tax } from './process/genomad_tax'
 
 workflow phage_tax_classification_wf {
     take:   fasta_and_tool_results
@@ -30,6 +29,13 @@ workflow phage_tax_classification_wf {
 
             
             sourmash_tax(split_multi_fasta_2(fasta), sourmash_tax_db_ch, sourmash_tax_metadata_ch).groupTuple(remainder: true)
+
+            //genomad Taxonomic classification
+            download_genomad_DB()
+            genomad_tax(fasta, download_genomad_DB.out)
+
+            report_input_ch=  sourmash_tax.out.join(genomad_tax.out) 
+            report_input_ch.view()
             
     emit:   sourmash_tax.out
 }

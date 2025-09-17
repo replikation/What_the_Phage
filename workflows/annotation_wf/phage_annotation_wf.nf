@@ -8,6 +8,8 @@ include { pharokka } from './process/pharokka'
 include { pharokka_plotter } from './process/pharokka'
 include { phabox2_annotation } from './process/phabox2_annotation'
 include { phabox2_annotation_plot } from './process/phabox2_annotation_plot'
+include { download_genomad_DB } from './process/download_genomad_DB'
+include { genomad_annotation } from './process/genomad_annotation'
 
 workflow phage_annotation_wf {
     take:   fasta_and_tool_results
@@ -24,7 +26,7 @@ workflow phage_annotation_wf {
             pvog_DB()
             vogtable_DB()
 
-            //annotation-process
+            // pvog annotation-process
             prodigal(fasta)
             if (!params.annotation_db) {hmmscan(prodigal.out, pvog_DB.out)}
             else {hmmscan(prodigal.out, annotation_custom_db_ch)}         
@@ -41,12 +43,13 @@ workflow phage_annotation_wf {
                                     pharokka_plotter(plot_in)
                                  }
             
-            // annotation via phabox2
-            // lol= checkv
-            // lol.view()
-            // fasta.view()
+            // phabox2 annotation 
             phabox2_annotation(fasta)
             phabox2_annotation_plot(fasta, phabox2_annotation.out, checkv)
+
+            //genomad annotation
+            download_genomad_DB()
+            genomad_annotation(fasta, download_genomad_DB.out)
             
 
     emit: annotationtable_markdown_input

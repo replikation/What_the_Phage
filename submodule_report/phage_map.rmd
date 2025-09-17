@@ -1,0 +1,26 @@
+### Phages-Map
+
+<div class="alert blue">
+  <strong> Phage Charts </strong>  To generate this image we use Plasflow to separate chromosomic contigs from the genomic DNA. We then take every contig and plot it *via* Circos.  
+  The bakta anotation (see Annotation) is used to annotate the plasmid map. If your plasmid contigs are e.g. split into two parts you will get two separate maps (figures). 
+  We do not!!! stitch plasmid contigs together, so the more fragmented your plasmids are the more figures will be generated. 
+</div>
+
+**Please select the Phage *via* the drop down menu.**
+
+
+<script>
+function showImage#HASHID#(selectedValue) {
+  var images = document.getElementsByClassName("image-container#HASHID#");
+  for (var i = 0; i < images.length; i++) {
+    images[i].style.display = "none";
+  }
+  document.getElementById(selectedValue).style.display = "block";
+}
+</script>
+
+
+#### **Links and Citation**
+* linkplaceholder [xxx](xx)
+* for Citation see:
+> xxx
