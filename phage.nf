@@ -169,6 +169,23 @@ workflow {
 /************************** 
 * worflow flow control
 **************************/
+        // validation check
+        input_validation_wf(fasta_input_ch)
+        // identification Workflow
+        identification_wf(input_validation_wf.out)
+        // annotation and Taxonomy workflow
+
+        // prophage workflow
+        
+        // host prediction workflow
+        
+        // lifecycle workflow
+
+
+
+
+
+
     // create 3 "input channels" for each flow
     // Annotation only
     if ( params.fasta && params.annotate && !params.identify && !params.setup) { annotation_channel =   input_validation_wf(fasta_input_ch) }
