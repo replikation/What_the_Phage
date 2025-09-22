@@ -6,155 +6,80 @@ nextflow.enable.dsl=2
 * Author: @github: mult1fractal & christian.jena@gmail.com
 */
 
-/* 
-Nextflow version check  
-Format is this: XX.YY.ZZ  (e.g. 20.07.1)
-change below
-*/
+    include { helpMSG; defaultMSG  }       from './libs/messages.nf'
+    include { get_test_data_wf }           from './workflows/get_test_data_wf'
+    include { setup_wf }                   from './workflows/setup_wf'
+    include { input_validation_wf }        from './workflows/input_validation_wf/input_validation_wf'
+    include { checkV_wf }                  from './workflows/quality_control_wf/checkV_wf'
+    include { identification_wf }          from './workflows/phage_identification_wf/identification_wf'
+    include { annotation_taxonomy_wf }     from './workflows/annotation_and_taxonomy_wf/annotation_taxonomy_wf.nf'
+    // include { prophage_wf }             from './workflows/host_lifecycle_wf/host_lifecycle_wf'
+    // include { host_wf }                 from './workflows/host_lifecycle_wf/host_lifecycle_wf'
+    // include { lifecycle_wf }            from './workflows/host_lifecycle_wf/host_lifecycle_wf'
+    include { markdown_report_wf }         from './workflows/markdown_report_wf'
+    
 
-XX = "21"
-YY = "04"
-ZZ = "0"
 
-if ( nextflow.version.toString().tokenize('.')[0].toInteger() < XX.toInteger() ) {
-println "\033[0;33mWtP requires at least Nextflow version " + XX + "." + YY + "." + ZZ + " -- You are using version $nextflow.version\u001B[0m"
-exit 1
-}
-else if ( nextflow.version.toString().tokenize('.')[1].toInteger() == XX.toInteger() && nextflow.version.toString().tokenize('.')[1].toInteger() < YY.toInteger() ) {
-println "\033[0;33mWtP requires at least Nextflow version " + XX + "." + YY + "." + ZZ + " -- You are using version $nextflow.version\u001B[0m"
-exit 1
-}
+workflow {
 
-println "_____ _____ ____ ____ ___ ___ __ __ _ _ "
-println "  __      _______________________ "
-println " /  \\    /  \\__    ___/\\______   \\"
-println " \\   \\/\\/   / |    |    |     ___/"
-println "  \\        /  |    |    |    |    "
-println "   \\__/\\  /   |____|    |____|    "
-println "        \\/                        "
-println "_____ _____ ____ ____ ___ ___ __ __ _ _ "
-
-if (params.help) { exit 0, helpMSG() }
-
-println " "
-println "\u001B[32mProfile: $workflow.profile\033[0m"
-println " "
-println "\033[2mCurrent User: $workflow.userName"
-println "Nextflow-version: $nextflow.version"
-println "Starting time: $nextflow.timestamp"
-println "Workdir location [--workdir]:"
-println "  $workflow.workDir"
-println "Output location [--output]:"
-println "  $params.output"
-println "\033[2mDatabase location [--databases]:"
-println "  $params.databases\u001B[0m"
-if (workflow.profile.contains('singularity')) {
-println "\033[2mSingularity cache location [--cachedir]:"
-println "  $params.cachedir"
-println "  "
-println "\u001B[33m  WARNING: Singularity image building sometimes fails!"
-println "  Please download all images first via --setup --cachedir IMAGE-LOCATION"
-println "  Manually remove faulty images in $params.cachedir for a rebuild\u001B[0m"
-}
-if (params.annotate) { println "\u001B[33mSkipping phage identification for fasta files\u001B[0m" }
-if (params.identify) { println "\u001B[33mSkipping phage annotation\u001B[0m" }
-println " "
-println "\033[2mCPUs per process: $params.cores, maximal CPUs to use: $params.max_cores\033[0m"
-println " "
+        params.help             ? { exit 0, helpMSG() }()       : defaultMSG()
 
 /************* 
 * ERROR HANDLING
 *************/
-// profiles
-if ( workflow.profile == 'standard' ) { exit 1, "NO VALID EXECUTION PROFILE SELECTED, use e.g. [-profile local,docker]" }
+        // profiles
+        if ( workflow.profile == 'standard' ) { exit 1, "NO VALID EXECUTION PROFILE SELECTED, use e.g. [-profile local,docker]" }
 
-if (
-    workflow.profile.contains('singularity') ||
-    workflow.profile.contains('ukj_cloud') ||
-    workflow.profile.contains('stub') ||
-    workflow.profile.contains('docker')
-    ) { "engine selected" }
-else { exit 1, "No engine selected:  -profile EXECUTER,ENGINE" }
+        if (
+            workflow.profile.contains('singularity') ||
+            workflow.profile.contains('ukj_cloud') ||
+            workflow.profile.contains('stub') ||
+            workflow.profile.contains('docker')
+            ) { "engine selected" }
+        else { exit 1, "No engine selected:  -profile EXECUTER,ENGINE" }
 
-if (
-    workflow.profile.contains('local') ||
-    workflow.profile.contains('test') ||
-    workflow.profile.contains('smalltest') ||
-    workflow.profile.contains('ebi') ||
-    workflow.profile.contains('slurm') ||
-    workflow.profile.contains('lsf') ||
-    workflow.profile.contains('ukj_cloud') ||
-    workflow.profile.contains('stub') ||
-    workflow.profile.contains('git_action')
-    ) { "executer selected" }
-else { exit 1, "No executer selected:  -profile EXECUTER,ENGINE" }
+        if (
+            workflow.profile.contains('local') ||
+            workflow.profile.contains('test') ||
+            workflow.profile.contains('smalltest') ||
+            workflow.profile.contains('ebi') ||
+            workflow.profile.contains('slurm') ||
+            workflow.profile.contains('lsf') ||
+            workflow.profile.contains('ukj_cloud') ||
+            workflow.profile.contains('stub') ||
+            workflow.profile.contains('git_action')
+            ) { "executer selected" }
+        else { exit 1, "No executer selected:  -profile EXECUTER,ENGINE" }
 
-// params tests
-if (!params.setup && !workflow.profile.contains('test') && !workflow.profile.contains('smalltest')) {
-    if ( !params.fasta && !params.fastq ) {
-        exit 1, "input missing, use [--fasta] or [--fastq]"}
-    if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm && params.vn && params.vb && params.ph && params.vs2 && params.sk ) {
-        exit 0, "What the... you deactivated all the tools"}
-}
+        // params tests
+        if (!params.setup && !workflow.profile.contains('test') && !workflow.profile.contains('smalltest')) {
+            if ( !params.fasta && !params.fastq ) {
+                exit 1, "input missing, use [--fasta] or [--fastq]"}
+            if ( params.ma && params.mp && params.vf && params.vs && params.pp && params.dv && params.sm && params.vn && params.vb && params.ph && params.vs2 && params.sk ) {
+                exit 0, "What the... you deactivated all the tools"}
+        }
+
+        if ( workflow.profile.contains('singularity') ) {
+            println ""
+            println "\033[0;33mWARNING: Singularity image building sometimes fails!"
+            println "Multiple resumes (-resume) and --max_cores 1 --cores 1 for local execution might help.\033[0m\n"
+        }
 
 /************* 
 * INPUT HANDLING
 *************/
 
-// fasta input or via csv file, fasta input is deactivated if test profile is choosen
-    if (params.fasta && params.list && !workflow.profile.contains('test') ) { fasta_input_ch = Channel
-            .fromPath( params.fasta, checkIfExists: true )
-            .splitCsv()
-            .map { row -> ["${row[0]}", file("${row[1]}", checkIfExists: true)] }
-                }
-    else if (params.fasta && !workflow.profile.contains('test') ) { fasta_input_ch = Channel
-            .fromPath( params.fasta, checkIfExists: true)
-            .map { file -> tuple(file.baseName, file) }
-                }
     
+        fasta_input_ch = params.fasta ? 
+                    Channel.fromPath( params.fasta, checkIfExists: true)
+                        .map { file -> tuple(file.baseName, file) } :null
+
 //get-citation-file for results
-    citation = Channel.fromPath(workflow.projectDir + "/docs/Citations.bib")
-            .collectFile(storeDir: params.output + "/literature")
+        citation = Channel.fromPath(workflow.projectDir + "/docs/Citations.bib").collectFile(storeDir: params.output + "/literature")
 
-/************************** 
-* Workflows to call
-**************************/
 
-// input validation
-include { input_validation_wf } from './workflows/input_validation_wf/input_validation_wf'
-include { get_test_data_wf } from './workflows/get_test_data_wf'
-include { setup_wf } from './workflows/setup_wf'
-// identification
-include { deepvirfinder_wf } from './workflows/phage_identification_wf/deepvirfinder_wf.nf'
-include { phigaro_wf } from './workflows/phage_identification_wf/phigaro_wf'
-include { seeker_wf } from './workflows/phage_identification_wf/seeker_wf'
-include { virfinder_wf } from './workflows/phage_identification_wf/virfinder_wf'
-include { virnet_wf } from './workflows/phage_identification_wf/virnet_wf'
-include { pprmeta_wf } from './workflows/phage_identification_wf/pprmeta_wf'
-include { metaphinder_wf } from './workflows/phage_identification_wf/metaphinder_wf'
-include { metaphinder_own_DB_wf } from './workflows/phage_identification_wf/metaphinder_own_DB_wf'
-include { vibrant_wf } from './workflows/phage_identification_wf/vibrant_wf'
-include { vibrant_virome_wf } from './workflows/phage_identification_wf/vibrant_virome_wf'
-include { virsorter_wf } from './workflows/phage_identification_wf/virsorter_wf'
-include { virsorter_virome_wf } from './workflows/phage_identification_wf/virsorter_virome_wf'
-include { virsorter2_wf } from './workflows/phage_identification_wf/virsorter2_wf'
-include { sourmash_identify_wf } from './workflows/phage_identification_wf/sourmash_identify_wf'
-include { phabox2_identify_wf } from './workflows/phage_identification_wf/phabox2_identify_wf'
-include { prepare_results_wf } from './workflows/prepare_results_wf'
-// annotation & taxonomy
-include { phage_annotation_wf } from './workflows/annotation_wf/phage_annotation_wf'
-include { phage_tax_classification_wf } from './workflows/taxonomic_classification_wf/phage_tax_classification_wf'
-// quiality
-include { checkV_wf } from './workflows/quality_control_wf/checkV_wf'
-//report
-include { markdown_report_wf } from './workflows/markdown_report_wf'
-//include { host_lifecycle_wf } from './workflows/host_lifecycle_wf/host_lifecycle_wf'
 
-/************************** 
-* WtP Workflow
-**************************/
 
-workflow {
 
 /************************** 
 * WtP setup
@@ -169,246 +94,34 @@ workflow {
 /************************** 
 * worflow flow control
 **************************/
-        // validation check
-        input_validation_wf(fasta_input_ch)
-        // identification Workflow
-        identification_wf(input_validation_wf.out)
 
-        // quality control via checkV
-        checkV_wf(input_validation_wf.out)
-        // annotation and Taxonomy workflow
-        phage_annotation_taxonomy_wf(input_validation_wf.out, checkV_wf)
-        // prophage workflow
-        
-        // host prediction workflow
-        
-        // lifecycle workflow
+    // validate Input
+    input_validation_wf(fasta_input_ch)
 
 
 
+    // Workflow handling based on flag
+    // these channels ar "datastream channels and cannot be viewed with view()"
+
+    identify_ch             = params.identify || params.end_to_end ? identification_wf(input_validation_wf.out) : Channel.empty()
+    checkV_ch               = params.identify || params.annotate_taxonomy  ||  params.prophage ||  params.end_to_end ? checkV_wf(input_validation_wf.out) : Channel.empty()
+    annotate_taxonomy_ch    = params.annotate_taxonomy ||  params.end_to_end ? annotation_taxonomy_wf(input_validation_wf.out, checkV_wf.out) : Channel.empty()
+    // prophage_ch          = params.prophage ||  params.end_to_end ? prophage_wf(input_validation_wf.out) : Channel.empty()
+    // host_ch              = params.host ||  params.end_to_end ? host_wf(input_validation_wf.out) : Channel.empty()
+    // livecycle_ch         = params.lifecycle ||  params.end_to_end ? lifecycle_wf(input_validation_wf.out) : Channel.empty()
+
+ 
 
 
-
-    // create 3 "input channels" for each flow
-    // Annotation only
-    if ( params.fasta && params.annotate && !params.identify && !params.setup) { annotation_channel =   input_validation_wf(fasta_input_ch) }
-    // Identify only
-    else if (params.fasta && params.identify && !params.annotate && !params.setup ) { prediction_channel =  input_validation_wf(fasta_input_ch) }
-    // Full run
-    else if (params.fasta && !params.identify && !params.annotate && !params.setup ) { prediction_channel =  input_validation_wf(fasta_input_ch) }
-
-/************************** 
-* Prediction via benchmarked tools only
-**************************/
-    // run annotation if identify flag or no flag at all
-    if (params.fasta && params.identify && !params.annotate && !params.setup && !params.all_tools || params.fasta  && !params.identify && !params.annotate && !params.setup && !params.all_tools )  { 
-    // actual tools     
-        results = deepvirfinder_wf( prediction_channel)
-                .concat( seeker_wf(prediction_channel))
-                .concat( virfinder_wf(prediction_channel))
-                .concat( pprmeta_wf(prediction_channel))
-                .concat( metaphinder_wf(prediction_channel))
-                .concat( vibrant_wf(prediction_channel))
-                .concat( vibrant_virome_wf(prediction_channel))
-                .concat( virsorter_wf(prediction_channel))
-                .concat( virsorter_virome_wf(prediction_channel))
-                .concat( virsorter2_wf(prediction_channel))
-                .filter { it != 'deactivated' } // removes deactivated tool channels
-                .groupTuple()
+    markdown_report_wf(identify_ch, annotate_taxonomy_ch, checkV_ch)
     
-        prepare_results_wf(results, prediction_channel)
 
-        // markdown report input
-        // map identify output for input of annotaion tools
-        annotation_channel = input_validation_wf.out.join(results)
-        checkV_wf(annotation_channel)
-    }
-    //&& !params.all_tools
-
-
-/************************** 
-* Prediction via all tools
-**************************/
-    // run annotation if identify flag or no flag at all
-    if (params.fasta  && params.identify && !params.annotate && !params.setup && params.all_tools|| params.fasta && params.all_tools && !params.identify && !params.annotate && !params.setup )  { 
-    // benchmarked tools     
-        results = deepvirfinder_wf( prediction_channel)
-                .concat( phigaro_wf(prediction_channel))
-                .concat( seeker_wf(prediction_channel))
-                .concat( virfinder_wf(prediction_channel))
-                .concat( virnet_wf(prediction_channel))
-                .concat( pprmeta_wf(prediction_channel))
-                .concat( metaphinder_wf(prediction_channel))
-                .concat( metaphinder_own_DB_wf(prediction_channel))
-                .concat( vibrant_wf(prediction_channel))
-                .concat( vibrant_virome_wf(prediction_channel))
-                .concat( virsorter_wf(prediction_channel))
-                .concat( virsorter_virome_wf(prediction_channel))
-                .concat( virsorter2_wf(prediction_channel))
-                .concat( sourmash_identify_wf(prediction_channel))
-                .concat( phabox2_identify_wf(prediction_channel))
-                .filter { it != 'deactivated' } // removes deactivated tool channels
-                .groupTuple()
-
-        prepare_results_wf(results, prediction_channel)
-
-        // markdown report input
-        // map identify output for input of annotaion tools
-        annotation_channel = input_validation_wf.out.join(results)
-        checkV_wf(annotation_channel)
-    }
-
-/************************** 
-* Annotation
-**************************/
-    // run annotation if annotate flag or no flag at all
-    if  ( params.fasta && params.annotate && !params.identify && !params.setup || params.fasta && !params.identify && !params.annotate && !params.setup ) {
-    // actual tools     
-        checkV_wf(annotation_channel)
-        phage_annotation_wf(annotation_channel, checkV_wf.out)
-        phage_tax_classification_wf(annotation_channel)
-        // markdown report input
-        phage_annotation_wf.out
-    }
-
-/************************** 
-* Result Report
-**************************/
-
-    // NO FLAG
-    if (params.fasta && !params.identify && !params.annotate && !params.setup ) { 
-       markdown_report_wf(  prepare_results_wf.out.upsetr_plot_markdown_input,
-                            prepare_results_wf.out.heatmap_table_markdown_input,
-                            phage_annotation_wf.out.annotationtable_markdown_input, 
-                            checkV_wf.out,
-                            phage_tax_classification_wf.out
-                            )
-    }
-    // --IDENTIFY
-    // dummy channel simulate the output from --annotate
-    if (params.fasta && params.identify && !params.annotate && !params.setup ) { 
-       markdown_report_wf(  prepare_results_wf.out.upsetr_plot_markdown_input,
-                            prepare_results_wf.out.heatmap_table_markdown_input,
-                            dummy_A = Channel.from( [ 'deactivated', 'deactivated']),
-                            checkV_wf.out,
-                            dummy_B = Channel.from( [ 'deactivated', 'deactivated']),
-                            // dummy_C = Channel.from( [ 'deactivated', 'deactivated']),
-                            )
-    }
-    // --ANNOTATE
-    // dummy channel simulate the output from --identify
-    if (params.fasta && !params.identify && params.annotate && !params.setup ) { 
-       markdown_report_wf(  dummy_A = Channel.from( [ 'deactivated', 'deactivated']),
-                            dummy_B = Channel.from( [ 'deactivated', 'deactivated']), 
-                            phage_annotation_wf.out.annotationtable_markdown_input, 
-                            checkV_wf.out,
-                            phage_tax_classification_wf.out )
-    }
 
 }
 
-/*************  
-* --help
-*************/
-def helpMSG() {
-    c_green = "\033[0;32m";
-    c_reset = "\033[0m";
-    c_yellow = "\033[0;33m";
-    c_blue = "\033[0;34m";
-    c_purple = "\033[0;35m";
-    c_dim = "\033[2m";
-    log.info """
-    .
-    ${c_purple}Usage examples:${c_reset}
-    nextflow run replikation/What_the_Phage --fasta '*/*.fasta' --cores 20 --max_cores 40 \\
-        --output results -profile local,docker 
-
-    nextflow run phage.nf --fasta '*/*.fasta' --cores 20 \\
-        --output results -profile lsf,singularity \\
-        --cachedir /images/singularity_images \\
-        --databases /databases/WtP_databases/ 
-
-    ${c_purple}Input:${c_reset}
-     --fasta             '*.fasta'   -> assembly file(s)
-     --fastq             '*.fastq'   -> long read file(s)
-    ${c_dim}  ..change above input to csv via --list ${c_reset}  
-    ${c_dim}   e.g. --fasta inputs.csv --list    
-        the .csv contains per line: name,/path/to/file${c_reset}  
-     --setup              skips analysis and just downloads databases and containers
-
-    ${c_purple}Execution/Engine profiles:${c_reset}
-     WtP supports profiles to run via different ${c_green}Executers${c_reset} and ${c_blue}Engines${c_reset} e.g.:
-     -profile ${c_green}local${c_reset},${c_blue}docker${c_reset}
-
-      ${c_green}Executer${c_reset} (choose one):
-      slurm
-      local
-      lsf
-      ebi
-      ${c_blue}Engines${c_reset} (choose one):
-      docker
-      singularity
-    
-    For a test run (~ 1h), add "smalltest" to the profile, e.g. -profile smalltest,local,singularity 
-    
-    ${c_purple}Options:${c_reset}
-    --filter            min contig size [bp] to analyse [default: $params.filter]
-    --cores             max cores per process for local use [default: $params.cores]
-    --max_cores         max cores used on the machine for local use [default: $params.max_cores]    
-    --output            name of the result folder [default: $params.output]
-
-    ${c_purple}Tool control:${c_reset}
-    Deploy all integrated phage prediction tools
-    --all_tools         activate all phage prediction tools     
-
-    Deactivate tools individually by adding one or more of these flags
-    --dv                deactivates deepvirfinder
-    --mp                deactivates metaphinder
-    --pp                deactivates PPRmeta
-    --sm                deactivates sourmash
-    --vb                deactivates vibrant
-    --vf                deactivates virfinder
-    --vn                deactivates virnet
-    --vs                deactivates virsorter
-    --ph                deactivates phigaro
-    --vs2               deactivates virsorter2
-    --sk                deactivates seeker
-    --pb2               deactivates phabox2_phamer
-
-    Activate Pharokka Plot
-    --pharokka
-
-    switch databases for Phage tax classification
-    default database    NCBI 4700 sequences + metadata
-    --phage_scope_tax   800000 sequences + metadata  curated phagescope-Database
-
-    ${c_purple}Custom phage annotation Database:${c_reset}
-    --annotation_db     /path/to/your/custom_phage_annotation_db.tar.gz
-                        Please provide a custom_phage_annotation_db.tar.gz archive that contains the following file formats:
-                        *.hmm  *.hmm.h3f  *.hmm.h3i  *.hmm.h3m  *.hmm.h3p
-
-    ${c_yellow}Workflow control:${c_reset}
-    --identify          only phage identification, skips analysis
-    --annotate          only annotation, skips phage identification
-    --plot_completeness will plot Phage-contigs with CheckV-completeness > 75.00 (or you provide your cutoff value, e.g. 80.00)
-
-    ${c_yellow}Databases, file, container behaviour:${c_reset}
-    --databases         specifiy download location of databases 
-                        [default: ${params.databases}]
-                        ${c_dim}WtP downloads DBs if not present at this path${c_reset}
-
-    --workdir           defines the path where nextflow writes temporary files 
-                        [default: $params.workdir]
-
-    --cachedir          defines the path where singularity images are cached
-                        [default: $params.cachedir] 
-
-    """.stripIndent()
-}
-
-if (!params.setup) {
-    workflow.onComplete { 
-        log.info ( workflow.success ? "\nDone! Results are stored here --> $params.output \nThank you for using What the Phage\n \nPlease cite us: https://doi.org/10.1101/2020.07.24.219899 \
-                                      \n\nPlease also cite the other tools we use in our workflow --> $params.output/literature \n" : "Oops .. something went wrong" )
+    if (!params.setup) {
+        workflow.onComplete { 
+            log.info ( workflow.success ? "\nDone! Results are stored here --> $params.output \nThank you for using What the Phage\n \nPlease cite us: https://doi.org/10.1101/2020.07.24.219899 \
+                                          \n\nPlease also cite the other tools we use in our workflow --> $params.output/literature \n" : "Oops .. something went wrong" )
+        }
     }
-}

@@ -7,7 +7,7 @@ process sourmash_tax {
           file(database)
           file(metadata)
         output:
-          tuple val(name), path("${name}_taxonomy_sourmash.tsv"), val("sourmash") emit: tax_class_ch optional true
+          tuple val(name), path("${name}_taxonomy_sourmash.tsv"), val("sourmash"), emit: tax_class_ch , optional: true
         shell:
           """
         ###set -euxo pipefail

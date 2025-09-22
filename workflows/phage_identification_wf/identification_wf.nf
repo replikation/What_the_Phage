@@ -38,12 +38,12 @@ include { download_references_NCBI_identify } from './process/sourmash/download_
 include { vibrant_virome } from './process/vibrant_virome/vibrant_virome'
 include { filter_vibrant_virome } from './process/vibrant_virome/filter_vibrant_virome'
 include { vibrant_virome_collect_data } from './process/vibrant_virome/vibrant_virome_collect_data'
-include { vibrant_download_DB } from './process/vibrant_virome/vibrant_download_DB'
+include { vibrant_download_DB; vibrant_download_DB as vibrant_virome_download_DB } from './process/vibrant_virome/vibrant_download_DB'
 
 include { vibrant } from './process/vibrant/vibrant'
 include { filter_vibrant } from './process/vibrant/filter_vibrant'
 include { vibrant_collect_data } from './process/vibrant/vibrant_collect_data'
-include { vibrant_download_DB } from './process/vibrant/vibrant_download_DB'
+//include { vibrant_download_DB } from './process/vibrant/vibrant_download_DB' // ALREADY INCLUDED
 
 include { virfinder } from './process/virfinder/virfinder'
 include { filter_virfinder } from './process/virfinder/filter_virfinder'
@@ -57,12 +57,12 @@ include { normalize_contig_size } from './process/virnet/normalize_contig_size'
 include { virsorter_virome } from './process/virsorter_virome/virsorter_virome'
 include { filter_virsorter_virome } from './process/virsorter_virome/filter_virsorter_virome'
 include { virsorter_virome_collect_data } from './process/virsorter_virome/virsorter_virome_collect_data'
-include { virsorter_download_DB } from './process/virsorter_virome/virsorter_download_DB'
+include { virsorter_download_DB; virsorter_download_DB as virsorter_virome_download_DB } from './process/virsorter_virome/virsorter_download_DB'
 
 include { virsorter } from './process/virsorter/virsorter'
 include { filter_virsorter } from './process/virsorter/filter_virsorter'
 include { virsorter_collect_data } from './process/virsorter/virsorter_collect_data'
-include { virsorter_download_DB } from './process/virsorter/virsorter_download_DB'
+// include { virsorter_download_DB } from './process/virsorter/virsorter_download_DB' // ALREADY INCLUDED
 
 include { virsorter2 } from './process/virsorter2/virsorter2'
 include { filter_virsorter2 } from './process/virsorter2/filter_virsorter2'
@@ -212,9 +212,9 @@ workflow identification_wf {
 
                 if (!params.vb && !params.virome) {
                         // local storage via storeDir
-                        vibrant_download_DB()
+                        vibrant_virome_download_DB()
                         // tool prediction
-                        vibrant_virome(fasta, vibrant_download_DB.out)
+                        vibrant_virome(fasta, vibrant_virome_download_DB.out)
                         // filtering
                         filter_vibrant_virome(vibrant_virome.out[0].groupTuple(remainder: true))
                         // raw data collector
@@ -274,9 +274,9 @@ workflow identification_wf {
 
                 if (!params.vs && !params.virome) {
                     // local storage via storeDir
-                    virsorter_download_DB()
+                    virsorter_virome_download_DB()
                     // tool prediction
-                    virsorter_virome(fasta, virsorter_download_DB.out)
+                    virsorter_virome(fasta, virsorter_virome_download_DB.out)
                     // filtering
                     filter_virsorter_virome(virsorter_virome.out[0].groupTuple(remainder: true))
                     // raw data collector
@@ -326,7 +326,7 @@ workflow identification_wf {
 
 
                 // collect all tools
-                if (params.fasta  && params.identify && !params.annotate && !params.setup && params.all_tools|| params.fasta && params.all_tools && !params.identify && !params.annotate && !params.setup )  { 
+                if (params.fasta  && params.identify && !params.annotate_taxonomy && !params.setup && params.all_tools|| params.fasta && params.all_tools && !params.identify && !params.annotate_taxonomy && !params.setup )  { 
                 results = deepvirfinder_results
                     .concat( phigaro_results )
                     .concat( seeker_results )
@@ -370,6 +370,8 @@ workflow identification_wf {
                     heatmap_table_markdown_input = contigs_by_tools.out.overview_ch//.join(contigs_by_tools.out.tool_agreements_per_contig_ch)
                     upsetr_plot_markdown_input = upsetr_plot.out
 
-        emit:   heatmap_table_markdown_input
-                upsetr_plot_markdown_input 
+                identify_markdown_input= upsetr_plot_markdown_input.join(heatmap_table_markdown_input) // name, upsetr_plot_markdown_input heatmap_table_markdown_input
+
+        emit:   identify_markdown_input
+                
 } 

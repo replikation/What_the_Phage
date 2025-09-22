@@ -9,14 +9,23 @@ include { taxonomic_classification_report } from './process/markdown_report/taxo
 
 workflow markdown_report_wf {
     take:   
-            upsetR_file //.svg
-            heatmap_overview_file
-            annotationtable
+
+            identify_input
+            annotation_taxonomy_input
             checkV_file
-            taxonomic_classification_file
+
+            
     main:                          
         // prepare tables for markdown
         //contig by tool  // category
+
+        // map correct iputs from workflow control channels
+        // wha happens if channel is empty ? --- : null
+            upsetR_file = identify_input.map { it -> it[0] , it[1]}
+            heatmap_overview_file = identify_input.map { it -> it[0] , it[2]}
+            annotationtable = annotation_taxonomy_input.map { it -> it[0] , it[1]}
+            taxonomic_classification_file= annotation_taxonomy_input.map { it -> it[0] , it[2]}
+            
 
            // markdown_preparation(heatmap_overview_file, annotationtable, checkV_file)
         
@@ -34,7 +43,7 @@ workflow markdown_report_wf {
             }
             
             // STD WORKFLOW AND --ANNOTATE
-            if (params.fasta && !params.identify && !params.annotate && !params.setup  || params.fasta && !params.identify && params.annotate && !params.setup ) {  
+            if (params.fasta && !params.identify && !params.annotate_taxonomy && !params.setup  || params.fasta && !params.identify && params.annotate && !params.setup ) {  
                 checkV_quality_table=Channel.fromPath(workflow.projectDir + "/submodule_report/checkV_quality_table.Rmd", checkIfExists: true)
                 annotation_table=Channel.fromPath(workflow.projectDir + "/submodule_report/annotation_table.Rmd", checkIfExists: true)
                 taxonomic_classification_table=Channel.fromPath(workflow.projectDir + "/submodule_report/taxonomic_classification.Rmd", checkIfExists: true)
@@ -47,14 +56,14 @@ workflow markdown_report_wf {
         // 1 create reports for each tool and samples its: reportprocess(inputchannel.combine(rmarkdowntemplate))
         // für jednen subheader also upset heat toolagree...nen process
             // STD WORKFLOW AND --IDENTIFY
-            if (params.fasta && !params.identify && !params.annotate && !params.setup  || params.fasta && params.identify && !params.annotate && !params.setup ) { 
+            if (params.fasta && !params.identify && !params.annotate_taxonomy && !params.setup  || params.fasta && params.identify && !params.annotate && !params.setup ) { 
                 checkV_report(checkV_file.combine(checkV_quality_table))
                 upsetr_report(upsetR_file.combine(upsetRreport))
                 heatmap_table_report(heatmap_overview_file.combine(heatmap_tablereport))
             }
 
             // STD WORKFLOW AND --ANNOTATE
-            if (params.fasta && !params.identify && !params.annotate && !params.setup  || params.fasta && !params.identify && params.annotate && !params.setup ) {  
+            if (params.fasta && !params.identify && !params.annotate_taxonomy && !params.setup  || params.fasta && !params.identify && params.annotate && !params.setup ) {  
                 checkV_report(checkV_file.combine(checkV_quality_table))
                 annotation_table_report(annotationtable.combine(annotation_table))  
                 taxonomic_classification_report(taxonomic_classification_file.combine(taxonomic_classification_table))
@@ -66,7 +75,7 @@ workflow markdown_report_wf {
         // workflow dependent report --annotation / --identify  i think I need do it for every step 1.2.3. 
         // hier 3 cases aufmachen std, identi, anno
             // STD
-            if (params.fasta && !params.identify && !params.annotate && !params.setup ){
+            if (params.fasta && !params.identify && !params.annotate_taxonomy && !params.setup ){
                 samplereportinput =     upsetr_report.out
                                     .mix(heatmap_table_report.out)
                                     .mix(checkV_report.out)
@@ -78,7 +87,7 @@ workflow markdown_report_wf {
                 sample_report(samplereportinput.combine(sampleheaderreport))
             }
             // --IDENTIFY
-            if (params.fasta && params.identify && !params.annotate && !params.setup ){
+            if (params.fasta && params.identify && !params.annotate_taxonomy && !params.setup ){
                 samplereportinput =     upsetr_report.out
                                     .mix(checkV_report.out)
                                     .mix(heatmap_table_report.out)
@@ -88,7 +97,7 @@ workflow markdown_report_wf {
                 sample_report(samplereportinput.combine(sampleheaderreport))
             }
             // --ANNOTATE
-            if (params.fasta && !params.identify && params.annotate && !params.setup ){
+            if (params.fasta && !params.identify && params.annotate_taxonomy && !params.setup ){
                 samplereportinput =     checkV_report.out
                                     .mix(annotation_table_report.out)
                                     .mix(taxonomic_classification_report.out)

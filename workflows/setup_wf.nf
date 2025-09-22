@@ -6,8 +6,9 @@ include { sourmash_identify_DB_build } from './phage_identification_wf/process/s
 include { vibrant_download_DB } from './phage_identification_wf/process/vibrant/vibrant_download_DB'
 include { virsorter_download_DB } from './phage_identification_wf/process/virsorter/virsorter_download_DB'
 include { virsorter2_download_DB } from './phage_identification_wf/process/virsorter2/virsorter2_download_DB'
-include { pvog_DB; vogtable_DB } from './annotation_wf/process/download_pvog_DB'
+include { pvog_DB; vogtable_DB } from './annotation_and_taxonomy_wf/process/download_pvog_DB.nf'
 include { download_checkV_DB } from './quality_control_wf/process/download_checkV_DB'
+include { download_genomad_DB } from './annotation_and_taxonomy_wf/process/download_genomad_DB'
 
 
 workflow setup_wf {
@@ -25,7 +26,7 @@ workflow setup_wf {
         }
 
         // databases
-        if (!params.annotate) {
+        if (!params.annotate_taxonomy) {
             download_references_NCBI_identify() // phage_references()
             ref_phages_DB = phage_references_blastDB (download_references_NCBI_identify.out)
             ppr_deps = ppr_download_dependencies()
@@ -38,6 +39,7 @@ workflow setup_wf {
             pvog_DB = pvog_DB()
             vogtable_DB = vogtable_DB()
             checkV_DB = download_checkV_DB()
+            genomad_db = download_genomad_DB()
         }
 } 
 /* 
