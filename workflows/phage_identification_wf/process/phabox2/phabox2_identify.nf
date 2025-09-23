@@ -5,8 +5,8 @@ process phabox2_identify {
     input:
         tuple val(name), path(fasta)
     output:
-        tuple val(name), path("${name}_phamer_prediction_*.tsv"), emit: phabox2_results_ch optional true
-        tuple val(name), path("${name}_results_identify/"), emit: phabox2_collect_raw_ch optional true
+        tuple val(name), path("${name}_phamer_prediction_*.tsv"), emit: phabox2_results_ch, optional: true
+        tuple val(name), path("${name}_results_identify/"), emit: phabox2_collect_raw_ch, optional: true
     script:
         """
         ## activate conda environment

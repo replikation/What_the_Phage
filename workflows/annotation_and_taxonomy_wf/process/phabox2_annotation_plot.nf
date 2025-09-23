@@ -7,7 +7,7 @@ process phabox2_annotation_plot {
         tuple val(name_annotation), path(annotation_file)
         tuple val(name_checkv), path(checkv_results)
     output:
-        tuple val(name), path("*.png"), emit: phabox2_plots_ch 
+        tuple val(name), path("*.png"), emit: phabox2_plots_ch , optional: true
     script:
         """
         ## 1. get high quality contigs to plot

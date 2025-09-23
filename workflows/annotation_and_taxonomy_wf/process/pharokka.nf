@@ -5,7 +5,7 @@ process pharokka {
     input:
         tuple val(name), path(fasta)
     output: 
-        tuple val(name), path("*_pharokka_out"), emit: pharokka_folder_ch optional true
+        tuple val(name), path("*_pharokka_out"), emit: pharokka_folder_ch, optional: true
     script:
         """
 
@@ -27,7 +27,7 @@ process pharokka_plotter {
     input:
         tuple val(name), path(fasta) , path(pharokka_annotation_out), path(checkv_results)
     output: 
-         tuple val(name), path("pharokka_plots"), emit: annotation_map_ch optional true
+         tuple val(name), path("pharokka_plots"), emit: annotation_map_ch, optional: true
     script:
         """
         ## split fasta to single contigs needed

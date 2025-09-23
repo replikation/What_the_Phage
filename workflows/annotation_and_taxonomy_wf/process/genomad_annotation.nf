@@ -6,8 +6,8 @@ process genomad_annotation {
         tuple val(name), path(fasta)
         path(database)
     output:
-        tuple val(name), path("*_filtered_genes.tsv"), val("genomad"), emit: genomad_annotation_ch optional true
-        tuple val(name), path("*_filtered_taxonomy.tsv"), val("genomad"), emit: genomad_taxonomy_ch optional true
+        tuple val(name), path("*_filtered_genes.tsv"), val("genomad"), emit: genomad_annotation_ch, optional: true
+        tuple val(name), path("*_filtered_taxonomy.tsv"), val("genomad"), emit: genomad_taxonomy_ch, optional: true
     script:
         """
         source /opt/conda/etc/profile.d/conda.sh

@@ -73,12 +73,12 @@ include { virsorter2_download_DB } from './process/virsorter2/virsorter2_downloa
 include { filter_tool_names } from './process/prepare_results/filter_tool_names'
 include { upsetr_plot } from './process/prepare_results/upsetr'
 include { hue_heatmap } from './process/prepare_results/hue_heatmap'
-include { contigs_by_tools } from './process/prepare_results/contigs_by_tools'
+include { contigs_by_tools } from './process/prepare_results/contigs_by_tools.nf'
 
 workflow identification_wf {
         take:   fasta
         main:   
-                if (!params.dv) { 
+                if (!params.dv && params.all_tools ) { 
                             filter_deepvirfinder(deepvirfinder(fasta).groupTuple(remainder: true))
                             // raw data collector
                             deepvirfinder_collect_data(deepvirfinder.out.groupTuple(remainder: true))
@@ -92,7 +92,7 @@ workflow identification_wf {
                 ///////////////////////////////////////////////////////////////
 
 
-                if (!params.mp) {
+                if (!params.mp && params.all_tools) {
                 // download references for blast db build
                 download_references()
 
@@ -128,7 +128,7 @@ workflow identification_wf {
                 /////
                 ///////////////////////////////////////////////////////////////
 
-                if (!params.pb2) { 
+                if (!params.pb2 && params.all_tools) { 
                             
                         phabox2_identify(fasta)
                         result_filter_input_ch = phabox2_identify.out.phabox2_results_ch
@@ -147,7 +147,7 @@ workflow identification_wf {
                 /////
                 ///////////////////////////////////////////////////////////////
 
-                if (!params.ph) { 
+                if (!params.ph && params.all_tools) { 
                             phigaro(fasta)
                             // raw data collector
                             phigaro_collect_data(phigaro.out[1].groupTuple(remainder: true))
@@ -190,7 +190,7 @@ workflow identification_wf {
                 /////
                 ///////////////////////////////////////////////////////////////
 
-                if (!params.sm) {
+                if (!params.sm && params.all_tools) {
                         // local storage via storeDir
                         download_references_NCBI_identify()
                         
@@ -210,7 +210,7 @@ workflow identification_wf {
                 /////
                 ///////////////////////////////////////////////////////////////
 
-                if (!params.vb && !params.virome) {
+                if (!params.vb && !params.virome ) {
                         // local storage via storeDir
                         vibrant_virome_download_DB()
                         // tool prediction
@@ -259,7 +259,7 @@ workflow identification_wf {
                 /////
                 ///////////////////////////////////////////////////////////////
 
-                if (!params.vn) { 
+                if (!params.vn && params.all_tools ) { 
                             filter_virnet(virnet(normalize_contig_size(fasta)).groupTuple(remainder: true))
                             // raw data collector
                             virnet_collect_data(virnet.out.groupTuple(remainder: true))
@@ -323,10 +323,11 @@ workflow identification_wf {
                         }
                 else { virsorter2_results = Channel.from( [ 'deactivated', 'deactivated'] ) }
 
-
+                ///////////////////////////////////////////////////////////////
+                /////
+                ///////////////////////////////////////////////////////////////
 
                 // collect all tools
-                if (params.fasta  && params.identify && !params.annotate_taxonomy && !params.setup && params.all_tools|| params.fasta && params.all_tools && !params.identify && !params.annotate_taxonomy && !params.setup )  { 
                 results = deepvirfinder_results
                     .concat( phigaro_results )
                     .concat( seeker_results )
@@ -344,27 +345,14 @@ workflow identification_wf {
                     .concat( phabox2_identify_results )
                     .filter { it != 'deactivated' } // removes deactivated tool channels
                     .groupTuple()
-                }
-                // collect benchmarked tools
-                else {
-                results = deepvirfinder_results
-                    .concat( seeker_results )
-                    .concat( virfinder_results )
-                    .concat( pprmeta_results )
-                    .concat( metaphinder_results )
-                    .concat( vibrant_results )
-                    .concat( vibrant_virome_results )
-                    .concat( virsorter_results )
-                    .concat( virsorter_virome_results )
-                    .concat( virsorter2_results )
-                    .filter { it != 'deactivated' } // removes deactivated tool channels
-                    .groupTuple()
-                }
-
+                
+            
                 //plotting overview
                     filter_tool_names(results)
                     upsetr_plot(filter_tool_names.out[0])
                     contigs_by_tools(results)
+
+                // need a new column contigs_by_tools with sum normed?
 
                 // markdown report collecter
                     heatmap_table_markdown_input = contigs_by_tools.out.overview_ch//.join(contigs_by_tools.out.tool_agreements_per_contig_ch)

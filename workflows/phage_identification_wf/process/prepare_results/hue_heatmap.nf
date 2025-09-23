@@ -4,8 +4,8 @@ process hue_heatmap {
     input:
         tuple val(name), path(file)
     output:
-        tuple val(name), path("phage-distribution.pdf") //optional true
-        tuple val(name), file("results.txt") optional true
+        tuple val(name), path("phage-distribution.pdf") //, optional: true
+        tuple val(name), file("results.txt"), optional: true
     script:
         """
         ## hue_heatmap_plot.py --input *.tsv --output ${name}_phage-distribution.pdf ,val(category),

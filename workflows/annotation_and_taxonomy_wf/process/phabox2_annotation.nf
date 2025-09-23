@@ -5,7 +5,7 @@ process phabox2_annotation {
     input:
         tuple val(name), path(fasta)
     output:
-        tuple val(name), path("${name}_gene_annotation_*.tsv"), emit: phabox2_annotation_ch optional true
+        tuple val(name), path("${name}_gene_annotation_*.tsv"), emit: phabox2_annotation_ch, optional: true
     script:
         """
 

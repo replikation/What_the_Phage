@@ -6,9 +6,9 @@ process chromomap_parser {
         tuple val(name), path(contigs), path(hmmscan_results), path(prodigal_out)
         path(vogtable)
     output: 
-        tuple val(name), val("small"), path("small/chromosomefile.tbl"), path("small/annotationfile.tbl") optional true
-        tuple val(name), val("large"), path("large/chromosomefile.tbl"), path("large/annotationfile.tbl") optional true
-        tuple val(name), path("annotationfile_combined.tbl"), emit: annotationfile_combined_ch optional true
+        tuple val(name), val("small"), path("small/chromosomefile.tbl"), path("small/annotationfile.tbl"), optional: true
+        tuple val(name), val("large"), path("large/chromosomefile.tbl"), path("large/annotationfile.tbl"), optional: true
+        tuple val(name), path("annotationfile_combined.tbl"), emit: annotationfile_combined_ch, optional: true
     script:
         """
         prepare_hmmscan_for_chromomap.sh -c ${contigs} -p ${prodigal_out} -a ${hmmscan_results} -v ${vogtable}

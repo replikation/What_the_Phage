@@ -1,4 +1,4 @@
-include { phabox2_prophage } from './process/phabox2/phabox2'
+include { phabox2_prophage } from './process/phabox2_prophage'
 include { download_genomad_DB } from './process/download_prophage_genomad_DB'
 include { genomad_prophage } from './process/genomad_prophage'
 

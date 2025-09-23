@@ -6,7 +6,7 @@ process genomad_prophage {
         tuple val(name), path(fasta)
         path(database)
     output:
-        tuple val(name), path("${name}_filtered_taxonomy_genomad.tsv"), emit: genomad_tax_ch optional true
+        tuple val(name), path("${name}_filtered_taxonomy_genomad.tsv"), emit: genomad_tax_ch, optional: true
     script:
         """
         source /opt/conda/etc/profile.d/conda.sh

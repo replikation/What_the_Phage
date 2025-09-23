@@ -1,8 +1,8 @@
 process phage_references_blastDB {
     storeDir "${params.databases}/blast_DB_phage"
     label 'metaphinder'
-    errorStrategy = "retry"
-    maxRetries = 2
+    errorStrategy "retry"
+    maxRetries "2"
     input:
         path(references)
     output:

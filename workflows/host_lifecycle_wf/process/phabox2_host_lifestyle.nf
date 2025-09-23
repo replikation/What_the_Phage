@@ -6,7 +6,7 @@ process phabox2_host_lifecycle {
         tuple val(name), path(fasta)
     output:
         
-        tuple val(name), path("${name}_gene_annotation_*.tsv"), emit: phabox2_annotation, optional true
+        tuple val(name), path("${name}_gene_annotation_*.tsv"), emit: phabox2_annotation, optional: true
     script:
         """
         phabox2 --task phatyp --dbdir /phabox_db_v2_1/ --outpth ${name}_results_host_lifecycle --contigs ${fasta}

@@ -12,7 +12,7 @@ include { download_genomad_DB } from './annotation_and_taxonomy_wf/process/downl
 
 
 workflow setup_wf {
-    take:   
+      
     main:       
         // docker
         if (workflow.profile.contains('docker')) {
