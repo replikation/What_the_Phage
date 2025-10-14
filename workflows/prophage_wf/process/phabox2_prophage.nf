@@ -1,24 +1,40 @@
 process phabox2_prophage {
-        publishDir "${params.output}/${name}/phabox2/prophage/", mode: 'copy' , pattern: "*.tsv"
-        errorStrategy 'ignore'
+        publishDir "${params.output}/${name}/prophage/phabox2", mode: 'copy'
+        //errorStrategy 'ignore'
         label 'phabox2'
     input:
         tuple val(name), path(fasta)
-    output:
-        
-        tuple val(name), path("${name}_contamination_prediction_*.tsv"), emit: phabox2_host_and_lifestyle, optional: true
+    output:   
+        tuple val(name), path("${name}_contamination_prediction.tsv"), path("${name}_candidate_provirus.tsv"), emit: phabox2_prophage_ch, optional: true
+        tuple val(name), path("${name}_proviruses.fa"), emit: phabox2_extracted_prophage_ch, optional: true
     script:
         """
-        phabox2 contamination --dbdir /phabox_db_v2_1/ --outpth ${name}_results_prophage_contamination --contigs ${fasta} --threads 
+        # activate conda environment
+        source /opt/conda/etc/profile.d/conda.sh
+        conda activate phabox2
+
+        phabox2 --task contamination --dbdir /phabox_db_v2_1/ --outpth ${name}_results_prophage_contamination --contigs ${fasta} 
         
-        mv ${name}_results_prophage_contamination/final_prediction/contamination_prediction.tsv ${name}_results_prophage_contamination/final_prediction/${name}_contamination_prediction_\${PWD##*/}.tsv
-        mv ${name}_results_prophage_contamination/final_prediction/${name}_contamination_prediction_\${PWD##*/}.tsv .
-        
+        ## get results
+        mv ${name}_results_prophage_contamination/final_prediction/contamination_prediction.tsv .
+        mv contamination_prediction.tsv ${name}_contamination_prediction.tsv
+       
+        ## get detailed results
+        mv ${name}_results_prophage_contamination/final_prediction/contamination_supplementary/candidate_provirus.tsv .
+        mv candidate_provirus.tsv ${name}_candidate_provirus.tsv
+
+        # get provirus fasta
+        mv ${name}_results_prophage_contamination/final_prediction/contamination_supplementary/proviruses.fa .
+        mv proviruses.fa ${name}_proviruses.fa
+
+
+
         """
 
     stub:
         """
-        touch ${name}_contamination_prediction_\${PWD##*/}.tsv
+        touch ${name}_proviruses.fa
+        touch ${name}_contamination_prediction.tsv
         """
 }
 

@@ -1,6 +1,6 @@
 process phabox2_annotation_plot {
         publishDir "${params.output}/${name}/annotation_results/phabox2/plots", mode: 'copy' , pattern: "*.png"
-        // errorStrategy 'ignore'
+        errorStrategy 'ignore'
         label 'r_circlize'
     input:
         tuple val(name), path(fasta)

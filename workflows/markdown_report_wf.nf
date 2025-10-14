@@ -12,6 +12,7 @@ workflow markdown_report_wf {
             identify_input
             annotation_taxonomy_input
             checkV_file
+            prophages
 
     main:                          
             identify_input.view()

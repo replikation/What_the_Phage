@@ -1,25 +1,21 @@
-process phigaro {
+process phigaro_prophage {
+    publishDir "${params.output}/${name}/prophage/phigaro", mode: 'copy'
     label 'phigaro'
-    errorStrategy 'ignore'
+    // errorStrategy 'ignore'
     input:
         tuple val(name), path(fasta) 
     output:
-        tuple val(name), path("output/phigaro_*.tsv")
-        tuple val(name), path("output/", type: 'dir')
+        tuple val(name), path("${name}_phigaro_prophage.tsv")
+        tuple val(name), path("${name}_phigaro_prophage.html")
     script:
         """
-        phigaro -f ${fasta} -o output -t ${task.cpus} --wtp --config /root/.phigaro/config.yml
-        cat output/phigaro.txt | awk -v score="1" -F"," 'BEGIN { OFS = "\\t" } {\$2=score; print}' > output/tmp_phigaro_\${PWD##*/}.tsv
-        echo "" >> output/phigaro_\${PWD##*/}.tsv
-        sed '\${/^\$/d}' output/tmp_phigaro_\${PWD##*/}.tsv > output/phigaro_\${PWD##*/}.tsv
+        phigaro -f ${fasta} -o ${name}_phigaro_prophage -t ${task.cpus} --config /root/.phigaro/config.yml -e html tsv
+        
         """
     stub:
         """
-        mkdir output
-        touch output/phigaro_\${PWD##*/}.tsv
-        echo "#contigID       classification  ANI [%] merged coverage [%]     number of hits  size[bp]" > ${name}_\${PWD##*/}.list
-        echo "pos_phage_0     phage   80.754  96.97   172     146647" >> ${name}_\${PWD##*/}.list
-        touch ${name}_\${PWD##*/}_blast.out
+        touch ${name}_phigaro_prophage.tsv
+        touch ${name}_phigaro_prophage.html
         """
 }
 

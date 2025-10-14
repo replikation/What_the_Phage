@@ -14,7 +14,7 @@ process phabox2_annotation {
         conda activate phabox2
 
         # annotation
-        phabox2 --task phavip --dbdir /phabox_db_v2_1/ --outpth ${name}_results_annotation_\${PWD##*/}/ --contigs ${fasta}
+        phabox2 --task phavip --dbdir /phabox_db_v2_1/ --outpth ${name}_results_annotation_\${PWD##*/}/ --contigs ${fasta} 
 
         mv ${name}_results_annotation_*/final_prediction/phavip_supplementary/gene_annotation.tsv .
         mv gene_annotation.tsv ${name}_gene_annotation_\${PWD##*/}.tsv  

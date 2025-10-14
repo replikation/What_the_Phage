@@ -93,7 +93,7 @@ workflow annotation_taxonomy_wf {
                 // report_input_ch=  sourmash_tax.out.join(genomad_tax.out) 
                 // report_input_ch.view()
 
-                annotation_taxonomy_markdown_input = annotationtable_markdown_input.join(sourmash_tax_markdown_input)
+                annotation_taxonomy_markdown_input = annotationtable_markdown_input.join(sourmash_tax_markdown_input).join(genomad_annotation.out).join(genomad_tax)
 
     emit:       annotation_taxonomy_markdown_input
                 
