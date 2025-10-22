@@ -9,7 +9,7 @@ process phigaro_prophage {
         tuple val(name), path("${name}_phigaro_prophage.html")
     script:
         """
-        phigaro -f ${fasta} -o ${name}_phigaro_prophage -t ${task.cpus} --config /root/.phigaro/config.yml -e html tsv
+        phigaro -f ${fasta} -o ${name}_phigaro_prophage -t ${task.cpus} -d --config /root/.phigaro/config.yml -e html tsv
         
         """
     stub:

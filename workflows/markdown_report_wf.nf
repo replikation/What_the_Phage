@@ -25,7 +25,7 @@ workflow markdown_report_wf {
             upsetR_file = identify_input.map { it -> tuple(it[0], it[1]) }
             heatmap_overview_file = identify_input.map { it -> tuple(it[0], it[2])}
             annotationtable = annotation_taxonomy_input.map { it -> tuple(it[0], it[1])}
-            taxonomic_classification_file= annotation_taxonomy_input.map { it -> tuple(it[0], it[1])}
+            taxonomic_classification_file= annotation_taxonomy_input.map { it -> tuple(it[0], it[2])}
             
 
         // markdown_preparation(heatmap_overview_file, annotationtable, checkV_file)

@@ -122,11 +122,11 @@ println "_____ _____ ____ ____ ___ ___ __ __ _ _ "
 
     // Conditional prints are located here
     def extraInfo = ""
-    extraInfo += "${c_turquoise}identification:           ${c_reset}" + (params.identify ? c_enabled : c_disabled) + "\n"
-    extraInfo += "${c_turquoise}annotation and taxonomy:  ${c_reset}" + (params.annotate_taxonomy ? c_enabled : c_disabled) + "\n"
-    extraInfo += "${c_turquoise}prophage:                 ${c_reset}" + (params.prophage ? c_enabled : c_disabled) + "\n"
-    extraInfo += "${c_turquoise}host:                     ${c_reset}" + (params.host ? c_enabled : c_disabled) + "\n"
-    extraInfo += "${c_turquoise}lifecycle:                ${c_reset}" + (params.lifecycle ? c_enabled : c_disabled) + "\n"
+    extraInfo += "${c_turquoise}identification:           ${c_reset}" + (params.identify || params.end_to_end ? c_enabled : c_disabled) + "\n"
+    extraInfo += "${c_turquoise}annotation and taxonomy:  ${c_reset}" + (params.annotate_taxonomy || params.end_to_end ? c_enabled : c_disabled) + "\n"
+    extraInfo += "${c_turquoise}prophage:                 ${c_reset}" + (params.prophage || params.end_to_end ? c_enabled : c_disabled) + "\n"
+    extraInfo += "${c_turquoise}host:                     ${c_reset}" + (params.host || params.end_to_end ? c_enabled : c_disabled) + "\n"
+    extraInfo += "${c_turquoise}lifecycle:                ${c_reset}" + (params.lifecycle || params.end_to_end ? c_enabled : c_disabled) + "\n"
 
 
 
