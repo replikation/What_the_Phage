@@ -18,6 +18,7 @@ include { download_references_NCBI } from './process/download_tax_references'
 include { download_references_phage_scope } from './process/download_tax_references'
 include { sourmash_NCBI_tax_build } from './process/sourmash_tax_build_DB'
 include { sourmash_phage_scope_tax_build } from './process/sourmash_tax_build_DB'
+include { taxmyphage } from './process/taxmyphage'
 
 
 
@@ -90,6 +91,8 @@ workflow annotation_taxonomy_wf {
                 // take tax from genomad annotation
                 genomad_tax = genomad_annotation.out.genomad_taxonomy_ch
 
+                //taxmyphage(fasta)
+
                 // report_input_ch=  sourmash_tax.out.join(genomad_tax.out) 
                 // report_input_ch.view()
 
@@ -101,3 +104,5 @@ workflow annotation_taxonomy_wf {
 
 }
 
+// 	Genome	Realm	Kingdom	Phylum	Class	Order	Family	Subfamily	Genus	Species	Full_taxonomy	Message
+// 0	pos.phage.1	Duplodnaviria	Heunggongvirae	Uroviricota	Caudoviricetes	Not Defined Yet	Not Defined Yet	Not Defined Yet	Kelleziovirus	Kelleziovirus kellezzio	r__Duplodnaviria;k__Heunggongvirae;p__Uroviricota;c__Caudoviricetes;o__Not Defined Yet;f__Not Defined Yet;sf__Not Defined Yet;g__Kelleziovirus;s__Kelleziovirus kellezzio	Current ICTV taxonomy and the clustering on genomic similarity algorithm output appear to be consistent at the genus level
