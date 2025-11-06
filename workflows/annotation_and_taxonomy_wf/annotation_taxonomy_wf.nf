@@ -10,6 +10,8 @@ include { phabox2_annotation } from './process/phabox2_annotation'
 include { phabox2_annotation_plot } from './process/phabox2_annotation_plot'
 include { download_genomad_DB } from './process/download_genomad_DB'
 include { genomad_annotation } from './process/genomad_annotation'
+include { compare_annotation } from './process/compare_annotation'
+include { compare_annotation_plot } from './process/compare_annotation_plot'
 
 // Taxonomy
 include { sourmash_tax } from './process/sourmash_tax'
@@ -49,11 +51,11 @@ workflow annotation_taxonomy_wf {
                 annotationtable_markdown_input = chromomap_parser.out.annotationfile_combined_ch
 
                 // pharokka annotation via 
-                if (params.pharokka) {pharokka(fasta) 
-                                        plot_in= fasta
-                                        .join( pharokka.out)
-                                        .join( checkv) 
-                                        pharokka_plotter(plot_in)
+                if (!params.pharokka) {pharokka(fasta) 
+                                        // plot_in= fasta
+                                        // .join( pharokka.out)
+                                        // .join( checkv) 
+                                        // pharokka_plotter(plot_in)
                                 }
                 
                 // phabox2 annotation 
@@ -64,7 +66,23 @@ workflow annotation_taxonomy_wf {
                 download_genomad_DB()
                 genomad_annotation(fasta, download_genomad_DB.out)
 
+                collect_annotation_ch = chromomap_parser.out.annotationfile_combined_ch
+                                         .mix( pharokka.out.pharokka_gff_ch)
+                                         .mix( phabox2_annotation.out.phabox2_annotation_ch)
+                                         .mix( genomad_annotation.out.genomad_annotation_ch)
+                                         .groupTuple()
+
+                //collect_annotation_ch.view()
+
+                
+                compare_annotation(collect_annotation_ch)
+                test = compare_annotation.out.bedfile_ch
+                test.view()
+                compare_annotation_plot(compare_annotation.out.bedfile_ch, fasta, checkv)
             
+
+
+
                 ///////////////////////////////////////////////////////////////
                 ///// Taxonomy
                 ///////////////////////////////////////////////////////////////
@@ -97,7 +115,7 @@ workflow annotation_taxonomy_wf {
                 // report_input_ch.view()
 
                 annotation_taxonomy_markdown_input = annotationtable_markdown_input.join(sourmash_tax_markdown_input) //.join(genomad_annotation.out.genomad_annotation_ch).join(genomad_tax)
-                annotation_taxonomy_markdown_input.view()
+                //annotation_taxonomy_markdown_input.view()
                 //[all_pos_phage, /mnt/6tb_1/work/1f/85680033cc9a22a7c720e9f2f5ffa2/annotationfile_combined.tbl, /mnt/6tb_1/work/0e/046174cd2a7ab29b293e536c3d936b/all_pos_phage_taxonomy_sourmash.tsv, /mnt/6tb_1/work/5e/5429e47cfbcd5fc671857948e554fb/all_pos_phage_filtered_genes.tsv, genomad, /mnt/6tb_1/work/5e/5429e47cfbcd5fc671857948e554fb/all_pos_phage_filtered_taxonomy.tsv, genomad]
     emit:       annotation_taxonomy_markdown_input
                 

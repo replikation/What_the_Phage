@@ -15,9 +15,9 @@ workflow markdown_report_wf {
             prophages
 
     main:                          
-            identify_input.view()
-            annotation_taxonomy_input.view()
-            checkV_file.view()
+            // identify_input.view()
+            // annotation_taxonomy_input.view()
+            // checkV_file.view()
 
         // map correct iputs from workflow control channels
         // wha happens if channel is empty ? --- : null

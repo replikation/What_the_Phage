@@ -5,7 +5,7 @@ process phabox2_annotation {
     input:
         tuple val(name), path(fasta)
     output:
-        tuple val(name), path("${name}_gene_annotation_*.tsv"), emit: phabox2_annotation_ch, optional: true
+        tuple val(name), path("${name}_gene_annotation_phabox2.tsv"), emit: phabox2_annotation_ch, optional: true
     script:
         """
 
@@ -14,17 +14,17 @@ process phabox2_annotation {
         conda activate phabox2
 
         # annotation
-        phabox2 --task phavip --dbdir /phabox_db_v2_1/ --outpth ${name}_results_annotation_\${PWD##*/}/ --contigs ${fasta} 
+        phabox2 --task phavip --dbdir /phabox_db_v2_1/ --outpth ${name}_results_annotation_ --contigs ${fasta} 
 
         mv ${name}_results_annotation_*/final_prediction/phavip_supplementary/gene_annotation.tsv .
-        mv gene_annotation.tsv ${name}_gene_annotation_\${PWD##*/}.tsv  
+        mv gene_annotation.tsv ${name}_gene_annotation_phabox2.tsv  
 
 
 
         """
     stub:
         """
-        touch ${name}_gene_annotation_\${PWD##*/}.tsv
+        touch ${name}_gene_annotation_.tsv
         """
 }
 
