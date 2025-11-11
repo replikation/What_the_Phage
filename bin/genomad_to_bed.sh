@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # Usage: ./tsv2bed_custom.sh <input_file.tsv> <output_file.bed>
 
 # Check if both required arguments are provided
@@ -22,21 +21,33 @@ awk -F'\t' 'BEGIN {OFS="\t"} {
         next
     }
 
-    # 1. Genome (Chrom): $1 (gene) with trimming
-    # The 'gene' field ($1) is like 'pos_phage_0_1'. 
-    # We remove the last underscore and everything after it, resulting in 'pos_phage_0'.
+    # Your TSV fields:
+    # $1: Genome, $2: ORF, $3: Start, $4: End, $5: Strand, $7: Annotation
+
+    # 1. chrom: $1 (Genome)
     genome_name = $1
     sub(/_[^_]+$/, "", genome_name)
     
     # 2. chromStart: $2 - 1 (Start - 1 for 0-based conversion)
     start_bed = $2 - 1
     
-    # 3. chromEnd: $3 (End)
+    # 3. chromEnd: $4 (End)
     end_bed = $3
-    
     # 4. name: $20 (annotation_description)
     annotation = $20
 
-    # Print the four fields in BED format: genome, start, end, annotation
-    print genome_name, start_bed, end_bed, annotation
+    # 6. strand: $5 (Strand) - Must convert 1 to '+', and -1 to '-'
+    strand_tsv = $5
+    if (strand_tsv == "1") {
+        strand_bed = "+"
+    } else if (strand_tsv == "-1") {
+        strand_bed = "-"
+    } else {
+        # Handle cases where strand might be other values or blank
+        strand_bed = "." 
+    }
+
+    # Print the six required fields for BED format:
+    # chrom, chromStart, chromEnd, strand
+    print genome_name, start_bed, end_bed, annotation, strand_bed
 }' "$INPUT_TSV" > "$OUTPUT_BED"

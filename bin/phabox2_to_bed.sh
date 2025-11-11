@@ -28,12 +28,39 @@ awk -F'\t' 'BEGIN {OFS="\t"} {
         next
     }
 
-    # Column Mapping:
-    # 1. chrom: $1 (Genome)
-    # 2. chromStart: $3 - 1 (Start - 1 for 0-based conversion)
-    # 3. chromEnd: $4 (End)
-    # 4. name: $7 (Annotation)
-
-    # Print the four fields in BED format
-    print $1, $3-1, $4, $7
+    # Column Mapping (based on your TSV):
+    # $1: Genome (chrom)
+    # $2: ORF (used as name for better identification than $7)
+    # $3: Start
+    # $4: End
+    # $5: Strand (1 or -1)
+    # $7: Annotation (product)
+    
+    # chrom: $1 (Genome)
+    chrom = $1
+    
+    # chromStart: $3 - 1 (Start - 1 for 0-based BED)
+    start_bed = $3 - 1
+    
+    # chromEnd: $4 (End)
+    end_bed = $4
+    
+    # name: Using $2 (ORF) for the name field
+    name_bed = $2 
+        
+    # strand: Convert 1 -> +, -1 -> -
+    strand_tsv = $5
+    if (strand_tsv == "1") {
+        strand_bed = "+"
+    } else if (strand_tsv == "-1") {
+        strand_bed = "-"
+    } else {
+        # Catch unexpected or missing values
+        strand_bed = "." 
+    }
+    # name: Using $2 (ORF) for the name field
+    annotation_bed = $7 
+    # Print the six required fields for BED6 format:
+    # chrom, chromStart, chromEnd, name, score, strand
+    print chrom, start_bed, end_bed, annotation_bed, strand_bed
 }' "$INPUT_TSV" > "$OUTPUT_BED"

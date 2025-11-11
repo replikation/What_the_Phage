@@ -6,7 +6,7 @@ process compare_annotation_plot {
         tuple val(name), path(fasta)
         tuple val(name_checkv), path(checkv)
     output:
-        tuple val(name), path("*.html"), optional: true
+        tuple val(name), path("*.html")
 
     script:
         """
@@ -17,7 +17,7 @@ process compare_annotation_plot {
            #                  ${name_bed}_genomad.bed \
             #                 ${name_bed}_prodigal.bed \
              #                ${checkv} \
-              #               90.00 # completeness to filter for
+              #               99.90 # completeness to filter for
         compare_annotation.R ${fasta} ${name_bed}_pharokka.bed ${name_bed}_phabox2.bed ${name_bed}_genomad.bed ${name_bed}_prodigal.bed ${checkv} 90.00 # completeness to filter for
 
         """

@@ -47,7 +47,9 @@ awk -F'\t' 'BEGIN {OFS="\t"} {
         sub(/^ID=/, "", match_str)
         gene_name = match_str
     }
+    # 5. strand: $7 (Strand) - GFF already uses '+' or '-'
+    strand_bed = $7
 
 
-    print chrom, start-1, end, gene_name
+    print chrom, start-1, end, gene_name, strand_bed
 }' "$INPUT_GFF" > "$OUTPUT_BED"

@@ -24,7 +24,7 @@ phabox_bed <- args[3]
 genomad_bed <- args[4]
 prodigal_bed <- args[5]
 checkv <- args[6]
-completeness_threshold <- args[7]
+completeness_threshold <- as.numeric(args[7])
 
 
 # 1fasta 2pharokka 3phabox2 4genomad 5prodigal 6checkv 7completeness
@@ -38,7 +38,7 @@ genomad <- read.delim(
   genomad_bed,
   header = FALSE,
   sep = "\t",
-  col.names = c("contig", "start", "end", "annotation")
+  col.names = c("contig", "start", "end", "annotation", "strand")
 )
 
 # Import all_pos_phage_phabox2.bed
@@ -46,7 +46,7 @@ phabox2 <- read.delim(
   phabox_bed,
   header = FALSE,
   sep = "\t",
-  col.names = c("contig", "start", "end", "annotation")
+  col.names = c("contig", "start", "end", "annotation", "strand")
 )
 
 # Import all_pos_phage_pharokka.bed
@@ -54,7 +54,7 @@ pharokka <- read.delim(
   pharokka_bed,
   header = FALSE,
   sep = "\t",
-  col.names = c("contig", "start", "end", "annotation")
+  col.names = c("contig", "start", "end", "annotation", "strand")
 )
 
 # Import the fourth file mentioned in the second part of the request
@@ -64,7 +64,7 @@ prodigal <- read.delim(
   sep = "\t",
   col.names = c("contig", "start", "end", "annotation")
 )
-
+prodigal$strand <- "+"
 
 
 fasta_sequence <- readDNAStringSet(fasta_file)
@@ -105,36 +105,35 @@ phage_combined <- rbind(
   genomad,
   phabox2,
   pharokka,
-  prodigal # Including the fourth file in the combined set
+  prodigal 
 )
 
 ## potentially filter dataframe for important genes (Capsid, head tail fiber sheath holin Endolysins Spanins Portal protein depolymerases Integrase Terminase  toxins Effector )
-keywords <- "Capsid|head tail fiber|sheath|holin|Endolysins|Spanins|Portal protein|depolymerases|Integrase|Terminase|toxins|Effector"
-phage_combined$gene_of_interest <- ifelse(
-  # Check if the annotation contains any of the keywords (case-insensitive)
-  grepl(keywords, phage_combined$annotation, ignore.case = TRUE),
-  
-  # If TRUE (match found), fill the new column with the original annotation text
-  phage_combined$annotation,
-  
-  # If FALSE (no match), fill the new column with NA
-  NA
+keywords <- "Capsid|head|tail|sheath|holin|endolysin|spanin|portal|depolymerase|integrase|terminase|toxin|effector|hypothetical protein"
+
+phage_combined <- phage_combined %>%
+mutate(
+  gene_of_interest = case_when(
+    # If annotation is NA, the new column is NA
+    is.na(annotation) ~ NA_character_,
+    
+    # If annotation contains any of the keywords (case-insensitive check)
+    str_detect(annotation, regex(keywords, ignore_case = TRUE)) ~ str_extract(
+      annotation, 
+      # Extract the matched keyword (Terminase or hypothetical protein in this case)
+      regex(keywords, ignore_case = TRUE)
+    ),
+    
+    # If none of the above conditions are met (i.e., annotation is not NA 
+    # but does not contain a keyword)
+    TRUE ~ "other"
+  )
 )
 
 phage_combined <- phage_combined %>%
   filter(contig %in% high_completeness_contigs)
 
 
-# Substitute "hypothetical protein" (case-insensitive) with NA
-phage_combined <- phage_combined %>%
-  mutate(
-    annotation = ifelse(
-      # Check if the annotation contains the exact phrase, ignoring case
-      grepl("^hypothetical protein$", annotation, ignore.case = TRUE),
-      NA, # If TRUE, replace with NA
-      annotation  # If FALSE, keep the original annotation
-    )
-  )
 
 # 4. Create new dataframes based on contig
 # The names of the list elements will be the contig IDs.
@@ -145,6 +144,25 @@ contig_dataframes_list <- split(phage_combined, phage_combined$contig)
 contig_to_view <- contig_dataframes_list[["pos_phage_1"]]
 contig_to_find <- "pos_phage_1"
 
+
+
+colors <- list(  "capsid" = "#9D84AB",
+                 "head" = "#E8A9B4",
+                 "tail" = "#C4DFE5",
+                 "fiber" = "#F5D0D0",
+                 "sheath" = "#FFF2D9",
+                 "holin" = "#99DEB9",
+                 "endolysin" = "#6CABA5",
+                 "spanin" = "#B1E5F2",
+                 "portal" = "#FFD187",
+                 "depolymerase" = "#C5C5E4",
+                 "integrase" = "#F9A99E",
+                 "terminase" = "#A0D5B5",
+                 "toxin" = "#D9B89B",
+                 "effector" = "#A4A8A3",
+                 "tail" = "#FFC697",
+                 "hypothetical protein"= "#D3D3D3",
+                 "other" = "#B2B2C0")
 
 # Loop through the list of contig dataframes
 for (contig_name in names(contig_dataframes_list)) {
@@ -159,25 +177,35 @@ for (contig_name in names(contig_dataframes_list)) {
 
 
 plot <- GC_chart(contig_to_view,
-         group = "tool",    # Now group by tool within that contig
+         group = "gene_of_interest",    # Now group by tool within that contig
          cluster = "tool",  # Separate tracks by tool
          height = "800px") %>%
-  GC_labels("annotation",
-            adjustLabels = TRUE,
-            ) %>%
-  GC_color(colorScheme = "schemePastel1") %>%
-  GC_cluster(prevent_gene_overlap = TRUE, overlap_spacing = 30) %>%
+  GC_tooltip(
+    formatter = "<b>{annotation}</b><br><b>Start:</b> {start}<br><b>End:</b> {end}",
+    show = TRUE,
+  ) %>%
+  GC_genes(
+    marker = "boxarrow",
+    marker_size = "small"
+  )%>%
   GC_clusterLabel(title = unique(contig_to_view$tool)) %>% 
-  GC_annotation( 
-    style = list(
-      fontSize = "7px",
-      fontStyle = "normal",
-      fontWeight = "normal",
-      textDecoration = "none",
-      fontFamily = "sans-serif")  )%>%
+
   GC_scale(axis_type = "range",
              start = 0, 
-             end = contig_length )
+             end = contig_length ) %>%
+  GC_cluster(prevent_gene_overlap = TRUE, overlap_spacing = 30) %>%
+  GC_legend(
+    group = "gene_of_interest",
+    legendTextOptions = list(fontSize = "12px"),
+    order = c(setdiff(sort(contig_to_view$gene_of_interest), "other"), "other")
+    
+  )  %>%
+  GC_title(
+  title = contig_name,
+  show = TRUE
+) %>%
+  GC_color(customColors = colors)
+
 
 # Define the output file name
 output_filename <- paste0(contig_name, "_annotation_comparison.html")
