@@ -193,7 +193,7 @@ plot <- GC_chart(contig_to_view,
   GC_scale(axis_type = "range",
              start = 0, 
              end = contig_length ) %>%
-  GC_cluster(prevent_gene_overlap = TRUE, overlap_spacing = 30) %>%
+  GC_cluster(prevent_gene_overlap = TRUE, overlap_spacing = 5) %>%
   GC_legend(
     group = "gene_of_interest",
     legendTextOptions = list(fontSize = "12px"),

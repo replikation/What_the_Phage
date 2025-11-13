@@ -76,9 +76,9 @@ workflow annotation_taxonomy_wf {
 
                 
                 compare_annotation(collect_annotation_ch)
-                test = compare_annotation.out.bedfile_ch
-                test.view()
-                compare_annotation_plot(compare_annotation.out.bedfile_ch, fasta, checkv)
+                plot_in = compare_annotation.out.bedfile_ch.join(fasta).join(checkv)
+                plot_in.view()
+                compare_annotation_plot(plot_in)
             
 
 
