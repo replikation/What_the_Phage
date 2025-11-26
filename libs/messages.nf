@@ -14,18 +14,39 @@ def helpMSG() {
     nextflow run replikation/What_the_Phage --fasta '*/*.fasta' --cores 20 --max_cores 40 \\
         --output results -profile local,docker 
 
+    -or-
+    
     nextflow run phage.nf --fasta '*/*.fasta' --cores 20 \\
+        --end_to_end  \\
+        --output results -profile lsf,singularity \\
+        --cachedir /images/singularity_images \\
+        --databases /databases/WtP_databases/ 
+
+    -or-
+    
+    nextflow run phage.nf --fasta '*/*.fasta' --cores 20 \\
+        --identify  \\
+        --prophage  \\
         --output results -profile lsf,singularity \\
         --cachedir /images/singularity_images \\
         --databases /databases/WtP_databases/ 
 
     ${c_purple}Input:${c_reset}
      --fasta             '*.fasta'   -> assembly file(s)
-     --fastq             '*.fastq'   -> long read file(s)
-    ${c_dim}  ..change above input to csv via --list ${c_reset}  
-    ${c_dim}   e.g. --fasta inputs.csv --list    
-        the .csv contains per line: name,/path/to/file${c_reset}  
      --setup              skips analysis and just downloads databases and containers
+
+
+    ${c_purple}Workflow Control:${c_reset}
+
+    --end_to_end            runs identification, annotation and taxonomy, prophage, host, lifecycle
+
+    --identify              runs phage identification, 
+    --annotate_taxonomy     runs annotation and taxonomy, 
+    --prophage              runs prophage identification
+    --host                  runs host prediction
+    --lifecycle             runs lifecycle prediction
+
+    you can combine these flags as you like, e.g. --identify --host
 
     ${c_purple}Execution/Engine profiles:${c_reset}
      WtP supports profiles to run via different ${c_green}Executers${c_reset} and ${c_blue}Engines${c_reset} e.g.:

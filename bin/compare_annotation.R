@@ -64,7 +64,7 @@ prodigal <- read.delim(
   sep = "\t",
   col.names = c("contig", "start", "end", "annotation")
 )
-prodigal$strand <- "+"
+
 
 
 fasta_sequence <- readDNAStringSet(fasta_file)
@@ -94,11 +94,31 @@ high_completeness_contigs <- df_checkv %>%
 ################################################
 ################# data analysis ################
 ################################################
+if (nrow(genomad) > 0) {
+  genomad$tool <- "genomad"
+}
 
-genomad$tool <- "genomad"
-phabox2$tool <- "phabox2"
-pharokka$tool <- "pharokka"
-prodigal$tool <- "prodigal" # Adding toolname for the fourth file too
+# Check if phabox2 is not empty
+if (nrow(phabox2) > 0) {
+  phabox2$tool <- "phabox2"
+}
+
+# Check if pharokka is not empty
+if (nrow(pharokka) > 0) {
+  pharokka$tool <- "pharokka"
+}
+
+# Check if prodigal is not empty
+if (nrow(prodigal) > 0) {
+  prodigal$strand <- "+"
+  prodigal$tool <- "prodigal" # Adding toolname for the fourth file too
+  
+}
+
+# genomad$tool <- "genomad"
+# phabox2$tool <- "phabox2"
+# pharokka$tool <- "pharokka"
+# prodigal$tool <- "prodigal" # Adding toolname for the fourth file too
 
 # 3. Combine all dataframes into a single dataframe
 phage_combined <- rbind(
@@ -140,9 +160,7 @@ phage_combined <- phage_combined %>%
 contig_dataframes_list <- split(phage_combined, phage_combined$contig)
 
 
-## plot a single contig
-contig_to_view <- contig_dataframes_list[["pos_phage_1"]]
-contig_to_find <- "pos_phage_1"
+
 
 
 

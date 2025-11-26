@@ -1,7 +1,7 @@
 process phigaro_prophage {
     publishDir "${params.output}/${name}/prophage/phigaro", mode: 'copy'
     label 'phigaro'
-    // errorStrategy 'ignore'
+    errorStrategy 'ignore'
     input:
         tuple val(name), path(fasta) 
     output:
