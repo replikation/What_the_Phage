@@ -11,10 +11,8 @@ def helpMSG() {
     log.info """
     .
     ${c_purple}Usage examples:${c_reset}
-    nextflow run replikation/What_the_Phage --fasta '*/*.fasta' --cores 20 --max_cores 40 \\
-        --output results -profile local,docker 
 
-    -or-
+
     
     nextflow run phage.nf --fasta '*/*.fasta' --cores 20 \\
         --end_to_end  \\
