@@ -12,7 +12,10 @@ def helpMSG() {
     .
     ${c_purple}Usage examples:${c_reset}
 
-
+    nextflow run phage.nf --fasta '*/*.fasta' --cores 20 \\
+        --end_to_end  \\
+        --output results \\
+        -profile local,docker \\
     
     nextflow run phage.nf --fasta '*/*.fasta' --cores 20 \\
         --end_to_end  \\
