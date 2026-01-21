@@ -12,6 +12,7 @@ include { download_genomad_DB } from './process/download_genomad_DB'
 include { genomad_annotation } from './process/genomad_annotation'
 include { compare_annotation } from './process/compare_annotation'
 include { compare_annotation_plot } from './process/compare_annotation_plot'
+include { annotation_tables_summary_report } from './process/annotation_tables_summary_report'
 
 // Taxonomy
 include { sourmash_tax } from './process/sourmash_tax'
@@ -72,15 +73,12 @@ workflow annotation_taxonomy_wf {
                                          .mix( genomad_annotation.out.genomad_annotation_ch)
                                          .groupTuple()
 
-                //collect_annotation_ch.view()
+                // collect_annotation_ch.view()
 
-                
                 compare_annotation(collect_annotation_ch)
                 plot_in = compare_annotation.out.bedfile_ch.join(fasta).join(checkv)
-                plot_in.view()
                 compare_annotation_plot(plot_in)
-            
-
+                annotation_tables_summary_report(compare_annotation.out.bedfile_ch)    
 
 
                 ///////////////////////////////////////////////////////////////

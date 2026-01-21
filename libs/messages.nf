@@ -101,8 +101,6 @@ def helpMSG() {
                         *.hmm  *.hmm.h3f  *.hmm.h3i  *.hmm.h3m  *.hmm.h3p
 
     ${c_yellow}Workflow control:${c_reset}
-    --identify          only phage identification, skips analysis
-    --annotate          only annotation, skips phage identification
     --plot_completeness will plot Phage-contigs with CheckV-completeness > 75.00 (or you provide your cutoff value, e.g. 80.00)
 
     ${c_yellow}Databases, file, container behaviour:${c_reset}
@@ -172,4 +170,26 @@ ${c_turquoise}Singularity Cache: ${c_reset}${params.cachedir}
 """
 ${c_turquoise}${line * 3}${c_reset}
 """
+}
+
+def progressBar(workflow) {
+    def c_turquoise = "\033[1;36m"
+    def c_reset     = "\033[0m"
+    def c_green     = "\033[1;32m"
+    def c_gray      = "\033[0;90m"
+
+    def completed = workflow.stats.succeededCount + workflow.stats.cachedCount + workflow.stats.failedCount
+    def total     = workflow.stats.submittedCount
+    
+    if (total > 0) {
+        def percent = (completed * 100.0) / total
+        def width   = 40
+        def done    = (int) (percent / 100 * width)
+        def remain  = width - done
+        
+        def bar = "${c_green}" + "█" * done + "${c_gray}" + "░" * remain + "${c_reset}"
+        
+        print "\r${c_turquoise}Workflow Progress: [${bar}] ${String.format('%.1f', percent)}% (${completed}/${total})${c_reset}"
+        if (completed == total) println ""
+    }
 }

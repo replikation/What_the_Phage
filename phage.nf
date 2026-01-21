@@ -6,7 +6,7 @@ nextflow.enable.dsl=2
 * Author: @github: mult1fractal & christian.jena@gmail.com
 */
 
-    include { helpMSG; defaultMSG  }       from './libs/messages.nf'
+    include { helpMSG; defaultMSG; progressBar }   from './libs/messages.nf'
     include { get_test_data_wf }           from './workflows/get_test_data_wf'
     include { setup_wf }                   from './workflows/setup_wf'
     include { input_validation_wf }        from './workflows/input_validation_wf/input_validation_wf'
@@ -17,6 +17,7 @@ nextflow.enable.dsl=2
     include { host_prediction_wf }         from './workflows/host_prediction_wf/host_prediction_wf'
     // include { lifecycle_wf }            from './workflows/host_lifecycle_wf/host_lifecycle_wf'
     include { markdown_report_wf }         from './workflows/markdown_report_wf'
+    include { quarto_report_wf }           from './workflows/quarto_report_wf'
     
 
 
@@ -113,14 +114,19 @@ workflow {
  
 
 
-    markdown_report_wf(identify_ch, annotate_taxonomy_ch, checkV_ch, prophage_ch)
+    if (params.quarto_report) {
+        quarto_report_wf(identify_ch, annotate_taxonomy_ch, checkV_ch, prophage_ch)
+    } else {
+        markdown_report_wf(identify_ch, annotate_taxonomy_ch, checkV_ch, prophage_ch)
+    }
     
-
-
 }
+
+
 
     if (!params.setup) {
         workflow.onComplete { 
+            progressBar(workflow)
             log.info ( workflow.success ? "\nDone! Results are stored here --> $params.output \nThank you for using What the Phage\n \nPlease cite us: https://doi.org/10.1101/2020.07.24.219899 \
                                           \n\nPlease also cite the other tools we use in our workflow --> $params.output/literature \n" : "Oops .. something went wrong" )
         }

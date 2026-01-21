@@ -7,6 +7,7 @@ library(tidyr)
 library(ggplot2)
 library(stringr)
 
+
 # if (!requireNamespace("BiocManager", quietly = TRUE))
 #   install.packages("BiocManager")
 # BiocManager::install("GenomicRanges")
@@ -240,118 +241,171 @@ print(plot)
 
 
 
+
+
 ################################################
-################# statistics #######################
+################# waffle plot #######################
 ################################################
+library(remotes)
+library(waffle)
 
-
-# df_processed <- phage_combined %>%
-#   # Calculate the length of each annotated feature
-#   mutate(length = end - start + 1) %>%
+df_processed <- phage_combined %>%
+  mutate(length = end - start + 1) %>%
   
-#   # Create the 'is_annotated' column
-#   mutate(
-#     is_annotated = case_when(
-#       # Condition 1: Annotation is an actual NA value (missing annotation) -> FALSE
-#       is.na(annotation) ~ FALSE,
+# Create the granular 'Annotation_Type' column with three categories
+# Create the simplified 'Annotation_Type' column with two primary categories
+  mutate(
+    Annotation_Type = case_when(
+      # Condition 1 & 2 combined: NA (missing annotation) OR Hypothetical protein (case-insensitive)
+      is.na(annotation) | str_detect(annotation, regex("hypothetical protein", ignore_case = TRUE)) ~ "low-confidence/missing",
       
-#       # Condition 2: Annotation contains "hypothetical protein" (case-insensitive) -> FALSE
-#       # This handles common variants like "Hypothetical protein" or "hypothetical_protein"
-#       str_detect(annotation, regex("hypothetical protein", ignore_case = TRUE)) ~ FALSE,
-      
-#       # Default: Any other annotation is considered a "true" annotation -> TRUE
-#       TRUE ~ TRUE
-#     )
-#   )
+      # Default: Any other annotation is considered a "true" annotation
+      TRUE ~ "annotated protein"
+    )
+  )
 
-# coverage_df <- df_processed %>%
-#   # 3. Join with corrected contig lengths
-#   left_join(fasta_lengths_df, by = "contig") %>%
+# Calculate covered lengths for the three categories
+category_coverage_df <- df_processed %>%
+  # Join with contig length
+  left_join(fasta_lengths_df, by = "contig") %>%
+  # Group and Summarize
+  group_by(contig, tool, Annotation_Type, contig_length) %>%
+  summarise(
+    total_covered_length = sum(length),
+    .groups = "drop"
+  )
+
+# Calculate Total Covered Length per Tool and the Uncovered Portion
+# simplistic sum (NOT overlap-aware)
+total_covered_df <- category_coverage_df %>%
+  group_by(contig, tool, contig_length) %>%
+  summarise(
+    total_covered_by_tool = sum(total_covered_length),
+    .groups = "drop"
+  )
+
+# Calculate Uncovered Length and prepare it for merging
+uncovered_df <- total_covered_df %>%
+  mutate(
+    Annotation_Type = "uncovered",
+    # Calculate the uncovered length
+    total_covered_length = contig_length - total_covered_by_tool
+  ) %>%
+  select(contig, tool, Annotation_Type, total_covered_length, contig_length)
+
+# Combine all categories and calculate final percentages
+final_coverage_df <- bind_rows(category_coverage_df, uncovered_df) %>%
+  # Calculate the final percentage
+  mutate(
+    coverage_percentage = (total_covered_length / contig_length) * 100
+  ) %>%
+  # Handle potential negative 'uncovered' length (due to overlaps) by setting it to 0
+  mutate(
+    total_covered_length = pmax(0, total_covered_length),
+    coverage_percentage = pmax(0, coverage_percentage)
+  ) %>%
+  # Final selection and ordering
+  select(
+    contig,
+    tool,
+    Annotation_Type,
+    total_covered_length,
+    contig_length,
+    coverage_percentage
+  ) %>%
+  # Order the Annotation_Type for better readability
+  arrange(contig, tool, desc(Annotation_Type)) %>%
+  # Format percentage for cleaner output
+  mutate(
+    coverage_percentage = round(coverage_percentage, 2)
+  )
+
+# Print the final result dataframe
+print(final_coverage_df)
+
+# normalize t he waffleplot
+waffle_data_normalized <- final_coverage_df %>%
+  group_by(contig, tool) %>%
+  # Convert raw lengths directly to proportions of 100
+  mutate(n_tiles = as.integer(round((total_covered_length / contig_length) * 100))) %>%
+  # Handle the "Uncovered" category as a "Filler" to ensure sum = 100
+  mutate(n_tiles = if_else(Annotation_Type == "uncovered", 
+                           100 - sum(n_tiles[Annotation_Type != "uncovered"]), 
+                           n_tiles)) %>%
+  ungroup()
+
+
+
+# Define adjustable colors for the categories
+waffle_colors <- c(
+  "annotated protein"       = "#33d833ff",
+  "low-confidence/missing" = "#f0ad4e",
+  "uncovered"              = "#da615dff" 
+)
+
+# --- Per Contig Waffle Plots ---
+for (current_contig in unique(waffle_data_normalized$contig)) {
   
-#   # 4. Group and Summarize
-#   group_by(contig, tool, is_annotated, contig_length) %>%
-#   summarise(
-#     total_covered_length = sum(length),
-#     .groups = "drop"
-#   ) %>%
-  
-#   # 5. Calculate the percentage of coverage
-#   mutate(
-#     coverage_percentage = (total_covered_length / contig_length) * 100
-#   ) %>%
-  
-#   # 6. Reorder and RENAME the annotation type for clarity (THE REQUESTED CHANGE)
-#   mutate(
-#     Annotation_Type = case_when(
-#       is_annotated == FALSE ~ "hypothetical protein or NA",
-#       is_annotated == TRUE ~ "annotated protein"
-#     )
-#   ) %>%
-#   # 7. Add this block to convert to a factor and set the order!
-#   mutate(
-#     Annotation_Type = factor(
-#       Annotation_Type,
-#       levels = c(
-#         "annotated protein",         # First level (will be at the bottom of the stack)
-#         "hypothetical protein or NA" # Second level (will be at the top of the stack)
-#       )
-#     )
-#   ) %>%
-  
-#   # Final select and arrangement
-#   select(
-#     contig,
-#     tool,
-#     Annotation_Type, # Now using the modified factor column
-#     total_covered_length,
-#     contig_length,
-#     coverage_percentage
-#   ) %>%
-#   # Change the final arrange to prioritize the factor order
-#   arrange(contig, tool, Annotation_Type)
+  contig_waffle_data <- waffle_data_normalized %>%
+    filter(contig == current_contig)
+    
+  plot_waffle <- contig_waffle_data %>%
+    ggplot(aes(fill = Annotation_Type, values = n_tiles)) +
+    geom_waffle(n_rows = 10, size = 0.33, color = "white", flip = TRUE) +
+    facet_wrap(~ tool, ncol = 2) +
+    labs(
+      title = paste("Annotation Breakdown:", current_contig),
+      fill = "Annotation Type"
+    ) +
+    theme_minimal() +
+    theme(
+      panel.grid = element_blank(),
+      axis.text = element_blank(),
+      axis.title = element_blank(),
+      legend.position = "bottom",
+      plot.title = element_text(hjust = 0.5, face = "bold")
+    ) +
+    scale_fill_manual(values = waffle_colors)
+    
+  ggsave(file=paste0(current_contig, "_waffle.svg"), plot=plot_waffle, width=10, height=8)
+}
 
-# # Print the final result dataframe
-# print(coverage_df)
+# --- Aggregated Waffle Summary (All Contigs) ---
 
+# 1. Sum up lengths across ALL contigs per tool/category
+waffle_summary <- final_coverage_df %>%
+  group_by(tool, Annotation_Type) %>%
+  summarise(total_length = sum(total_covered_length), .groups = "drop") %>%
+  group_by(tool) %>%
+  mutate(
+    # Calculate percentage based on total length of all filtered contigs
+    total_tool_length = sum(total_length),
+    waffle_percentage = (total_length / total_tool_length) * 100,
+    n_tiles = round(waffle_percentage)
+  ) %>%
+  ungroup()
 
-# ################################################
-# ################# plot #######################
-# ################################################
+# 2. Create the Plot
+plot_waffle_summary <- waffle_summary %>%
+  ggplot(aes(fill = Annotation_Type, values = n_tiles)) +
+  geom_waffle(n_rows = 10, size = 0.33, color = "white", flip = TRUE) +
+  facet_wrap(~ tool, ncol = 2) +
+  labs(
+    title = "Global Annotation Summary (All Filtered Contigs)",
+    subtitle = paste("Summary of contigs with completeness >=", completeness_threshold, "%"),
+    fill = "Annotation Type"
+  ) +
+  theme_minimal() +
+  theme(
+    panel.grid = element_blank(),
+    axis.text = element_blank(),
+    axis.title = element_blank(),
+    legend.position = "bottom",
+    plot.title = element_text(hjust = 0.5, face = "bold"),
+    plot.subtitle = element_text(hjust = 0.5)
+  ) +
+  scale_fill_manual(values = waffle_colors)
 
-
-# p <- ggplot(
-#   data = coverage_df,
-#   aes(
-#     # X-axis is Contig
-#     x = tool,
-#     # Y-axis is Coverage Percentage
-#     y = coverage_percentage,
-#     # Fill/stacking color is Annotation Type
-#     fill = Annotation_Type,
-#     # Crucially, group the bars by the Tool
-#     group = contig
-#   )
-# ) +
-#   # Use geom_col for bar plots.
-#   # The 'position = "stack"' here is the default and stacks the fill.
-#   # The 'position = position_dodge(width = 0.9)' makes the bars for each tool cluster together.
-#   geom_bar(position="stack", stat="identity") +
-#   facet_wrap(~ contig ) +
-#   # Add labels and titles
-#   labs(
-#     title = "Annotation Coverage by Contig and Tool",
-#     y = "Coverage Percentage (%)",
-#     fill = "Annotation Type"
-#   ) +
-#   # Improve the theme
-#   theme_minimal() +
-#   theme(
-#     axis.text.x = element_text(angle = 45, hjust = 1), # Rotate X-axis labels
-#     plot.title = element_text(face = "bold", hjust = 0.5),
-#     legend.position = "bottom"
-#   )
-
-
-# # Print the plot
-# print(p)
-# htmlwidgets::saveWidget(p, "annotation_statistics.html", selfcontained = TRUE)
+# 3. Save the summary plot
+print(plot_waffle_summary)
+ggsave(file="annotation_summary_plot.svg", plot=plot_waffle_summary, width=10, height=8)

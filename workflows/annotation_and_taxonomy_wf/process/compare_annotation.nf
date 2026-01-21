@@ -22,7 +22,7 @@ process compare_annotation {
             touch ${name}_phabox2.bed
         fi
 
-        if [ -f {name}_filtered_genes_annotation_genomad.tsv ]; then
+        if [ -f ${name}_filtered_genes_annotation_genomad.tsv ]; then
             genomad_to_bed.sh ${name}_filtered_genes_annotation_genomad.tsv ${name}_genomad.bed
          else
             touch ${name}_genomad.bed
