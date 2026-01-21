@@ -251,9 +251,7 @@ library(waffle)
 
 df_processed <- phage_combined %>%
   mutate(length = end - start + 1) %>%
-  
-# Create the granular 'Annotation_Type' column with three categories
-# Create the simplified 'Annotation_Type' column with two primary categories
+
   mutate(
     Annotation_Type = case_when(
       # Condition 1 & 2 combined: NA (missing annotation) OR Hypothetical protein (case-insensitive)

@@ -49,7 +49,7 @@ workflow annotation_taxonomy_wf {
                 chromomap_parser(fasta.join(hmmscan.out), vogtable_DB.out)
                 chromomap(chromomap_parser.out[0].mix(chromomap_parser.out[1]))
 
-                annotationtable_markdown_input = chromomap_parser.out.annotationfile_combined_ch
+                //annotationtable_markdown_input = chromomap_parser.out.annotationfile_combined_ch
 
                 // pharokka annotation via 
                 if (!params.pharokka) {pharokka(fasta) 
@@ -112,7 +112,7 @@ workflow annotation_taxonomy_wf {
                 // report_input_ch=  sourmash_tax.out.join(genomad_tax.out) 
                 // report_input_ch.view()
 
-                annotation_taxonomy_markdown_input = annotationtable_markdown_input.join(sourmash_tax_markdown_input) //.join(genomad_annotation.out.genomad_annotation_ch).join(genomad_tax)
+                annotation_taxonomy_markdown_input = annotation_tables_summary_report.out.join(sourmash_tax_markdown_input) //.join(genomad_annotation.out.genomad_annotation_ch).join(genomad_tax)
                 //annotation_taxonomy_markdown_input.view()
                 //[all_pos_phage, /mnt/6tb_1/work/1f/85680033cc9a22a7c720e9f2f5ffa2/annotationfile_combined.tbl, /mnt/6tb_1/work/0e/046174cd2a7ab29b293e536c3d936b/all_pos_phage_taxonomy_sourmash.tsv, /mnt/6tb_1/work/5e/5429e47cfbcd5fc671857948e554fb/all_pos_phage_filtered_genes.tsv, genomad, /mnt/6tb_1/work/5e/5429e47cfbcd5fc671857948e554fb/all_pos_phage_filtered_taxonomy.tsv, genomad]
     emit:       annotation_taxonomy_markdown_input

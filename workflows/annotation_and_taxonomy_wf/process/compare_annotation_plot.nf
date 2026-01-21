@@ -1,5 +1,5 @@
 process compare_annotation_plot {
-        publishDir "${params.output}/${name}/annotation_results/compare/", mode: 'copy'
+        publishDir "${params.output}/${name}/annotation_results/summary/", mode: 'copy'
         label 'geneviewer'
     input:
         tuple val(name), path(bed_files), path(fasta), path(checkv)

@@ -16,10 +16,11 @@ annotationtable <- "#RESULTSENV#"
 sample_name <- "#NAMEENV#"
 
 dv = read.table(file = annotationtable, sep = '\t', header = FALSE)
-colnames(dv) <- c("gene_prediction","contig_name","start","end","category")
+colnames(dv) <- c("Contig_name","Start","End","Gene_name","Strand")
 datatable(dv, rownames = FALSE, class = 'hover', extensions  = 'Buttons', options = list(
     dom = 'Bfrtip', buttons = c('copy', 'csv', 'excel', 'pdf', 'colvis')))
 ```
+
 
 #### **Visual representation of annotated genes via chromoMap**
 
