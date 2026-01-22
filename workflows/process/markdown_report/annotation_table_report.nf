@@ -12,6 +12,7 @@ process annotation_table_report {
         # add inputfile name and sample name to markdown template
         sed -e 's/#RESULTSENV#/${name}_report_annotation_table.input/g' ${markdown} | \
         sed -e 's/#WAFFLEENV#/${name}_report_annotation_waffle.input.svg/g' | \
+        sed -e "s|#RESULTSDIR#|${params.output}/${name}/annotation_results/summary/|g" | \
         sed -e 's/#NAMEENV#/${name}/g' > ${name}_report_annotation_table.Rmd
         """
     stub:
@@ -22,6 +23,7 @@ process annotation_table_report {
         # add inputfile name and sample name to markdown template
         sed -e 's/#RESULTSENV#/${name}_report_annotation_table.input/g' ${markdown} | \
         sed -e 's/#WAFFLEENV#/${name}_report_annotation_waffle.input.svg/g' | \
+        sed -e "s|#RESULTSDIR#|${params.output}/${name}/annotation_results/summary/|g" | \
         sed -e 's/#NAMEENV#/${name}/g' > ${name}_report_annotation_table.Rmd
         """
 } 

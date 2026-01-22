@@ -39,7 +39,10 @@ The Global Annotation Summary (Waffle plot) provides a "quality control" overvie
 **How was it calculated?**  
 It aggregates DNA sequence data from all high-quality phages (filtered by CheckV completeness), sums their lengths, and calculates the percentage of base pairs falling into each category for every tool. This helps visually compare tool performance and interpretability.
 
-*Note: Detailed linear **annotation plots** and individual **waffle plots** for **each** contig are available in the corresponding results folders.*
+*Note: Detailed linear **annotation plots** and individual **waffle plots** for **each** contig are available in the corresponding results folders:*
+```
+#RESULTSDIR#
+```
 </div>
 
 
