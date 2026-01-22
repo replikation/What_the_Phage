@@ -16,10 +16,37 @@ annotationtable <- "#RESULTSENV#"
 sample_name <- "#NAMEENV#"
 annotation_waffle <- "#WAFFLEENV#"  
 
+
 dv = read.table(file = annotationtable, sep = '\t', header = FALSE)
-colnames(dv) <- c("Contig_name","Start","End","Gene_name","Strand")
-datatable(dv, rownames = FALSE, class = 'hover', extensions  = 'Buttons', options = list(
-    dom = 'Bfrtip', buttons = c('copy', 'csv', 'excel', 'pdf', 'colvis')))
+colnames(dv) <- c("Contig", "Start", "End", "Gene Prediction", "Strand", "Tool")
+dv <- dv %>% arrange(Contig, Start, End)
+datatable(dv, 
+    rownames = FALSE, 
+    filter = 'top',
+    class = 'hover cell-border stripe',
+    extensions = c('Buttons', 'ColReorder'),
+    options = list(
+        order = list(list(0, 'asc'), list(1, 'asc')), # Explicitly set initial sort order
+        dom = 'Bfrtip',
+        buttons = c('copy', 'csv', 'excel', 'pdf', 'colvis'),
+        pageLength = 15,
+        autoWidth = TRUE,
+        columnDefs = list(list(className = 'dt-center', targets = "_all"))
+    )
+) %>%
+    formatStyle(
+        'Tool',
+        backgroundColor = styleEqual(
+            c('genomad', 'pharokka', 'phabox2', 'prodigal'), 
+            c('#e6f2ff', '#e6ffe6', '#fff0e6', '#f1ad71ff') # Pastel colors for different tools
+        )
+    ) %>%
+    formatStyle(
+        'Gene Prediction',
+        color = styleEqual(c(NA), c('gray')) # Grey out NA values
+    )
+
+
 ```
 ![](#WAFFLEENV#)
 
