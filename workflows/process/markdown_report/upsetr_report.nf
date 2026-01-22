@@ -3,7 +3,7 @@ process upsetr_report {
     input:
         tuple val(name), path(upsetR_file), path(markdown)
     output:
-        tuple val(name), path("${name}_report_upsetR_file.svg"), path("${name}_report_UpsetR.Rmd")
+        tuple val(name), path("${name}_report_UpsetR.Rmd"), path("${name}_report_upsetR_file.svg")
     script:
         """
         # rename input file to avoid collisions later (needs to be ".input")

@@ -3,7 +3,7 @@ process heatmap_table_report {
     input:
         tuple val(name), path(heatmap_overview_file), path(markdown)
     output:
-        tuple val(name), path("${name}_report_heatmap_table.input"), path("${name}_report_heatmap_table.Rmd")
+        tuple val(name), path("${name}_report_heatmap_table.Rmd"), path("${name}_report_heatmap_table.input")
     script:
         """
         # rename input file to avoid collisions later (needs to be ".input")

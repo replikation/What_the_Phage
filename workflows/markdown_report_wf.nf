@@ -10,33 +10,27 @@ include { taxonomic_classification_report } from './process/markdown_report/taxo
 workflow markdown_report_wf {
     take:   
             identify_input
-            annotation_taxonomy_input
+            annotation_report_input
+            taxonomy_report_input
             checkV_file
             prophages
 
     main:                          
-            // identify_input.view()
-            // annotation_taxonomy_input.view()
-            // checkV_file.view()
-
-        // map correct iputs from workflow control channels
-        // wha happens if channel is empty ? --- : null
+            // map correct iputs from workflow control channels
+            // wha happens if channel is empty ? --- : null
        
             upsetR_file = identify_input.map { it -> tuple(it[0], it[1]) }
             heatmap_overview_file = identify_input.map { it -> tuple(it[0], it[2])}
-            annotationtable = annotation_taxonomy_input.map { it -> tuple(it[0], it[1])}
-            taxonomic_classification_file= annotation_taxonomy_input.map { it -> tuple(it[0], it[2])}
             
-
-        // markdown_preparation(heatmap_overview_file, annotationtable, checkV_file)
-        
-        // create markdown report
-        // Step0 load reports
-        // toolreports/subtabs
+            // markdown_preparation(heatmap_overview_file, annotationtable, checkV_file)
+            
+            // create markdown report
+            // Step0 load reports
+            // toolreports/subtabs
            
          
-        // SAMPLE REPORTS
-        // Step 1. add the rmarkdown template here vvv (below this comment)
+            // SAMPLE REPORTS
+            // Step 1. add the rmarkdown template here vvv (below this comment)
             logo_channel                    = Channel.fromPath(workflow.projectDir + "/figures/logo-wtp_small.png", checkIfExists: true)
             checkV_quality_table            = params.identify || params.annotate_taxonomy  ||  params.prophage ||  params.end_to_end ? Channel.fromPath(workflow.projectDir + "/submodule_report/checkV_quality_table.Rmd", checkIfExists: true) : Channel.empty()
             upsetRreport                    = params.identify || params.end_to_end ? Channel.fromPath(workflow.projectDir + "/submodule_report/UpsetR.Rmd", checkIfExists: true) : Channel.empty()
@@ -48,22 +42,22 @@ workflow markdown_report_wf {
             report                          = Channel.fromPath(workflow.projectDir + "/submodule_report/Report.Rmd", checkIfExists: true)
 
 
-        // Step 2. create reports for each tool and samples its: reportprocess(inputchannel.combine(rmarkdowntemplate))
-        //  collect tool reports PER sample (add new via .mix(NAME_report.out))
+            // Step 2. create reports for each tool and samples its: reportprocess(inputchannel.combine(rmarkdowntemplate))
+            //  collect tool reports PER sample (add new via .mix(NAME_report.out))
         
 
             samplereportinput =  upsetr_report  (upsetR_file.combine            (upsetRreport))
                                 .mix            (checkV_report                  (checkV_file.combine(checkV_quality_table)))
                                 .mix            (heatmap_table_report           (heatmap_overview_file.combine(heatmap_tablereport)))
-                                .mix            (annotation_table_report        (annotationtable.combine(annotation_table)))
-                                .mix            (taxonomic_classification_report(taxonomic_classification_file.combine(taxonomic_classification_table)))
+                                .mix            (annotation_table_report        (annotation_report_input.combine(annotation_table)))
+                                .mix            (taxonomic_classification_report(taxonomy_report_input.combine(taxonomic_classification_table)))
                                 .groupTuple(by: 0)
                                 .map{it -> tuple (it[0],it[1],it[2].flatten())}
-
+            samplereportinput.view()
             sample_report(samplereportinput.combine(sampleheaderreport))
 
 
-        // 3 sumarize sample reports
+            // 3 sumarize sample reports
             summary(sample_report.out.flatten().collect(), report, logo_channel)
 
 

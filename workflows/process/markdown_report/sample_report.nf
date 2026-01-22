@@ -1,7 +1,7 @@
 process sample_report {
     label 'ubuntu'  
     input:
-        tuple val(name), path(inputs), path(rmds), path(samplemarkdown)
+        tuple val(name),  path(rmds), path(inputs), path(samplemarkdown)
     output:
         tuple path(inputs), path("${name}_sample_report.Rmd")
     script:

@@ -3,7 +3,7 @@ process checkV_report {
     input:
         tuple val(name), path(checkV_file), path(markdown)
     output:
-        tuple val(name),  path("${name}_report_checkV_file.input"), path("${name}_report_checkV_file.Rmd")
+        tuple val(name), path("${name}_report_checkV_file.Rmd"), path("${name}_report_checkV_file.input")
     script:
         """
         # rename input file to avoid collisions later (needs to be ".input")

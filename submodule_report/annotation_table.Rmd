@@ -4,7 +4,7 @@
 
 <br>
 
-**Tab.1:** Gene annotation of contigs based on Hmmer and Prodigal, using  [this database](ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/viral-pipeline/hmmer_databases/pvogs.tar.gz)
+**Tab.1:** Gene annotation of contigs based on Hmmer and Prodigal, using  [this database](ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/viral-pipeline/hmmer_databases/pvogs.tar.gz), Genomad, Phabox & Pharokka
 
 
 ```{r, echo=FALSE}
@@ -14,27 +14,36 @@ suppressMessages(library(tidyr))
 
 annotationtable <- "#RESULTSENV#"
 sample_name <- "#NAMEENV#"
+annotation_waffle <- "#WAFFLEENV#"  
 
 dv = read.table(file = annotationtable, sep = '\t', header = FALSE)
 colnames(dv) <- c("Contig_name","Start","End","Gene_name","Strand")
 datatable(dv, rownames = FALSE, class = 'hover', extensions  = 'Buttons', options = list(
     dom = 'Bfrtip', buttons = c('copy', 'csv', 'excel', 'pdf', 'colvis')))
 ```
+![](#WAFFLEENV#)
 
-
-#### **Visual representation of annotated genes via chromoMap**
+#### **Global Annotation Summary**
 
 <style>
 div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 20px;}
 </style>
 <div class = "blue">
-Visual annotation of phage contigs and annotated protein-coding genes via chromoMap is stored by default here:   
-```shell
-results/your_sample/sample_overview_large.html
-results/your_sample/sample_overview_small.html
-```
+**What does the plot show?**  
+The Global Annotation Summary (Waffle plot) provides a "quality control" overview of how much useful information different tools found across all high-quality phage genomes.
 
+*   **Green (Annotated Protein)**: Regions where genes with **known functions** (e.g., "Capsid protein") were found.
+*   **Orange (Low-confidence/Missing)**: Regions with **"hypothetical proteins"** or missing annotations.
+*   **Red (Uncovered)**: DNA regions where **no genes** were predicted.
+
+**How was it calculated?**  
+It aggregates DNA sequence data from all high-quality phages (filtered by CheckV completeness), sums their lengths, and calculates the percentage of base pairs falling into each category for every tool. This helps visually compare tool performance and interpretability.
+
+*Note: Detailed linear **annotation plots** and individual **waffle plots** for **each** contig are available in the corresponding results folders.*
 </div>
+
+
+
 
 
 <a href="#top">Back to top</a>

@@ -3,7 +3,7 @@ process taxonomic_classification_report {
     input:
         tuple val(name), path(taxonomic_classification), path(markdown)
     output:
-        tuple val(name),  path("${name}_report_taxonomic_classification.input"), path("${name}_report_taxonomic_classification.Rmd")
+        tuple val(name),  path("${name}_report_taxonomic_classification.Rmd"), path("${name}_report_taxonomic_classification.input")
     script:
         """
         # rename input file to avoid collisions later (needs to be ".input")
