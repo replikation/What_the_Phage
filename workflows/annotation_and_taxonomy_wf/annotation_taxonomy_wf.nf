@@ -111,10 +111,12 @@ workflow annotation_taxonomy_wf {
                 genomad_tax = genomad_annotation.out.genomad_taxonomy_ch
 
                 //taxmyphage(fasta)
+                
+                taxonomy_combined_ch = sourmash_tax_markdown_input.join(genomad_tax)
 
                
     emit:       annotation_markdown_input = annotation_tables_summary_report.out.join(compare_annotation_plot.out.annotation_waffle_summary_plot_ch)
-                taxonomy_markdown_input = sourmash_tax_markdown_input
+                taxonomy_markdown_input = taxonomy_combined_ch
                 
 
 }

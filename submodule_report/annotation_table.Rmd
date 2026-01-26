@@ -38,7 +38,7 @@ datatable(dv,
         'Tool',
         backgroundColor = styleEqual(
             c('genomad', 'pharokka', 'phabox2', 'prodigal'), 
-            c('#e6f2ff', '#e6ffe6', '#fff0e6', '#f1ad71ff') # Pastel colors for different tools
+            c('#F3E2D4', '#C5B0CD', '#415E72', '#17313E')
         )
     ) %>%
     formatStyle(
@@ -49,6 +49,10 @@ datatable(dv,
 
 ```
 ![](#WAFFLEENV#)
+
+
+
+
 
 #### **Global Annotation Summary**
 

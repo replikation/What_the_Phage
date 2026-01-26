@@ -3,7 +3,7 @@ process annotation_table_report {
     input:
         tuple val(name), path(annotation_table), path(annotation_waffle), path(markdown)
     output:
-        tuple val(name), path("${name}_report_annotation_table.Rmd"), path("${name}_report_annotation_*.inpu*")
+        tuple val(name), path("${name}_report_annotation_table.Rmd"), path("${name}*.inpu*")
     script:
         """
         # rename input file to avoid collisions later (needs to be ".input")

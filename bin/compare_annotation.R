@@ -336,9 +336,9 @@ waffle_data_normalized <- final_coverage_df %>%
 
 # Define adjustable colors for the categories
 waffle_colors <- c(
-  "annotated protein"       = "#33d833ff",
-  "low-confidence/missing" = "#f0ad4e",
-  "uncovered"              = "#da615dff" 
+  "annotated protein"       = "#8CD47E",
+  "low-confidence/missing" = "#F8D66D",
+  "uncovered"              = "#FF6961" 
 )
 
 # --- Per Contig Waffle Plots ---
