@@ -6,6 +6,7 @@ include { summary } from './process/markdown_report/summary_report.nf'
 include { checkV_report } from './process/markdown_report/checkV_report.nf'
 include { annotation_table_report } from './process/markdown_report/annotation_table_report.nf'
 include { taxonomic_classification_report } from './process/markdown_report/taxonomic_classification_report.nf'
+include { prophage_report } from './process/markdown_report/prophage_report.nf'
 
 workflow markdown_report_wf {
     take:   
@@ -37,6 +38,7 @@ workflow markdown_report_wf {
             heatmap_tablereport             = params.identify || params.end_to_end ? Channel.fromPath(workflow.projectDir + "/submodule_report/Heatmap_table.Rmd", checkIfExists: true) : Channel.empty()
             annotation_table                = params.annotate_taxonomy ||  params.end_to_end ? Channel.fromPath(workflow.projectDir + "/submodule_report/annotation_table.Rmd", checkIfExists: true) : Channel.empty()
             taxonomic_classification_table  = params.annotate_taxonomy ||  params.end_to_end ? Channel.fromPath(workflow.projectDir + "/submodule_report/taxonomic_classification.Rmd", checkIfExists: true) : Channel.empty()
+            prophage_table                  = params.prophage          ||  params.end_to_end ? Channel.fromPath(workflow.projectDir + "/submodule_report/prophage_report.Rmd", checkIfExists: true) : Channel.empty()
             
             sampleheaderreport              = Channel.fromPath(workflow.projectDir + "/submodule_report/sampleheader.Rmd", checkIfExists: true)
             report                          = Channel.fromPath(workflow.projectDir + "/submodule_report/Report.Rmd", checkIfExists: true)
@@ -51,9 +53,10 @@ workflow markdown_report_wf {
                                 .mix            (heatmap_table_report           (heatmap_overview_file.combine(heatmap_tablereport)))
                                 .mix            (annotation_table_report        (annotation_report_input.combine(annotation_table)))
                                 .mix            (taxonomic_classification_report(taxonomy_report_input.combine(taxonomic_classification_table)))
+                                .mix            (prophage_report(prophages.combine(prophage_table)))
                                 .groupTuple(by: 0)
                                 .map{it -> tuple (it[0],it[1],it[2].flatten())}
-            samplereportinput.view()
+            
             sample_report(samplereportinput.combine(sampleheaderreport))
 
 

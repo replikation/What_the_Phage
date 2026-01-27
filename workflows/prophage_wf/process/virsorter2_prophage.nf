@@ -1,12 +1,12 @@
 process virsorter2_prophage {
     publishDir "${params.output}/${name}/prophage/virsorter2", mode: 'copy'
     label 'virsorter2'
-    // errorStrategy 'ignore'
+    errorStrategy 'ignore'
     input:
       tuple val(name), path(fasta)  
       path(database)
     output:
-        tuple val(name), path("virsorter2.out/final-viral-score.tsv")
+        tuple val(name), path("virsorter2.out/*_final-viral-score.tsv")
         tuple val(name), path("virsorter2.out")
     script:
         """
@@ -15,7 +15,7 @@ process virsorter2_prophage {
         -i ${fasta} \
         -j ${task.cpus} \
 
-        
+        mv virsorter2.out/final-viral-score.tsv virsorter2.out/${name}_final-viral-score.tsv
         """
     stub:
         """

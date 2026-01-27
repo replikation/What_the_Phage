@@ -33,5 +33,9 @@ workflow prophage_wf {
 
 
             
-    emit:   genomad_prophage.out.genomad_prophage_ch
+    emit:   
+            prophage_report_input = genomad_prophage.out.genomad_extracted_prophage_ch
+                .join(phabox2_prophage.out.phabox2_prophage_ch)
+                .join(virsorter2_prophage.out[0])
+                .join(phigaro_prophage.out[0])
 } 

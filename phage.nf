@@ -115,9 +115,9 @@ workflow {
 
 
     if (params.quarto_report) {
-        quarto_report_wf(identify_ch, annotate_taxonomy_ch.annotation_markdown_input.join(annotate_taxonomy_ch.taxonomy_markdown_input), checkV_ch, prophage_ch)
+        quarto_report_wf(identify_ch, annotate_taxonomy_ch.annotation_markdown_input.join(annotate_taxonomy_ch.taxonomy_markdown_input), checkV_ch, prophage_ch.prophage_report_input)
     } else {
-        markdown_report_wf(identify_ch, annotate_taxonomy_ch.annotation_markdown_input, annotate_taxonomy_ch.taxonomy_markdown_input, checkV_ch, prophage_ch)
+        markdown_report_wf(identify_ch, annotate_taxonomy_ch.annotation_markdown_input, annotate_taxonomy_ch.taxonomy_markdown_input, checkV_ch, prophage_ch.prophage_report_input)
     }
     
 }
