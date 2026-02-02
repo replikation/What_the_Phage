@@ -19,7 +19,14 @@ workflow markdown_report_wf {
     main:                          
             // map correct iputs from workflow control channels
             // wha happens if channel is empty ? --- : null
-       
+          identify_input.view()
+          annotation_report_input.view()
+          taxonomy_report_input.view()
+          checkV_file.view()
+          prophages.view()
+
+
+
             upsetR_file = identify_input.map { it -> tuple(it[0], it[1]) }
             heatmap_overview_file = identify_input.map { it -> tuple(it[0], it[2])}
             

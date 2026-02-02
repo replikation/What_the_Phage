@@ -1,6 +1,6 @@
 process annotation_tables_summary_report {
     publishDir "${params.output}/${name}/annotation_results/", mode: 'copy'
-    label 'r_template'
+    label 'template_r'
 
     input:
     tuple val(name), path(bed_files)
