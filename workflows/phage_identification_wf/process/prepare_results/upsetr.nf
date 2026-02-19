@@ -1,11 +1,13 @@
 process upsetr_plot {
-      publishDir "${params.output}/${name}", mode: 'copy', pattern: "upsetr.svg"
+      publishDir "${params.output}/${name}", mode: 'copy', pattern: "upsetr.{svg,csv}"
       label 'upsetr'
       errorStrategy{task.exitStatus=1 ?'ignore':'terminate'}
     input:
       tuple val(name), file(files)
     output:
-      tuple val(name), file("upsetr.svg")
+      tuple val(name), file("upsetr.svg"), emit: upsetr_svg, optional: true
+      tuple val(name), file("upsetr.csv"), emit: upsetr_csv, optional: true
+
     script:
       """
       #!/usr/bin/env Rscript
@@ -25,13 +27,16 @@ process upsetr_plot {
 
       sets <- sets[order(sapply(sets,length),decreasing=T)]
 
+      upset_input <- fromList(sets)
+      write.csv(cbind(contig = row.names(upset_input), upset_input), file="upsetr.csv", row.names = FALSE)
+
       svg(filename="upsetr.svg", 
           width=10, 
           height=8, 
           pointsize=12)
 
       #nsets = 20, nintersects = 40
-      upset(fromList(sets), sets = names(sets),
+      upset(upset_input, sets = names(sets),
           mainbar.y.label = "No. of shared phage contigs", sets.x.label = "Number of phage \\ncontigs per tool ", 
           order.by = "freq", sets.bar.color = "#56B4E9", keep.order = F, 
           text.scale = 1.4, point.size = 2.6, line.size = 0.8, set_size.show = FALSE)
@@ -41,5 +46,6 @@ process upsetr_plot {
     stub:
         """
         touch upsetr.svg
+        touch upsetr.csv
         """
 }

@@ -22,6 +22,7 @@ include { download_references_phage_scope } from './process/download_tax_referen
 include { sourmash_NCBI_tax_build } from './process/sourmash_tax_build_DB'
 include { sourmash_phage_scope_tax_build } from './process/sourmash_tax_build_DB'
 include { taxmyphage } from './process/taxmyphage'
+include { collect_taxonomy_results } from './process/collect_taxonomy_results'
 
 
 
@@ -60,7 +61,7 @@ workflow annotation_taxonomy_wf {
                 
                 // phabox2 annotation 
                 phabox2_annotation(fasta)
-                phabox2_annotation_plot(fasta, phabox2_annotation.out, checkv)
+                //phabox2_annotation_plot(fasta, phabox2_annotation.out, checkv) kann gelöscht werden.-... vor 2.0 release
 
                 //genomad annotation
                 download_genomad_DB()
@@ -103,20 +104,22 @@ workflow annotation_taxonomy_wf {
                          }                 
 
                 // sourmash taxonomic classification
-                sourmash_tax(split_multi_fasta_2(fasta), sourmash_tax_db_ch, sourmash_tax_metadata_ch).groupTuple(remainder: true)
-                sourmash_tax_markdown_input = sourmash_tax.out
+                sourmash_tax(split_multi_fasta_2(fasta), sourmash_tax_db_ch, sourmash_tax_metadata_ch)
                 
+             
                 //genomad Taxonomic classification
                 // take tax from genomad annotation
                 genomad_tax = genomad_annotation.out.genomad_taxonomy_ch
 
-                //taxmyphage(fasta)
-                
-                taxonomy_combined_ch = sourmash_tax_markdown_input.join(genomad_tax)
+
+                // collect the taxonomy results and prepare for report
+                collect_taxonomy_results(sourmash_tax.out.join(genomad_tax))
+                taxonomy_combined_ch = collect_taxonomy_results.out.taxonomy_combined_ch
+                // taxonomy_combined_ch.view()
 
                
-    emit:       annotation_markdown_input = annotation_tables_summary_report.out.join(compare_annotation_plot.out.annotation_waffle_summary_plot_ch)
-                taxonomy_markdown_input = taxonomy_combined_ch
+    emit:       annotation_report_input = annotation_tables_summary_report.out.join(compare_annotation_plot.out.annotation_waffle_summary_plot_ch)
+                taxonomy_report_input = taxonomy_combined_ch.join(sourmash_tax.out).join(genomad_tax)
                 
 
 }

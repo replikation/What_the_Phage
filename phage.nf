@@ -115,12 +115,12 @@ workflow {
 
 
      if (params.tailwind_report) {
-         report_wf(identify_ch, annotate_taxonomy_ch.annotation_markdown_input, annotate_taxonomy_ch.taxonomy_markdown_input, checkV_ch, prophage_ch.prophage_report_input)
+         report_wf(identify_ch, annotate_taxonomy_ch.annotation_report_input, annotate_taxonomy_ch.taxonomy_report_input, checkV_ch, prophage_ch.prophage_report_input)
     } 
     
-    if (params.markdown_report) {
-        markdown_report_wf(identify_ch, annotate_taxonomy_ch.annotation_markdown_input, annotate_taxonomy_ch.taxonomy_markdown_input, checkV_ch, prophage_ch.prophage_report_input)
-    }
+    // if (params.markdown_report) {
+    //     markdown_report_wf(identify_ch, annotate_taxonomy_ch.annotation_markdown_input, annotate_taxonomy_ch.taxonomy_markdown_input, checkV_ch, prophage_ch.prophage_report_input)
+    // }
     
 }
 

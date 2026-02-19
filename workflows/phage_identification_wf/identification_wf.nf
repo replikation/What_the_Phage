@@ -72,7 +72,6 @@ include { virsorter2_download_DB } from './process/virsorter2/virsorter2_downloa
 // prepare results
 include { filter_tool_names } from './process/prepare_results/filter_tool_names'
 include { upsetr_plot } from './process/prepare_results/upsetr'
-include { hue_heatmap } from './process/prepare_results/hue_heatmap'
 include { contigs_by_tools } from './process/prepare_results/contigs_by_tools.nf'
 
 workflow identification_wf {
@@ -356,7 +355,7 @@ workflow identification_wf {
 
                 // markdown report collecter
                     heatmap_table_markdown_input = contigs_by_tools.out.overview_ch//.join(contigs_by_tools.out.tool_agreements_per_contig_ch)
-                    upsetr_plot_markdown_input = upsetr_plot.out
+                    upsetr_plot_markdown_input = upsetr_plot.out.upsetr_csv
 
                 identify_markdown_input= upsetr_plot_markdown_input.join(heatmap_table_markdown_input) // name, upsetr_plot_markdown_input heatmap_table_markdown_input
 

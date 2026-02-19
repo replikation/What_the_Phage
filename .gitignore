@@ -1,5 +1,6 @@
 nextflow-autodownload-databases/
 cfg
+report
 test-data
 *.log*
 wip/
