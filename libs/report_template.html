@@ -1,0 +1,2439 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What the Phage | Genomic Explorer</title>
+
+    <!-- TAILWIND CSS & CONFIGURATION -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            DEFAULT: 'var(--col-primary)',
+                            dim: 'var(--col-primary-dim)',
+                            hover: 'var(--col-primary-hover)',
+                        },
+                        sidebar: {
+                            DEFAULT: 'var(--col-sidebar-bg)',
+                            border: 'var(--col-sidebar-border)',
+                            hover: 'var(--col-sidebar-hover)',
+                        },
+                        app: {
+                            bg: 'var(--col-app-bg)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+
+    <!-- FONTS -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <!-- CORE STYLES & VARIABLES -->
+    <style>
+        :root {
+            /* BRAND COLORS */
+            --col-primary: #14b8a6;
+            --col-primary-dim: #99f6e4;
+            --col-primary-hover: #0d9488;
+
+            /* LAYOUT COLORS */
+            --col-sidebar-bg: #0f172a;
+            --col-sidebar-border: #1e293b;
+            --col-sidebar-hover: #1e293b;
+            --col-app-bg: #f8fafc;
+
+            /* VISUALIZATION COLORS */
+            --col-type-tail: #3b82f6;
+            --col-type-lysis: #fb923c;
+            --col-type-replication: #10b981;
+            --col-type-other: #94a3b8;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .wander-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .wander-scroll::-webkit-scrollbar-track {
+            background: var(--col-sidebar-bg);
+        }
+
+        .wander-scroll::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 10px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .gene-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .gene-card:hover {
+            filter: brightness(1.2);
+            stroke: white;
+            stroke-width: 2px;
+        }
+
+        .bar-container:hover .bar-fill {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+
+<body class="bg-app-bg text-slate-900 h-screen flex overflow-hidden">
+
+    <!-- SIDEBAR -->
+    <aside class="w-80 bg-sidebar text-slate-300 flex flex-col h-full shadow-2xl z-20">
+        <div class="p-8 border-b border-sidebar-border">
+            <div class="flex items-center gap-3 mb-6">
+                <div
+                    class="w-10 h-10 bg-brand rounded-xl flex items-center justify-center text-white shadow-lg shadow-teal-500/20">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9">
+                        </path>
+                    </svg>
+                </div>
+                <h1 class="text-xl font-bold text-white tracking-tight">What the Phage</h1>
+            </div>
+
+            <div class="relative">
+                <input type="text" placeholder="Search samples..."
+                    class="w-full bg-slate-800 border-none rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-teal-500 transition-all outline-none">
+                <svg class="w-4 h-4 absolute left-3 top-2.5 text-slate-500" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </div>
+        </div>
+
+        <nav id="sample-sidebar" class="flex-1 overflow-y-auto wander-scroll p-4 space-y-1">
+            <div class="px-4 py-2 text-[11px] font-bold text-slate-500 uppercase tracking-[0.2em]">Sample Library</div>
+            <!-- Dynamic Samples will be injected here -->
+        </nav>
+
+
+    </aside>
+
+    <!-- MAIN APP CONTENT -->
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        <!-- TOP HEADER -->
+        <header
+            class="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-10">
+            <div class="flex flex-col">
+                <h2 id="current-sample-title" class="text-lg font-bold text-slate-800">Select a Sample</h2>
+            </div>
+            <div class="flex items-center gap-4">
+                <!-- TABS -->
+                <div class="flex bg-slate-100 p-1 rounded-xl mr-4 overflow-x-auto max-w-[60vw]">
+                    <button onclick="switchTab('overview')" id="tab-overview"
+                        class="px-4 py-1.5 text-sm font-semibold rounded-lg transition-all active-tab bg-white text-slate-900 shadow-sm whitespace-nowrap">
+                        Overview
+                    </button>
+                    <button onclick="switchTab('quality')" id="tab-quality"
+                        class="px-4 py-1.5 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-slate-700 whitespace-nowrap">
+                        Quality
+                    </button>
+                    <button onclick="switchTab('upsetr')" id="tab-upsetr"
+                        class="px-4 py-1.5 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-slate-700 whitespace-nowrap">
+                        UpsetR
+                    </button>
+                    <button onclick="switchTab('id-overview')" id="tab-id-overview"
+                        class="px-4 py-1.5 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-slate-700 whitespace-nowrap">
+                        Identification Overview
+                    </button>
+                    <button onclick="switchTab('annotation')" id="tab-annotation"
+                        class="px-4 py-1.5 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-slate-700 whitespace-nowrap">
+                        Annotation
+                    </button>
+
+                    <button onclick="switchTab('taxonomy')" id="tab-taxonomy"
+                        class="px-4 py-1.5 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-slate-700 whitespace-nowrap">
+                        Taxonomy
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- SCROLLABLE CONTENT AREA -->
+        <div class="flex-1 overflow-y-auto wander-scroll p-8 bg-slate-50/50">
+            <div class="max-w-7xl mx-auto">
+                <!-- Data Injection Warning (Visible if no data) -->
+                <div id="no-data-state" class="text-center py-20">
+                    <div
+                        class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-2">No Data Loaded</h3>
+                    <p class="text-slate-500 max-w-md mx-auto">The report container is ready. Please inject JSON
+                        payloads using the processing pipeline.</p>
+                </div>
+
+                <!-- DYNAMIC CONTENT GOES HERE -->
+                <div id="report-content" class="space-y-8 hidden">
+
+                    <!-- OVERVIEW TAB -->
+                    <div id="content-overview" class="tab-content active">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Contigs
+                                </p>
+                                <p id="stat-contigs" class="text-3xl font-bold text-slate-900">--</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Max Length</p>
+                                <p id="stat-max-len" class="text-3xl font-bold text-slate-900">--</p>
+                            </div>
+                            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Payload Size
+                                </p>
+                                <p id="stat-payload" class="text-3xl font-bold text-slate-900">--</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                            <div
+                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                <h3 class="font-bold text-slate-800">Raw JSON Payload</h3>
+                                <span
+                                    class="px-2 py-1 bg-teal-100 text-teal-700 text-[10px] font-bold rounded uppercase">Debug
+                                    Mode</span>
+                            </div>
+                            <div id="raw-json-display" class="p-6 overflow-auto max-h-[500px]">
+                                <pre
+                                    class="text-xs font-mono text-slate-600 bg-slate-50 p-4 rounded-lg">Select a sample to view data</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- QUALITY TAB -->
+                    <div id="content-quality" class="tab-content">
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                            <div
+                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                <div>
+                                    <h3 class="font-bold text-slate-800">Contig Quality Summary</h3>
+                                    <p class="text-xs text-slate-500">CheckV results and viral sequence metrics</p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <button onclick="exportTableToCSV('quality-table-body', 'quality_summary.csv')"
+                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-all flex items-center gap-1.5 shadow-sm">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
+                                            </path>
+                                        </svg>
+                                        Export CSV
+                                    </button>
+                                    <div class="relative">
+                                        <input type="text" placeholder="Search..."
+                                            onkeyup="filterTable('quality-table-body', this.value)"
+                                            class="pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand w-48 transition-all shadow-sm">
+                                        <svg class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-xs">
+                                    <thead id="quality-table-head">
+                                        <!-- Dynamic headers injected here -->
+                                    </thead>
+                                    <tbody id="quality-table-body" class="divide-y divide-slate-100">
+                                        <!-- Data injected here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- UPSETR TAB -->
+                    <div id="content-upsetr" class="tab-content">
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6">
+                            <div class="mb-6">
+                                <h3 class="font-bold text-slate-800">Upset Plot - Tool Intersection</h3>
+                                <p class="text-xs text-slate-500">Visualization of shared contig identifications across
+                                    tools</p>
+                            </div>
+
+                            <!-- INFO BOX -->
+                            <div
+                                class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4 mb-8 text-sm text-slate-600 max-w-4xl">
+                                <h4
+                                    class="font-bold text-indigo-900 mb-2 flex items-center gap-2 text-xs uppercase tracking-wider">
+                                    <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    How to Read This Plot
+                                </h4>
+                                <ul class="space-y-2 ml-1 text-xs leading-relaxed">
+                                    <li class="flex gap-2">
+                                        <span class="font-semibold text-slate-800 min-w-[120px]">Interaction
+                                            Matrix:</span>
+                                        <span>The grid of dots at the bottom shows combinations of tools. <span
+                                                class="font-bold text-slate-900">Connected black dots</span> form an
+                                            "intersection" (a specific set of tools that agreed).</span>
+                                    </li>
+                                    <li class="flex gap-2">
+                                        <span class="font-semibold text-slate-800 min-w-[120px]">Vertical Bars:</span>
+                                        <span>The height of each bar represents the number of contigs identified <span
+                                                class="italic">exclusively</span> by that specific combination of
+                                            tools.</span>
+                                    </li>
+                                    <li class="flex gap-2">
+                                        <span class="font-semibold text-slate-800 min-w-[120px]">Horizontal Bars:</span>
+                                        <span>Show the total number of contigs identified by each tool individually (Set
+                                            Size), regardless of overlap with other tools.</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div id="upset-plot-container" class="w-full flex justify-center overflow-x-auto">
+                                <!-- D3 Plot will be injected here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- IDENTIFICATION OVERVIEW TAB -->
+                    <div id="content-id-overview" class="tab-content">
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                            <div
+                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                <div>
+                                    <h3 class="font-bold text-slate-800">Phage Identification Overview</h3>
+                                    <p class="text-xs text-slate-500">P-Values/Scores from all identification tools
+                                    </p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <button onclick="exportTableToCSV('id-overview-table-body', 'id_overview.csv')"
+                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-all flex items-center gap-1.5 shadow-sm">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
+                                            </path>
+                                        </svg>
+                                        Export CSV
+                                    </button>
+                                    <div class="relative">
+                                        <input type="text" placeholder="Search..."
+                                            onkeyup="filterTable('id-overview-table-body', this.value)"
+                                            class="pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand w-48 transition-all shadow-sm">
+                                        <svg class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-xs">
+                                    <thead id="id-overview-table-head">
+                                        <!-- Dynamic tools as columns -->
+                                    </thead>
+                                    <tbody id="id-overview-table-body" class="divide-y divide-slate-100">
+                                        <!-- Data injected here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <!-- TAXONOMY TAB -->
+                    <div id="content-taxonomy" class="tab-content">
+                        <!-- Sub-tabs Navigation -->
+                        <div class="flex gap-2 mb-6 border-b border-slate-200 pb-2">
+                            <button onclick="switchTaxonomyTab('overview')" id="tax-tab-overview"
+                                class="px-4 py-2 text-sm font-semibold rounded-lg transition-all bg-white text-brand shadow-sm border border-slate-200">
+                                Overview
+                            </button>
+                            <button onclick="switchTaxonomyTab('sourmash')" id="tax-tab-sourmash"
+                                class="px-4 py-2 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-brand hover:bg-white/50">
+                                Sourmash
+                            </button>
+                            <button onclick="switchTaxonomyTab('genomad')" id="tax-tab-genomad"
+                                class="px-4 py-2 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-brand hover:bg-white/50">
+                                Genomad
+                            </button>
+                        </div>
+
+                        <!-- Taxonomy Overview Sub-tab -->
+                        <div id="tax-content-overview" class="tax-tab-content block">
+                            <!-- Stats Cards for Taxonomy -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                <div
+                                    class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                                    <div>
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                            Sourmash Hits</p>
+                                        <p id="tax-stat-sourmash" class="text-2xl font-bold text-slate-800">--</p>
+                                    </div>
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
+                                            </path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div
+                                    class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                                    <div>
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Genomad
+                                            Hits</p>
+                                        <p id="tax-stat-genomad" class="text-2xl font-bold text-slate-800">--</p>
+                                    </div>
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-teal-50 text-teal-500 flex items-center justify-center">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
+                                            </path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                                <div
+                                    class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                    <div>
+                                        <h3 class="font-bold text-slate-800">Combined Taxonomy Findings</h3>
+                                        <p class="text-xs text-slate-500">Comparison of Sourmash and GeNomad results</p>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <button
+                                            onclick="exportTableToCSV('taxonomy-overview-body', 'taxonomy_overview.csv')"
+                                            class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-all flex items-center gap-1.5 shadow-sm">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
+                                                </path>
+                                            </svg>
+                                            Export CSV
+                                        </button>
+                                        <div class="relative">
+                                            <input type="text" placeholder="Search..."
+                                                onkeyup="filterTable('taxonomy-overview-body', this.value)"
+                                                class="pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand w-48 transition-all shadow-sm">
+                                            <svg class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400"
+                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left border-collapse text-xs">
+                                        <thead>
+                                            <tr
+                                                class="bg-slate-50 text-slate-500 uppercase text-[9px] font-bold tracking-wider">
+                                                <th class="px-4 py-3 border-b border-slate-100">Contig</th>
+                                                <th class="px-4 py-3 border-b border-slate-100">Sourmash Sim.</th>
+                                                <th class="px-4 py-3 border-b border-slate-100">Sourmash Tax</th>
+                                                <th class="px-4 py-3 border-b border-slate-100">Genomad Agree.</th>
+                                                <th class="px-4 py-3 border-b border-slate-100">Genomad Lineage</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="taxonomy-overview-body" class="divide-y divide-slate-100"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sourmash Sub-tab -->
+                        <div id="tax-content-sourmash" class="tax-tab-content hidden">
+                            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                                <div
+                                    class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                    <div>
+                                        <h3 class="font-bold text-slate-800">Sourmash Details</h3>
+                                        <p class="text-xs text-slate-500">K-mer based taxonomic classification</p>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <button
+                                            onclick="exportTableToCSV('taxonomy-sourmash-body', 'taxonomy_sourmash.csv')"
+                                            class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-all flex items-center gap-1.5 shadow-sm">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
+                                                </path>
+                                            </svg>
+                                            Export CSV
+                                        </button>
+                                        <div class="relative">
+                                            <input type="text" placeholder="Search..."
+                                                onkeyup="filterTable('taxonomy-sourmash-body', this.value)"
+                                                class="pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand w-48 transition-all shadow-sm">
+                                            <svg class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400"
+                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left border-collapse text-xs">
+                                        <thead>
+                                            <tr
+                                                class="bg-slate-50 text-slate-500 uppercase text-[9px] font-bold tracking-wider">
+                                                <th class="px-4 py-3 border-b border-slate-100">Contig</th>
+                                                <th class="px-4 py-3 border-b border-slate-100">Similarity</th>
+                                                <th class="px-4 py-3 border-b border-slate-100">Accession</th>
+                                                <th class="px-4 py-3 border-b border-slate-100">Taxonomy</th>
+                                                <th class="px-4 py-3 border-b border-slate-100">Host</th>
+                                                <th class="px-4 py-3 border-b border-slate-100">Lifestyle</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="taxonomy-sourmash-body" class="divide-y divide-slate-100"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Genomad Sub-tab -->
+                        <div id="tax-content-genomad" class="tax-tab-content hidden">
+                            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                                <div
+                                    class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                    <div>
+                                        <h3 class="font-bold text-slate-800">GeNomad Details</h3>
+                                        <p class="text-xs text-slate-500">Marker gene based taxonomy</p>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <button
+                                            onclick="exportTableToCSV('taxonomy-genomad-body', 'taxonomy_genomad.csv')"
+                                            class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-all flex items-center gap-1.5 shadow-sm">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
+                                                </path>
+                                            </svg>
+                                            Export CSV
+                                        </button>
+                                        <div class="relative">
+                                            <input type="text" placeholder="Search..."
+                                                onkeyup="filterTable('taxonomy-genomad-body', this.value)"
+                                                class="pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand w-48 transition-all shadow-sm">
+                                            <svg class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400"
+                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-left border-collapse text-xs">
+                                        <thead>
+                                            <tr
+                                                class="bg-slate-50 text-slate-500 uppercase text-[9px] font-bold tracking-wider">
+                                                <th class="px-4 py-3 border-b border-slate-100">Contig</th>
+                                                <th class="px-4 py-3 border-b border-slate-100">Agreement</th>
+                                                <th class="px-4 py-3 border-b border-slate-100">N Genes</th>
+                                                <th class="px-4 py-3 border-b border-slate-100">TaxID</th>
+                                                <th class="px-4 py-3 border-b border-slate-100">Lineage</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="taxonomy-genomad-body" class="divide-y divide-slate-100"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ANNOTATION TAB -->
+                <div id="content-annotation" class="tab-content">
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
+                        <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col gap-4">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="font-bold text-slate-800">Genome Viewer</h3>
+                                    <p class="text-xs text-slate-500">Visualizing annotations on contigs</p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <!-- View Mode -->
+                                    <div class="flex bg-slate-200 rounded-lg p-1 mr-2">
+                                        <button onclick="switchViewMode('linear')" id="view-mode-linear"
+                                            class="px-2 py-1 text-[10px] font-bold rounded bg-white shadow-sm text-slate-700 transition-all">Linear</button>
+                                        <button onclick="switchViewMode('circular')" id="view-mode-circular"
+                                            class="px-2 py-1 text-[10px] font-bold rounded text-slate-500 hover:text-slate-700 transition-all">Circular</button>
+                                    </div>
+
+                                    <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm cursor-pointer hover:border-brand transition-colors"
+                                        id="container-compare-mode"
+                                        onclick="document.getElementById('annotation-compare-mode').click()">
+                                        <input type="checkbox" id="annotation-compare-mode"
+                                            class="rounded text-brand focus:ring-brand accent-brand w-4 h-4 cursor-pointer"
+                                            onclick="event.stopPropagation(); toggleCompareMode(this.checked)">
+                                        <label
+                                            class="text-sm font-semibold text-slate-600 cursor-pointer select-none pointer-events-none">Compare</label>
+                                    </div>
+
+                                    <select id="annotation-contig-select"
+                                        class="text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white text-slate-700 min-w-[150px] focus:outline-none focus:ring-2 focus:ring-brand"
+                                        onchange="handleContigSelection()">
+                                        <option value="">Select a Contig...</option>
+                                    </select>
+
+                                    <!-- Tool Select for Circular Mode -->
+                                    <select id="annotation-tool-select"
+                                        class="hidden text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white text-slate-700 min-w-[120px] focus:outline-none focus:ring-2 focus:ring-brand"
+                                        onchange="updateAnnotationViewer()">
+                                    </select>
+
+                                    <label
+                                        class="flex items-center gap-2 bg-white px-2 py-1 text-[10px] font-bold rounded border border-slate-200 shadow-sm text-slate-700 cursor-pointer hover:border-brand transition-colors">
+                                        <input type="checkbox" id="annotation-show-labels"
+                                            class="rounded text-brand focus:ring-brand accent-brand w-3 h-3 cursor-pointer"
+                                            onchange="updateAnnotationViewer()">
+                                        <span>Show Labels</span>
+                                    </label>
+
+                                    <button id="annotation-reset-btn"
+                                        class="hidden text-xs font-bold text-rose-500 hover:text-rose-700 hover:bg-rose-50 px-2 py-1 rounded transition-colors"
+                                        onclick="resetAnnotationView()">
+                                        Clear
+                                    </button>
+                                    <button onclick="exportGenomeViewerPNG()" id="annotation-export-btn"
+                                        class="px-2 py-1 text-[10px] font-bold rounded bg-white shadow-sm text-slate-700 border border-slate-200 hover:text-brand transition-all flex items-center gap-1"
+                                        title="Export as PNG 600 DPI">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
+                                            </path>
+                                        </svg>
+                                        Export PNG
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="annotation-active-tags" class="hidden flex flex-wrap gap-2 empty:hidden">
+                                <!-- Chips injected here -->
+                            </div>
+                        </div>
+                        <div id="annotation-viewer-container"
+                            class="p-6 overflow-x-auto min-h-[200px] flex items-center justify-center bg-slate-50/30">
+                            <div id="annotation-viewer-placeholder" class="text-center text-slate-400">Select a contig
+                                to view annotations</div>
+                        </div>
+                        <div id="legend-container"
+                            class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex flex-wrap gap-2">
+                            <!-- Legend items injected here -->
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div
+                            class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                            <div>
+                                <h3 class="font-bold text-slate-800">Annotation Details</h3>
+                                <p class="text-xs text-slate-500">Full list of annotated features</p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <button onclick="exportTableToCSV('annotation-table-body', 'annotations.csv')"
+                                    class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-all flex items-center gap-1.5 shadow-sm">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4"></path>
+                                    </svg>
+                                    Export CSV
+                                </button>
+                                <div class="relative">
+                                    <input type="text" placeholder="Search..."
+                                        onkeyup="filterTable('annotation-table-body', this.value)"
+                                        class="pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand w-48 transition-all shadow-sm">
+                                    <svg class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto max-h-[600px]">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead class="sticky top-0 bg-white shadow-sm z-10">
+                                    <tr
+                                        class="bg-slate-50 text-slate-500 uppercase text-[9px] font-bold tracking-wider">
+                                        <th class="px-4 py-3 border-b border-slate-100">Contig</th>
+                                        <th class="px-4 py-3 border-b border-slate-100">Start</th>
+                                        <th class="px-4 py-3 border-b border-slate-100">End</th>
+                                        <th class="px-4 py-3 border-b border-slate-100">Strand</th>
+                                        <th class="px-4 py-3 border-b border-slate-100">Feature</th>
+                                        <th class="px-4 py-3 border-b border-slate-100">Tool</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="annotation-table-body" class="divide-y divide-slate-100">
+                                    <!-- Data injected here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </main>
+
+    <style>
+        .active-tab {
+            background-color: white !important;
+            color: #0f172a !important;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1) !important;
+        }
+    </style>
+
+    <!-- 
+    =======================================================================
+    PAYLOAD INJECTION AREA
+    This specific variable pattern is required for the python injector script:
+    const RESULTS_PAYLOAD = ``;
+    =======================================================================
+    -->
+    <script>
+        const RESULTS_PAYLOAD = ``;
+
+        let g_data = [];
+        let g_currentSample = null;
+        let g_activeTab = 'overview';
+        let g_renderedTabs = new Set(); // Tracks which tabs have been rendered for current sample
+
+        function switchTab(tabId) {
+            g_activeTab = tabId;
+
+            // Update buttons
+            document.querySelectorAll('header button[id^="tab-"]').forEach(btn => {
+                btn.classList.remove('active-tab', 'bg-white', 'text-slate-900', 'shadow-sm');
+                btn.classList.add('text-slate-500', 'hover:text-slate-700');
+            });
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.add('active-tab', 'bg-white', 'text-slate-900', 'shadow-sm');
+                activeBtn.classList.remove('text-slate-500', 'hover:text-slate-700');
+            }
+
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`content-${tabId}`).classList.add('active');
+
+            // Lazy Render
+            renderActiveTab();
+        }
+
+        function switchSample(sampleName) {
+            g_currentSample = g_data.find(s => s.sample === sampleName);
+            if (!g_currentSample) return;
+
+            // Reset Render State
+            g_renderedTabs.clear();
+
+            // Highlight sidebar
+            document.querySelectorAll('.sample-item').forEach(item => {
+                item.classList.remove('bg-slate-800', 'border-brand');
+                item.classList.add('border-transparent');
+            });
+            const sidebarItem = document.getElementById(`sample-item-${sampleName}`);
+            if (sidebarItem) {
+                sidebarItem.classList.add('bg-slate-800', 'border-brand');
+                sidebarItem.classList.remove('border-transparent');
+            }
+
+            // Update Headers
+            document.getElementById('current-sample-title').textContent = sampleName;
+
+            // Render Active Tab ONLY
+            renderActiveTab();
+        }
+
+        function renderActiveTab() {
+            if (!g_currentSample) return;
+            if (g_renderedTabs.has(g_activeTab)) return; // Already rendered
+
+            console.log(`Lazy rendering tab: ${g_activeTab}`);
+
+            if (g_activeTab === 'overview') {
+                renderOverview();
+            } else if (g_activeTab === 'quality') {
+                renderQuality();
+            } else if (g_activeTab === 'id-overview') {
+                renderIdentificationOverview();
+            } else if (g_activeTab === 'taxonomy') {
+                renderTaxonomy();
+            } else if (g_activeTab === 'annotation') {
+                renderAnnotation();
+            } else if (g_activeTab === 'upsetr') {
+                renderUpsetR();
+            }
+
+            g_renderedTabs.add(g_activeTab);
+        }
+
+        function renderOverview() {
+            if (!g_currentSample) return;
+
+            // Stats
+            const qualityFile = Object.keys(g_currentSample.files).find(f => f.includes('quality_summary.tsv'));
+            const qualityData = qualityFile ? g_currentSample.files[qualityFile] : [];
+
+            document.getElementById('stat-contigs').textContent = qualityData.length > 0 ? (qualityData.length - 1) : 0;
+
+            let maxLen = 0;
+            if (qualityData.length > 1) {
+                const lenIdx = qualityData[0].indexOf('contig_length');
+                if (lenIdx !== -1) {
+                    maxLen = Math.max(...qualityData.slice(1).map(row => parseInt(row[lenIdx]) || 0));
+                }
+            }
+            document.getElementById('stat-max-len').textContent = maxLen.toLocaleString() + ' bp';
+            document.getElementById('stat-payload').textContent = (JSON.stringify(g_currentSample).length / 1024).toFixed(1) + ' KB';
+
+            // Raw JSON
+            document.getElementById('raw-json-display').innerHTML = `<pre class="text-xs font-mono text-slate-600 bg-slate-50 p-4 rounded-lg overflow-auto max-h-[500px]">${JSON.stringify(g_currentSample, null, 2)}</pre>`;
+        }
+
+        // --- Sorting Logic ---
+        function filterTable(tbodyId, query) {
+            const tbody = document.getElementById(tbodyId);
+            if (!tbody) return;
+            const rows = tbody.querySelectorAll('tr');
+            const lowerQuery = query.toLowerCase();
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(lowerQuery)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        let g_sortState = {}; // tableId -> { colIdx, dir: 'asc'|'desc' }
+
+        function sortTable(tableId, colIdx, type = 'string') {
+            const table = document.getElementById(tableId);
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            // Current State
+            if (!g_sortState[tableId]) g_sortState[tableId] = {};
+            const currentDir = g_sortState[tableId].colIdx === colIdx ? g_sortState[tableId].dir : '';
+            const newDir = currentDir === 'asc' ? 'desc' : 'asc';
+            g_sortState[tableId] = { colIdx, dir: newDir };
+
+            // Sort
+            rows.sort((a, b) => {
+                const valA = getCellValue(a, colIdx);
+                const valB = getCellValue(b, colIdx);
+
+                if (type === 'number') {
+                    // Extract number from potentially formatted string (e.g. "97.5%", "1,024 bp", "High")
+                    // If parsing fails for both, treat as string
+                    const numA = parseNumber(valA);
+                    const numB = parseNumber(valB);
+                    if (numA !== null && numB !== null) {
+                        return newDir === 'asc' ? numA - numB : numB - numA;
+                    }
+                }
+
+                // Fallback to string sort
+                return newDir === 'asc'
+                    ? valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' })
+                    : valB.localeCompare(valA, undefined, { numeric: true, sensitivity: 'base' });
+            });
+
+            // Re-append
+            rows.forEach(r => tbody.appendChild(r));
+
+            // Update Header Styling (Optional visual cue)
+            updateSortIcons(tableId, colIdx, newDir);
+        }
+
+        function getCellValue(tr, idx) {
+            const cell = tr.children[idx];
+            return cell ? (cell.innerText || cell.textContent).trim() : '';
+        }
+
+        function parseNumber(str) {
+            // Remove common formatting chars: , %
+            const clean = str.replace(/[,%]/g, '');
+            // Handle N/A or empty
+            if (!clean || clean === 'N/A' || clean === '---' || clean === '-') return -Infinity;
+            const num = parseFloat(clean);
+            return isNaN(num) ? null : num;
+        }
+
+        function updateSortIcons(tableId, colIdx, dir) {
+            const table = document.getElementById(tableId);
+            const ths = table.querySelectorAll('thead th');
+            ths.forEach((th, i) => {
+                // Clear existing carets/icons or reset class
+                // For simplicity, let's just use text content arrows or append a span
+                let label = th.getAttribute('data-label') || th.innerText.replace(/[▲▼]/g, '').trim();
+                th.setAttribute('data-label', label); // save original text
+
+                if (i === colIdx) {
+                    th.innerText = `${label} ${dir === 'asc' ? '▲' : '▼'}`;
+                    th.classList.add('text-slate-800');
+                    th.classList.remove('text-slate-500');
+                } else {
+                    th.innerText = label;
+                    th.classList.remove('text-slate-800');
+                    th.classList.add('text-slate-500');
+                }
+                // Determine type based on label or previous knowledge? 
+                // We'll rely on the calls to pass the correct type.
+            });
+        }
+
+        function renderQuality() {
+            const tableHead = document.getElementById('quality-table-head');
+            const tableBody = document.getElementById('quality-table-body');
+            tableHead.innerHTML = '';
+            tableBody.innerHTML = '';
+            if (!g_currentSample) return;
+
+            const qFile = Object.keys(g_currentSample.files).find(f => f.includes('quality_summary.tsv'));
+            if (!qFile) {
+                tableBody.innerHTML = '<tr><td colspan="8" class="px-6 py-10 text-center text-slate-400">No quality data found</td></tr>';
+                return;
+            }
+
+            const data = g_currentSample.files[qFile];
+            if (data.length <= 1) return;
+
+            const headers = data[0];
+
+            // Render Headers
+            let headInner = `<tr class="bg-slate-50 text-slate-500 uppercase text-[9px] font-bold tracking-wider">`;
+            headers.forEach(h => {
+                const label = h.replace(/_/g, ' ');
+                headInner += `<th class="px-4 py-3 border-b border-slate-100">${label}</th>`;
+            });
+            headInner += `</tr>`;
+            tableHead.innerHTML = headInner;
+
+            // Render Rows
+            data.slice(1).forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50/50 transition-colors';
+
+                let rowInner = '';
+                headers.forEach((h, i) => {
+                    const val = row[i] || '';
+                    let cellContent = val;
+                    let cellClass = 'px-4 py-3 text-slate-500';
+
+                    // Special Formatting
+                    if (h === 'contig_id') {
+                        cellClass = 'px-4 py-3 font-mono text-slate-600';
+                    } else if (h === 'checkv_quality' || h === 'miuvig_quality') {
+                        const qual = val || 'N/A';
+                        cellContent = `<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${qual.includes('High') ? 'bg-emerald-100 text-emerald-700' : qual.includes('Medium') ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}">${qual}</span>`;
+                    } else if (h === 'completeness' || h === 'contamination') {
+                        const num = parseFloat(val);
+                        const display = isNaN(num) ? val : num.toFixed(1) + '%';
+                        if (h === 'completeness') {
+                            cellContent = `<span class="font-semibold text-slate-700">${display}</span>`;
+                        } else {
+                            cellContent = `<span class="text-rose-500 font-medium">${display}</span>`;
+                        }
+                    } else if (h === 'warnings') {
+                        cellContent = `<span class="text-[10px] text-slate-400 italic max-w-[200px] truncate block" title="${val}">${val}</span>`;
+                    } else if (h === 'contig_length') {
+                        cellContent = parseInt(val).toLocaleString();
+                    }
+
+                    rowInner += `<td class="${cellClass}">${cellContent}</td>`;
+                });
+
+                tr.innerHTML = rowInner;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        // Upster R part
+
+        function renderIdentificationOverview() {
+            const head = document.getElementById('id-overview-table-head');
+            const body = document.getElementById('id-overview-table-body');
+            head.innerHTML = '';
+            body.innerHTML = '';
+
+            if (!g_currentSample) return;
+
+            const idFile = Object.keys(g_currentSample.files).find(f => f.includes('_contig_tool_p-value_overview.tsv'));
+            if (!idFile) {
+                body.innerHTML = '<tr><td colspan="1" class="px-6 py-10 text-center text-slate-400">No identification results found</td></tr>';
+                return;
+            }
+
+            const dataRows = g_currentSample.files[idFile];
+            if (dataRows.length <= 1) return;
+
+            const headers = dataRows[0];
+            const nameIdx = headers.indexOf('contig_name');
+            const pValIdx = headers.indexOf('p_value');
+            const toolIdx = headers.indexOf('toolname');
+
+            // Pivot Data
+            const tools = [...new Set(dataRows.slice(1).map(r => r[toolIdx]))].sort();
+            const contigs = [...new Set(dataRows.slice(1).map(r => r[nameIdx]))];
+            const pivot = {}; // contig -> tool -> pVal
+
+            dataRows.slice(1).forEach(row => {
+                const c = row[nameIdx];
+                const t = row[toolIdx];
+                const p = row[pValIdx];
+                if (!pivot[c]) pivot[c] = {};
+                pivot[c][t] = p;
+            });
+
+            // Head
+            let headInner = `<tr class="bg-slate-50 text-slate-500 uppercase text-[9px] font-bold tracking-wider">
+                <th class="px-4 py-3 border-b border-slate-100">Contig</th>`;
+            tools.forEach(t => {
+                headInner += `<th class="px-4 py-3 border-b border-slate-100">${t}</th>`;
+            });
+            headInner += `</tr>`;
+            head.innerHTML = headInner;
+
+            // Body
+            contigs.forEach(c => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50/50 transition-colors';
+                let rowInner = `<td class="px-4 py-3 font-mono text-slate-600">${c}</td>`;
+
+                tools.forEach(t => {
+                    const pValStr = pivot[c][t] || '---';
+                    const pVal = parseFloat(pValStr);
+                    let pValClass = 'text-slate-400';
+                    let valDisplay = pValStr;
+
+                    if (!isNaN(pVal)) {
+                        valDisplay = pVal.toFixed(3);
+                        if (pVal > 0.9) pValClass = 'text-emerald-600 font-bold';
+                        else if (pVal > 0.5) pValClass = 'text-blue-600 font-semibold';
+                    }
+
+                    rowInner += `<td class="px-4 py-3 ${pValClass}">${valDisplay}</td>`;
+                });
+
+                tr.innerHTML = rowInner;
+                body.appendChild(tr);
+            });
+        }
+
+        function switchTaxonomyTab(subTabId) {
+            // Update buttons
+            document.querySelectorAll('button[id^="tax-tab-"]').forEach(btn => {
+                btn.classList.remove('bg-white', 'text-brand', 'shadow-sm', 'border', 'border-slate-200');
+                btn.classList.add('text-slate-500', 'hover:text-brand', 'hover:bg-white/50');
+            });
+            const activeBtn = document.getElementById(`tax-tab-${subTabId}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-500', 'hover:text-brand', 'hover:bg-white/50');
+                activeBtn.classList.add('bg-white', 'text-brand', 'shadow-sm', 'border', 'border-slate-200');
+            }
+
+            // Update content
+            document.querySelectorAll('.tax-tab-content').forEach(content => {
+                content.classList.add('hidden');
+                content.classList.remove('block');
+            });
+            document.getElementById(`tax-content-${subTabId}`).classList.remove('hidden');
+            document.getElementById(`tax-content-${subTabId}`).classList.add('block');
+        }
+
+        function renderTaxonomy() {
+            renderTaxonomyOverview();
+            renderTaxonomySourmash();
+            renderTaxonomyGenomad();
+        }
+
+        function renderTaxonomyOverview() {
+            const tableBody = document.getElementById('taxonomy-overview-body');
+            tableBody.innerHTML = '';
+
+            // Clear stats
+            document.getElementById('tax-stat-sourmash').textContent = '--';
+            document.getElementById('tax-stat-genomad').textContent = '--';
+
+            if (!g_currentSample) return;
+
+            const tFile = Object.keys(g_currentSample.files).find(f => f.includes('taxonomy_overview.tsv'));
+            if (!tFile) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-10 text-center text-slate-400">No taxonomy overview data found</td></tr>';
+                return;
+            }
+
+            const data = g_currentSample.files[tFile];
+            if (data.length <= 1) return;
+
+            const h = data[0];
+            const idx = {
+                contig: h.indexOf('Contig'),
+                sim: h.indexOf('Sourmash_Similarity'),
+                sm_tax: h.indexOf('Sourmash_Taxonomy'),
+                agree: h.indexOf('Genomad_agreement'),
+                lineage: h.indexOf('Genomad_lineage')
+            };
+
+            // Calculate Stats
+            let classifiedCount = 0;
+            let smCount = 0;
+            let gmCount = 0;
+
+            data.slice(1).forEach(row => {
+                const hasSm = row[idx.sm_tax] && row[idx.sm_tax] !== 'no match found';
+                const hasGm = row[idx.lineage] && row[idx.lineage] !== 'no match found' && row[idx.lineage] !== 'NA';
+                if (hasSm) smCount++;
+                if (hasGm) gmCount++;
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50/50 transition-colors';
+
+                // Sourmash Sim
+                const sim = parseFloat(row[idx.sim]);
+                // Logic: (0.9205 * 100).toFixed(1) -> "92.1%" (Input is 0-1 fraction)
+                const simFormatted = isNaN(sim) ? row[idx.sim] : (sim * 100).toFixed(1) + '%';
+                let simClass = 'text-slate-500';
+                if (!isNaN(sim) && sim > 0) simClass = 'bg-orange-100 text-orange-700 px-2 py-0.5 rounded font-bold text-[10px]';
+
+                // Genomad Agree
+                const agree = parseFloat(row[idx.agree]);
+                // Logic: (0.9729 * 100).toFixed(1) -> "97.3%" (Input is 0-1 fraction)
+                const agreeFormatted = isNaN(agree) ? row[idx.agree] : (agree * 100).toFixed(1) + '%';
+                let agreeClass = 'text-slate-500';
+                if (!isNaN(agree) && agree > 0) agreeClass = 'bg-teal-100 text-teal-700 px-2 py-0.5 rounded font-bold text-[10px]';
+
+                // Tax Lineage Badge
+                let taxDisplay = row[idx.sm_tax] || '-';
+                if (taxDisplay !== 'no match found' && taxDisplay !== 'NA') {
+                    taxDisplay = `<span class="font-medium text-slate-700">${taxDisplay}</span>`;
+                } else {
+                    taxDisplay = `<span class="text-slate-400 italic">No match</span>`;
+                }
+
+                let lineageDisplay = row[idx.lineage] || '-';
+                if (lineageDisplay !== 'no match found' && lineageDisplay !== 'NA') {
+                    // Last part of lineage often most relevant
+                    const parts = lineageDisplay.split(';');
+                    const last = parts[parts.length - 1] || lineageDisplay;
+                    lineageDisplay = `<span title="${lineageDisplay}" class="font-medium text-slate-700">${last}</span>`;
+                } else {
+                    lineageDisplay = `<span class="text-slate-400 italic">No match</span>`;
+                }
+
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-mono text-slate-600 font-medium">${row[idx.contig]}</td>
+                    <td class="px-4 py-3"><span class="${simClass}">${simFormatted}</span></td>
+                    <td class="px-4 py-3 text-xs">${taxDisplay}</td>
+                    <td class="px-4 py-3"><span class="${agreeClass}">${agreeFormatted}</span></td>
+                    <td class="px-4 py-3 text-xs">${lineageDisplay}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+
+            document.getElementById('tax-stat-sourmash').textContent = smCount;
+            document.getElementById('tax-stat-genomad').textContent = gmCount;
+        }
+
+        function renderTaxonomySourmash() {
+            const tableBody = document.getElementById('taxonomy-sourmash-body');
+            tableBody.innerHTML = '';
+            if (!g_currentSample) return;
+
+            const tFile = Object.keys(g_currentSample.files).find(f => f.includes('taxonomy_sourmash.tsv'));
+            if (!tFile) {
+                tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-10 text-center text-slate-400">No sourmash data found</td></tr>';
+                return;
+            }
+
+            const data = g_currentSample.files[tFile];
+            if (data.length <= 1) return;
+
+            const h = data[0];
+            const idx = {
+                contig: h.indexOf('Contig'),
+                sim: h.indexOf('Similarity'),
+                acc: h.indexOf('Predicted_accession_number'),
+                tax: h.indexOf('Taxonomy'),
+                host: h.indexOf('Host_of_Predicted_accession_number'),
+                life: h.indexOf('Lifestyle_of_Predicted_accession_number')
+            };
+
+            data.slice(1).forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50/50 transition-colors';
+
+                const sim = parseFloat(row[idx.sim]);
+                // Logic: (0.9205 * 100).toFixed(1) -> "92.1%" (Input is 0-1 fraction)
+                const simFormatted = isNaN(sim) ? row[idx.sim] : (sim * 100).toFixed(1) + '%';
+
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-mono text-slate-600">${row[idx.contig]}</td>
+                    <td class="px-4 py-3 text-orange-600 font-medium">${simFormatted}</td>
+                    <td class="px-4 py-3 font-mono text-xs text-slate-500">${row[idx.acc]}</td>
+                    <td class="px-4 py-3 text-slate-700">${row[idx.tax]}</td>
+                    <td class="px-4 py-3 text-slate-600 italic">${row[idx.host]}</td>
+                    <td class="px-4 py-3"><span class="px-2 py-0.5 bg-slate-100 rounded text-xs text-slate-600">${row[idx.life]}</span></td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function renderTaxonomyGenomad() {
+            const tableBody = document.getElementById('taxonomy-genomad-body');
+            tableBody.innerHTML = '';
+            if (!g_currentSample) return;
+
+            const tFile = Object.keys(g_currentSample.files).find(f => f.includes('filtered_taxonomy_genomad.tsv'));
+            if (!tFile) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-10 text-center text-slate-400">No genomad data found</td></tr>';
+                return;
+            }
+
+            const data = g_currentSample.files[tFile];
+            if (data.length <= 1) return;
+
+            const h = data[0];
+            const idx = {
+                name: h.indexOf('seq_name'),
+                genes: h.indexOf('n_genes_with_taxonomy'),
+                agree: h.indexOf('agreement'),
+                taxid: h.indexOf('taxid'),
+                lineage: h.indexOf('lineage')
+            };
+
+            data.slice(1).forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50/50 transition-colors';
+
+                const agree = parseFloat(row[idx.agree]);
+                // Logic: (0.9729 * 100).toFixed(1) -> "97.3%" (Input is 0-1 fraction)
+                const agreeFormatted = isNaN(agree) ? row[idx.agree] : (agree * 100).toFixed(1) + '%';
+
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-mono text-slate-600">${row[idx.name]}</td>
+                    <td class="px-4 py-3 text-teal-600 font-medium">${agreeFormatted}</td>
+                    <td class="px-4 py-3 text-slate-500">${row[idx.genes]}</td>
+                    <td class="px-4 py-3 font-mono text-xs text-slate-500">${row[idx.taxid]}</td>
+                    <td class="px-4 py-3 text-xs text-slate-600 max-w-[300px] break-words">${row[idx.lineage].replace(/;/g, ' > ')}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        // --- Annotation Logic ---
+
+
+
+        const FUNCTIONAL_COLORS = {
+            "capsid": "#9D84AB",
+            "head": "#E8A9B4",
+            "tail": "#FFC697",
+            "fiber": "#F5D0D0",
+            "sheath": "#FFF2D9",
+            "holin": "#99DEB9",
+            "endolysin": "#6CABA5",
+            "spanin": "#B1E5F2",
+            "portal": "#FFD187",
+            "depolymerase": "#4881FD",
+            "integrase": "#FA003F",
+            "terminase": "#A0D5B5",
+            "toxin": "#D9B89B",
+            "effector": "#A4A8A3",
+            "hypothetical protein": "#D3D3D3",
+            "other": "#B2B2C0"
+        };
+
+        function getGeneColor(gene) {
+            const name = (gene.name || gene.gene || "").toLowerCase();
+
+            if (name.includes("capsid")) return FUNCTIONAL_COLORS["capsid"];
+            if (name.includes("head")) return FUNCTIONAL_COLORS["head"];
+            if (name.includes("tail")) return FUNCTIONAL_COLORS["tail"];
+            if (name.includes("fiber")) return FUNCTIONAL_COLORS["fiber"];
+            if (name.includes("sheath")) return FUNCTIONAL_COLORS["sheath"];
+            if (name.includes("holin")) return FUNCTIONAL_COLORS["holin"];
+            if (name.includes("endolysin")) return FUNCTIONAL_COLORS["endolysin"];
+            if (name.includes("spanin")) return FUNCTIONAL_COLORS["spanin"];
+            if (name.includes("portal")) return FUNCTIONAL_COLORS["portal"];
+            if (name.includes("depolymerase")) return FUNCTIONAL_COLORS["depolymerase"];
+            if (name.includes("integrase")) return FUNCTIONAL_COLORS["integrase"];
+            if (name.includes("terminase")) return FUNCTIONAL_COLORS["terminase"];
+            if (name.includes("toxin")) return FUNCTIONAL_COLORS["toxin"];
+            if (name.includes("effector")) return FUNCTIONAL_COLORS["effector"];
+            if (name.includes("hypothetical protein") || name.includes("hypothetical")) return FUNCTIONAL_COLORS["hypothetical protein"];
+
+            return FUNCTIONAL_COLORS["other"];
+        }
+
+        function renderLegend() {
+            const container = document.getElementById('legend-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            // Functional Categories
+            Object.entries(FUNCTIONAL_COLORS).forEach(([name, color]) => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center gap-1.5 px-3 py-1 bg-white rounded-full border border-slate-200 shadow-sm';
+                div.innerHTML = `
+                    <div class="w-2.5 h-2.5 rounded-full" style="background-color: ${color}"></div>
+                    <span class="text-slate-600 text-[10px] font-bold capitalize whitespace-nowrap">${name}</span>
+                 `;
+                container.appendChild(div);
+            });
+        }
+
+        let g_annotationCache = null; // Stores parsed annotation data for current sample
+        let g_selectedContigs = [];   // List of contig IDs currently selected for view
+        let g_viewMode = 'linear';    // 'linear' or 'circular'
+
+        function switchViewMode(mode) {
+            g_viewMode = mode;
+
+            // Buttons
+            const linearBtn = document.getElementById('view-mode-linear');
+            const circBtn = document.getElementById('view-mode-circular');
+            const compareContainer = document.getElementById('container-compare-mode');
+            const toolSelect = document.getElementById('annotation-tool-select');
+            const contigSelect = document.getElementById('annotation-contig-select');
+
+            if (mode === 'linear') {
+                linearBtn.className = 'px-2 py-1 text-[10px] font-bold rounded bg-white shadow-sm text-slate-700 transition-all';
+                circBtn.className = 'px-2 py-1 text-[10px] font-bold rounded text-slate-500 hover:text-slate-700 transition-all';
+
+                compareContainer.classList.remove('opacity-50', 'pointer-events-none');
+                toolSelect.classList.add('hidden');
+            } else {
+                circBtn.className = 'px-2 py-1 text-[10px] font-bold rounded bg-white shadow-sm text-slate-700 transition-all';
+                linearBtn.className = 'px-2 py-1 text-[10px] font-bold rounded text-slate-500 hover:text-slate-700 transition-all';
+
+                // Disable Compare Mode (not supported in Circular usually)
+                compareContainer.classList.add('opacity-50', 'pointer-events-none');
+                // Ensure compare mode is unchecked if active
+                if (document.getElementById('annotation-compare-mode').checked) {
+                    document.getElementById('annotation-compare-mode').click();
+                }
+
+                toolSelect.classList.remove('hidden');
+            }
+
+            // Refresh View
+            updateAnnotationViewer();
+        }
+
+        function toggleCompareMode(isChecked) {
+            const tagsContainer = document.getElementById('annotation-active-tags');
+            const resetBtn = document.getElementById('annotation-reset-btn');
+            const select = document.getElementById('annotation-contig-select');
+
+            if (isChecked) {
+                tagsContainer.classList.remove('hidden');
+                resetBtn.classList.remove('hidden');
+                // If we had a single selection, keep it
+                if (select.value && g_selectedContigs.length === 0) {
+                    handleContigSelection();
+                }
+                // Reset dropdown to allow "adding"
+                select.value = "";
+                renderActiveTags();
+            } else {
+                tagsContainer.classList.add('hidden');
+                resetBtn.classList.add('hidden');
+                // Revert to single view (first selected or empty)
+                if (g_selectedContigs.length > 0) {
+                    const first = g_selectedContigs[0];
+                    g_selectedContigs = [first];
+                    select.value = first;
+                } else {
+                    select.value = "";
+                }
+                updateAnnotationViewer();
+            }
+        }
+
+        function handleContigSelection() {
+            const select = document.getElementById('annotation-contig-select');
+            const val = select.value;
+            const isCompare = document.getElementById('annotation-compare-mode').checked;
+
+            if (!val) return;
+
+            if (isCompare) {
+                if (!g_selectedContigs.includes(val)) {
+                    g_selectedContigs.push(val);
+                }
+                select.value = ""; // Reset for next add
+                renderActiveTags();
+            } else {
+                g_selectedContigs = [val];
+            }
+            updateAnnotationViewer();
+        }
+
+        function removeContig(id) {
+            g_selectedContigs = g_selectedContigs.filter(c => c !== id);
+            renderActiveTags();
+            updateAnnotationViewer();
+
+            // If empty in compare mode, maybe clear select?
+            if (g_selectedContigs.length === 0 && !document.getElementById('annotation-compare-mode').checked) {
+                document.getElementById('annotation-contig-select').value = "";
+            }
+        }
+
+        function resetAnnotationView() {
+            g_selectedContigs = [];
+            renderActiveTags();
+            updateAnnotationViewer();
+            document.getElementById('annotation-contig-select').value = "";
+        }
+
+        function renderActiveTags() {
+            const container = document.getElementById('annotation-active-tags');
+            container.innerHTML = '';
+            g_selectedContigs.forEach(c => {
+                const tag = document.createElement('div');
+                tag.className = 'flex items-center gap-1 bg-white text-slate-700 px-2 py-1 rounded border border-slate-200 text-xs shadow-sm';
+                tag.innerHTML = `
+                    <span class="font-mono font-medium">${c}</span>
+                    <button onclick="removeContig('${c}')" class="text-slate-400 hover:text-rose-500 transition-colors">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                `;
+                container.appendChild(tag);
+            });
+        }
+
+        function renderAnnotation() {
+            // Reset UI
+            const select = document.getElementById('annotation-contig-select');
+            select.innerHTML = '<option value="">Select a Contig...</option>';
+            document.getElementById('annotation-viewer-container').innerHTML = '<div id="annotation-viewer-placeholder" class="text-center text-slate-400">Select a contig to view annotations</div>';
+            document.getElementById('annotation-table-body').innerHTML = '';
+
+            // Reset State
+            g_annotationCache = null;
+            g_selectedContigs = [];
+            document.getElementById('annotation-compare-mode').checked = false;
+            document.getElementById('annotation-active-tags').classList.add('hidden');
+            document.getElementById('annotation-reset-btn').classList.add('hidden');
+
+            if (!g_currentSample) return;
+
+            // Find Annotation File
+            const annotFileKey = Object.keys(g_currentSample.files).find(f => f.includes('annotation_report_summary.tsv'));
+            if (!annotFileKey) {
+                document.getElementById('annotation-table-body').innerHTML = '<tr><td colspan="6" class="text-center py-8 text-slate-400">No annotation summary found</td></tr>';
+                return;
+            }
+
+            // Find Quality File (for lengths)
+            const qualFileKey = Object.keys(g_currentSample.files).find(f => f.includes('quality_summary.tsv'));
+            const qualData = qualFileKey ? g_currentSample.files[qualFileKey] : [];
+
+            // Parse Quality Data for Lengths
+            const contigLengths = {};
+            if (qualData.length > 1) {
+                const h = qualData[0];
+                const idIdx = h.indexOf('contig_id');
+                const lenIdx = h.indexOf('contig_length');
+                if (idIdx !== -1 && lenIdx !== -1) {
+                    qualData.slice(1).forEach(row => {
+                        contigLengths[row[idIdx]] = parseInt(row[lenIdx]) || 0;
+                    });
+                }
+            }
+
+            // Parse Annotation Data (No Header in file, columns: chrom, start, end, gene_name, strand, tool)
+            const rawRows = g_currentSample.files[annotFileKey];
+            // If rawRows is empty or just has 1 line that is empty? 
+            // The file might be empty if no annotations.
+            if (!rawRows || rawRows.length === 0) return;
+
+            // Check if it really has no header. 
+            // The R script writes with col.names=FALSE. So row 0 is data.
+            // But we should be careful. 
+            // Let's assume standard behavior: array of arrays.
+
+            const annotations = rawRows.map(row => ({
+                contig: row[0],
+                start: parseInt(row[1]),
+                end: parseInt(row[2]),
+                name: row[3],
+                strand: row[4],
+                tool: row[5]
+            })).filter(a => a.contig && !isNaN(a.start));
+
+            g_annotationCache = { annotations, contigLengths };
+
+            // Populate Table
+            const tbody = document.getElementById('annotation-table-body');
+            const fragment = document.createDocumentFragment();
+            // Limit to 500 items for performance in table if huge? 
+            // User requested "add the annotation_report_summary.tsv... as a table".
+            // I'll show all but rely on browser. pagination would be better but simple table for now.
+            // If > 2000 rows, maybe truncate?
+            const MAX_ROWS = 2000;
+            const displayRows = annotations.slice(0, MAX_ROWS);
+
+            displayRows.forEach(a => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50/50 transition-colors group';
+                tr.innerHTML = `
+                     <td class="px-4 py-3 font-mono text-slate-600">${a.contig}</td>
+                     <td class="px-4 py-3 text-slate-500">${a.start}</td>
+                     <td class="px-4 py-3 text-slate-500">${a.end}</td>
+                     <td class="px-4 py-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${a.strand === '+' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">${a.strand}</span></td>
+                     <td class="px-4 py-3 font-medium text-slate-700" title="${a.name}">${a.name.length > 50 ? a.name.substring(0, 47) + '...' : a.name}</td>
+                     <td class="px-4 py-3"><span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[10px] uppercase tracking-wider font-bold">${a.tool}</span></td>
+                `;
+                fragment.appendChild(tr);
+            });
+            tbody.appendChild(fragment);
+
+            if (annotations.length > MAX_ROWS) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="6" class="text-center py-2 text-slate-400 italic">... ${annotations.length - MAX_ROWS} more rows hidden ...</td>`;
+                tbody.appendChild(tr);
+            }
+
+            // Populate Selector
+            // Get unique contigs from annotations OR quality summary?
+            // Ideally quality summary has all contigs. Annotations only has those with hits.
+            // Viewer should probably only show those with annotations or all?
+            // "scale the length ... on _quality_summary.tsv".
+            // I'll list contigs found in annotations first, maybe? 
+            // Or just sorted alphanumerically.
+            // Let's use keys from contigLengths if available, else from annotations.
+
+            let contigSet = new Set(Object.keys(contigLengths));
+            annotations.forEach(a => contigSet.add(a.contig));
+            const sortedContigs = Array.from(contigSet).sort();
+
+            sortedContigs.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = `${c} (${(contigLengths[c] || 0).toLocaleString()} bp)`;
+                select.appendChild(opt);
+            });
+
+            // If there's only one contig, select it automatically
+            if (sortedContigs.length === 1) {
+                select.value = sortedContigs[0];
+                handleContigSelection();
+            }
+
+            // Populate Tool Select (Initial load with all tools found in current sample annotations)
+            const allTools = [...new Set(annotations.map(a => a.tool))].sort();
+            const toolSelect = document.getElementById('annotation-tool-select');
+            toolSelect.innerHTML = ''; // Start empty, do not add "All Tools" for circular view
+            allTools.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t;
+                opt.textContent = t;
+                toolSelect.appendChild(opt);
+            });
+
+            // Auto-select the first tool if available
+            if (allTools.length > 0) {
+                toolSelect.value = allTools[0];
+            }
+
+            renderLegend();
+        }
+
+        function updateAnnotationViewer() {
+            const container = document.getElementById('annotation-viewer-container');
+            const isCompare = document.getElementById('annotation-compare-mode').checked;
+
+            if (g_viewMode === 'circular') {
+                renderCircularView();
+                return;
+            }
+
+            // If in non-compare mode, ensure we use the select value if g_selectedContigs is empty/sync
+            if (!isCompare) {
+                const currentVal = document.getElementById('annotation-contig-select').value;
+                if (currentVal && g_selectedContigs.length === 0) g_selectedContigs = [currentVal];
+            }
+
+            if (g_selectedContigs.length === 0 || !g_annotationCache) {
+                container.innerHTML = '<div class="text-center text-slate-400">Select a contig to view annotations</div>';
+                return;
+            }
+
+            const { annotations, contigLengths } = g_annotationCache;
+
+            // CALCULATE LAYOUT
+            const trackHeight = 40;
+            const trackGap = 10;
+            const headerHeight = 30;
+            const contigPadding = 40; // Space between contigs
+            const width = Math.max(800, container.clientWidth - 50);
+
+            let renderQueue = [];
+            let totalSvgHeight = 0;
+
+            g_selectedContigs.forEach(contigId => {
+                const length = contigLengths[contigId] || 0;
+                if (length === 0) return;
+
+                // Filter annotations
+                const contigAnnots = annotations.filter(a => a.contig === contigId);
+                const tools = [...new Set(contigAnnots.map(a => a.tool))].sort();
+
+                const height = headerHeight + (tools.length > 0 ? (tools.length * (trackHeight + trackGap)) : 60); // 60 placeholder if no tools
+
+                renderQueue.push({
+                    contigId,
+                    length,
+                    tools,
+                    annots: contigAnnots,
+                    yOffset: totalSvgHeight,
+                    height
+                });
+
+                totalSvgHeight += height + contigPadding;
+            });
+
+            if (renderQueue.length === 0) {
+                container.innerHTML = '<div class="text-center text-rose-400">Contig length not found or no valid selection</div>';
+                return;
+            }
+
+            // RENDER SVG
+            let svg = `<svg width="${width}" height="${totalSvgHeight}" viewBox="0 0 ${width} ${totalSvgHeight}" xmlns="http://www.w3.org/2000/svg">`;
+
+            renderQueue.forEach(item => {
+                const { contigId, length, tools, annots, yOffset } = item;
+                const scaleX = (pos) => (pos / length) * width;
+                const baseY = yOffset;
+
+                // Contig Header Group
+                svg += `<g transform="translate(0, ${baseY})">`;
+
+                // Title
+                svg += `<text x="0" y="15" font-size="12" font-weight="bold" fill="#0f172a">Contig: ${contigId}</text>`;
+
+                // Backbone Scale
+                svg += `
+                    <line x1="0" y1="${headerHeight}" x2="${width}" y2="${headerHeight}" stroke="#cbd5e1" stroke-width="2" />
+                    <text x="0" y="${headerHeight - 8}" font-size="10" fill="#64748b">0</text>
+                    <text x="${width}" y="${headerHeight - 8}" font-size="10" fill="#64748b" text-anchor="end">${length.toLocaleString()} bp</text>
+                `;
+
+                if (tools.length === 0) {
+                    svg += `<text x="${width / 2}" y="${headerHeight + 30}" text-anchor="middle" fill="#94a3b8" font-style="italic" font-size="11">No annotations found for this contig</text>`;
+                } else {
+                    tools.forEach((tool, i) => {
+                        const y = headerHeight + 20 + (i * (trackHeight + trackGap));
+
+                        // Track Label
+                        svg += `<text x="0" y="${y - 5}" font-size="10" font-weight="bold" fill="#334155">${tool}</text>`;
+                        // Track Bg
+                        svg += `<rect x="0" y="${y}" width="${width}" height="${trackHeight * 0.6}" fill="#f1f5f9" rx="4" />`;
+
+                        // Genes
+                        const toolGenes = annots.filter(a => a.tool === tool);
+                        toolGenes.forEach(g => {
+                            const x = scaleX(Array.isArray(g.start) ? parseInt(g.start) : g.start);
+                            const w = Math.max(1, scaleX((Array.isArray(g.end) ? parseInt(g.end) : g.end) - (Array.isArray(g.start) ? parseInt(g.start) : g.start)));
+                            const geneColor = getGeneColor(g);
+
+                            svg += `<rect x="${x}" y="${y + 2}" width="${w}" height="${trackHeight * 0.6 - 4}" fill="${geneColor}" rx="2" opacity="0.9" stroke="white" stroke-width="0.5">
+                                <title>${g.name} (${g.start}-${g.end}) [${g.strand}]</title>
+                             </rect>`;
+
+                            const showLabels = document.getElementById('annotation-show-labels').checked;
+                            if (showLabels && w > 15) {
+                                // Add text label centered inside or next to the gene block
+                                // using clip-path or simply truncating text based on width isn't easy here,
+                                // we'll just drop the text and try to restrict its size loosely.
+                                const textLabel = g.name;
+                                // Basic attempt to prevent overflow: if block is small, skip label or truncate.
+                                if (w > 20) {
+                                    // center text inside the gene block
+                                    svg += `<text x="${x + w / 2}" y="${y + 2 + (trackHeight * 0.6 - 4) / 2}" alignment-baseline="middle" text-anchor="middle" font-size="8px" fill="#ffffff" font-weight="bold" pointer-events="none" style="text-shadow: 0px 0px 2px rgba(0,0,0,0.5);">${textLabel.length > (w / 6) ? textLabel.substring(0, Math.floor(w / 6)) + '.' : textLabel}</text>`;
+                                }
+                            }
+                        });
+                    });
+                }
+
+                svg += `</g>`; // End Group
+            });
+
+            svg += `</svg>`;
+            container.innerHTML = svg;
+        }
+
+        function renderCircularView() {
+            const container = document.getElementById('annotation-viewer-container');
+
+            // Circular view only supports one contig at a time
+            // If multiple selected (via previous compare mode), just take the first one or last one selected
+            let contigId = document.getElementById('annotation-contig-select').value;
+            if (!contigId && g_selectedContigs.length > 0) contigId = g_selectedContigs[0];
+
+            if (!contigId || !g_annotationCache) {
+                container.innerHTML = '<div class="text-center text-slate-400">Select a contig to view annotations</div>';
+                return;
+            }
+
+            const { annotations, contigLengths } = g_annotationCache;
+            const length = contigLengths[contigId] || 0;
+            if (length === 0) return;
+
+            // Filter by Tool if selected
+            const selectedTool = document.getElementById('annotation-tool-select').value;
+            let targetAnnots = annotations.filter(a => a.contig === contigId);
+            if (selectedTool) {
+                targetAnnots = targetAnnots.filter(a => a.tool === selectedTool);
+            }
+
+            container.innerHTML = ''; // Clear
+
+            // D3 Config
+            const showLabels = document.getElementById('annotation-show-labels').checked;
+
+            // Expand the SVG canvas significantly when labels are active to prevent clipping
+            const width = showLabels ? 1200 : 600;
+            const height = showLabels ? 1200 : 600;
+
+            // Fix the core DNA ring at a reliable size, regardless of the outer canvas padding
+            const radius = 250;
+            const innerRadius = radius - 40; // Track thickness
+
+            const svg = d3.select(container).append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .style("font-family", "Plus Jakarta Sans, sans-serif")
+                .append("g")
+                .attr("transform", `translate(${width / 2},${height / 2})`);
+
+            // Scale
+            // Map 0 -> length to 0 -> 2*PI
+            const angleScale = d3.scaleLinear()
+                .domain([0, length])
+                .range([0, 2 * Math.PI]);
+
+            // Base Circle (Backbone)
+            const arcBase = d3.arc()
+                .innerRadius(innerRadius + 18)
+                .outerRadius(innerRadius + 22)
+                .startAngle(0)
+                .endAngle(2 * Math.PI);
+
+            svg.append("path")
+                .attr("d", arcBase)
+                .attr("fill", "#e2e8f0");
+
+            // Contig Label Center
+            svg.append("text")
+                .attr("text-anchor", "middle")
+                .attr("y", -10)
+                .text(contigId)
+                .style("font-size", "14px")
+                .style("font-weight", "bold")
+                .style("fill", "#334155");
+
+            svg.append("text")
+                .attr("text-anchor", "middle")
+                .attr("y", 10)
+                .text(`${length.toLocaleString()} bp`)
+                .style("font-size", "11px")
+                .style("fill", "#64748b");
+
+            if (selectedTool) {
+                svg.append("text")
+                    .attr("text-anchor", "middle")
+                    .attr("y", 25)
+                    .text(`Tool: ${selectedTool}`)
+                    .style("font-size", "10px")
+                    .style("fill", "#94a3b8")
+                    .style("text-transform", "uppercase")
+                    .style("letter-spacing", "1px");
+            }
+
+            if (targetAnnots.length === 0) {
+                svg.append("text")
+                    .attr("text-anchor", "middle")
+                    .attr("y", 50)
+                    .text("No annotations for this selection")
+                    .style("font-style", "italic")
+                    .style("fill", "#cbd5e1");
+                return;
+            }
+
+            // Draw Genes
+            // We need to handle wrapping around 0? usually annotations are split if they wrap.
+            // Assuming simplified linear coords for now.
+
+            const geneArc = d3.arc()
+                .innerRadius((d) => d.strand === '+' ? radius : innerRadius) // Outer ring for +, Inner for -
+                .outerRadius((d) => d.strand === '+' ? radius + 15 : innerRadius + 15)
+                .startAngle(d => angleScale(d.start))
+                .endAngle(d => angleScale(d.end))
+                .padAngle(0.005);
+
+            svg.selectAll(".gene-arc")
+                .data(targetAnnots)
+                .enter().append("path")
+                .attr("class", "gene-arc gene-card") // gene-card class for hover effects defined in CSS
+                .attr("d", geneArc)
+                .attr("fill", d => getGeneColor(d))
+                .attr("stroke", "white")
+                .attr("stroke-width", "0.5px")
+                .append("title")
+                .text(d => `${d.name}\n${d.start}-${d.end} (${d.strand})\nTool: ${d.tool}`);
+
+            if (showLabels) {
+                // Prepare label data with calculated angles
+                const labelData = targetAnnots.map(d => {
+                    const angle = (angleScale(d.start) + angleScale(d.end)) / 2 - Math.PI / 2;
+                    return { ...d, angle };
+                }).sort((a, b) => a.angle - b.angle);
+
+                // Simple dodging: assign a level based on proximity to previously placed labels
+                const minAngleGap = 0.035; // radians mapping to ~10px separation at radius
+                const levels = Array(15).fill().map(() => []);
+
+                labelData.forEach(d => {
+                    let assignedLevel = 0;
+                    for (let i = 0; i < levels.length; i++) {
+                        const levelLabels = levels[i];
+                        if (levelLabels.length === 0) {
+                            assignedLevel = i;
+                            break;
+                        }
+                        const lastLabel = levelLabels[levelLabels.length - 1];
+                        if (d.angle - lastLabel.angle > minAngleGap) {
+                            assignedLevel = i;
+                            break;
+                        }
+                    }
+                    if (assignedLevel >= levels.length) assignedLevel = levels.length - 1;
+                    levels[assignedLevel].push(d);
+                    d.level = assignedLevel;
+                });
+
+                const baseLabelRadius = radius + 25; // start text outside the genes
+                const levelStep = 15; // px per level
+
+                // Draw connecting lines
+                svg.selectAll(".gene-label-link")
+                    .data(labelData)
+                    .enter().append("line")
+                    .attr("class", "gene-label-link")
+                    .attr("x1", d => {
+                        const geneEdge = d.strand === '+' ? radius + 15 : innerRadius + 15;
+                        return Math.cos(d.angle) * geneEdge;
+                    })
+                    .attr("y1", d => {
+                        const geneEdge = d.strand === '+' ? radius + 15 : innerRadius + 15;
+                        return Math.sin(d.angle) * geneEdge;
+                    })
+                    .attr("x2", d => {
+                        const r = baseLabelRadius + d.level * levelStep - 2;
+                        return Math.cos(d.angle) * r;
+                    })
+                    .attr("y2", d => {
+                        const r = baseLabelRadius + d.level * levelStep - 2;
+                        return Math.sin(d.angle) * r;
+                    })
+                    .attr("stroke", "#cbd5e1")
+                    .attr("stroke-width", "0.5px");
+
+                // Draw text labels
+                svg.selectAll(".gene-label")
+                    .data(labelData)
+                    .enter().append("text")
+                    .attr("class", "gene-label")
+                    .attr("transform", function (d) {
+                        const r = baseLabelRadius + d.level * levelStep;
+                        const x = Math.cos(d.angle) * r;
+                        const y = Math.sin(d.angle) * r;
+                        // Rotate text so it faces outwards appropriately
+                        const rot = d.angle * (180 / Math.PI);
+                        const rotation = (rot > 90 || rot < -90) ? rot + 180 : rot;
+                        return `translate(${x},${y}) rotate(${rotation})`;
+                    })
+                    .attr("text-anchor", function (d) {
+                        const rot = d.angle * (180 / Math.PI);
+                        return (rot > 90 || rot < -90) ? "end" : "start";
+                    })
+                    .attr("dy", "0.35em")
+                    .style("font-size", "8px")
+                    .style("fill", "#64748b")
+                    .style("pointer-events", "none")
+                    .text(d => d.name);
+            }
+
+        }
+
+        function exportGenomeViewerPNG() {
+            const container = document.getElementById('annotation-viewer-container');
+            const svgElement = container.querySelector('svg');
+
+            if (!svgElement) {
+                alert('No visualization available to export.');
+                return;
+            }
+
+            // Clone SVG to modify it for export without touching the DOM
+            const clonedSvg = svgElement.cloneNode(true);
+
+            // Explicitly set namespaces if missing
+            if (!clonedSvg.getAttribute('xmlns')) {
+                clonedSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+            }
+            if (!clonedSvg.getAttribute('xmlns:xlink')) {
+                clonedSvg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+            }
+
+            const originalWidth = parseFloat(svgElement.getAttribute('width') || svgElement.getBoundingClientRect().width);
+            let originalHeight = parseFloat(svgElement.getAttribute('height') || svgElement.getBoundingClientRect().height);
+
+            // --- Append Legend to SVG ---
+            const legendGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            // Add a padding between plot and legend
+            const legendStartY = originalHeight + 20;
+            legendGroup.setAttribute('transform', `translate(0, ${legendStartY})`);
+
+            // Add separator line
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', 10);
+            line.setAttribute('y1', 0);
+            line.setAttribute('x2', originalWidth - 10);
+            line.setAttribute('y2', 0);
+            line.setAttribute('stroke', '#e2e8f0');
+            line.setAttribute('stroke-width', '1');
+            legendGroup.appendChild(line);
+
+            // Add Title
+            const title = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            title.setAttribute('x', 10);
+            title.setAttribute('y', 25);
+            title.setAttribute('font-size', '14px');
+            title.setAttribute('font-weight', 'bold');
+            title.setAttribute('fill', '#0f172a');
+            title.textContent = 'Functional Categories';
+            legendGroup.appendChild(title);
+
+            let currentX = 10;
+            let currentY = 40;
+            const maxWidth = originalWidth - 20;
+
+            Object.entries(FUNCTIONAL_COLORS).forEach(([name, color]) => {
+                const text = name.charAt(0).toUpperCase() + name.slice(1);
+                // Approximate width: font size 10px ~ 6.5px per char plus 30px for circle and padding
+                const textWidth = text.length * 6.5;
+                const itemWidth = textWidth + 30;
+
+                if (currentX + itemWidth > maxWidth) {
+                    currentX = 10;
+                    currentY += 25; // Line height
+                }
+
+                // Add background pill
+                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                rect.setAttribute('x', currentX);
+                rect.setAttribute('y', currentY);
+                rect.setAttribute('width', itemWidth);
+                rect.setAttribute('height', 20);
+                rect.setAttribute('rx', 10);
+                rect.setAttribute('fill', '#ffffff');
+                rect.setAttribute('stroke', '#e2e8f0');
+                rect.setAttribute('stroke-width', '1');
+                legendGroup.appendChild(rect);
+
+                // Add color circle
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', currentX + 12);
+                circle.setAttribute('cy', currentY + 10);
+                circle.setAttribute('r', 4);
+                circle.setAttribute('fill', color);
+                legendGroup.appendChild(circle);
+
+                // Add text label
+                const textEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                textEl.setAttribute('x', currentX + 22);
+                textEl.setAttribute('y', currentY + 13.5);
+                textEl.setAttribute('font-size', '10px');
+                textEl.setAttribute('font-weight', 'bold');
+                textEl.setAttribute('fill', '#475569');
+                textEl.textContent = text;
+                legendGroup.appendChild(textEl);
+
+                currentX += itemWidth + 10;
+            });
+
+            clonedSvg.appendChild(legendGroup);
+
+            // Adjust SVG box height to include the newly appended legend
+            originalHeight = legendStartY + currentY + 30;
+            // ----------------------------
+
+            // Ensure viewBox is set so that native scaling up renders correctly
+            clonedSvg.setAttribute('viewBox', `0 0 ${originalWidth} ${originalHeight}`);
+
+            // Set up 600 DPI scale. 
+            // Web default is 96 DPI. 600 / 96 = 6.25
+            const scaleFactor = 6.25;
+            const targetWidth = originalWidth * scaleFactor;
+            const targetHeight = originalHeight * scaleFactor;
+
+            clonedSvg.setAttribute('width', targetWidth);
+            clonedSvg.setAttribute('height', targetHeight);
+
+            // Override inline style dimensions to ensure it grows large internally
+            clonedSvg.style.width = targetWidth + 'px';
+            clonedSvg.style.height = targetHeight + 'px';
+            clonedSvg.style.fontFamily = "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+
+            // Serialize SVG
+            const svgData = new XMLSerializer().serializeToString(clonedSvg);
+            const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const DOMURL = window.URL || window.webkitURL || window;
+            const url = DOMURL.createObjectURL(blob);
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+
+            img.onload = function () {
+                canvas.width = targetWidth;
+                canvas.height = targetHeight;
+
+                // Fill background white
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Draw image over white background, Canvas maps 1:1 since img is size of targetWidth/targetHeight
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                DOMURL.revokeObjectURL(url);
+
+                // Export to PNG (high quality)
+                const imgURI = canvas.toDataURL('image/png', 1.0);
+
+                // Trigger download
+                const link = document.createElement('a');
+                let curSample = g_currentSample ? g_currentSample.sample : "unnamed";
+                link.download = `genome_viewer_${curSample}_600dpi.png`;
+                link.href = imgURI;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+
+            img.onerror = function (err) {
+                console.error("Error creating image for export:", err);
+                alert('Failed to export image.');
+            };
+
+            img.src = url;
+        }
+
+        function renderUpsetR() {
+            const container = document.getElementById('upset-plot-container');
+            container.innerHTML = '';
+
+            if (!g_currentSample) return;
+
+            const upsetFile = Object.keys(g_currentSample.files).find(f => f.includes('upsetr.csv'));
+            if (!upsetFile) {
+                container.innerHTML = '<div class="text-center py-10 text-slate-400">No UpsetR data found</div>';
+                return;
+            }
+
+            const rawData = g_currentSample.files[upsetFile];
+            if (rawData.length <= 1) return;
+
+            const headers = rawData[0]; // ["contig", "tool1", "tool2"...]
+            // Identify tool columns (exclude "contig")
+            const toolCols = [];
+            headers.forEach((h, i) => {
+                const hLower = h.toLowerCase();
+                if (hLower !== 'contig' && hLower !== 'contig_name' && hLower !== 'contig_id') {
+                    toolCols.push({ name: h, index: i });
+                }
+            });
+
+            // Sort tools alphabetically for consistent matrix
+            toolCols.sort((a, b) => a.name.localeCompare(b.name));
+
+            // Process Rows to find Intersections
+            const intersectionMap = new Map(); // key: "1010...", value: { count, tools: [] }
+            const toolCounts = {}; // toolName -> count
+            toolCols.forEach(t => toolCounts[t.name] = 0);
+
+            rawData.slice(1).forEach(row => {
+                const toolsInRow = [];
+                let signature = "";
+
+                toolCols.forEach(t => {
+                    const val = row[t.index];
+                    const isPresent = (val === "1" || val === 1 || val === "TRUE" || val === true);
+                    if (isPresent) {
+                        toolsInRow.push(t.name);
+                        toolCounts[t.name]++;
+                        signature += "1";
+                    } else {
+                        signature += "0";
+                    }
+                });
+
+                // Only count if at least one tool found it? usually yes.
+                if (toolsInRow.length > 0) {
+                    if (!intersectionMap.has(signature)) {
+                        intersectionMap.set(signature, { signature, tools: toolsInRow, count: 0 });
+                    }
+                    intersectionMap.get(signature).count++;
+                }
+            });
+
+            // Convert map to array and sort
+            let intersections = Array.from(intersectionMap.values())
+                .sort((a, b) => b.count - a.count);
+
+            // Limit to top 40 to avoid overcrowding
+            if (intersections.length > 40) intersections = intersections.slice(0, 40);
+
+            // D3 Setup
+            const margin = { top: 50, right: 30, bottom: 30, left: 200 }; // Left for tool names
+            const rowHeight = 40; // Increased row height
+            const matrixHeight = toolCols.length * rowHeight;
+            const topBarHeight = 350; // Taller bar chart
+            const sideBarWidth = 250; // Wider side bars
+
+            const cellWidth = 50; // Wider cells
+            // Dynamic width based on number of intersections
+            const plotWidth = intersections.length * cellWidth;
+            // Ensure minimum width to stretch a bit if few intersections? 
+            // The user said "stretch it to the sides". If I increase cellWidth it will be wider.
+
+            const width = plotWidth + margin.left + sideBarWidth + 100;
+
+            // Total height = topBar + matrix
+            const height = topBarHeight + matrixHeight + margin.top + margin.bottom;
+
+            const svg = d3.select(container).append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .style("font-family", "Plus Jakarta Sans, sans-serif");
+
+            const g = svg.append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            // Scales
+            const x = d3.scaleBand()
+                .domain(intersections.map(d => d.signature))
+                .range([0, plotWidth])
+                .padding(0.1);
+
+            const yTop = d3.scaleLinear()
+                .domain([0, d3.max(intersections, d => d.count) * 1.1])
+                .range([topBarHeight, 0]);
+
+            const yMatrix = d3.scaleBand()
+                .domain(toolCols.map(t => t.name))
+                .range([0, matrixHeight])
+                .padding(0.2);
+
+            const xSide = d3.scaleLinear()
+                .domain([0, d3.max(Object.values(toolCounts)) * 1.1])
+                .range([0, sideBarWidth]);
+
+            // --- 1. Top Bar Chart (Intersections) ---
+            const topGroup = g.append("g");
+
+            topGroup.selectAll(".bar-top")
+                .data(intersections)
+                .enter().append("rect")
+                .attr("class", "bar-top")
+                .attr("x", d => x(d.signature))
+                .attr("y", d => yTop(d.count))
+                .attr("width", x.bandwidth())
+                .attr("height", d => topBarHeight - yTop(d.count))
+                .attr("fill", "#0f172a"); // Sidebar color / Dark
+
+            // Labels for top bars
+            topGroup.selectAll(".label-top")
+                .data(intersections)
+                .enter().append("text")
+                .attr("x", d => x(d.signature) + x.bandwidth() / 2)
+                .attr("y", d => yTop(d.count) - 5)
+                .attr("text-anchor", "middle")
+                .text(d => d.count)
+                .style("font-size", "10px")
+                .style("fill", "#64748b");
+
+            // --- 2. Matrix ---
+            const matrixGroup = g.append("g")
+                .attr("transform", `translate(0, ${topBarHeight + 20})`); // a bit of gap
+
+            // Rows (Guidelines)
+            matrixGroup.selectAll(".row-guide")
+                .data(toolCols)
+                .enter().append("line")
+                .attr("x1", 0)
+                .attr("x2", plotWidth)
+                .attr("y1", d => yMatrix(d.name) + yMatrix.bandwidth() / 2)
+                .attr("y2", d => yMatrix(d.name) + yMatrix.bandwidth() / 2)
+                .attr("stroke", "#e2e8f0")
+                .attr("stroke-width", 1);
+
+            // Intersection Columns (Vertical lines for connected dots)
+            const colGroup = matrixGroup.selectAll(".col-group")
+                .data(intersections)
+                .enter().append("g")
+                .attr("transform", d => `translate(${x(d.signature) + x.bandwidth() / 2}, 0)`);
+
+            colGroup.append("line")
+                .attr("y1", d => {
+                    const present = toolCols.filter(t => d.tools.includes(t.name));
+                    if (present.length === 0) return 0;
+                    // Find min y
+                    const minIdx = d3.min(present, t => yMatrix(t.name));
+                    return minIdx + yMatrix.bandwidth() / 2;
+                })
+                .attr("y2", d => {
+                    const present = toolCols.filter(t => d.tools.includes(t.name));
+                    if (present.length === 0) return 0;
+                    const maxIdx = d3.max(present, t => yMatrix(t.name));
+                    return maxIdx + yMatrix.bandwidth() / 2;
+                })
+                .attr("stroke", "#0f172a")
+                .attr("stroke-width", 2);
+
+            // Dots
+            // For each intersection column, draw dots for all tools
+            colGroup.each(function (d) {
+                const sel = d3.select(this);
+                toolCols.forEach(t => {
+                    sel.append("circle")
+                        .attr("cy", yMatrix(t.name) + yMatrix.bandwidth() / 2)
+                        .attr("r", 7)
+                        .attr("fill", d.tools.includes(t.name) ? "#0f172a" : "#cbd5e1")
+                        .attr("stroke-width", 0);
+                });
+            });
+
+            // Tool Labels (Left Axis)
+            const axisGroup = g.append("g")
+                .attr("transform", `translate(0, ${topBarHeight + 20})`);
+
+            axisGroup.selectAll(".tool-label")
+                .data(toolCols)
+                .enter().append("text")
+                .attr("x", -15)
+                .attr("y", d => yMatrix(d.name) + yMatrix.bandwidth() / 2 + 4)
+                .attr("text-anchor", "end")
+                .text(d => d.name)
+                .style("font-size", "11px")
+                .style("font-weight", "500")
+                .style("fill", "#334155");
+
+            // --- 3. Side Bar Chart (Set Sizes) ---
+            const sideGroup = g.append("g")
+                .attr("transform", `translate(${plotWidth + 20}, ${topBarHeight + 20})`); // Shift right of matrix
+
+            // Bars
+            sideGroup.selectAll(".bar-side")
+                .data(toolCols)
+                .enter().append("rect")
+                .attr("y", d => yMatrix(d.name))
+                .attr("x", 0)
+                .attr("height", yMatrix.bandwidth())
+                .attr("width", d => xSide(toolCounts[d.name]))
+                .attr("fill", "#14b8a6"); // Brand color
+
+            // Labels
+            sideGroup.selectAll(".label-side")
+                .data(toolCols)
+                .enter().append("text")
+                .attr("x", d => xSide(toolCounts[d.name]) + 5)
+                .attr("y", d => yMatrix(d.name) + yMatrix.bandwidth() / 2 + 4)
+                .text(d => toolCounts[d.name])
+                .style("font-size", "10px")
+                .style("fill", "#64748b");
+
+            // Axis Label
+            // svg.append("text")
+            //    .attr("transform", `translate(${margin.left + plotWidth + 20 + sideBarWidth/2}, ${topBarHeight + 10})`)
+            //    .style("text-anchor", "middle")
+            //    .style("font-size", "10px")
+            //    .style("fill", "#94a3b8")
+            //    .text("Set Size");
+        }
+
+        // Initialization logic
+        document.addEventListener('DOMContentLoaded', () => {
+            if (RESULTS_PAYLOAD && RESULTS_PAYLOAD.length > 0) {
+                try {
+                    const data = JSON.parse(RESULTS_PAYLOAD);
+                    g_data = Array.isArray(data) ? data : [data];
+
+                    document.getElementById('no-data-state').classList.add('hidden');
+                    document.getElementById('report-content').classList.remove('hidden');
+
+                    // Initialize Sidebar
+                    const sidebar = document.getElementById('sample-sidebar');
+                    const header = sidebar.querySelector('div');
+                    sidebar.innerHTML = '';
+                    sidebar.appendChild(header);
+
+                    g_data.forEach(sample => {
+                        const item = document.createElement('button');
+                        item.id = `sample-item-${sample.sample}`;
+                        item.onclick = () => switchSample(sample.sample);
+                        item.className = 'sample-item w-full flex items-center gap-3 px-4 py-3 rounded-xl border-l-4 border-transparent text-left transition-all hover:bg-slate-800 group';
+                        item.innerHTML = `
+                            <div class="w-2 h-2 rounded-full bg-slate-600 group-hover:bg-brand transition-colors"></div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-semibold truncate text-slate-300 group-hover:text-white">${sample.sample}</p>
+                                <p class="text-[10px] text-slate-500 uppercase tracking-tighter">Sample ID</p>
+                            </div>
+                        `;
+                        sidebar.appendChild(item);
+                    });
+
+                    if (g_data.length > 0) {
+                        switchSample(g_data[0].sample);
+                    }
+
+                } catch (e) {
+                    console.error("Failed to parse injection payload", e);
+                }
+            }
+        });
+        function exportTableToCSV(tbodyId, filename) {
+            const tbody = document.getElementById(tbodyId);
+            if (!tbody) {
+                alert("Table body not found!");
+                return;
+            }
+
+            const table = tbody.closest('table');
+            const thead = table.querySelector('thead');
+
+            let csv = [];
+
+            // Extract Headers
+            if (thead) {
+                const headers = thead.querySelectorAll('th');
+                let headerRow = [];
+                headers.forEach(h => {
+                    let text = h.innerText || h.textContent;
+                    // Escape quotes for CSV
+                    text = '"' + text.trim().replace(/"/g, '""') + '"';
+                    headerRow.push(text);
+                });
+                csv.push(headerRow.join(','));
+            }
+
+            // Extract Rows
+            const rows = tbody.querySelectorAll('tr');
+            rows.forEach(r => {
+                // If a row is hidden by search filter, ignore it (optional behavior, currently exports visible)
+                if (r.style.display !== 'none' && !r.classList.contains('hidden-row')) {
+                    const cols = r.querySelectorAll('td');
+                    if (cols.length > 0) {
+                        let dataRow = [];
+                        cols.forEach(c => {
+                            let text = (c.innerText || c.textContent).trim();
+                            // If element says "..." (because of cutoff text), check 'title' attribute which holds full name
+                            if (c.hasAttribute('title') && text.endsWith('...')) {
+                                text = c.getAttribute('title').trim();
+                            }
+                            text = '"' + text.replace(/"/g, '""') + '"';
+                            dataRow.push(text);
+                        });
+                        csv.push(dataRow.join(','));
+                    }
+                }
+            });
+
+            // Trigger download
+            const csvData = csv.join('\n');
+            const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+
+            let prefix = g_currentSample ? g_currentSample.sample + "_" : "report_";
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = prefix + filename;
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+
+</html>
