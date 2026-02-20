@@ -5,17 +5,17 @@ process phigaro_prophage {
     input:
         tuple val(name), path(fasta) 
     output:
-        tuple val(name), path("${name}_phigaro_prophage.tsv")
-        tuple val(name), path("${name}_phigaro_prophage.html")
+        tuple val(name), path("${name}_prophage_phigaro.tsv"), emit: phigaro_prophage_ch, optional: true
+        tuple val(name), path("${name}_prophage_phigaro.html"), emit: phigaro_prophage_ch_html, optional: true
     script:
         """
-        phigaro -f ${fasta} -o ${name}_phigaro_prophage -t ${task.cpus} -d --config /root/.phigaro/config.yml -e html tsv
+        phigaro -f ${fasta} -o ${name}_prophage_phigaro -t ${task.cpus} -d --config /root/.phigaro/config.yml -e html tsv
         
         """
     stub:
         """
-        touch ${name}_phigaro_prophage.tsv
-        touch ${name}_phigaro_prophage.html
+        touch ${name}_prophage_phigaro.tsv
+        touch ${name}_prophage_phigaro.html
         """
 }
 

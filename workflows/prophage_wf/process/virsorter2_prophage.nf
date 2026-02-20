@@ -6,7 +6,7 @@ process virsorter2_prophage {
       tuple val(name), path(fasta)  
       path(database)
     output:
-        tuple val(name), path("virsorter2.out/*_final-viral-score.tsv")
+        tuple val(name), path("virsorter2.out/*_final-viral-score_virsorter2.tsv"), emit: virsorter2_prophage_ch, optional: true
         tuple val(name), path("virsorter2.out")
     script:
         """
@@ -15,7 +15,7 @@ process virsorter2_prophage {
         -i ${fasta} \
         -j ${task.cpus} \
 
-        mv virsorter2.out/final-viral-score.tsv virsorter2.out/${name}_final-viral-score.tsv
+        mv virsorter2.out/final-viral-score.tsv virsorter2.out/${name}_final-viral-score_virsorter2.tsv
         """
     stub:
         """

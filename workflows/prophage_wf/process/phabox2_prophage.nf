@@ -5,8 +5,8 @@ process phabox2_prophage {
     input:
         tuple val(name), path(fasta)
     output:   
-        tuple val(name), path("${name}_contamination_prediction.tsv"), path("${name}_candidate_provirus.tsv"), emit: phabox2_prophage_ch, optional: true
-        tuple val(name), path("${name}_proviruses.fa"), emit: phabox2_extracted_prophage_ch, optional: true
+        tuple val(name), path("${name}_contamination_prediction_phabox2.tsv"), path("${name}_candidate_provirus_phabox2.tsv"), emit: phabox2_prophage_ch, optional: true
+        tuple val(name), path("${name}_proviruses_phabox2.fa"), emit: phabox2_extracted_prophage_ch, optional: true
     script:
         """
         # activate conda environment
@@ -17,15 +17,15 @@ process phabox2_prophage {
         
         ## get results
         mv ${name}_results_prophage_contamination/final_prediction/contamination_prediction.tsv .
-        mv contamination_prediction.tsv ${name}_contamination_prediction.tsv
+        mv contamination_prediction.tsv ${name}_contamination_prediction_phabox2.tsv
        
         ## get detailed results
         mv ${name}_results_prophage_contamination/final_prediction/contamination_supplementary/candidate_provirus.tsv .
-        mv candidate_provirus.tsv ${name}_candidate_provirus.tsv
+        mv candidate_provirus.tsv ${name}_candidate_provirus_phabox2.tsv
 
         # get provirus fasta
         mv ${name}_results_prophage_contamination/final_prediction/contamination_supplementary/proviruses.fa .
-        mv proviruses.fa ${name}_proviruses.fa
+        mv proviruses.fa ${name}_proviruses_phabox2.fa
 
 
 

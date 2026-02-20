@@ -7,7 +7,7 @@ process genomad_prophage {
         path(database)
     output:
         tuple val(name), path("${name}_filtered_find_proviruses/"), emit: genomad_prophage_ch, optional: true
-        tuple val(name), path("${name}_filtered_provirus.tsv"), emit: genomad_extracted_prophage_ch, optional: true
+        tuple val(name), path("${name}_filtered_provirus_genomad.tsv"), emit: genomad_extracted_prophage_ch, optional: true
     script:
         """
         source /opt/conda/etc/profile.d/conda.sh
@@ -27,6 +27,7 @@ process genomad_prophage {
         mv ${name}_genomad_output/${name}_filtered_find_proviruses/${name}_filtered_provirus.fna .
         mv ${name}_genomad_output/${name}_filtered_find_proviruses/ .
         cp ${name}_filtered_find_proviruses/${name}_filtered_provirus.tsv .
+        mv ${name}_filtered_provirus.tsv ${name}_filtered_provirus_genomad.tsv
 
 
 
