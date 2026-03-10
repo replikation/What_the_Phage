@@ -1,12 +1,15 @@
 include { phabox2_host } from './process/phabox2_host_prediction'
 include { download_genomad_DB } from './process/download_genomad_DB'
-include { genomad_host_prediction } from './process/genomad_host_prediction'
+include { genomad_host } from './process/genomad_host_prediction'
 
 
 workflow host_wf {
     take:   fasta
-    main: 
+    main:   
+
+            genomad_host(fasta, download_genomad_DB())
             phabox2_host(fasta)
+            iphop(fasta)  
     
 
 

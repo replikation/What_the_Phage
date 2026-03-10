@@ -1,4 +1,4 @@
-include { testprofile } from './process/get_test_data/testprofile'
+include { testprofile } from './get_test_data/testprofile'
 
 
 workflow get_test_data_wf {

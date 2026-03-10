@@ -191,6 +191,10 @@
                         class="px-4 py-1.5 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-slate-700 whitespace-nowrap">
                         Taxonomy
                     </button>
+                    <button onclick="switchTab('prophage')" id="tab-prophage"
+                        class="px-4 py-1.5 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-slate-700 whitespace-nowrap">
+                        Prophage
+                    </button>
                 </div>
             </div>
         </header>
@@ -232,6 +236,88 @@
                                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Payload Size
                                 </p>
                                 <p id="stat-payload" class="text-3xl font-bold text-slate-900">--</p>
+                            </div>
+                        </div>
+
+                        <div
+                            class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl mb-8 flex gap-3 text-indigo-800 text-sm shadow-sm items-start">
+                            <svg class="w-5 h-5 text-indigo-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <div class="flex flex-col gap-1.5 pt-0.5">
+                                <div><span class="font-bold">Note:</span> This is an overview table for the What the
+                                    Phage analysis. Please check the results properly.</div>
+                                <div class="text-xs text-indigo-700/80">Hold <kbd
+                                        class="px-1.5 py-0.5 bg-indigo-100 border border-indigo-200 rounded text-[10px] font-mono mx-0.5">Shift</kbd>
+                                    + scroll wheel to scroll the table horizontally.</div>
+                                <div class="text-xs text-indigo-700/80">
+                                    <span class="font-semibold text-orange-600">SM</span> = Sourmash &nbsp;&bull;&nbsp;
+                                    <span class="font-semibold text-teal-600">GN</span> = geNomad
+                                </div>
+                                <div class="text-xs text-indigo-700/80">
+                                    <span class="font-semibold text-brand">kn</span> = Known functions
+                                    &nbsp;&bull;&nbsp;
+                                    <span class="font-semibold text-slate-500">hy</span> = Hypothetical/NA
+                                    &nbsp;&bull;&nbsp;
+                                    <span class="font-semibold text-slate-500">un</span> = Unannotated
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+                            <div
+                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                <div>
+                                    <h3 class="font-bold text-slate-800">Contig Overview</h3>
+                                    <p class="text-xs text-slate-500">Summary across all analyses</p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <button onclick="exportTableToCSV('overview-table-body', 'contigs_overview.csv')"
+                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-all flex items-center gap-1.5 shadow-sm">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
+                                            </path>
+                                        </svg>
+                                        Export CSV
+                                    </button>
+                                    <div class="relative">
+                                        <input type="text" placeholder="Search..."
+                                            onkeyup="filterTable('overview-table-body', this.value)"
+                                            class="pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand w-48 transition-all shadow-sm">
+                                        <svg class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table id="overview-table"
+                                    class="w-full text-left border-collapse text-xs whitespace-nowrap">
+                                    <thead>
+                                        <tr
+                                            class="bg-slate-50 text-slate-500 uppercase text-[9px] font-bold tracking-wider">
+                                            <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                onclick="sortTable('overview-table', 0)">Contig</th>
+                                            <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                onclick="sortTable('overview-table', 1, 'number')">Length</th>
+                                            <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                onclick="sortTable('overview-table', 2)">Quality</th>
+                                            <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                onclick="sortTable('overview-table', 3, 'number')">Completeness</th>
+                                            <th class="px-4 py-3 border-b border-slate-100">Tool Agreement</th>
+                                            <th class="px-4 py-3 border-b border-slate-100">Taxonomy</th>
+                                            <th class="px-4 py-3 border-b border-slate-100">Annotation Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="overview-table-body" class="divide-y divide-slate-100">
+                                        <!-- Data injected here -->
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
 
@@ -663,7 +749,55 @@
                                         </svg>
                                         Export PNG
                                     </button>
+                                    <button onclick="exportGenomeViewerSVG()" id="annotation-export-svg-btn"
+                                        class="px-2 py-1 text-[10px] font-bold rounded bg-white shadow-sm text-slate-700 border border-slate-200 hover:text-brand transition-all flex items-center gap-1"
+                                        title="Download as SVG">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
+                                            </path>
+                                        </svg>
+                                        Download SVG
+                                    </button>
                                 </div>
+                            </div>
+                            <!-- INFO BOX -->
+                            <div
+                                class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4 mt-2 mb-2 text-sm text-slate-600 max-w-full">
+                                <h4
+                                    class="font-bold text-indigo-900 mb-2 flex items-center gap-2 text-xs uppercase tracking-wider">
+                                    <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Genome Viewer Features
+                                </h4>
+                                <ul
+                                    class="space-y-2 ml-1 text-xs leading-relaxed grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+                                    <li class="flex gap-2">
+                                        <span class="font-semibold text-slate-800 min-w-[100px]">Compare Mode:</span>
+                                        <span>Select multiple contigs to visualize them stacked together in the Linear
+                                            Viewer.</span>
+                                    </li>
+                                    <li class="flex gap-2">
+                                        <span class="font-semibold text-slate-800 min-w-[100px]">Circular View:</span>
+                                        <span>Provides a circular plasmid map of a specific contig generated by a single
+                                            specific tool.</span>
+                                    </li>
+                                    <li class="flex gap-2">
+                                        <span class="font-semibold text-slate-800 min-w-[100px]">Interactive
+                                            Legend:</span>
+                                        <span>Click on any functional category in the legend below to show/hide the gene
+                                            labels for that category.</span>
+                                    </li>
+                                    <li class="flex gap-2">
+                                        <span class="font-semibold text-slate-800 min-w-[100px]">Details on
+                                            hover:</span>
+                                        <span>Hovering over any gene segment on the map will display a popup with exact
+                                            locations and details.</span>
+                                    </li>
+                                </ul>
                             </div>
                             <div id="annotation-active-tags" class="hidden flex flex-wrap gap-2 empty:hidden">
                                 <!-- Chips injected here -->
@@ -725,6 +859,168 @@
                                     <!-- Data injected here -->
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PROPHAGE TAB -->
+                <div id="content-prophage" class="tab-content">
+                    <!-- Sub-tabs Navigation -->
+                    <div class="flex gap-2 mb-6 border-b border-slate-200 pb-2">
+                        <button onclick="switchProphageTab('phabox2-cand')" id="prophage-tab-phabox2-cand"
+                            class="px-4 py-2 text-sm font-semibold rounded-lg transition-all bg-white text-brand shadow-sm border border-slate-200">
+                            PhaBOX2 Cand
+                        </button>
+                        <button onclick="switchProphageTab('phabox2-contam')" id="prophage-tab-phabox2-contam"
+                            class="px-4 py-2 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-brand hover:bg-white/50">
+                            PhaBOX2 Contam
+                        </button>
+                        <button onclick="switchProphageTab('virsorter2')" id="prophage-tab-virsorter2"
+                            class="px-4 py-2 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-brand hover:bg-white/50">
+                            VirSorter2
+                        </button>
+                        <button onclick="switchProphageTab('phigaro')" id="prophage-tab-phigaro"
+                            class="px-4 py-2 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-brand hover:bg-white/50">
+                            Phigaro
+                        </button>
+                        <button onclick="switchProphageTab('genomad')" id="prophage-tab-genomad"
+                            class="px-4 py-2 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-brand hover:bg-white/50">
+                            Genomad
+                        </button>
+                    </div>
+
+                    <!-- Data Containers -->
+                    <div id="prophage-content-phabox2-cand" class="prophage-tab-content block">
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                            <div
+                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                <h3 class="font-bold text-slate-800">PhaBOX2 Candidate Provirus</h3>
+                                <div class="flex items-center gap-3">
+                                    <button
+                                        onclick="exportTableToCSV('prophage-phabox2-cand-body', 'candidate_provirus_phabox2.csv')"
+                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-all flex items-center gap-1.5 shadow-sm">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
+                                            </path>
+                                        </svg>
+                                        Export CSV
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-xs">
+                                    <thead id="prophage-phabox2-cand-head"></thead>
+                                    <tbody id="prophage-phabox2-cand-body" class="divide-y divide-slate-100"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="prophage-content-phabox2-contam" class="prophage-tab-content hidden">
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                            <div
+                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                <h3 class="font-bold text-slate-800">PhaBOX2 Contamination Prediction</h3>
+                                <div class="flex items-center gap-3">
+                                    <button
+                                        onclick="exportTableToCSV('prophage-phabox2-contam-body', 'contamination_prediction_phabox2.csv')"
+                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-all flex items-center gap-1.5 shadow-sm">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
+                                            </path>
+                                        </svg>
+                                        Export CSV
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-xs">
+                                    <thead id="prophage-phabox2-contam-head"></thead>
+                                    <tbody id="prophage-phabox2-contam-body" class="divide-y divide-slate-100"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="prophage-content-virsorter2" class="prophage-tab-content hidden">
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                            <div
+                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                <h3 class="font-bold text-slate-800">VirSorter2 Final Viral Score</h3>
+                                <div class="flex items-center gap-3">
+                                    <button
+                                        onclick="exportTableToCSV('prophage-virsorter2-body', 'final-viral-score_virsorter2.csv')"
+                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-all flex items-center gap-1.5 shadow-sm">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
+                                            </path>
+                                        </svg>
+                                        Export CSV
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-xs">
+                                    <thead id="prophage-virsorter2-head"></thead>
+                                    <tbody id="prophage-virsorter2-body" class="divide-y divide-slate-100"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="prophage-content-phigaro" class="prophage-tab-content hidden">
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                            <div
+                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                <h3 class="font-bold text-slate-800">Phigaro Prophage</h3>
+                                <div class="flex items-center gap-3">
+                                    <button onclick="exportTableToCSV('prophage-phigaro-body', 'prophage_phigaro.csv')"
+                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-all flex items-center gap-1.5 shadow-sm">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
+                                            </path>
+                                        </svg>
+                                        Export CSV
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-xs">
+                                    <thead id="prophage-phigaro-head"></thead>
+                                    <tbody id="prophage-phigaro-body" class="divide-y divide-slate-100"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="prophage-content-genomad" class="prophage-tab-content hidden">
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                            <div
+                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                <h3 class="font-bold text-slate-800">GeNomad Filtered Provirus</h3>
+                                <div class="flex items-center gap-3">
+                                    <button
+                                        onclick="exportTableToCSV('prophage-genomad-body', 'filtered_provirus_genomad.csv')"
+                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-all flex items-center gap-1.5 shadow-sm">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
+                                            </path>
+                                        </svg>
+                                        Export CSV
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse text-xs">
+                                    <thead id="prophage-genomad-head"></thead>
+                                    <tbody id="prophage-genomad-body" class="divide-y divide-slate-100"></tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -823,6 +1119,8 @@
                 renderAnnotation();
             } else if (g_activeTab === 'upsetr') {
                 renderUpsetR();
+            } else if (g_activeTab === 'prophage') {
+                renderProphage();
             }
 
             g_renderedTabs.add(g_activeTab);
@@ -849,6 +1147,209 @@
 
             // Raw JSON
             document.getElementById('raw-json-display').innerHTML = `<pre class="text-xs font-mono text-slate-600 bg-slate-50 p-4 rounded-lg overflow-auto max-h-[500px]">${JSON.stringify(g_currentSample, null, 2)}</pre>`;
+
+            // Contig Overview Table Data Aggregation
+            let contigObjects = {}; // key: contig id
+
+            if (qualityData.length > 1) {
+                const h = qualityData[0];
+                const idIdx = h.indexOf('contig_id');
+                const lenIdx = h.indexOf('contig_length');
+                let qualIdx = h.indexOf('checkv_quality');
+                if (qualIdx === -1) qualIdx = h.indexOf('miuvig_quality');
+                const compIdx = h.indexOf('completeness');
+
+                qualityData.slice(1).forEach(row => {
+                    const cid = row[idIdx];
+                    if (cid) {
+                        contigObjects[cid] = {
+                            id: cid,
+                            length: parseInt(row[lenIdx]) || 0,
+                            quality: qualIdx !== -1 ? row[qualIdx] : 'N/A',
+                            completeness: compIdx !== -1 ? parseFloat(row[compIdx]) : 0,
+                            tools: [],
+                            taxonomy: { sourmash: 'N/A', genomad: 'N/A' },
+                            tool_annotations: {}
+                        };
+                    }
+                });
+            }
+
+            // Read Tool Agreement
+            const overviewIdFile = Object.keys(g_currentSample.files).find(f => f.includes('_contig_tool_p-value_overview.tsv'));
+            if (overviewIdFile) {
+                const idData = g_currentSample.files[overviewIdFile];
+                if (idData.length > 1) {
+                    const h = idData[0];
+                    const cIdx = h.indexOf('contig_name');
+                    const tIdx = h.indexOf('toolname');
+                    const pIdx = h.indexOf('p_value');
+                    idData.slice(1).forEach(row => {
+                        const cid = row[cIdx];
+                        const tool = row[tIdx];
+                        const pval = parseFloat(row[pIdx]);
+                        if (cid && contigObjects[cid] && pval > 0.5) {
+                            if (!contigObjects[cid].tools.includes(tool)) {
+                                contigObjects[cid].tools.push(tool);
+                            }
+                        }
+                    });
+                }
+            }
+
+            // Read Taxonomy
+            const overviewTaxFile = Object.keys(g_currentSample.files).find(f => f.includes('taxonomy_overview.tsv'));
+            if (overviewTaxFile) {
+                const taxData = g_currentSample.files[overviewTaxFile];
+                if (taxData.length > 1) {
+                    const h = taxData[0];
+                    const cIdx = h.indexOf('Contig');
+                    const smTaxIdx = h.indexOf('Sourmash_Taxonomy');
+                    const gmLinIdx = h.indexOf('Genomad_lineage');
+                    taxData.slice(1).forEach(row => {
+                        const cid = row[cIdx];
+                        if (cid && contigObjects[cid]) {
+                            contigObjects[cid].taxonomy.sourmash = row[smTaxIdx] || 'N/A';
+                            contigObjects[cid].taxonomy.genomad = row[gmLinIdx] || 'N/A';
+                        }
+                    });
+                }
+            }
+
+            // Read Annotations -calculation for overview table
+            const overviewAnnFile = Object.keys(g_currentSample.files).find(f => f.includes('annotation_report_summary.tsv'));
+            if (overviewAnnFile) {
+                const annData = g_currentSample.files[overviewAnnFile];
+                if (annData.length > 0) { // No header
+                    annData.forEach(row => {
+                        const cid = row[0];
+                        if (cid && contigObjects[cid]) {
+                            const start = parseInt(row[1]);
+                            const end = parseInt(row[2]);
+                            const name = row[3] || "";
+                            const tool = row[5] || "Unknown";
+
+                            if (!contigObjects[cid].tool_annotations[tool]) {
+                                contigObjects[cid].tool_annotations[tool] = { annotations: [], hypothetical_annotations: [] };
+                            }
+
+                            if (!isNaN(start) && !isNaN(end)) {
+                                const interval = [Math.min(start, end), Math.max(start, end)];
+                                contigObjects[cid].tool_annotations[tool].annotations.push(interval);
+
+                                const nLower = name.toLowerCase();
+                                if (nLower.includes("hypothetical") || nLower === "na" || nLower === "") {
+                                    contigObjects[cid].tool_annotations[tool].hypothetical_annotations.push(interval);
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            // Helper to calc coverage
+            function calcCov(intervals) {
+                if (!intervals || !intervals.length) return 0;
+                // Merge overlapping intervals
+                intervals.sort((a, b) => a[0] - b[0]);
+                let total = 0;
+                let cur = [intervals[0][0], intervals[0][1]];
+                for (let i = 1; i < intervals.length; i++) {
+                    if (intervals[i][0] <= cur[1]) {
+                        cur[1] = Math.max(cur[1], intervals[i][1]);
+                    } else {
+                        total += (cur[1] - cur[0] + 1);
+                        cur = [intervals[i][0], intervals[i][1]];
+                    }
+                }
+                total += (cur[1] - cur[0] + 1);
+                return total;
+            }
+
+            // Render the Table
+            const overviewTbody = document.getElementById('overview-table-body');
+            if (overviewTbody) {
+                overviewTbody.innerHTML = '';
+
+                Object.values(contigObjects).forEach(c => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50/50 transition-colors';
+
+                    // Length
+                    const lenDisplay = c.length.toLocaleString();
+
+                    // Quality
+                    const qualVal = c.quality || 'N/A';
+                    const qualDisplay = `<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${qualVal.includes('High') ? 'bg-emerald-100 text-emerald-700' : qualVal.includes('Medium') ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}">${qualVal}</span>`;
+
+                    // Completeness
+                    const compDisplay = (c.completeness && !isNaN(c.completeness)) ? `<span class="font-semibold text-slate-700">${parseFloat(c.completeness).toFixed(1)}%</span>` : '-';
+
+                    // Tools
+                    const toolsDisplay = c.tools.length > 0 ? c.tools.map(t => `<span class="px-1.5 py-0.5 bg-indigo-50 text-indigo-700 rounded text-[9px] font-bold uppercase mr-1 inline-block mb-1">${t}</span>`).join('') : '<span class="text-slate-400 italic text-[10px]">None</span>';
+
+                    // Taxonomy
+                    const formatTax = (t) => {
+                        if (t === 'N/A' || t === 'no match found' || t === 'NA') return '<span class="text-slate-400 italic">No match</span>';
+                        const parts = t.split(';');
+                        return `<span title="${t}" class="font-medium text-slate-700 truncate max-w-[150px] inline-block align-bottom">${parts[parts.length - 1] || t}</span>`;
+                    };
+                    const taxDisplay = `
+                        <div class="flex flex-col gap-0.5 text-[10px]">
+                            <div class="flex gap-1 items-center"><span class="font-bold text-orange-600 w-4">SM:</span> ${formatTax(c.taxonomy.sourmash)}</div>
+                            <div class="flex gap-1 items-center"><span class="font-bold text-teal-600 w-4">GN:</span> ${formatTax(c.taxonomy.genomad)}</div>
+                        </div>`;
+
+                    // Annotations
+                    let annDisplayHtml = '';
+                    const toolsWithAnn = Object.keys(c.tool_annotations).sort();
+
+                    if (toolsWithAnn.length > 0 && c.length > 0) {
+                        annDisplayHtml = `<div class="flex flex-col gap-2 w-48 mt-1 pb-1">`;
+                        toolsWithAnn.forEach(tool => {
+                            const tAnn = c.tool_annotations[tool];
+                            const totalCov = calcCov(tAnn.annotations);
+                            const hypoCov = calcCov(tAnn.hypothetical_annotations);
+
+                            let pctTotal = Math.min(100, (totalCov / c.length) * 100);
+                            let pctHypo = Math.min(100, (hypoCov / c.length) * 100);
+                            let pctNot = Math.max(0, 100 - pctTotal);
+                            let pctKnown = Math.max(0, pctTotal - pctHypo);
+
+                            annDisplayHtml += `
+                                <div class="flex flex-col gap-0.5">
+                                    <div class="text-[9px] font-bold text-slate-500 uppercase">${tool}</div>
+                                    <div class="flex h-1.5 bg-slate-100 rounded-full overflow-hidden w-full">
+                                        <div class="bg-brand h-full" style="width: ${pctKnown}%" title="${tool} Known: ${pctKnown.toFixed(1)}%"></div>
+                                        <div class="bg-slate-300 h-full" style="width: ${pctHypo}%" title="${tool} Hypo/NA: ${pctHypo.toFixed(1)}%"></div>
+                                        <div class="bg-slate-100 h-full" style="width: ${pctNot}%" title="${tool} Unann: ${pctNot.toFixed(1)}%"></div>
+                                    </div>
+                                    <div class="flex justify-between text-[8px] text-slate-500">
+                                        <span><span class="text-brand font-bold">${pctKnown.toFixed(0)}%</span> kn</span>
+                                        <span><span class="text-slate-400 font-bold">${pctHypo.toFixed(0)}%</span> hy</span>
+                                        <span><span class="text-slate-400 font-bold">${pctNot.toFixed(0)}%</span> un</span>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        annDisplayHtml += `</div>`;
+                    } else {
+                        annDisplayHtml = '<span class="text-slate-400 italic text-[10px]">N/A</span>';
+                    }
+                    const annDisplay = annDisplayHtml;
+
+                    tr.innerHTML = `
+                        <td class="px-4 py-3 font-mono text-slate-600 text-[10px] font-medium">${c.id}</td>
+                        <td class="px-4 py-3 text-slate-500">${lenDisplay}</td>
+                        <td class="px-4 py-3">${qualDisplay}</td>
+                        <td class="px-4 py-3">${compDisplay}</td>
+                        <td class="px-4 py-3">${toolsDisplay}</td>
+                        <td class="px-4 py-3">${taxDisplay}</td>
+                        <td class="px-4 py-3">${annDisplay}</td>
+                    `;
+                    overviewTbody.appendChild(tr);
+                });
+            }
         }
 
         // --- Sorting Logic ---
@@ -1308,26 +1809,32 @@
             "other": "#B2B2C0"
         };
 
-        function getGeneColor(gene) {
+        let g_hiddenLegendLabels = new Set();
+
+        function getGeneCategory(gene) {
             const name = (gene.name || gene.gene || "").toLowerCase();
 
-            if (name.includes("capsid")) return FUNCTIONAL_COLORS["capsid"];
-            if (name.includes("head")) return FUNCTIONAL_COLORS["head"];
-            if (name.includes("tail")) return FUNCTIONAL_COLORS["tail"];
-            if (name.includes("fiber")) return FUNCTIONAL_COLORS["fiber"];
-            if (name.includes("sheath")) return FUNCTIONAL_COLORS["sheath"];
-            if (name.includes("holin")) return FUNCTIONAL_COLORS["holin"];
-            if (name.includes("endolysin")) return FUNCTIONAL_COLORS["endolysin"];
-            if (name.includes("spanin")) return FUNCTIONAL_COLORS["spanin"];
-            if (name.includes("portal")) return FUNCTIONAL_COLORS["portal"];
-            if (name.includes("depolymerase")) return FUNCTIONAL_COLORS["depolymerase"];
-            if (name.includes("integrase")) return FUNCTIONAL_COLORS["integrase"];
-            if (name.includes("terminase")) return FUNCTIONAL_COLORS["terminase"];
-            if (name.includes("toxin")) return FUNCTIONAL_COLORS["toxin"];
-            if (name.includes("effector")) return FUNCTIONAL_COLORS["effector"];
-            if (name.includes("hypothetical protein") || name.includes("hypothetical")) return FUNCTIONAL_COLORS["hypothetical protein"];
+            if (name.includes("capsid")) return "capsid";
+            if (name.includes("head")) return "head";
+            if (name.includes("tail")) return "tail";
+            if (name.includes("fiber")) return "fiber";
+            if (name.includes("sheath")) return "sheath";
+            if (name.includes("holin")) return "holin";
+            if (name.includes("endolysin")) return "endolysin";
+            if (name.includes("spanin")) return "spanin";
+            if (name.includes("portal")) return "portal";
+            if (name.includes("depolymerase")) return "depolymerase";
+            if (name.includes("integrase")) return "integrase";
+            if (name.includes("terminase")) return "terminase";
+            if (name.includes("toxin")) return "toxin";
+            if (name.includes("effector")) return "effector";
+            if (name.includes("hypothetical protein") || name.includes("hypothetical")) return "hypothetical protein";
 
-            return FUNCTIONAL_COLORS["other"];
+            return "other";
+        }
+
+        function getGeneColor(gene) {
+            return FUNCTIONAL_COLORS[getGeneCategory(gene)];
         }
 
         function renderLegend() {
@@ -1338,11 +1845,21 @@
             // Functional Categories
             Object.entries(FUNCTIONAL_COLORS).forEach(([name, color]) => {
                 const div = document.createElement('div');
-                div.className = 'flex items-center gap-1.5 px-3 py-1 bg-white rounded-full border border-slate-200 shadow-sm';
+                const isHidden = g_hiddenLegendLabels.has(name);
+                div.className = `flex items-center gap-1.5 px-3 py-1 bg-white rounded-full border border-slate-200 shadow-sm cursor-pointer transition-opacity ${isHidden ? 'opacity-40' : 'hover:opacity-80'}`;
                 div.innerHTML = `
                     <div class="w-2.5 h-2.5 rounded-full" style="background-color: ${color}"></div>
                     <span class="text-slate-600 text-[10px] font-bold capitalize whitespace-nowrap">${name}</span>
                  `;
+                div.onclick = () => {
+                    if (g_hiddenLegendLabels.has(name)) {
+                        g_hiddenLegendLabels.delete(name);
+                    } else {
+                        g_hiddenLegendLabels.add(name);
+                    }
+                    renderLegend();
+                    updateAnnotationViewer();
+                };
                 container.appendChild(div);
             });
         }
@@ -1514,10 +2031,8 @@
             // The file might be empty if no annotations.
             if (!rawRows || rawRows.length === 0) return;
 
-            // Check if it really has no header. 
-            // The R script writes with col.names=FALSE. So row 0 is data.
-            // But we should be careful. 
-            // Let's assume standard behavior: array of arrays.
+
+            // assume standard behavior: array of arrays.
 
             const annotations = rawRows.map(row => ({
                 contig: row[0],
@@ -1534,9 +2049,7 @@
             const tbody = document.getElementById('annotation-table-body');
             const fragment = document.createDocumentFragment();
             // Limit to 500 items for performance in table if huge? 
-            // User requested "add the annotation_report_summary.tsv... as a table".
-            // I'll show all but rely on browser. pagination would be better but simple table for now.
-            // If > 2000 rows, maybe truncate?
+
             const MAX_ROWS = 2000;
             const displayRows = annotations.slice(0, MAX_ROWS);
 
@@ -1709,7 +2222,8 @@
                              </rect>`;
 
                             const showLabels = document.getElementById('annotation-show-labels').checked;
-                            if (showLabels && w > 15) {
+                            const cat = getGeneCategory(g);
+                            if (showLabels && w > 15 && !g_hiddenLegendLabels.has(cat)) {
                                 // Add text label centered inside or next to the gene block
                                 // using clip-path or simply truncating text based on width isn't easy here,
                                 // we'll just drop the text and try to restrict its size loosely.
@@ -1853,10 +2367,12 @@
 
             if (showLabels) {
                 // Prepare label data with calculated angles
-                const labelData = targetAnnots.map(d => {
-                    const angle = (angleScale(d.start) + angleScale(d.end)) / 2 - Math.PI / 2;
-                    return { ...d, angle };
-                }).sort((a, b) => a.angle - b.angle);
+                const labelData = targetAnnots
+                    .filter(d => !g_hiddenLegendLabels.has(getGeneCategory(d)))
+                    .map(d => {
+                        const angle = (angleScale(d.start) + angleScale(d.end)) / 2 - Math.PI / 2;
+                        return { ...d, angle };
+                    }).sort((a, b) => a.angle - b.angle);
 
                 // Simple dodging: assign a level based on proximity to previously placed labels
                 const minAngleGap = 0.035; // radians mapping to ~10px separation at radius
@@ -2098,6 +2614,136 @@
             img.src = url;
         }
 
+        function exportGenomeViewerSVG() {
+            const container = document.getElementById('annotation-viewer-container');
+            const svgElement = container.querySelector('svg');
+
+            if (!svgElement) {
+                alert('No visualization available to export.');
+                return;
+            }
+
+            // Clone SVG to modify it for export without touching the DOM
+            const clonedSvg = svgElement.cloneNode(true);
+
+            // Explicitly set namespaces if missing
+            if (!clonedSvg.getAttribute('xmlns')) {
+                clonedSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+            }
+            if (!clonedSvg.getAttribute('xmlns:xlink')) {
+                clonedSvg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+            }
+
+            const originalWidth = parseFloat(svgElement.getAttribute('width') || svgElement.getBoundingClientRect().width);
+            let originalHeight = parseFloat(svgElement.getAttribute('height') || svgElement.getBoundingClientRect().height);
+
+            // --- Append Legend to SVG ---
+            const legendGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            // Add a padding between plot and legend
+            const legendStartY = originalHeight + 20;
+            legendGroup.setAttribute('transform', `translate(0, ${legendStartY})`);
+
+            // Add separator line
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', 10);
+            line.setAttribute('y1', 0);
+            line.setAttribute('x2', originalWidth - 10);
+            line.setAttribute('y2', 0);
+            line.setAttribute('stroke', '#e2e8f0');
+            line.setAttribute('stroke-width', '1');
+            legendGroup.appendChild(line);
+
+            // Add Title
+            const title = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            title.setAttribute('x', 10);
+            title.setAttribute('y', 25);
+            title.setAttribute('font-size', '14px');
+            title.setAttribute('font-weight', 'bold');
+            title.setAttribute('fill', '#0f172a');
+            title.textContent = 'Functional Categories';
+            legendGroup.appendChild(title);
+
+            let currentX = 10;
+            let currentY = 40;
+            const maxWidth = originalWidth - 20;
+
+            Object.entries(FUNCTIONAL_COLORS).forEach(([name, color]) => {
+                const text = name.charAt(0).toUpperCase() + name.slice(1);
+                // Approximate width: font size 10px ~ 6.5px per char plus 30px for circle and padding
+                const textWidth = text.length * 6.5;
+                const itemWidth = textWidth + 30;
+
+                if (currentX + itemWidth > maxWidth) {
+                    currentX = 10;
+                    currentY += 25; // Line height
+                }
+
+                // Add background pill
+                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                rect.setAttribute('x', currentX);
+                rect.setAttribute('y', currentY);
+                rect.setAttribute('width', itemWidth);
+                rect.setAttribute('height', 20);
+                rect.setAttribute('rx', 10);
+                rect.setAttribute('fill', '#ffffff');
+                rect.setAttribute('stroke', '#e2e8f0');
+                rect.setAttribute('stroke-width', '1');
+                legendGroup.appendChild(rect);
+
+                // Add color circle
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', currentX + 12);
+                circle.setAttribute('cy', currentY + 10);
+                circle.setAttribute('r', 4);
+                circle.setAttribute('fill', color);
+                legendGroup.appendChild(circle);
+
+                // Add text label
+                const textEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                textEl.setAttribute('x', currentX + 22);
+                textEl.setAttribute('y', currentY + 13.5);
+                textEl.setAttribute('font-size', '10px');
+                textEl.setAttribute('font-weight', 'bold');
+                textEl.setAttribute('fill', '#475569');
+                textEl.textContent = text;
+                legendGroup.appendChild(textEl);
+
+                currentX += itemWidth + 10;
+            });
+
+            clonedSvg.appendChild(legendGroup);
+
+            // Adjust SVG box height to include the newly appended legend
+            originalHeight = legendStartY + currentY + 30;
+            // ----------------------------
+
+            // Ensure viewBox is set so that native scaling up renders correctly
+            clonedSvg.setAttribute('viewBox', `0 0 ${originalWidth} ${originalHeight}`);
+
+            clonedSvg.setAttribute('width', originalWidth);
+            clonedSvg.setAttribute('height', originalHeight);
+            clonedSvg.style.fontFamily = "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+
+            // Serialize SVG
+            const svgData = new XMLSerializer().serializeToString(clonedSvg);
+            const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const DOMURL = window.URL || window.webkitURL || window;
+            const url = DOMURL.createObjectURL(blob);
+
+            // Trigger download
+            const link = document.createElement('a');
+            let curSample = g_currentSample ? g_currentSample.sample : "unnamed";
+            link.download = `genome_viewer_${curSample}.svg`;
+            link.href = url;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            setTimeout(() => {
+                DOMURL.revokeObjectURL(url);
+            }, 100);
+        }
+
         function renderUpsetR() {
             const container = document.getElementById('upset-plot-container');
             container.innerHTML = '';
@@ -2329,6 +2975,78 @@
             //    .style("font-size", "10px")
             //    .style("fill", "#94a3b8")
             //    .text("Set Size");
+        }
+
+        function switchProphageTab(subTabId) {
+            document.querySelectorAll('button[id^="prophage-tab-"]').forEach(btn => {
+                btn.classList.remove('bg-white', 'text-brand', 'shadow-sm', 'border', 'border-slate-200');
+                btn.classList.add('text-slate-500', 'hover:text-brand', 'hover:bg-white/50');
+            });
+            const activeBtn = document.getElementById(`prophage-tab-${subTabId}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-500', 'hover:text-brand', 'hover:bg-white/50');
+                activeBtn.classList.add('bg-white', 'text-brand', 'shadow-sm', 'border', 'border-slate-200');
+            }
+
+            document.querySelectorAll('.prophage-tab-content').forEach(content => {
+                content.classList.add('hidden');
+                content.classList.remove('block');
+            });
+            const activeContent = document.getElementById(`prophage-content-${subTabId}`);
+            if (activeContent) {
+                activeContent.classList.remove('hidden');
+                activeContent.classList.add('block');
+            }
+        }
+
+        function renderProphage() {
+            renderGenericTable('candidate_provirus_phabox2.tsv', 'prophage-phabox2-cand-head', 'prophage-phabox2-cand-body');
+            renderGenericTable('contamination_prediction_phabox2.tsv', 'prophage-phabox2-contam-head', 'prophage-phabox2-contam-body');
+            renderGenericTable('final-viral-score_virsorter2.tsv', 'prophage-virsorter2-head', 'prophage-virsorter2-body');
+            renderGenericTable('prophage_phigaro.tsv', 'prophage-phigaro-head', 'prophage-phigaro-body');
+            renderGenericTable('filtered_provirus_genomad.tsv', 'prophage-genomad-head', 'prophage-genomad-body');
+        }
+
+        function renderGenericTable(fileSuffix, headId, bodyId) {
+            const head = document.getElementById(headId);
+            const body = document.getElementById(bodyId);
+            if (!head || !body) return;
+            head.innerHTML = '';
+            body.innerHTML = '';
+
+            if (!g_currentSample) return;
+
+            const tFile = Object.keys(g_currentSample.files).find(f => f.includes(fileSuffix));
+            if (!tFile) {
+                body.innerHTML = `<tr><td colspan="100" class="px-6 py-10 text-center text-slate-400">No data found for ${fileSuffix.replace('.tsv', '')}</td></tr>`;
+                return;
+            }
+
+            const data = g_currentSample.files[tFile];
+            if (!data || data.length <= 1) {
+                body.innerHTML = `<tr><td colspan="100" class="px-6 py-10 text-center text-slate-400">Empty data for ${fileSuffix.replace('.tsv', '')}</td></tr>`;
+                return;
+            }
+
+            const headers = data[0];
+            let headInner = `<tr class="bg-slate-50 text-slate-500 uppercase text-[9px] font-bold tracking-wider">`;
+            headers.forEach(h => {
+                headInner += `<th class="px-4 py-3 border-b border-slate-100">${h.replace(/_/g, ' ')}</th>`;
+            });
+            headInner += `</tr>`;
+            head.innerHTML = headInner;
+
+            data.slice(1).forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50/50 transition-colors';
+                let rowInner = '';
+                headers.forEach((h, i) => {
+                    const val = row[i] || '';
+                    rowInner += `<td class="px-4 py-3 text-slate-600">${val}</td>`;
+                });
+                tr.innerHTML = rowInner;
+                body.appendChild(tr);
+            });
         }
 
         // Initialization logic

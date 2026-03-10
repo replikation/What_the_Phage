@@ -1,4 +1,4 @@
-include { setup_container } from './process/setup/setup_container'
+include { setup_container } from './setup/setup_container'
 include { download_references_NCBI_identify } from './phage_identification_wf/process/sourmash/download_references' // phage references
 include { phage_references_blastDB } from './phage_identification_wf/process/metaphinder_own_DB/phage_references_blastDB' // methaphinder own db
 include { ppr_download_dependencies } from './phage_identification_wf/process/pprmeta/ppr_download_dependencies' 

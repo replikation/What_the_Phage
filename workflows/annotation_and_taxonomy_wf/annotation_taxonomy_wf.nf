@@ -3,15 +3,11 @@ include { pvog_DB; vogtable_DB } from './process/download_pvog_DB'
 include { prodigal } from './process/prodigal'
 include { hmmscan } from './process/hmmscan'
 include { chromomap_parser } from './process/chromomap_parser'
-include { chromomap } from './process/chromomap'
 include { pharokka } from './process/pharokka'
-include { pharokka_plotter } from './process/pharokka'
 include { phabox2_annotation } from './process/phabox2_annotation'
-include { phabox2_annotation_plot } from './process/phabox2_annotation_plot'
 include { download_genomad_DB } from './process/download_genomad_DB'
 include { genomad_annotation } from './process/genomad_annotation'
 include { compare_annotation } from './process/compare_annotation'
-include { compare_annotation_plot } from './process/compare_annotation_plot'
 include { annotation_tables_summary_report } from './process/annotation_tables_summary_report'
 
 // Taxonomy
@@ -49,19 +45,14 @@ workflow annotation_taxonomy_wf {
                 if (!params.annotation_db) {hmmscan(prodigal.out, pvog_DB.out)}
                 else {hmmscan(prodigal.out, annotation_custom_db_ch)}         
                 chromomap_parser(fasta.join(hmmscan.out), vogtable_DB.out)
-                chromomap(chromomap_parser.out[0].mix(chromomap_parser.out[1]))
+
 
                 // pharokka annotation via 
-                if (!params.pharokka) {pharokka(fasta) 
-                                        // plot_in= fasta
-                                        // .join( pharokka.out)
-                                        // .join( checkv) 
-                                        // pharokka_plotter(plot_in)
-                                }
+                if (!params.pharokka) {pharokka(fasta)}
                 
                 // phabox2 annotation 
                 phabox2_annotation(fasta)
-                //phabox2_annotation_plot(fasta, phabox2_annotation.out, checkv) kann gelöscht werden.-... vor 2.0 release
+               
 
                 //genomad annotation
                 download_genomad_DB()
@@ -74,12 +65,9 @@ workflow annotation_taxonomy_wf {
                                          .groupTuple()
 
 
-                // compare annotation tools (& waffle)
+                // compare annotation tools
+                 // prepare annotation files for markdown report
                 compare_annotation(collect_annotation_ch)
-                plot_in = compare_annotation.out.bedfile_ch.join(fasta).join(checkv)
-                compare_annotation_plot(plot_in)
-
-                // prepare annotation files for markdown report
                 annotation_tables_summary_report(compare_annotation.out.bedfile_ch)    
 
 
@@ -118,7 +106,7 @@ workflow annotation_taxonomy_wf {
                 // taxonomy_combined_ch.view()
 
                
-    emit:       annotation_report_input = annotation_tables_summary_report.out.join(compare_annotation_plot.out.annotation_waffle_summary_plot_ch)
+    emit:       annotation_report_input = annotation_tables_summary_report.out
                 taxonomy_report_input = taxonomy_combined_ch.join(sourmash_tax.out).join(genomad_tax)
                 
 

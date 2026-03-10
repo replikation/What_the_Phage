@@ -14,8 +14,8 @@ nextflow.enable.dsl=2
     include { identification_wf }          from './workflows/phage_identification_wf/identification_wf'
     include { annotation_taxonomy_wf }     from './workflows/annotation_and_taxonomy_wf/annotation_taxonomy_wf.nf'
     include { prophage_wf }                from './workflows/prophage_wf/prophage_wf'
-    include { host_prediction_wf }         from './workflows/host_prediction_wf/host_prediction_wf'
-    // include { lifecycle_wf }            from './workflows/host_lifecycle_wf/host_lifecycle_wf'
+    include { host_wf }                    from './workflows/host_wf/host_wf'
+    include { lifecycle_wf }               from './workflows/lifecycle_wf/lifecycle_wf'
     include { report_wf }                  from './workflows/report/report_wf'
     
 
@@ -70,7 +70,7 @@ workflow {
 *************/
 
     
-        fasta_input_ch = params.fasta ? 
+        fasta_input_ch = params.fasta && params.fasta != true ? 
                     Channel.fromPath( params.fasta, checkIfExists: true)
                         .map { file -> tuple(file.baseName, file) } :null
 
@@ -99,22 +99,19 @@ workflow {
     input_validation_wf(fasta_input_ch)
 
 
-
-    // Workflow handling based on flag
-    // these channels ar "datastream channels and cannot be viewed with view()"
-
     identify_ch             = params.identify || params.end_to_end ? identification_wf(input_validation_wf.out) : Channel.empty()
     checkV_ch               = params.identify || params.annotate_taxonomy  || params.end_to_end ? checkV_wf(input_validation_wf.out) : Channel.empty()
     annotate_taxonomy_ch    = params.annotate_taxonomy ||  params.end_to_end ? annotation_taxonomy_wf(input_validation_wf.out, checkV_ch) : Channel.empty()
     prophage_ch             = params.prophage ||  params.end_to_end ? prophage_wf(input_validation_wf.out) : Channel.empty()
     //host_ch                 = params.host ||  params.end_to_end ? host_prediction_wf(input_validation_wf.out) : Channel.empty()
-    // lifecycle_ch         = params.lifecycle ||  params.end_to_end ? lifecycle_wf(input_validation_wf.out) : Channel.empty()
-    // phage host interaction model: https://github.com/bioinfodlsu/phage-host-prediction
- 
+    lifecycle_ch            = params.lifecycle ||  params.end_to_end ? lifecycle_wf(input_validation_wf.out) : Channel.empty()
+    //safety_ch               = params.safety ||  params.end_to_end ? safety_wf(input_validation_wf.out) : Channel.empty()
 
 
 
-    report_wf(identify_ch, annotate_taxonomy_ch.annotation_report_input, annotate_taxonomy_ch.taxonomy_report_input, checkV_ch, prophage_ch)
+
+    // report_wf(identify_ch, annotate_taxonomy_ch, checkV_ch, prophage_ch, lifecycle_ch)
+    report_wf(identify_ch, annotate_taxonomy_ch.annotation_report_input, annotate_taxonomy_ch.taxonomy_report_input, checkV_ch, prophage_ch, lifecycle_ch)
 
     
 }

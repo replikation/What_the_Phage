@@ -1,4 +1,4 @@
-process genomad_host_prediction {
+process genomad_host {
         publishDir "${params.output}/${name}/prophage/genomad", mode: 'copy'
         // errorStrategy 'ignore'
         label 'genomad'
