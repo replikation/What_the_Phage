@@ -121,10 +121,22 @@
 
 <body class="bg-app-bg text-slate-900 h-screen flex overflow-hidden">
 
+    <!-- MOBILE OVERLAY -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-slate-900/50 z-30 hidden md:hidden backdrop-blur-sm"
+        onclick="toggleSidebar()"></div>
+
     <!-- SIDEBAR -->
-    <aside class="w-80 bg-sidebar text-slate-300 flex flex-col h-full shadow-2xl z-20">
-        <div class="p-8 border-b border-sidebar-border">
-            <div class="flex items-center gap-3 mb-6">
+    <aside id="sidebar"
+        class="w-80 bg-sidebar text-slate-300 flex flex-col h-full shadow-2xl z-40 fixed md:static inset-y-0 left-0 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
+        <div class="p-6 md:p-8 border-b border-sidebar-border relative">
+            <button onclick="toggleSidebar()"
+                class="md:hidden absolute top-4 right-4 p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                    </path>
+                </svg>
+            </button>
+            <div class="flex items-center gap-3 mb-6 pr-8 md:pr-0">
                 <div
                     class="w-10 h-10 bg-brand rounded-xl flex items-center justify-center text-white shadow-lg shadow-teal-500/20">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -159,13 +171,24 @@
     <main class="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         <!-- TOP HEADER -->
         <header
-            class="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-10">
-            <div class="flex flex-col">
-                <h2 id="current-sample-title" class="text-lg font-bold text-slate-800">Select a Sample</h2>
+            class="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-4 md:px-8 sticky top-0 z-10 w-full">
+            <div class="flex items-center gap-2 md:gap-3 flex-shrink-0">
+                <button onclick="toggleSidebar()"
+                    class="md:hidden p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+                <div class="flex flex-col">
+                    <h2 id="current-sample-title"
+                        class="text-base md:text-lg font-bold text-slate-800 truncate max-w-[120px] sm:max-w-xs md:max-w-md">
+                        Select a Sample</h2>
+                </div>
             </div>
-            <div class="flex items-center gap-4">
+            <div class="flex items-center justify-end overflow-hidden flex-1 ml-2">
                 <!-- TABS -->
-                <div class="flex bg-slate-100 p-1 rounded-xl mr-4 overflow-x-auto max-w-[60vw]">
+                <div class="flex bg-slate-100 p-1 rounded-xl overflow-x-auto wander-scroll max-w-full">
                     <button onclick="switchTab('overview')" id="tab-overview"
                         class="px-4 py-1.5 text-sm font-semibold rounded-lg transition-all active-tab bg-white text-slate-900 shadow-sm whitespace-nowrap">
                         Overview
@@ -200,7 +223,7 @@
         </header>
 
         <!-- SCROLLABLE CONTENT AREA -->
-        <div class="flex-1 overflow-y-auto wander-scroll p-8 bg-slate-50/50">
+        <div class="flex-1 overflow-y-auto wander-scroll p-4 md:p-8 bg-slate-50/50">
             <div class="max-w-7xl mx-auto">
                 <!-- Data Injection Warning (Visible if no data) -->
                 <div id="no-data-state" class="text-center py-20">
@@ -268,7 +291,7 @@
 
                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
                             <div
-                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                 <div>
                                     <h3 class="font-bold text-slate-800">Contig Overview</h3>
                                     <p class="text-xs text-slate-500">Summary across all analyses</p>
@@ -323,7 +346,7 @@
 
                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                             <div
-                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                 <h3 class="font-bold text-slate-800">Raw JSON Payload</h3>
                                 <span
                                     class="px-2 py-1 bg-teal-100 text-teal-700 text-[10px] font-bold rounded uppercase">Debug
@@ -340,7 +363,7 @@
                     <div id="content-quality" class="tab-content">
                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                             <div
-                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                 <div>
                                     <h3 class="font-bold text-slate-800">Contig Quality Summary</h3>
                                     <p class="text-xs text-slate-500">CheckV results and viral sequence metrics</p>
@@ -432,7 +455,7 @@
                     <div id="content-id-overview" class="tab-content">
                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                             <div
-                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                 <div>
                                     <h3 class="font-bold text-slate-800">Phage Identification Overview</h3>
                                     <p class="text-xs text-slate-500">P-Values/Scores from all identification tools
@@ -533,7 +556,7 @@
 
                             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                                 <div
-                                    class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                    class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                     <div>
                                         <h3 class="font-bold text-slate-800">Combined Taxonomy Findings</h3>
                                         <p class="text-xs text-slate-500">Comparison of Sourmash and GeNomad results</p>
@@ -584,7 +607,7 @@
                         <div id="tax-content-sourmash" class="tax-tab-content hidden">
                             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                                 <div
-                                    class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                    class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                     <div>
                                         <h3 class="font-bold text-slate-800">Sourmash Details</h3>
                                         <p class="text-xs text-slate-500">K-mer based taxonomic classification</p>
@@ -636,7 +659,7 @@
                         <div id="tax-content-genomad" class="tax-tab-content hidden">
                             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                                 <div
-                                    class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                    class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                     <div>
                                         <h3 class="font-bold text-slate-800">GeNomad Details</h3>
                                         <p class="text-xs text-slate-500">Marker gene based taxonomy</p>
@@ -690,12 +713,12 @@
                 <div id="content-annotation" class="tab-content">
                     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
                         <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col gap-4">
-                            <div class="flex justify-between items-center">
+                            <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
                                 <div>
                                     <h3 class="font-bold text-slate-800">Genome Viewer</h3>
                                     <p class="text-xs text-slate-500">Visualizing annotations on contigs</p>
                                 </div>
-                                <div class="flex items-center gap-3">
+                                <div class="flex flex-wrap items-center gap-3">
                                     <!-- View Mode -->
                                     <div class="flex bg-slate-200 rounded-lg p-1 mr-2">
                                         <button onclick="switchViewMode('linear')" id="view-mode-linear"
@@ -816,7 +839,7 @@
 
                     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                         <div
-                            class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                            class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                             <div>
                                 <h3 class="font-bold text-slate-800">Annotation Details</h3>
                                 <p class="text-xs text-slate-500">Full list of annotated features</p>
@@ -893,7 +916,7 @@
                     <div id="prophage-content-phabox2-cand" class="prophage-tab-content block">
                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                             <div
-                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                 <h3 class="font-bold text-slate-800">PhaBOX2 Candidate Provirus</h3>
                                 <div class="flex items-center gap-3">
                                     <button
@@ -920,7 +943,7 @@
                     <div id="prophage-content-phabox2-contam" class="prophage-tab-content hidden">
                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                             <div
-                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                 <h3 class="font-bold text-slate-800">PhaBOX2 Contamination Prediction</h3>
                                 <div class="flex items-center gap-3">
                                     <button
@@ -947,7 +970,7 @@
                     <div id="prophage-content-virsorter2" class="prophage-tab-content hidden">
                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                             <div
-                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                 <h3 class="font-bold text-slate-800">VirSorter2 Final Viral Score</h3>
                                 <div class="flex items-center gap-3">
                                     <button
@@ -974,7 +997,7 @@
                     <div id="prophage-content-phigaro" class="prophage-tab-content hidden">
                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                             <div
-                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                 <h3 class="font-bold text-slate-800">Phigaro Prophage</h3>
                                 <div class="flex items-center gap-3">
                                     <button onclick="exportTableToCSV('prophage-phigaro-body', 'prophage_phigaro.csv')"
@@ -1000,7 +1023,7 @@
                     <div id="prophage-content-genomad" class="prophage-tab-content hidden">
                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                             <div
-                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                 <h3 class="font-bold text-slate-800">GeNomad Filtered Provirus</h3>
                                 <div class="flex items-center gap-3">
                                     <button
@@ -3150,6 +3173,13 @@
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
         }
     </script>
 </body>
