@@ -1,5 +1,6 @@
 process phigaro_prophage {
     publishDir "${params.output}/${name}/prophage/phigaro", mode: 'copy'
+    publishDir "${params.output}/${name}/raw_data/", mode: 'copy', pattern: "${name}_phigaro_prophage_output.tar.gz"
     label 'phigaro'
     errorStrategy 'ignore'
     input:
@@ -10,6 +11,9 @@ process phigaro_prophage {
     script:
         """
         phigaro -f ${fasta} -o ${name}_prophage_phigaro -t ${task.cpus} -d --config /root/.phigaro/config.yml -e html tsv
+
+        # zip for export
+        tar -czf ${name}_phigaro_prophage_output.tar.gz ${name}_prophage_phigaro
         
         """
     stub:

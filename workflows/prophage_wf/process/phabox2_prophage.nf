@@ -1,5 +1,6 @@
 process phabox2_prophage {
         publishDir "${params.output}/${name}/prophage/phabox2", mode: 'copy'
+        publishDir "${params.output}/${name}/raw_data/", mode: 'copy', pattern: "${name}_phabox2_prophage_output.tar.gz"
         //errorStrategy 'ignore'
         label 'phabox2'
     input:
@@ -16,17 +17,19 @@ process phabox2_prophage {
         phabox2 --task contamination --dbdir /phabox_db_v2_1/ --outpth ${name}_results_prophage_contamination --contigs ${fasta} 
         
         ## get results
-        mv ${name}_results_prophage_contamination/final_prediction/contamination_prediction.tsv .
+        cp ${name}_results_prophage_contamination/final_prediction/contamination_prediction.tsv .
         mv contamination_prediction.tsv ${name}_contamination_prediction_phabox2.tsv
        
         ## get detailed results
-        mv ${name}_results_prophage_contamination/final_prediction/contamination_supplementary/candidate_provirus.tsv .
+        cp ${name}_results_prophage_contamination/final_prediction/contamination_supplementary/candidate_provirus.tsv .
         mv candidate_provirus.tsv ${name}_candidate_provirus_phabox2.tsv
 
         # get provirus fasta
-        mv ${name}_results_prophage_contamination/final_prediction/contamination_supplementary/proviruses.fa .
+        cp ${name}_results_prophage_contamination/final_prediction/contamination_supplementary/proviruses.fa .
         mv proviruses.fa ${name}_proviruses_phabox2.fa
 
+        # zip for export
+        tar -czf ${name}_phabox2_prophage_output.tar.gz ${name}_results_prophage_contamination
 
 
         """

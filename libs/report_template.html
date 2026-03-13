@@ -224,7 +224,7 @@
 
         <!-- SCROLLABLE CONTENT AREA -->
         <div class="flex-1 overflow-y-auto wander-scroll p-4 md:p-8 bg-slate-50/50">
-            <div class="max-w-7xl mx-auto">
+            <div class="w-full mx-auto">
                 <!-- Data Injection Warning (Visible if no data) -->
                 <div id="no-data-state" class="text-center py-20">
                     <div
@@ -252,13 +252,12 @@
                                 <p id="stat-contigs" class="text-3xl font-bold text-slate-900">--</p>
                             </div>
                             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Max Length</p>
-                                <p id="stat-max-len" class="text-3xl font-bold text-slate-900">--</p>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Shortest Sequence</p>
+                                <p id="stat-min-seq" class="text-3xl font-bold text-slate-900">--</p>
                             </div>
                             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Payload Size
-                                </p>
-                                <p id="stat-payload" class="text-3xl font-bold text-slate-900">--</p>
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Longest Sequence</p>
+                                <p id="stat-max-seq" class="text-3xl font-bold text-slate-900">--</p>
                             </div>
                         </div>
 
@@ -1158,15 +1157,20 @@
 
             document.getElementById('stat-contigs').textContent = qualityData.length > 0 ? (qualityData.length - 1) : 0;
 
+            let minLen = 0;
             let maxLen = 0;
             if (qualityData.length > 1) {
                 const lenIdx = qualityData[0].indexOf('contig_length');
                 if (lenIdx !== -1) {
-                    maxLen = Math.max(...qualityData.slice(1).map(row => parseInt(row[lenIdx]) || 0));
+                    const lengths = qualityData.slice(1).map(row => parseInt(row[lenIdx]) || 0).filter(len => len > 0);
+                    if (lengths.length > 0) {
+                        minLen = Math.min(...lengths);
+                        maxLen = Math.max(...lengths);
+                    }
                 }
             }
-            document.getElementById('stat-max-len').textContent = maxLen.toLocaleString() + ' bp';
-            document.getElementById('stat-payload').textContent = (JSON.stringify(g_currentSample).length / 1024).toFixed(1) + ' KB';
+            document.getElementById('stat-min-seq').textContent = minLen.toLocaleString() + ' bp';
+            document.getElementById('stat-max-seq').textContent = maxLen.toLocaleString() + ' bp';
 
             // Raw JSON
             document.getElementById('raw-json-display').innerHTML = `<pre class="text-xs font-mono text-slate-600 bg-slate-50 p-4 rounded-lg overflow-auto max-h-[500px]">${JSON.stringify(g_currentSample, null, 2)}</pre>`;

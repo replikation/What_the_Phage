@@ -1,24 +1,34 @@
 include { phabox2_host } from './process/phabox2_host_prediction'
-include { download_genomad_DB } from './process/download_genomad_DB'
-include { genomad_host } from './process/genomad_host_prediction'
+include { download_iphop_DB } from './process/download_iphop_DB'
+include { iphop } from './process/iphop_host_prediction'
 
 
 workflow host_wf {
     take:   fasta
     main:   
 
-            genomad_host(fasta, download_genomad_DB())
+
             phabox2_host(fasta)
-            iphop(fasta)  
+
+            if (params.iphop) { 
+
+                        // local storage via storeDir
+                        download_iphop_DB()
+                        // host prediction
+                        iphop(fasta, download_iphop_DB.out)
+                        iphop_results = iphop.out
+                        }
+            else { iphop_results = Channel.from( [ 'deactivated', 'deactivated'] ) } 
+
+    
+            host_report_input = phabox2_host.out.concat(iphop_results)
+                                      .filter { it != 'deactivated' } 
+                                      .groupTuple()
     
 
 
-            //genomad_host_prediction(fasta, download_genomad_DB())
-    
 
-
-
-  //emit: testprofile.out.flatten().map { file -> tuple(file.simpleName, file) }
+  emit: host_report_input
 
     //host: https://www.biorxiv.org/content/10.1101/2020.12.06.413476v1
 }

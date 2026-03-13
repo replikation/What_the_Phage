@@ -39,7 +39,8 @@ def helpMSG() {
     ${c_pink}[:: WORKFLOW CONTROL ::]${c_reset}
     --end_to_end        runs identification, annotation, taxonomy, prophage, host, lifecycle
     --identify          runs phage identification
-    --annotate_taxonomy runs annotation and taxonomy
+    --annotate          runs annotation
+    --taxonomy          runs taxonomy
     --prophage          runs prophage identification
     --host              runs host prediction
     --lifecycle         runs lifecycle prediction

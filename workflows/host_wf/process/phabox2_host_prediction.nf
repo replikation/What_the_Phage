@@ -1,5 +1,6 @@
 process phabox2_host {
         publishDir "${params.output}/${name}/host_prediction/phabox2_host", mode: 'copy' , pattern: "*.tsv"
+        publishDir "${params.output}/${name}/raw_data/", mode: 'copy', pattern: "${name}_phabox2_host_output.tar.gz" 
         //errorStrategy 'ignore'
         label 'phabox2'
     input:
@@ -15,8 +16,11 @@ process phabox2_host {
 
         phabox2 --task cherry --dbdir /phabox_db_v2_1/ --outpth ${name}_results_host --contigs ${fasta}
 
-        mv ${name}_results_host/final_prediction/cherry_prediction.tsv .
+        cp ${name}_results_host/final_prediction/cherry_prediction.tsv .
         mv cherry_prediction.tsv ${name}_cherry_host_prediction.tsv
+
+        # zip for export
+        tar -czf ${name}_phabox2_host_output.tar.gz ${name}_results_host
         
         
         
