@@ -197,10 +197,6 @@
                         class="px-4 py-1.5 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-slate-700 whitespace-nowrap">
                         Quality
                     </button>
-                    <button onclick="switchTab('upsetr')" id="tab-upsetr"
-                        class="px-4 py-1.5 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-slate-700 whitespace-nowrap">
-                        UpsetR
-                    </button>
                     <button onclick="switchTab('id-overview')" id="tab-id-overview"
                         class="px-4 py-1.5 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-slate-700 whitespace-nowrap">
                         Identification Overview
@@ -264,29 +260,15 @@
                         </div>
 
                         <div
-                            class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl mb-8 flex gap-3 text-indigo-800 text-sm shadow-sm items-start">
-                            <svg class="w-5 h-5 text-indigo-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor"
+                            class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl mb-8 flex gap-3 text-indigo-800 text-sm shadow-sm items-center">
+                            <svg class="w-5 h-5 text-indigo-500 flex-shrink-0" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            <div class="flex flex-col gap-1.5 pt-0.5">
-                                <div><span class="font-bold">Note:</span> This is an overview table for the What the
-                                    Phage analysis. Please check the results properly.</div>
-                                <div class="text-xs text-indigo-700/80">Hold <kbd
-                                        class="px-1.5 py-0.5 bg-indigo-100 border border-indigo-200 rounded text-[10px] font-mono mx-0.5">Shift</kbd>
-                                    + scroll wheel to scroll the table horizontally.</div>
-                                <div class="text-xs text-indigo-700/80">
-                                    <span class="font-semibold text-orange-600">SM</span> = Sourmash &nbsp;&bull;&nbsp;
-                                    <span class="font-semibold text-teal-600">GN</span> = geNomad
-                                </div>
-                                <div class="text-xs text-indigo-700/80">
-                                    <span class="font-semibold text-brand">kn</span> = Known functions
-                                    &nbsp;&bull;&nbsp;
-                                    <span class="font-semibold text-slate-500">hy</span> = Hypothetical/NA
-                                    &nbsp;&bull;&nbsp;
-                                    <span class="font-semibold text-slate-500">un</span> = Unannotated
-                                </div>
+                            <div>
+                                <span class="font-bold">Note:</span> Detailed results can be explored via the Tabs in
+                                the upper right corner
                             </div>
                         </div>
 
@@ -294,8 +276,7 @@
                             <div
                                 class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                 <div>
-                                    <h3 class="font-bold text-slate-800">Contig Overview</h3>
-                                    <p class="text-xs text-slate-500">Summary across all analyses</p>
+                                    <h3 class="font-bold text-slate-800">Summary across sample</h3>
                                 </div>
                                 <div class="flex items-center gap-3">
                                     <button onclick="exportTableToCSV('overview-table-body', 'contigs_overview.csv')"
@@ -324,40 +305,39 @@
                                     class="w-full text-left border-collapse text-xs whitespace-nowrap">
                                     <thead>
                                         <tr
-                                            class="bg-slate-50 text-slate-500 uppercase text-[9px] font-bold tracking-wider">
+                                            class="bg-slate-50 text-slate-500 uppercase text-xs font-bold tracking-wider">
                                             <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
                                                 onclick="sortTable('overview-table', 0)">Contig</th>
                                             <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
                                                 onclick="sortTable('overview-table', 1, 'number')">Length</th>
                                             <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
-                                                onclick="sortTable('overview-table', 2)">Quality</th>
-                                            <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
-                                                onclick="sortTable('overview-table', 3, 'number')">Completeness</th>
-                                            <th class="px-4 py-3 border-b border-slate-100">Tool Agreement</th>
+                                                onclick="sortTable('overview-table', 2)">Quality (Completeness)</th>
+                                            <th class="px-4 py-3 border-b border-slate-100">Identification overview</th>
                                             <th class="px-4 py-3 border-b border-slate-100">Taxonomy</th>
-                                            <th class="px-4 py-3 border-b border-slate-100">Annotation Status</th>
+                                            <th class="px-4 py-3 border-b border-slate-100">Annotation</th>
                                         </tr>
                                     </thead>
                                     <tbody id="overview-table-body" class="divide-y divide-slate-100">
-                                        <!-- Data injected here -->
                                     </tbody>
                                 </table>
                             </div>
+                            <div
+                                class="bg-indigo-50 border-t border-indigo-100 p-4 w-full flex flex-col md:flex-row gap-4 items-center justify-between text-xs text-indigo-800">
+                                <div><span class="font-bold">Identification Overview Legend:</span></div>
+                                <div class="flex flex-wrap gap-4 items-center">
+                                    <div class="flex items-center gap-1.5"><span
+                                            class="w-2.5 h-2.5 rounded bg-emerald-500"></span> Score &ge; 0.85</div>
+                                    <div class="flex items-center gap-1.5"><span
+                                            class="w-2.5 h-2.5 rounded bg-amber-500"></span> 0.5 &lt; Score &lt; 0.85
+                                    </div>
+                                    <div class="flex items-center gap-1.5"><span
+                                            class="w-2.5 h-2.5 rounded bg-rose-500"></span> Score &le; 0.5</div>
+                                    <div class="flex items-center gap-1.5"><span
+                                            class="w-2.5 h-2.5 rounded bg-slate-300"></span> Nothing found</div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                            <div
-                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                                <h3 class="font-bold text-slate-800">Raw JSON Payload</h3>
-                                <span
-                                    class="px-2 py-1 bg-teal-100 text-teal-700 text-[10px] font-bold rounded uppercase">Debug
-                                    Mode</span>
-                            </div>
-                            <div id="raw-json-display" class="p-6 overflow-auto max-h-[500px]">
-                                <pre
-                                    class="text-xs font-mono text-slate-600 bg-slate-50 p-4 rounded-lg">Select a sample to view data</pre>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- QUALITY TAB -->
@@ -392,7 +372,7 @@
                                 </div>
                             </div>
                             <div class="overflow-x-auto">
-                                <table class="w-full text-left border-collapse text-xs">
+                                <table id="quality-table" class="w-full text-left border-collapse text-xs">
                                     <thead id="quality-table-head">
                                         <!-- Dynamic headers injected here -->
                                     </thead>
@@ -404,9 +384,181 @@
                         </div>
                     </div>
 
-                    <!-- UPSETR TAB -->
-                    <div id="content-upsetr" class="tab-content">
-                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6">
+                    <!-- IDENTIFICATION OVERVIEW TAB -->
+                    <div id="content-id-overview" class="tab-content">
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                            <div
+                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div>
+                                    <h3 class="font-bold text-slate-800">Phage Identification Overview</h3>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <button onclick="exportTableToCSV('id-overview-table-body', 'id_overview.csv')"
+                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-all flex items-center gap-1.5 shadow-sm">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
+                                            </path>
+                                        </svg>
+                                        Export CSV
+                                    </button>
+                                    <div class="relative">
+                                        <input type="text" placeholder="Search..."
+                                            onkeyup="filterTable('id-overview-table-body', this.value)"
+                                            class="pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand w-48 transition-all shadow-sm">
+                                        <svg class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table id="id-overview-table" class="w-full text-left border-collapse text-xs">
+                                    <thead id="id-overview-table-head">
+                                        <!-- Dynamic tools as columns -->
+                                    </thead>
+                                    <tbody id="id-overview-table-body" class="divide-y divide-slate-100">
+                                        <!-- Data injected here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- HOW TO INTERPRET THE DATA -->
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6 mt-8">
+                            <div class="mb-4">
+                                <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                                    <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    How to interpret the data
+                                </h3>
+                            </div>
+
+                            <div
+                                class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4 mb-8 text-sm text-slate-600 max-w-[100%] leading-relaxed">
+                                <p class="mb-3">WtP uses several phage prediction tools that work differently and
+                                    generate different outputs. Contigs with the overall highest p-values/scores are
+                                    displayed at the top, and contigs with low p-values/scores are at the bottom of the
+                                    table. Each tool’s p-value/score can be individually adjusted and filtered in Table
+                                    1. Some tools don’t generate p-values or scores as output; instead, they generate
+                                    categories with likelihoods or directly predict and assign the contigs as phage.</p>
+                                <p>The tool’s output and what WtP assigns are shown in the table below.</p>
+                            </div>
+
+                            <div class="mb-4 mt-2">
+                                <h3 class="font-bold text-slate-800">Explanation tool output</h3>
+                                <p class="text-xs text-slate-500">Output of each tool and the values WtP assigns in the
+                                    table above.</p>
+                            </div>
+
+                            <div class="overflow-x-auto rounded-xl border border-slate-200">
+                                <table class="w-full text-left border-collapse text-xs">
+                                    <thead>
+                                        <tr
+                                            class="bg-slate-50 text-slate-500 uppercase text-[10px] font-bold tracking-wider">
+                                            <th class="px-4 py-3 border-b border-slate-200">Tool</th>
+                                            <th class="px-4 py-3 border-b border-slate-200">Standard output</th>
+                                            <th class="px-4 py-3 border-b border-slate-200">WtP displayed value</th>
+                                            <th class="px-4 py-3 border-b border-slate-200">F1 scores by Ho et al.</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 text-slate-600">
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="px-4 py-3 font-semibold">deepvirfinder</td>
+                                            <td class="px-4 py-3">score: 0 to 1</td>
+                                            <td class="px-4 py-3 font-mono">0 to 1</td>
+                                            <td class="px-4 py-3">&gt;0.83</td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="px-4 py-3 font-semibold">metaphinder</td>
+                                            <td class="px-4 py-3">string: phage</td>
+                                            <td class="px-4 py-3 font-mono">1</td>
+                                            <td class="px-4 py-3">&gt;0.83</td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="px-4 py-3 font-semibold">metaphinder own</td>
+                                            <td class="px-4 py-3">string: phage</td>
+                                            <td class="px-4 py-3 font-mono">1</td>
+                                            <td class="px-4 py-3">N/A</td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="px-4 py-3 font-semibold">phigaro</td>
+                                            <td class="px-4 py-3">score: 0 to 1</td>
+                                            <td class="px-4 py-3 font-mono">0 to 1</td>
+                                            <td class="px-4 py-3">N/A</td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="px-4 py-3 font-semibold">pprmeta</td>
+                                            <td class="px-4 py-3">phage_score: 0 to 1</td>
+                                            <td class="px-4 py-3 font-mono">0 to 1</td>
+                                            <td class="px-4 py-3">0.92</td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="px-4 py-3 font-semibold">seeker</td>
+                                            <td class="px-4 py-3">score: 0 to 1</td>
+                                            <td class="px-4 py-3 font-mono">0 to 1</td>
+                                            <td class="px-4 py-3">&lt;0.5</td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="px-4 py-3 font-semibold">sourmash</td>
+                                            <td class="px-4 py-3">similarity: 0 to 1</td>
+                                            <td class="px-4 py-3 font-mono">0 to 1</td>
+                                            <td class="px-4 py-3">N/A</td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="px-4 py-3 font-semibold">vibrant</td>
+                                            <td class="px-4 py-3">prediction: virus</td>
+                                            <td class="px-4 py-3 font-mono">1</td>
+                                            <td class="px-4 py-3">&gt;0.83</td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="px-4 py-3 font-semibold">vibrant-virome</td>
+                                            <td class="px-4 py-3">prediction: virus</td>
+                                            <td class="px-4 py-3 font-mono">1</td>
+                                            <td class="px-4 py-3">N/A</td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="px-4 py-3 font-semibold">virfinder</td>
+                                            <td class="px-4 py-3">score: 0 to 1</td>
+                                            <td class="px-4 py-3 font-mono">0 to 1</td>
+                                            <td class="px-4 py-3">&gt;0.83</td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="px-4 py-3 font-semibold">virnet</td>
+                                            <td class="px-4 py-3">score: 0 to 1</td>
+                                            <td class="px-4 py-3 font-mono">0 to 1</td>
+                                            <td class="px-4 py-3">N/A</td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="px-4 py-3 font-semibold">virsorter</td>
+                                            <td class="px-4 py-3">category 1, category 2, category 3</td>
+                                            <td class="px-4 py-3 font-mono">1, 0.5, 0</td>
+                                            <td class="px-4 py-3">&gt;0.83</td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="px-4 py-3 font-semibold">virsorter-virome</td>
+                                            <td class="px-4 py-3">category 1, category 2, category 3</td>
+                                            <td class="px-4 py-3 font-mono">1, 0.5, 0</td>
+                                            <td class="px-4 py-3">N/A</td>
+                                        </tr>
+                                        <tr class="hover:bg-slate-50/50 transition-colors">
+                                            <td class="px-4 py-3 font-semibold">virsorter2</td>
+                                            <td class="px-4 py-3">dsDNAphage: 0 to 1</td>
+                                            <td class="px-4 py-3 font-mono">0 to 1</td>
+                                            <td class="px-4 py-3">0.93</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- UPSET PLOT MOVED HERE -->
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6 mt-8">
                             <div class="mb-6">
                                 <h3 class="font-bold text-slate-800">Upset Plot - Tool Intersection</h3>
                                 <p class="text-xs text-slate-500">Visualization of shared contig identifications across
@@ -448,51 +600,6 @@
                             </div>
                             <div id="upset-plot-container" class="w-full flex justify-center overflow-x-auto">
                                 <!-- D3 Plot will be injected here -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- IDENTIFICATION OVERVIEW TAB -->
-                    <div id="content-id-overview" class="tab-content">
-                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                            <div
-                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                                <div>
-                                    <h3 class="font-bold text-slate-800">Phage Identification Overview</h3>
-                                    <p class="text-xs text-slate-500">P-Values/Scores from all identification tools
-                                    </p>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <button onclick="exportTableToCSV('id-overview-table-body', 'id_overview.csv')"
-                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-all flex items-center gap-1.5 shadow-sm">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
-                                            </path>
-                                        </svg>
-                                        Export CSV
-                                    </button>
-                                    <div class="relative">
-                                        <input type="text" placeholder="Search..."
-                                            onkeyup="filterTable('id-overview-table-body', this.value)"
-                                            class="pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand w-48 transition-all shadow-sm">
-                                        <svg class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" fill="none"
-                                            stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-left border-collapse text-xs">
-                                    <thead id="id-overview-table-head">
-                                        <!-- Dynamic tools as columns -->
-                                    </thead>
-                                    <tbody id="id-overview-table-body" class="divide-y divide-slate-100">
-                                        <!-- Data injected here -->
-                                    </tbody>
-                                </table>
                             </div>
                         </div>
                     </div>
@@ -587,15 +694,24 @@
                                     </div>
                                 </div>
                                 <div class="overflow-x-auto">
-                                    <table class="w-full text-left border-collapse text-xs">
+                                    <table id="taxonomy-overview-table"
+                                        class="w-full text-left border-collapse text-xs">
                                         <thead>
                                             <tr
                                                 class="bg-slate-50 text-slate-500 uppercase text-[9px] font-bold tracking-wider">
-                                                <th class="px-4 py-3 border-b border-slate-100">Contig</th>
-                                                <th class="px-4 py-3 border-b border-slate-100">Sourmash Sim.</th>
-                                                <th class="px-4 py-3 border-b border-slate-100">Sourmash Tax</th>
-                                                <th class="px-4 py-3 border-b border-slate-100">Genomad Agree.</th>
-                                                <th class="px-4 py-3 border-b border-slate-100">Genomad Lineage</th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-overview-table', 0)">Contig</th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-overview-table', 1, 'number')">Sourmash
+                                                    Sim.</th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-overview-table', 2)">Sourmash Tax</th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-overview-table', 3, 'number')">Genomad
+                                                    Agree.</th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-overview-table', 4)">Genomad Lineage
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody id="taxonomy-overview-body" class="divide-y divide-slate-100"></tbody>
@@ -638,16 +754,24 @@
                                     </div>
                                 </div>
                                 <div class="overflow-x-auto">
-                                    <table class="w-full text-left border-collapse text-xs">
+                                    <table id="taxonomy-sourmash-table"
+                                        class="w-full text-left border-collapse text-xs">
                                         <thead>
                                             <tr
                                                 class="bg-slate-50 text-slate-500 uppercase text-[9px] font-bold tracking-wider">
-                                                <th class="px-4 py-3 border-b border-slate-100">Contig</th>
-                                                <th class="px-4 py-3 border-b border-slate-100">Similarity</th>
-                                                <th class="px-4 py-3 border-b border-slate-100">Accession</th>
-                                                <th class="px-4 py-3 border-b border-slate-100">Taxonomy</th>
-                                                <th class="px-4 py-3 border-b border-slate-100">Host</th>
-                                                <th class="px-4 py-3 border-b border-slate-100">Lifestyle</th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-sourmash-table', 0)">Contig</th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-sourmash-table', 1, 'number')">
+                                                    Similarity</th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-sourmash-table', 2)">Accession</th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-sourmash-table', 3)">Taxonomy</th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-sourmash-table', 4)">Host</th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-sourmash-table', 5)">Lifestyle</th>
                                             </tr>
                                         </thead>
                                         <tbody id="taxonomy-sourmash-body" class="divide-y divide-slate-100"></tbody>
@@ -690,15 +814,22 @@
                                     </div>
                                 </div>
                                 <div class="overflow-x-auto">
-                                    <table class="w-full text-left border-collapse text-xs">
+                                    <table id="taxonomy-genomad-table" class="w-full text-left border-collapse text-xs">
                                         <thead>
                                             <tr
                                                 class="bg-slate-50 text-slate-500 uppercase text-[9px] font-bold tracking-wider">
-                                                <th class="px-4 py-3 border-b border-slate-100">Contig</th>
-                                                <th class="px-4 py-3 border-b border-slate-100">Agreement</th>
-                                                <th class="px-4 py-3 border-b border-slate-100">N Genes</th>
-                                                <th class="px-4 py-3 border-b border-slate-100">TaxID</th>
-                                                <th class="px-4 py-3 border-b border-slate-100">Lineage</th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-genomad-table', 0)">Contig</th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-genomad-table', 1, 'number')">Agreement
+                                                </th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-genomad-table', 2, 'number')">N Genes
+                                                </th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-genomad-table', 3)">TaxID</th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-genomad-table', 4)">Lineage</th>
                                             </tr>
                                         </thead>
                                         <tbody id="taxonomy-genomad-body" class="divide-y divide-slate-100"></tbody>
@@ -717,7 +848,7 @@
                             <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
                                 <div>
                                     <h3 class="font-bold text-slate-800">Genome Viewer</h3>
-                                    <p class="text-xs text-slate-500">Visualizing annotations on contigs</p>
+                                    <p class="text-xs text-slate-500">Visualizing annotations on Sequences</p>
                                 </div>
                                 <div class="flex flex-wrap items-center gap-3">
                                     <!-- View Mode -->
@@ -867,16 +998,22 @@
                             </div>
                         </div>
                         <div class="overflow-x-auto max-h-[600px]">
-                            <table class="w-full text-left border-collapse text-xs">
+                            <table id="annotation-table" class="w-full text-left border-collapse text-xs">
                                 <thead class="sticky top-0 bg-white shadow-sm z-10">
                                     <tr
                                         class="bg-slate-50 text-slate-500 uppercase text-[9px] font-bold tracking-wider">
-                                        <th class="px-4 py-3 border-b border-slate-100">Contig</th>
-                                        <th class="px-4 py-3 border-b border-slate-100">Start</th>
-                                        <th class="px-4 py-3 border-b border-slate-100">End</th>
-                                        <th class="px-4 py-3 border-b border-slate-100">Strand</th>
-                                        <th class="px-4 py-3 border-b border-slate-100">Feature</th>
-                                        <th class="px-4 py-3 border-b border-slate-100">Tool</th>
+                                        <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                            onclick="sortTable('annotation-table', 0)">Contig</th>
+                                        <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                            onclick="sortTable('annotation-table', 1, 'number')">Start</th>
+                                        <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                            onclick="sortTable('annotation-table', 2, 'number')">End</th>
+                                        <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                            onclick="sortTable('annotation-table', 3)">Strand</th>
+                                        <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                            onclick="sortTable('annotation-table', 4)">Feature</th>
+                                        <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                            onclick="sortTable('annotation-table', 5)">Tool</th>
                                     </tr>
                                 </thead>
                                 <tbody id="annotation-table-body" class="divide-y divide-slate-100">
@@ -933,7 +1070,8 @@
                                 </div>
                             </div>
                             <div class="overflow-x-auto">
-                                <table class="w-full text-left border-collapse text-xs">
+                                <table id="prophage-phabox2-cand-table"
+                                    class="w-full text-left border-collapse text-xs">
                                     <thead id="prophage-phabox2-cand-head"></thead>
                                     <tbody id="prophage-phabox2-cand-body" class="divide-y divide-slate-100"></tbody>
                                 </table>
@@ -960,7 +1098,8 @@
                                 </div>
                             </div>
                             <div class="overflow-x-auto">
-                                <table class="w-full text-left border-collapse text-xs">
+                                <table id="prophage-phabox2-contam-table"
+                                    class="w-full text-left border-collapse text-xs">
                                     <thead id="prophage-phabox2-contam-head"></thead>
                                     <tbody id="prophage-phabox2-contam-body" class="divide-y divide-slate-100"></tbody>
                                 </table>
@@ -987,7 +1126,7 @@
                                 </div>
                             </div>
                             <div class="overflow-x-auto">
-                                <table class="w-full text-left border-collapse text-xs">
+                                <table id="prophage-virsorter2-table" class="w-full text-left border-collapse text-xs">
                                     <thead id="prophage-virsorter2-head"></thead>
                                     <tbody id="prophage-virsorter2-body" class="divide-y divide-slate-100"></tbody>
                                 </table>
@@ -1013,7 +1152,7 @@
                                 </div>
                             </div>
                             <div class="overflow-x-auto">
-                                <table class="w-full text-left border-collapse text-xs">
+                                <table id="prophage-phigaro-table" class="w-full text-left border-collapse text-xs">
                                     <thead id="prophage-phigaro-head"></thead>
                                     <tbody id="prophage-phigaro-body" class="divide-y divide-slate-100"></tbody>
                                 </table>
@@ -1040,7 +1179,7 @@
                                 </div>
                             </div>
                             <div class="overflow-x-auto">
-                                <table class="w-full text-left border-collapse text-xs">
+                                <table id="prophage-genomad-table" class="w-full text-left border-collapse text-xs">
                                     <thead id="prophage-genomad-head"></thead>
                                     <tbody id="prophage-genomad-body" class="divide-y divide-slate-100"></tbody>
                                 </table>
@@ -1055,12 +1194,11 @@
 
     <style>
         .active-tab {
-            background-color: white !important;
-            color: #0f172a !important;
+            background-color: #0d9488 !important;
+            color: white !important;
             box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1) !important;
         }
     </style>
-
     <!-- 
     =======================================================================
     PAYLOAD INJECTION AREA
@@ -1141,8 +1279,6 @@
                 renderTaxonomy();
             } else if (g_activeTab === 'annotation') {
                 renderAnnotation();
-            } else if (g_activeTab === 'upsetr') {
-                renderUpsetR();
             } else if (g_activeTab === 'prophage') {
                 renderProphage();
             }
@@ -1174,9 +1310,6 @@
             document.getElementById('stat-min-seq').textContent = minLen.toLocaleString() + ' bp';
             document.getElementById('stat-max-seq').textContent = maxLen.toLocaleString() + ' bp';
 
-            // Raw JSON
-            document.getElementById('raw-json-display').innerHTML = `<pre class="text-xs font-mono text-slate-600 bg-slate-50 p-4 rounded-lg overflow-auto max-h-[500px]">${JSON.stringify(g_currentSample, null, 2)}</pre>`;
-
             // Contig Overview Table Data Aggregation
             let contigObjects = {}; // key: contig id
 
@@ -1206,6 +1339,7 @@
 
             // Read Tool Agreement
             const overviewIdFile = Object.keys(g_currentSample.files).find(f => f.includes('_contig_tool_p-value_overview.tsv'));
+            let allTools = new Set();
             if (overviewIdFile) {
                 const idData = g_currentSample.files[overviewIdFile];
                 if (idData.length > 1) {
@@ -1216,10 +1350,12 @@
                     idData.slice(1).forEach(row => {
                         const cid = row[cIdx];
                         const tool = row[tIdx];
+                        if (tool) allTools.add(tool);
                         const pval = parseFloat(row[pIdx]);
-                        if (cid && contigObjects[cid] && pval > 0.5) {
-                            if (!contigObjects[cid].tools.includes(tool)) {
-                                contigObjects[cid].tools.push(tool);
+                        if (cid && contigObjects[cid] && !isNaN(pval)) {
+                            const existing = contigObjects[cid].tools.find(t => t.name === tool);
+                            if (!existing) {
+                                contigObjects[cid].tools.push({ name: tool, score: pval });
                             }
                         }
                     });
@@ -1307,15 +1443,29 @@
                     // Length
                     const lenDisplay = c.length.toLocaleString();
 
-                    // Quality
+                    // Quality & Completeness
                     const qualVal = c.quality || 'N/A';
-                    const qualDisplay = `<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${qualVal.includes('High') ? 'bg-emerald-100 text-emerald-700' : qualVal.includes('Medium') ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}">${qualVal}</span>`;
+                    const compText = (c.completeness && !isNaN(c.completeness)) ? `${parseFloat(c.completeness).toFixed(1)}%` : '-';
+                    const qualClasses = qualVal.includes('High') ? 'bg-emerald-100 text-emerald-700' : qualVal.includes('Medium') ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600';
+                    const qualDisplay = `<span class="px-2 py-0.5 rounded text-xs font-bold uppercase ${qualClasses}">${qualVal}, (${compText})</span>`;
 
-                    // Completeness
-                    const compDisplay = (c.completeness && !isNaN(c.completeness)) ? `<span class="font-semibold text-slate-700">${parseFloat(c.completeness).toFixed(1)}%</span>` : '-';
+                    // Identification Overview (Tools)
+                    let toolsDisplay = '<span class="text-slate-400 italic text-xs">None</span>';
+                    if (allTools.size > 0) {
+                        const green = c.tools.filter(t => t.score >= 0.85);
+                        const orange = c.tools.filter(t => t.score > 0.5 && t.score < 0.85);
+                        const red = c.tools.filter(t => t.score <= 0.5);
+                        const missing = Array.from(allTools).filter(tName => !c.tools.find(t => t.name === tName)).map(tName => ({ name: tName, score: null }));
 
-                    // Tools
-                    const toolsDisplay = c.tools.length > 0 ? c.tools.map(t => `<span class="px-1.5 py-0.5 bg-indigo-50 text-indigo-700 rounded text-[9px] font-bold uppercase mr-1 inline-block mb-1">${t}</span>`).join('') : '<span class="text-slate-400 italic text-[10px]">None</span>';
+                        const makeBadge = (t, colorClasses) => `<span class="px-1.5 py-0.5 ${colorClasses} rounded text-xs font-bold uppercase mr-1 inline-block mb-1" title="${t.name}: ${t.score !== null ? t.score.toFixed(2) : 'Nothing found'}">${t.name}</span>`;
+
+                        let badgeRows = '';
+                        if (green.length > 0) badgeRows += `<div class="mb-0.5">${green.map(t => makeBadge(t, 'bg-emerald-100 text-emerald-700')).join('')}</div>`;
+                        if (orange.length > 0) badgeRows += `<div class="mb-0.5">${orange.map(t => makeBadge(t, 'bg-amber-100 text-amber-700')).join('')}</div>`;
+                        if (red.length > 0) badgeRows += `<div class="mb-0.5">${red.map(t => makeBadge(t, 'bg-rose-100 text-rose-700')).join('')}</div>`;
+                        if (missing.length > 0) badgeRows += `<div>${missing.map(t => makeBadge(t, 'bg-slate-100 text-slate-400')).join('')}</div>`;
+                        toolsDisplay = `<div class="flex flex-col">${badgeRows}</div>`;
+                    }
 
                     // Taxonomy
                     const formatTax = (t) => {
@@ -1324,9 +1474,9 @@
                         return `<span title="${t}" class="font-medium text-slate-700 truncate max-w-[150px] inline-block align-bottom">${parts[parts.length - 1] || t}</span>`;
                     };
                     const taxDisplay = `
-                        <div class="flex flex-col gap-0.5 text-[10px]">
-                            <div class="flex gap-1 items-center"><span class="font-bold text-orange-600 w-4">SM:</span> ${formatTax(c.taxonomy.sourmash)}</div>
-                            <div class="flex gap-1 items-center"><span class="font-bold text-teal-600 w-4">GN:</span> ${formatTax(c.taxonomy.genomad)}</div>
+                        <div class="flex flex-col gap-0.5 text-xs">
+                            <div class="flex gap-1 items-center"><span class="font-bold text-slate-700">Sourmash:</span> ${formatTax(c.taxonomy.sourmash)}</div>
+                            <div class="flex gap-1 items-center"><span class="font-bold text-slate-700">GeNomad:</span> ${formatTax(c.taxonomy.genomad)}</div>
                         </div>`;
 
                     // Annotations
@@ -1334,7 +1484,7 @@
                     const toolsWithAnn = Object.keys(c.tool_annotations).sort();
 
                     if (toolsWithAnn.length > 0 && c.length > 0) {
-                        annDisplayHtml = `<div class="flex flex-col gap-2 w-48 mt-1 pb-1">`;
+                        annDisplayHtml = `<div class="flex flex-col gap-2 w-fit min-w-[14rem] mt-1 pb-1">`;
                         toolsWithAnn.forEach(tool => {
                             const tAnn = c.tool_annotations[tool];
                             const totalCov = calcCov(tAnn.annotations);
@@ -1346,32 +1496,32 @@
                             let pctKnown = Math.max(0, pctTotal - pctHypo);
 
                             annDisplayHtml += `
-                                <div class="flex flex-col gap-0.5">
-                                    <div class="text-[9px] font-bold text-slate-500 uppercase">${tool}</div>
-                                    <div class="flex h-1.5 bg-slate-100 rounded-full overflow-hidden w-full">
-                                        <div class="bg-brand h-full" style="width: ${pctKnown}%" title="${tool} Known: ${pctKnown.toFixed(1)}%"></div>
-                                        <div class="bg-slate-300 h-full" style="width: ${pctHypo}%" title="${tool} Hypo/NA: ${pctHypo.toFixed(1)}%"></div>
-                                        <div class="bg-slate-100 h-full" style="width: ${pctNot}%" title="${tool} Unann: ${pctNot.toFixed(1)}%"></div>
+                                <div class="flex flex-col gap-1 mb-2 w-full">
+                                    <div class="text-[10px] font-bold text-slate-500 uppercase flex items-center justify-between gap-4">
+                                        <span>${tool}</span>
+                                        <div class="flex items-center gap-1 normal-case font-semibold whitespace-nowrap">
+                                            <span class="text-teal-600">${pctKnown.toFixed(1)}% annotated;</span>
+                                            <span class="text-slate-500">${pctHypo.toFixed(1)}% hypothetical/NA</span>
+                                        </div>
                                     </div>
-                                    <div class="flex justify-between text-[8px] text-slate-500">
-                                        <span><span class="text-brand font-bold">${pctKnown.toFixed(0)}%</span> kn</span>
-                                        <span><span class="text-slate-400 font-bold">${pctHypo.toFixed(0)}%</span> hy</span>
-                                        <span><span class="text-slate-400 font-bold">${pctNot.toFixed(0)}%</span> un</span>
+                                    <div class="flex h-2.5 bg-slate-100 rounded-full overflow-hidden w-full shadow-inner">
+                                        <div class="bg-brand h-full" style="width: ${pctKnown}%"></div>
+                                        <div class="bg-slate-300 h-full" style="width: ${pctHypo}%"></div>
+                                        <div class="bg-slate-100 h-full" style="width: ${pctNot}%"></div>
                                     </div>
                                 </div>
                             `;
                         });
                         annDisplayHtml += `</div>`;
                     } else {
-                        annDisplayHtml = '<span class="text-slate-400 italic text-[10px]">N/A</span>';
+                        annDisplayHtml = '<span class="text-slate-400 italic text-xs">N/A</span>';
                     }
                     const annDisplay = annDisplayHtml;
 
                     tr.innerHTML = `
-                        <td class="px-4 py-3 font-mono text-slate-600 text-[10px] font-medium">${c.id}</td>
+                        <td class="px-4 py-3 font-mono text-slate-600 text-xs font-medium">${c.id}</td>
                         <td class="px-4 py-3 text-slate-500">${lenDisplay}</td>
                         <td class="px-4 py-3">${qualDisplay}</td>
-                        <td class="px-4 py-3">${compDisplay}</td>
                         <td class="px-4 py-3">${toolsDisplay}</td>
                         <td class="px-4 py-3">${taxDisplay}</td>
                         <td class="px-4 py-3">${annDisplay}</td>
@@ -1496,9 +1646,10 @@
 
             // Render Headers
             let headInner = `<tr class="bg-slate-50 text-slate-500 uppercase text-[9px] font-bold tracking-wider">`;
-            headers.forEach(h => {
+            headers.forEach((h, i) => {
                 const label = h.replace(/_/g, ' ');
-                headInner += `<th class="px-4 py-3 border-b border-slate-100">${label}</th>`;
+                const sortType = (h === 'contig_length' || h === 'completeness' || h === 'contamination') ? 'number' : 'string';
+                headInner += `<th class="px-4 py-3 border-b border-slate-100 cursor-pointer" onclick="sortTable('quality-table', ${i}, '${sortType}')">${label}</th>`;
             });
             headInner += `</tr>`;
             tableHead.innerHTML = headInner;
@@ -1581,9 +1732,9 @@
 
             // Head
             let headInner = `<tr class="bg-slate-50 text-slate-500 uppercase text-[9px] font-bold tracking-wider">
-                <th class="px-4 py-3 border-b border-slate-100">Contig</th>`;
-            tools.forEach(t => {
-                headInner += `<th class="px-4 py-3 border-b border-slate-100">${t}</th>`;
+                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer" onclick="sortTable('id-overview-table', 0)">Contig</th>`;
+            tools.forEach((t, i) => {
+                headInner += `<th class="px-4 py-3 border-b border-slate-100 cursor-pointer" onclick="sortTable('id-overview-table', ${i + 1}, 'number')">${t}</th>`;
             });
             headInner += `</tr>`;
             head.innerHTML = headInner;
@@ -1602,8 +1753,13 @@
 
                     if (!isNaN(pVal)) {
                         valDisplay = pVal.toFixed(3);
-                        if (pVal > 0.9) pValClass = 'text-emerald-600 font-bold';
-                        else if (pVal > 0.5) pValClass = 'text-blue-600 font-semibold';
+                        if (pVal >= 0.85) {
+                            pValClass = 'text-emerald-600 font-bold';
+                        } else if (pVal > 0.5) {
+                            pValClass = 'text-amber-600 font-bold';
+                        } else {
+                            pValClass = 'text-rose-600 font-bold';
+                        }
                     }
 
                     rowInner += `<td class="px-4 py-3 ${pValClass}">${valDisplay}</td>`;
@@ -1612,6 +1768,9 @@
                 tr.innerHTML = rowInner;
                 body.appendChild(tr);
             });
+
+            // Render UpsetR inside the ID Overview view as well
+            renderUpsetR();
         }
 
         function switchTaxonomyTab(subTabId) {
@@ -1685,17 +1844,13 @@
 
                 // Sourmash Sim
                 const sim = parseFloat(row[idx.sim]);
-                // Logic: (0.9205 * 100).toFixed(1) -> "92.1%" (Input is 0-1 fraction)
                 const simFormatted = isNaN(sim) ? row[idx.sim] : (sim * 100).toFixed(1) + '%';
-                let simClass = 'text-slate-500';
-                if (!isNaN(sim) && sim > 0) simClass = 'bg-orange-100 text-orange-700 px-2 py-0.5 rounded font-bold text-[10px]';
+                let simClass = 'text-slate-500 font-medium';
 
                 // Genomad Agree
                 const agree = parseFloat(row[idx.agree]);
-                // Logic: (0.9729 * 100).toFixed(1) -> "97.3%" (Input is 0-1 fraction)
                 const agreeFormatted = isNaN(agree) ? row[idx.agree] : (agree * 100).toFixed(1) + '%';
-                let agreeClass = 'text-slate-500';
-                if (!isNaN(agree) && agree > 0) agreeClass = 'bg-teal-100 text-teal-700 px-2 py-0.5 rounded font-bold text-[10px]';
+                let agreeClass = 'text-slate-500 font-medium';
 
                 // Tax Lineage Badge
                 let taxDisplay = row[idx.sm_tax] || '-';
@@ -1763,7 +1918,7 @@
 
                 tr.innerHTML = `
                     <td class="px-4 py-3 font-mono text-slate-600">${row[idx.contig]}</td>
-                    <td class="px-4 py-3 text-orange-600 font-medium">${simFormatted}</td>
+                    <td class="px-4 py-3 text-slate-600 font-medium">${simFormatted}</td>
                     <td class="px-4 py-3 font-mono text-xs text-slate-500">${row[idx.acc]}</td>
                     <td class="px-4 py-3 text-slate-700">${row[idx.tax]}</td>
                     <td class="px-4 py-3 text-slate-600 italic">${row[idx.host]}</td>
@@ -1806,7 +1961,7 @@
 
                 tr.innerHTML = `
                     <td class="px-4 py-3 font-mono text-slate-600">${row[idx.name]}</td>
-                    <td class="px-4 py-3 text-teal-600 font-medium">${agreeFormatted}</td>
+                    <td class="px-4 py-3 text-slate-600 font-medium">${agreeFormatted}</td>
                     <td class="px-4 py-3 text-slate-500">${row[idx.genes]}</td>
                     <td class="px-4 py-3 font-mono text-xs text-slate-500">${row[idx.taxid]}</td>
                     <td class="px-4 py-3 text-xs text-slate-600 max-w-[300px] break-words">${row[idx.lineage].replace(/;/g, ' > ')}</td>
@@ -3058,9 +3213,10 @@
             }
 
             const headers = data[0];
+            const tableId = headId.replace('-head', '-table');
             let headInner = `<tr class="bg-slate-50 text-slate-500 uppercase text-[9px] font-bold tracking-wider">`;
-            headers.forEach(h => {
-                headInner += `<th class="px-4 py-3 border-b border-slate-100">${h.replace(/_/g, ' ')}</th>`;
+            headers.forEach((h, i) => {
+                headInner += `<th class="px-4 py-3 border-b border-slate-100 cursor-pointer" onclick="sortTable('${tableId}', ${i})">${h.replace(/_/g, ' ')}</th>`;
             });
             headInner += `</tr>`;
             head.innerHTML = headInner;
