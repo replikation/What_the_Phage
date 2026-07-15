@@ -1,4 +1,5 @@
 include { phabox2_lifecycle } from './process/phabox2_lifecycle'
+include { bacphlip_lifecycle } from './process/bacphlip_lifecycle'
 
 
 workflow lifecycle_wf {
@@ -7,7 +8,7 @@ workflow lifecycle_wf {
     main: 
 
             phabox2_lifecycle(fasta)  
-
+            bacphlip_lifecycle(fasta)
 
 
 
@@ -15,7 +16,6 @@ workflow lifecycle_wf {
 
 
     
-    emit: lifecycle_results = phabox2_lifecycle.out
-    //host: https://www.biorxiv.org/content/10.1101/2020.12.06.413476v1
+    emit: lifecycle_results = phabox2_lifecycle.out.join(bacphlip_lifecycle.out)
 }
 

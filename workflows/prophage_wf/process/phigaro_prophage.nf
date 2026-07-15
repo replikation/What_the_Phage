@@ -2,7 +2,7 @@ process phigaro_prophage {
     publishDir "${params.output}/${name}/prophage/phigaro", mode: 'copy'
     publishDir "${params.output}/${name}/raw_data/", mode: 'copy', pattern: "${name}_phigaro_prophage_output.tar.gz"
     label 'phigaro'
-    errorStrategy 'ignore'
+    //errorStrategy 'ignore'
     input:
         tuple val(name), path(fasta) 
     output:
@@ -13,7 +13,7 @@ process phigaro_prophage {
         phigaro -f ${fasta} -o ${name}_prophage_phigaro -t ${task.cpus} -d --config /root/.phigaro/config.yml -e html tsv
 
         # zip for export
-        tar -czf ${name}_phigaro_prophage_output.tar.gz ${name}_prophage_phigaro
+        tar -czf ${name}_phigaro_prophage_output.tar.gz ${name}_prophage_phigaro.tsv ${name}_prophage_phigaro.html 
         
         """
     stub:
@@ -22,20 +22,3 @@ process phigaro_prophage {
         touch ${name}_prophage_phigaro.html
         """
 }
-
-// echo "" will attach  the new line to the last line 
-// this way, it will produce no error when we collect all results in with samtools
-// pos_phage_0$
-// pos_phage_3$
-// pos_phage_4$
-// pos_phage_5$
-// pos_phage_6$
-// pos_phage_7$
-// pos_phage_8$
-// pos_phage_9
-//
-
-// removes empty line : sed '${/^$/d}'
-
-
-//awk -v score="1" -F"," 'BEGIN { OFS = "\\t" } {$2=score; print}'

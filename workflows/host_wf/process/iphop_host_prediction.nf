@@ -10,12 +10,12 @@ process iphop {
 
     script:
         """
-
         # run iphop to detect potential proviruses
         # get version
-        iphop_db_ver= \$(ls ${database} | grep "pub_rw")
+        iphop_db_ver= \$(ls ${database}/ | grep "pub_rw")
+        chmod -R 777 ${database}/Jun_2025_pub_rw/
 
-        iphop predict --fa_file ${fasta} --db_dir ${database}/\${iphop_db_ver} --out_dir ${name}_iphop_output
+        iphop predict --fa_file ${fasta} --db_dir ${database}/Jun_2025_pub_rw/ --out_dir ${name}_iphop_output
     
         # reduce footprint
         rm -r ${database}

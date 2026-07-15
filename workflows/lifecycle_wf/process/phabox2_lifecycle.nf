@@ -1,6 +1,7 @@
 process phabox2_lifecycle {
         publishDir "${params.output}/${name}/host_lifecycle", mode: 'copy' , pattern: "*.tsv"
-        errorStrategy 'ignore'
+        publishDir "${params.output}/${name}/host_lifecycle", mode: 'copy' , pattern: "*.tar.gz"
+        //errorStrategy 'ignore'
         label 'phabox2'
     input:
         tuple val(name), path(fasta)
@@ -9,11 +10,13 @@ process phabox2_lifecycle {
         tuple val(name), path("${name}_phatyp_prediction_lifecycle_phabox2.tsv"), emit: phabox2_annotation, optional: true
     script:
         """
-        phabox2 --task phatyp --dbdir /phabox_db_v2_1/ --outpth ${name}_results_host_lifecycle --contigs ${fasta}
+        phabox2 --task phatyp --dbdir /phabox_db_v2_1/ --outpth ${name}_results_lifecycle --contigs ${fasta}
         
         mv ${name}_results_host_lifecycle/final_prediction/phatyp_prediction.tsv . 
         mv phatyp_prediction ${name}_phatyp_prediction_lifecyclephabox2.tsv
-        
+
+
+        tar -czf ${name}_results_lifecycle.tar.gz ${name}_results_lifecycle
         
 
         """
