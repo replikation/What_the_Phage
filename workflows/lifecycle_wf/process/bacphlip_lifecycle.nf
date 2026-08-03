@@ -6,7 +6,7 @@ process bacphlip_lifecycle {
     input:
         tuple val(name), path(fasta)
     output:
-        tuple val(name), path("${name}_lifecycle_bacphlip.tsv"), emit: bacphlip_lifecycle //, optional: true
+        tuple val(name), path("${name}_lifecycle_bacphlip.tsv"), emit: bacphlip_lifecycle, optional: true
     script:
         """
         bacphlip -i ${fasta} --multi_fasta

@@ -44,13 +44,16 @@ workflow taxonomy_wf {
                 genomad_taxonomy(fasta, download_genomad_DB.out)
 
                 // taxmyphage taxonomic classification
-                //taxmyphage(fasta)
+                taxmyphage(fasta)
 
 
 
                 // collect the taxonomy results and prepare for report
-                collect_taxonomy_results(sourmash_tax.out.join(genomad_taxonomy.out).join(phabox2_taxonomy.out)) // i need to adjust the taxonomy combination script
+                collect_taxonomy_results(sourmash_tax.out.join(genomad_taxonomy.out).join(phabox2_taxonomy.out).join(taxmyphage.out)) // i need to adjust the taxonomy combination script
                 taxonomy_report_input = collect_taxonomy_results.out.taxonomy_combined_ch
+                            .mix(sourmash_tax.out.tax_class_ch)
+                            .mix(genomad_taxonomy.out.genomad_taxonomy_ch)
+                            .mix(taxmyphage.out.taxmyphage_ch)
                 // taxonomy_combined_ch.view()
 
         emit:   taxonomy_report_input = taxonomy_report_input

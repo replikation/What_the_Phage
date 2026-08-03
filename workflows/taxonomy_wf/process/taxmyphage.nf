@@ -1,5 +1,6 @@
 process taxmyphage {
-        publishDir "${params.output}/${name}/taxonomic-classification/taxmyphage", mode: 'copy', pattern: "${name}_taxonomy_sourmash.tsv"
+        publishDir "${params.output}/${name}/taxonomic-classification/taxmyphage", mode: 'copy', pattern: "${name}_Summary_taxonomy_taxmyphage.tsv"
+        publishDir "${params.output}/${name}/taxonomic-classification/taxmyphage", mode: 'copy', pattern: "*_taxmyphage.tar.gz"
         label 'taxmyphage'
         //  errorStrategy 'ignore'
         input:
@@ -13,6 +14,8 @@ process taxmyphage {
         cp taxmyphage_results/Summary_taxonomy.tsv .
         mv Summary_taxonomy.tsv ${name}_Summary_taxonomy_taxmyphage.tsv
         cp ${name}_taxmyphage.out taxmyphage_results/
+
+        tar -czf ${name}_results_taxmyphage.tar.gz taxmyphage_results/
 
         """
         

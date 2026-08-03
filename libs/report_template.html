@@ -644,6 +644,10 @@
                                 class="px-4 py-2 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-brand hover:bg-white/50">
                                 Genomad
                             </button>
+                            <button onclick="switchTaxonomyTab('taxmyphage')" id="tax-tab-taxmyphage"
+                                class="px-4 py-2 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-brand hover:bg-white/50">
+                                Taxmyphage
+                            </button>
                         </div>
 
                         <!-- Taxonomy Overview Sub-tab -->
@@ -675,6 +679,22 @@
                                     </div>
                                     <div
                                         class="w-10 h-10 rounded-full bg-teal-50 text-teal-500 flex items-center justify-center">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
+                                            </path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div
+                                    class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                                    <div>
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                            Taxmyphage Hits</p>
+                                        <p id="tax-stat-taxmyphage" class="text-2xl font-bold text-slate-800">--</p>
+                                    </div>
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-violet-50 text-violet-500 flex items-center justify-center">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
@@ -733,6 +753,9 @@
                                                     Agree.</th>
                                                 <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
                                                     onclick="sortTable('taxonomy-overview-table', 4)">Genomad Lineage
+                                                </th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-overview-table', 5)">Taxmyphage Lineage
                                                 </th>
                                             </tr>
                                         </thead>
@@ -855,6 +878,79 @@
                                             </tr>
                                         </thead>
                                         <tbody id="taxonomy-genomad-body" class="divide-y divide-slate-100"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Taxmyphage Sub-tab -->
+                        <div id="tax-content-taxmyphage" class="tax-tab-content hidden">
+                            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                                <div
+                                    class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                    <div>
+                                        <h3 class="font-bold text-slate-800">Taxmyphage Details</h3>
+                                        <p class="text-xs text-slate-500">Genome similarity based taxonomy</p>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <button
+                                            onclick="exportTableToCSV('taxonomy-taxmyphage-body', 'taxonomy_taxmyphage.csv')"
+                                            class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand hover:shadow-sm transition-all flex items-center gap-1.5 shadow-sm">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
+                                                </path>
+                                            </svg>
+                                            Export CSV
+                                        </button>
+                                        <div class="relative">
+                                            <input type="text" placeholder="Search..."
+                                                onkeyup="filterTable('taxonomy-taxmyphage-body', this.value)"
+                                                class="pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand w-48 transition-all shadow-sm">
+                                            <svg class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400"
+                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="overflow-x-auto">
+                                    <table id="taxonomy-taxmyphage-table"
+                                        class="w-full text-left border-collapse text-xs">
+                                        <thead>
+                                            <tr
+                                                class="bg-slate-50 text-slate-500 uppercase text-[9px] font-bold tracking-wider">
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-taxmyphage-table', 0)">Genome</th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-taxmyphage-table', 1)">Realm</th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-taxmyphage-table', 2)">Kingdom</th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-taxmyphage-table', 3)">Phylum</th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-taxmyphage-table', 4)">Class</th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-taxmyphage-table', 5)">Order</th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-taxmyphage-table', 6)">Family</th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-taxmyphage-table', 7)">Subfamily</th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-taxmyphage-table', 8)">Genus</th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-taxmyphage-table', 9)">Species</th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-taxmyphage-table', 10)">Full Taxonomy
+                                                </th>
+                                                <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                    onclick="sortTable('taxonomy-taxmyphage-table', 11)">Message</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="taxonomy-taxmyphage-body"
+                                            class="divide-y divide-slate-100"></tbody>
                                     </table>
                                 </div>
                             </div>
@@ -1558,11 +1654,15 @@
                     const cIdx = h.indexOf('Contig');
                     const smTaxIdx = h.indexOf('Sourmash_Taxonomy');
                     const gmLinIdx = h.indexOf('Genomad_lineage');
+                    const txgTaxIdx = h.indexOf('Taxmyphage_Taxonomy');
+                    const txgAgIdx = h.indexOf('Taxmyphage_agreement');
                     taxData.slice(1).forEach(row => {
                         const cid = row[cIdx];
                         if (cid && contigObjects[cid]) {
                             contigObjects[cid].taxonomy.sourmash = row[smTaxIdx] || 'N/A';
                             contigObjects[cid].taxonomy.genomad = row[gmLinIdx] || 'N/A';
+                            contigObjects[cid].taxonomy.taxmyphage = row[txgTaxIdx] || 'N/A';
+                            contigObjects[cid].taxonomy.taxmyphage_agreement = txgAgIdx >= 0 ? (row[txgAgIdx] || '') : '';
                         }
                     });
                 }
@@ -1985,6 +2085,7 @@
             renderTaxonomyOverview();
             renderTaxonomySourmash();
             renderTaxonomyGenomad();
+            renderTaxonomyTaxmyphage();
         }
 
         function renderTaxonomyOverview() {
@@ -1994,12 +2095,13 @@
             // Clear stats
             document.getElementById('tax-stat-sourmash').textContent = '--';
             document.getElementById('tax-stat-genomad').textContent = '--';
+            document.getElementById('tax-stat-taxmyphage').textContent = '--';
 
             if (!g_currentSample) return;
 
             const tFile = Object.keys(g_currentSample.files).find(f => f.includes('taxonomy_overview.tsv'));
             if (!tFile) {
-                tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-10 text-center text-slate-400">No taxonomy overview data found</td></tr>';
+                tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-10 text-center text-slate-400">No taxonomy overview data found</td></tr>';
                 return;
             }
 
@@ -2012,19 +2114,24 @@
                 sim: h.indexOf('Sourmash_Similarity'),
                 sm_tax: h.indexOf('Sourmash_Taxonomy'),
                 agree: h.indexOf('Genomad_agreement'),
-                lineage: h.indexOf('Genomad_lineage')
+                lineage: h.indexOf('Genomad_lineage'),
+                tpx_tax: h.indexOf('Taxmyphage_Taxonomy'),
+                tpx_msg: h.indexOf('Taxmyphage_agreement')
             };
 
             // Calculate Stats
             let classifiedCount = 0;
             let smCount = 0;
             let gmCount = 0;
+            let tpxCount = 0;
 
             data.slice(1).forEach(row => {
                 const hasSm = row[idx.sm_tax] && row[idx.sm_tax] !== 'no match found';
                 const hasGm = row[idx.lineage] && row[idx.lineage] !== 'no match found' && row[idx.lineage] !== 'NA';
+                const hasTpx = idx.tpx_tax >= 0 && row[idx.tpx_tax] && row[idx.tpx_tax] !== 'NA';
                 if (hasSm) smCount++;
                 if (hasGm) gmCount++;
+                if (hasTpx) tpxCount++;
 
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50/50 transition-colors';
@@ -2057,18 +2164,28 @@
                     lineageDisplay = `<span class="text-slate-400 italic">No match</span>`;
                 }
 
+                // Taxmyphage lineage badge (full lineage)
+                let tpxDisplay = (idx.tpx_tax >= 0 && row[idx.tpx_tax]) ? row[idx.tpx_tax] : '';
+                if (tpxDisplay && tpxDisplay !== 'NA') {
+                    tpxDisplay = `<span class="font-medium text-slate-700">${tpxDisplay}</span>`;
+                } else {
+                    tpxDisplay = `<span class="text-slate-400 italic">No match</span>`;
+                }
+
                 tr.innerHTML = `
                     <td class="px-4 py-3 font-mono text-slate-600 font-medium">${row[idx.contig]}</td>
                     <td class="px-4 py-3"><span class="${simClass}">${simFormatted}</span></td>
                     <td class="px-4 py-3 text-xs">${taxDisplay}</td>
                     <td class="px-4 py-3"><span class="${agreeClass}">${agreeFormatted}</span></td>
                     <td class="px-4 py-3 text-xs">${lineageDisplay}</td>
+                    <td class="px-4 py-3 text-xs">${tpxDisplay}</td>
                 `;
                 tableBody.appendChild(tr);
             });
 
-            document.getElementById('tax-stat-sourmash').textContent = smCount;
-            document.getElementById('tax-stat-genomad').textContent = gmCount;
+document.getElementById('tax-stat-sourmash').textContent = smCount;
+                document.getElementById('tax-stat-genomad').textContent = gmCount;
+                document.getElementById('tax-stat-taxmyphage').textContent = tpxCount;
         }
 
         function renderTaxonomySourmash() {
@@ -2152,6 +2269,61 @@
                     <td class="px-4 py-3 text-slate-500">${row[idx.genes]}</td>
                     <td class="px-4 py-3 font-mono text-xs text-slate-500">${row[idx.taxid]}</td>
                     <td class="px-4 py-3 text-xs text-slate-600 max-w-[300px] break-words">${row[idx.lineage].replace(/;/g, ' > ')}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function renderTaxonomyTaxmyphage() {
+            const tableBody = document.getElementById('taxonomy-taxmyphage-body');
+            tableBody.innerHTML = '';
+            if (!g_currentSample) return;
+
+            const tFile = Object.keys(g_currentSample.files).find(f => f.includes('_Summary_taxonomy_taxmyphage.tsv'));
+            if (!tFile) {
+                tableBody.innerHTML = '<tr><td colspan="12" class="px-6 py-10 text-center text-slate-400">No taxmyphage data found</td></tr>';
+                return;
+            }
+
+            const data = g_currentSample.files[tFile];
+            if (data.length <= 1) return;
+
+            const h = data[0];
+            const idx = {
+                genome: h.indexOf('Genome'),
+                realm: h.indexOf('Realm'),
+                kingdom: h.indexOf('Kingdom'),
+                phylum: h.indexOf('Phylum'),
+                class: h.indexOf('Class'),
+                order: h.indexOf('Order'),
+                family: h.indexOf('Family'),
+                subfamily: h.indexOf('Subfamily'),
+                genus: h.indexOf('Genus'),
+                species: h.indexOf('Species'),
+                full_tax: h.indexOf('Full_taxonomy'),
+                message: h.indexOf('Message')
+            };
+
+            data.slice(1).forEach(row => {
+                // Skip the leading empty pandas index column (Genome is resolved by name)
+                if (!row[idx.genome]) return;
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50/50 transition-colors';
+                const tax = (idx.full_tax >= 0 && row[idx.full_tax]) ? row[idx.full_tax].replace(/;/g, ' > ') : 'N/A';
+
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-mono text-slate-600">${row[idx.genome]}</td>
+                    <td class="px-4 py-3 text-slate-600">${row[idx.realm] || 'N/A'}</td>
+                    <td class="px-4 py-3 text-slate-600">${row[idx.kingdom] || 'N/A'}</td>
+                    <td class="px-4 py-3 text-slate-600">${row[idx.phylum] || 'N/A'}</td>
+                    <td class="px-4 py-3 text-slate-600">${row[idx.class] || 'N/A'}</td>
+                    <td class="px-4 py-3 text-slate-600">${row[idx.order] || 'N/A'}</td>
+                    <td class="px-4 py-3 text-slate-600">${row[idx.family] || 'N/A'}</td>
+                    <td class="px-4 py-3 text-slate-600">${row[idx.subfamily] || 'N/A'}</td>
+                    <td class="px-4 py-3 text-slate-700 font-medium">${row[idx.genus] || 'N/A'}</td>
+                    <td class="px-4 py-3 text-slate-700">${row[idx.species] || 'N/A'}</td>
+                    <td class="px-4 py-3 text-xs text-slate-600 max-w-[300px] break-words">${tax}</td>
+                    <td class="px-4 py-3 text-xs text-slate-500 max-w-[250px]">${row[idx.message] || ''}</td>
                 `;
                 tableBody.appendChild(tr);
             });

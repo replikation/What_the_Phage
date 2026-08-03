@@ -1,6 +1,6 @@
 process phabox2_lifecycle {
-        publishDir "${params.output}/${name}/host_lifecycle", mode: 'copy' , pattern: "*.tsv"
-        publishDir "${params.output}/${name}/host_lifecycle", mode: 'copy' , pattern: "*.tar.gz"
+        publishDir "${params.output}/${name}/host_lifecycle/phabox2", mode: 'copy' , pattern: "*.tsv"
+        publishDir "${params.output}/${name}/host_lifecycle/phabox2", mode: 'copy' , pattern: "*.tar.gz"
         //errorStrategy 'ignore'
         label 'phabox2'
     input:
@@ -22,7 +22,7 @@ process phabox2_lifecycle {
         mv phatyp_prediction.tsv ${name}_phatyp_prediction_lifecycle_phabox2.tsv
 
 
-        tar -czf ${name}_results_lifecycle.tar.gz ${name}_results_lifecycle
+        tar -czf ${name}_results_phabox2.tar.gz ${name}_results_lifecycle
         
 
         """
