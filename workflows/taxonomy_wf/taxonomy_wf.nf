@@ -43,6 +43,9 @@ workflow taxonomy_wf {
                 download_genomad_DB()
                 genomad_taxonomy(fasta, download_genomad_DB.out)
 
+                // taxmyphage taxonomic classification
+                //taxmyphage(fasta)
+
 
 
                 // collect the taxonomy results and prepare for report

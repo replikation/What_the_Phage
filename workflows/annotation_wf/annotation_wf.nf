@@ -12,8 +12,6 @@ include { annotation_tables_summary_report } from './process/annotation_tables_s
 
 
 
-
-
 workflow annotation_wf {
         take:   fasta
                 checkv

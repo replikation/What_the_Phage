@@ -149,14 +149,25 @@
             </div>
 
             <div class="relative">
-                <input type="text" placeholder="Search samples..."
-                    class="w-full bg-slate-800 border-none rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-teal-500 transition-all outline-none">
+                <input type="text" placeholder="Search samples..." id="sidebar-search"
+                    onkeyup="filterSidebarSamples(this.value)"
+                    class="w-full bg-slate-800 border-none rounded-lg py-2 pl-10 pr-10 text-sm focus:ring-2 focus:ring-teal-500 transition-all outline-none">
                 <svg class="w-4 h-4 absolute left-3 top-2.5 text-slate-500" fill="none" stroke="currentColor"
                     viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
+                <button id="sidebar-search-clear"
+                    class="absolute right-2.5 top-2 text-slate-500 hover:text-white transition-colors hidden"
+                    onclick="clearSidebarSearch()" aria-label="Clear search">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
+                </button>
             </div>
+            <p id="sidebar-sample-count"
+                class="text-[10px] text-slate-500 mt-2 ml-1 font-medium uppercase tracking-wider">0 samples</p>
         </div>
 
         <nav id="sample-sidebar" class="flex-1 overflow-y-auto wander-scroll p-4 space-y-1">
@@ -214,6 +225,10 @@
                         class="px-4 py-1.5 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-slate-700 whitespace-nowrap">
                         Prophage
                     </button>
+                    <button onclick="switchTab('lifecycle')" id="tab-lifecycle"
+                        class="px-4 py-1.5 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-slate-700 whitespace-nowrap">
+                        Lifecycle
+                    </button>
                 </div>
             </div>
         </header>
@@ -242,26 +257,29 @@
                     <!-- OVERVIEW TAB -->
                     <div id="content-overview" class="tab-content active">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Contigs
+                            <div
+                                class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-default">
+                                <p class="text-xs font-bold text-brand uppercase tracking-wider mb-1">Total Contigs
                                 </p>
-                                <p id="stat-contigs" class="text-3xl font-bold text-slate-900">--</p>
+                                <p id="stat-contigs" class="text-3xl font-bold text-slate-900 tracking-tight">--</p>
                             </div>
-                            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Shortest
+                            <div
+                                class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-default">
+                                <p class="text-xs font-bold text-brand uppercase tracking-wider mb-1">Shortest
                                     Sequence</p>
-                                <p id="stat-min-seq" class="text-3xl font-bold text-slate-900">--</p>
+                                <p id="stat-min-seq" class="text-3xl font-bold text-slate-900 tracking-tight">--</p>
                             </div>
-                            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Longest
+                            <div
+                                class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-default">
+                                <p class="text-xs font-bold text-brand uppercase tracking-wider mb-1">Longest
                                     Sequence</p>
-                                <p id="stat-max-seq" class="text-3xl font-bold text-slate-900">--</p>
+                                <p id="stat-max-seq" class="text-3xl font-bold text-slate-900 tracking-tight">--</p>
                             </div>
                         </div>
 
                         <div
-                            class="bg-indigo-50 border border-indigo-100 p-4 rounded-xl mb-8 flex gap-3 text-indigo-800 text-sm shadow-sm items-center">
-                            <svg class="w-5 h-5 text-indigo-500 flex-shrink-0" fill="none" stroke="currentColor"
+                            class="bg-teal-50/50 border border-teal-100 p-4 rounded-xl mb-8 flex gap-3 text-teal-800 text-sm shadow-sm items-center">
+                            <svg class="w-5 h-5 text-teal-500 flex-shrink-0" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -280,7 +298,7 @@
                                 </div>
                                 <div class="flex items-center gap-3">
                                     <button onclick="exportTableToCSV('overview-table-body', 'contigs_overview.csv')"
-                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-all flex items-center gap-1.5 shadow-sm">
+                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand hover:shadow-sm transition-all flex items-center gap-1.5 shadow-sm">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
@@ -322,18 +340,22 @@
                                 </table>
                             </div>
                             <div
-                                class="bg-indigo-50 border-t border-indigo-100 p-4 w-full flex flex-col md:flex-row gap-4 items-center justify-between text-xs text-indigo-800">
+                                class="bg-teal-50/50 border-t border-teal-100 p-4 w-full flex flex-col md:flex-row gap-4 items-center justify-between text-xs text-teal-800">
                                 <div><span class="font-bold">Identification Overview Legend:</span></div>
                                 <div class="flex flex-wrap gap-4 items-center">
                                     <div class="flex items-center gap-1.5"><span
-                                            class="w-2.5 h-2.5 rounded bg-emerald-500"></span> Score &ge; 0.85</div>
+                                            class="w-2.5 h-2.5 rounded bg-emerald-500 border border-emerald-200"></span>
+                                        Score &ge; 0.85</div>
                                     <div class="flex items-center gap-1.5"><span
-                                            class="w-2.5 h-2.5 rounded bg-amber-500"></span> 0.5 &lt; Score &lt; 0.85
+                                            class="w-2.5 h-2.5 rounded bg-amber-500 border border-amber-200"></span> 0.5
+                                        &lt; Score &lt; 0.85
                                     </div>
                                     <div class="flex items-center gap-1.5"><span
-                                            class="w-2.5 h-2.5 rounded bg-rose-500"></span> Score &le; 0.5</div>
+                                            class="w-2.5 h-2.5 rounded bg-rose-500 border border-rose-200"></span> Score
+                                        &le; 0.5</div>
                                     <div class="flex items-center gap-1.5"><span
-                                            class="w-2.5 h-2.5 rounded bg-slate-300"></span> Nothing found</div>
+                                            class="w-2.5 h-2.5 rounded bg-slate-300 border border-slate-200"></span>
+                                        Nothing found</div>
                                 </div>
                             </div>
                         </div>
@@ -351,7 +373,7 @@
                                 </div>
                                 <div class="flex items-center gap-3">
                                     <button onclick="exportTableToCSV('quality-table-body', 'quality_summary.csv')"
-                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-all flex items-center gap-1.5 shadow-sm">
+                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand hover:shadow-sm transition-all flex items-center gap-1.5 shadow-sm">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
@@ -394,7 +416,7 @@
                                 </div>
                                 <div class="flex items-center gap-3">
                                     <button onclick="exportTableToCSV('id-overview-table-body', 'id_overview.csv')"
-                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-all flex items-center gap-1.5 shadow-sm">
+                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand hover:shadow-sm transition-all flex items-center gap-1.5 shadow-sm">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
@@ -430,7 +452,7 @@
                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6 mt-8">
                             <div class="mb-4">
                                 <h3 class="font-bold text-slate-800 flex items-center gap-2">
-                                    <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor"
+                                    <svg class="w-5 h-5 text-teal-500" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -440,7 +462,7 @@
                             </div>
 
                             <div
-                                class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4 mb-8 text-sm text-slate-600 max-w-[100%] leading-relaxed">
+                                class="bg-teal-50/30 border border-teal-100 rounded-xl p-4 mb-8 text-sm text-slate-600 max-w-[100%] leading-relaxed">
                                 <p class="mb-3">WtP uses several phage prediction tools that work differently and
                                     generate different outputs. Contigs with the overall highest p-values/scores are
                                     displayed at the top, and contigs with low p-values/scores are at the bottom of the
@@ -567,10 +589,10 @@
 
                             <!-- INFO BOX -->
                             <div
-                                class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4 mb-8 text-sm text-slate-600 max-w-4xl">
+                                class="bg-teal-50/30 border border-teal-100 rounded-xl p-4 mb-8 text-sm text-slate-600 max-w-4xl">
                                 <h4
-                                    class="font-bold text-indigo-900 mb-2 flex items-center gap-2 text-xs uppercase tracking-wider">
-                                    <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor"
+                                    class="font-bold text-teal-900 mb-2 flex items-center gap-2 text-xs uppercase tracking-wider">
+                                    <svg class="w-4 h-4 text-teal-500" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -672,7 +694,7 @@
                                     <div class="flex items-center gap-3">
                                         <button
                                             onclick="exportTableToCSV('taxonomy-overview-body', 'taxonomy_overview.csv')"
-                                            class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-all flex items-center gap-1.5 shadow-sm">
+                                            class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand hover:shadow-sm transition-all flex items-center gap-1.5 shadow-sm">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -732,7 +754,7 @@
                                     <div class="flex items-center gap-3">
                                         <button
                                             onclick="exportTableToCSV('taxonomy-sourmash-body', 'taxonomy_sourmash.csv')"
-                                            class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-all flex items-center gap-1.5 shadow-sm">
+                                            class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand hover:shadow-sm transition-all flex items-center gap-1.5 shadow-sm">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -792,7 +814,7 @@
                                     <div class="flex items-center gap-3">
                                         <button
                                             onclick="exportTableToCSV('taxonomy-genomad-body', 'taxonomy_genomad.csv')"
-                                            class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-all flex items-center gap-1.5 shadow-sm">
+                                            class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand hover:shadow-sm transition-all flex items-center gap-1.5 shadow-sm">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -918,10 +940,10 @@
                             </div>
                             <!-- INFO BOX -->
                             <div
-                                class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4 mt-2 mb-2 text-sm text-slate-600 max-w-full">
+                                class="bg-teal-50/30 border border-teal-100 rounded-xl p-4 mt-2 mb-2 text-sm text-slate-600 max-w-full">
                                 <h4
-                                    class="font-bold text-indigo-900 mb-2 flex items-center gap-2 text-xs uppercase tracking-wider">
-                                    <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor"
+                                    class="font-bold text-teal-900 mb-2 flex items-center gap-2 text-xs uppercase tracking-wider">
+                                    <svg class="w-4 h-4 text-teal-500" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -978,7 +1000,7 @@
                             </div>
                             <div class="flex items-center gap-3">
                                 <button onclick="exportTableToCSV('annotation-table-body', 'annotations.csv')"
-                                    class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-all flex items-center gap-1.5 shadow-sm">
+                                    class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand hover:shadow-sm transition-all flex items-center gap-1.5 shadow-sm">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4"></path>
@@ -1059,7 +1081,7 @@
                                 <div class="flex items-center gap-3">
                                     <button
                                         onclick="exportTableToCSV('prophage-phabox2-cand-body', 'candidate_provirus_phabox2.csv')"
-                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-all flex items-center gap-1.5 shadow-sm">
+                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand hover:shadow-sm transition-all flex items-center gap-1.5 shadow-sm">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
@@ -1087,7 +1109,7 @@
                                 <div class="flex items-center gap-3">
                                     <button
                                         onclick="exportTableToCSV('prophage-phabox2-contam-body', 'contamination_prediction_phabox2.csv')"
-                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-all flex items-center gap-1.5 shadow-sm">
+                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand hover:shadow-sm transition-all flex items-center gap-1.5 shadow-sm">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
@@ -1115,7 +1137,7 @@
                                 <div class="flex items-center gap-3">
                                     <button
                                         onclick="exportTableToCSV('prophage-virsorter2-body', 'final-viral-score_virsorter2.csv')"
-                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-all flex items-center gap-1.5 shadow-sm">
+                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand hover:shadow-sm transition-all flex items-center gap-1.5 shadow-sm">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
@@ -1141,7 +1163,7 @@
                                 <h3 class="font-bold text-slate-800">Phigaro Prophage</h3>
                                 <div class="flex items-center gap-3">
                                     <button onclick="exportTableToCSV('prophage-phigaro-body', 'prophage_phigaro.csv')"
-                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-all flex items-center gap-1.5 shadow-sm">
+                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand hover:shadow-sm transition-all flex items-center gap-1.5 shadow-sm">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
@@ -1168,7 +1190,7 @@
                                 <div class="flex items-center gap-3">
                                     <button
                                         onclick="exportTableToCSV('prophage-genomad-body', 'filtered_provirus_genomad.csv')"
-                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand transition-all flex items-center gap-1.5 shadow-sm">
+                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand hover:shadow-sm transition-all flex items-center gap-1.5 shadow-sm">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
@@ -1186,6 +1208,82 @@
                             </div>
                         </div>
                     </div>
+
+                </div>
+
+                <!-- LIFECYCLE TAB -->
+                <div id="content-lifecycle" class="tab-content">
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div
+                            class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div>
+                                <h3 class="font-bold text-slate-800">Phage lifecycle prediction</h3>
+                                <p class="text-xs text-slate-500 mt-1">BACPHLIP and PHASTER(t)-based lifecycle
+                                    prediction</p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <button
+                                    onclick="exportTableToCSV('lifecycle-table-body', 'lifecycle_report_summary.csv')"
+                                    class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand hover:shadow-sm transition-all flex items-center gap-1.5 shadow-sm">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
+                                        </path>
+                                    </svg>
+                                    Export CSV
+                                </button>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table id="lifecycle-table" class="w-full text-left border-collapse text-xs">
+                                <thead id="lifecycle-table-head"></thead>
+                                <tbody id="lifecycle-table-body" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                        <div
+                            class="bg-teal-50/50 border-t border-teal-100 p-4 w-full flex flex-col gap-3 text-xs text-teal-800">
+                            <div><span class="font-bold">How to interpret this table:</span></div>
+                            <div class="flex flex-col md:flex-row gap-4 md:items-center">
+                                <div class="flex flex-col gap-2">
+                                    <div class="font-semibold text-teal-700">BACPHLIP</div>
+                                    <div class="flex flex-wrap gap-4 items-center">
+                                        <div class="flex items-center gap-1.5"><span
+                                                class="w-2.5 h-2.5 rounded bg-teal-500 border border-teal-200"></span>
+                                            bacphlip_Virulent &amp; bacphlip_Temperate = classifier probabilities
+                                            (0&ndash;1)</div>
+                                        <div class="flex items-center gap-1.5"><span
+                                                class="w-2.5 h-2.5 rounded bg-teal-500 border border-teal-200"></span>
+                                            bacphlip_prediction = predicted class (virulent / temperate)</div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <div class="font-semibold text-teal-700">PhaBOX PhaTYP</div>
+                                    <div class="flex flex-wrap gap-4 items-center">
+                                        <div class="flex items-center gap-1.5"><span
+                                                class="w-2.5 h-2.5 rounded bg-teal-500 border border-teal-200"></span>
+                                            phatyp_TYPE = predicted lifecycle (virulent / temperate / ambiguous)</div>
+                                        <div class="flex items-center gap-1.5"><span
+                                                class="w-2.5 h-2.5 rounded bg-teal-500 border border-teal-200"></span>
+                                            phatyp_PhaTYPScore = confidence score (0&ndash;1)</div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <div class="font-semibold text-teal-700">Consensus</div>
+                                    <div class="flex flex-wrap gap-3 items-center">
+                                        <div class="flex items-center gap-1.5"><span
+                                                class="w-2.5 h-2.5 rounded bg-emerald-500 border border-emerald-200"></span>
+                                            virulent</div>
+                                        <div class="flex items-center gap-1.5"><span
+                                                class="w-2.5 h-2.5 rounded bg-amber-500 border border-amber-200"></span>
+                                            temperate</div>
+                                        <div class="flex items-center gap-1.5"><span
+                                                class="w-2.5 h-2.5 rounded bg-rose-500 border border-rose-200"></span>
+                                            disagree</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1196,7 +1294,89 @@
         .active-tab {
             background-color: #0d9488 !important;
             color: white !important;
-            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1) !important;
+            box-shadow: 0 0 14px 3px rgba(13, 148, 136, 0.4), 0 1px 3px 0 rgb(0 0 0 / 0.1) !important;
+        }
+
+        /* ===== TABLE IMPROVEMENTS ===== */
+        table tbody tr:nth-child(even) {
+            background-color: rgba(248, 250, 252, 0.8);
+        }
+
+        table thead {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+
+        table thead tr {
+            border-bottom: 2px solid #14b8a6;
+        }
+
+        table tbody tr {
+            transition: background-color 0.15s ease;
+        }
+
+        /* ===== MOBILE SCROLL HINTS ===== */
+        .overflow-x-auto {
+            background: linear-gradient(to right, transparent 98%, var(--col-app-bg));
+            background-attachment: local, scroll;
+        }
+
+        /* ===== TAB SLIDE-IN ANIMATION ===== */
+        @keyframes tabSlideIn {
+            from {
+                opacity: 0.7;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .active-tab {
+            animation: tabSlideIn 0.2s ease-out;
+        }
+
+        /* ===== SKELETON / EMPTY STATE PULSE ===== */
+        @keyframes skeletonPulse {
+
+            0%,
+            100% {
+                opacity: 0.4;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        .skeleton {
+            animation: skeletonPulse 1.5s ease-in-out infinite;
+            background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+            background-size: 200% 100%;
+            border-radius: 4px;
+        }
+
+        /* ===== TABLE HOVER IMPROVEMENTS ===== */
+        #overview-table tbody tr:hover,
+        #quality-table tbody tr:hover,
+        #id-overview-table tbody tr:hover {
+            background-color: rgba(20, 184, 166, 0.04) !important;
+        }
+
+        /* ===== GENE HIGHLIGHTING ===== */
+        #annotation-table-body tr.cursor-pointer {
+            cursor: pointer;
+        }
+
+        #annotation-table-body tr.bg-teal-50 {
+            background-color: rgba(20, 184, 166, 0.12) !important;
+        }
+
+        #annotation-table-body tr.bg-teal-50 td {
+            font-weight: 600;
         }
     </style>
     <!-- 
@@ -1213,6 +1393,11 @@
         let g_currentSample = null;
         let g_activeTab = 'overview';
         let g_renderedTabs = new Set(); // Tracks which tabs have been rendered for current sample
+        let g_highlightedGeneKey = null;
+
+        function makeGeneKey(a) {
+            return a.contig + '|' + a.start + '|' + a.end + '|' + a.tool;
+        }
 
         function switchTab(tabId) {
             g_activeTab = tabId;
@@ -1281,6 +1466,8 @@
                 renderAnnotation();
             } else if (g_activeTab === 'prophage') {
                 renderProphage();
+            } else if (g_activeTab === 'lifecycle') {
+                renderLifecycle();
             }
 
             g_renderedTabs.add(g_activeTab);
@@ -1460,10 +1647,10 @@
                         const makeBadge = (t, colorClasses) => `<span class="px-1.5 py-0.5 ${colorClasses} rounded text-xs font-bold uppercase mr-1 inline-block mb-1" title="${t.name}: ${t.score !== null ? t.score.toFixed(2) : 'Nothing found'}">${t.name}</span>`;
 
                         let badgeRows = '';
-                        if (green.length > 0) badgeRows += `<div class="mb-0.5">${green.map(t => makeBadge(t, 'bg-emerald-100 text-emerald-700')).join('')}</div>`;
-                        if (orange.length > 0) badgeRows += `<div class="mb-0.5">${orange.map(t => makeBadge(t, 'bg-amber-100 text-amber-700')).join('')}</div>`;
-                        if (red.length > 0) badgeRows += `<div class="mb-0.5">${red.map(t => makeBadge(t, 'bg-rose-100 text-rose-700')).join('')}</div>`;
-                        if (missing.length > 0) badgeRows += `<div>${missing.map(t => makeBadge(t, 'bg-slate-100 text-slate-400')).join('')}</div>`;
+                        if (green.length > 0) badgeRows += `<div class="mb-0.5">${green.map(t => makeBadge(t, 'bg-emerald-50 text-emerald-600 border border-emerald-200')).join('')}</div>`;
+                        if (orange.length > 0) badgeRows += `<div class="mb-0.5">${orange.map(t => makeBadge(t, 'bg-amber-50 text-amber-600 border border-amber-200')).join('')}</div>`;
+                        if (red.length > 0) badgeRows += `<div class="mb-0.5">${red.map(t => makeBadge(t, 'bg-rose-50 text-rose-600 border border-rose-200')).join('')}</div>`;
+                        if (missing.length > 0) badgeRows += `<div>${missing.map(t => makeBadge(t, 'bg-slate-50 text-slate-500 border border-slate-200')).join('')}</div>`;
                         toolsDisplay = `<div class="flex flex-col">${badgeRows}</div>`;
                     }
 
@@ -1504,7 +1691,7 @@
                                             <span class="text-slate-500">${pctHypo.toFixed(1)}% hypothetical/NA</span>
                                         </div>
                                     </div>
-                                    <div class="flex h-2.5 bg-slate-100 rounded-full overflow-hidden w-full shadow-inner">
+                                    <div class="flex h-2.5 bg-slate-100 rounded-full overflow-hidden w-full">
                                         <div class="bg-brand h-full" style="width: ${pctKnown}%"></div>
                                         <div class="bg-slate-300 h-full" style="width: ${pctHypo}%"></div>
                                         <div class="bg-slate-100 h-full" style="width: ${pctNot}%"></div>
@@ -2240,6 +2427,12 @@
             displayRows.forEach(a => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50/50 transition-colors group';
+                tr.dataset.geneKey = makeGeneKey(a);
+                tr.classList.add('cursor-pointer');
+                tr.onclick = function (event) {
+                    highlightGene(this.dataset.geneKey, a.contig);
+                    event.stopPropagation();
+                };
                 tr.innerHTML = `
                      <td class="px-4 py-3 font-mono text-slate-600">${a.contig}</td>
                      <td class="px-4 py-3 text-slate-500">${a.start}</td>
@@ -2401,7 +2594,12 @@
                             const w = Math.max(1, scaleX((Array.isArray(g.end) ? parseInt(g.end) : g.end) - (Array.isArray(g.start) ? parseInt(g.start) : g.start)));
                             const geneColor = getGeneColor(g);
 
-                            svg += `<rect x="${x}" y="${y + 2}" width="${w}" height="${trackHeight * 0.6 - 4}" fill="${geneColor}" rx="2" opacity="0.9" stroke="white" stroke-width="0.5">
+                            const geneKey = g.contig + '|' + g.start + '|' + g.end + '|' + g.tool;
+                            const isHighlighted = g_highlightedGeneKey === geneKey;
+                            const geneOpacity = g_highlightedGeneKey && !isHighlighted ? '0.25' : '0.9';
+                            const geneStroke = isHighlighted ? '#14b8a6' : 'white';
+                            const geneStrokeWidth = isHighlighted ? '3' : '0.5';
+                            svg += `<rect x="${x}" y="${y + 2}" width="${w}" height="${trackHeight * 0.6 - 4}" fill="${geneColor}" rx="2" opacity="${geneOpacity}" stroke="${geneStroke}" stroke-width="${geneStrokeWidth}" class="${isHighlighted ? 'gene-highlighted' : ''}">
                                 <title>${g.name} (${g.start}-${g.end}) [${g.strand}]</title>
                              </rect>`;
 
@@ -2544,8 +2742,9 @@
                 .attr("class", "gene-arc gene-card") // gene-card class for hover effects defined in CSS
                 .attr("d", geneArc)
                 .attr("fill", d => getGeneColor(d))
-                .attr("stroke", "white")
-                .attr("stroke-width", "0.5px")
+                .attr("stroke", d => g_highlightedGeneKey === makeGeneKey(d) ? '#14b8a6' : 'white')
+                .attr("stroke-width", d => g_highlightedGeneKey === makeGeneKey(d) ? '3px' : '0.5px')
+                .attr("opacity", d => g_highlightedGeneKey && g_highlightedGeneKey !== makeGeneKey(d) ? 0.25 : 1)
                 .append("title")
                 .text(d => `${d.name}\n${d.start}-${d.end} (${d.strand})\nTool: ${d.tool}`);
 
@@ -3049,7 +3248,7 @@
                 .attr("y", d => yTop(d.count))
                 .attr("width", x.bandwidth())
                 .attr("height", d => topBarHeight - yTop(d.count))
-                .attr("fill", "#0f172a"); // Sidebar color / Dark
+                .attr("fill", "#14b8a6"); // Brand teal
 
             // Labels for top bars
             topGroup.selectAll(".label-top")
@@ -3097,7 +3296,7 @@
                     const maxIdx = d3.max(present, t => yMatrix(t.name));
                     return maxIdx + yMatrix.bandwidth() / 2;
                 })
-                .attr("stroke", "#0f172a")
+                .attr("stroke", "#14b8a6")
                 .attr("stroke-width", 2);
 
             // Dots
@@ -3108,7 +3307,7 @@
                     sel.append("circle")
                         .attr("cy", yMatrix(t.name) + yMatrix.bandwidth() / 2)
                         .attr("r", 7)
-                        .attr("fill", d.tools.includes(t.name) ? "#0f172a" : "#cbd5e1")
+                        .attr("fill", d.tools.includes(t.name) ? "#14b8a6" : "#cbd5e1")
                         .attr("stroke-width", 0);
                 });
             });
@@ -3234,6 +3433,22 @@
             });
         }
 
+        function renderLifecycle() {
+            renderGenericTable('lifecycle_report_summary.tsv', 'lifecycle-table-head', 'lifecycle-table-body');
+            const body = document.getElementById('lifecycle-table-body');
+            if (!body) return;
+            body.querySelectorAll('tr').forEach(tr => {
+                const cell = tr.children[7];
+                if (!cell) return;
+                const val = (cell.textContent || '').trim().toLowerCase();
+                let cls = 'bg-slate-100 text-slate-600';
+                if (val === 'virulent') cls = 'bg-emerald-100 text-emerald-700';
+                else if (val === 'temperate') cls = 'bg-amber-100 text-amber-700';
+                else if (val === 'disagree') cls = 'bg-rose-100 text-rose-700';
+                cell.innerHTML = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${cls}">${cell.textContent.trim()}</span>`;
+            });
+        }
+
         // Initialization logic
         document.addEventListener('DOMContentLoaded', () => {
             if (RESULTS_PAYLOAD && RESULTS_PAYLOAD.length > 0) {
@@ -3254,7 +3469,7 @@
                         const item = document.createElement('button');
                         item.id = `sample-item-${sample.sample}`;
                         item.onclick = () => switchSample(sample.sample);
-                        item.className = 'sample-item w-full flex items-center gap-3 px-4 py-3 rounded-xl border-l-4 border-transparent text-left transition-all hover:bg-slate-800 group';
+                        item.className = 'sample-item w-full flex items-center gap-3 px-4 py-3 rounded-xl border-l-4 border-transparent text-left transition-all hover:bg-slate-800 hover:shadow-lg hover:shadow-teal-500/5 hover:border-brand group';
                         item.innerHTML = `
                             <div class="w-2 h-2 rounded-full bg-slate-600 group-hover:bg-brand transition-colors"></div>
                             <div class="flex-1 min-w-0">
@@ -3265,6 +3480,12 @@
                         sidebar.appendChild(item);
                     });
 
+                    // Initialize sample count
+                    const countLabel = document.getElementById('sidebar-sample-count');
+                    if (countLabel) {
+                        countLabel.textContent = g_data.length + ' samples';
+                    }
+
                     if (g_data.length > 0) {
                         switchSample(g_data[0].sample);
                     }
@@ -3273,6 +3494,7 @@
                     console.error("Failed to parse injection payload", e);
                 }
             }
+            document.addEventListener('click', clearGeneHighlightOnOutsideClick);
         });
         function exportTableToCSV(tbodyId, filename) {
             const tbody = document.getElementById(tbodyId);
@@ -3335,6 +3557,82 @@
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
+        }
+
+        function filterSidebarSamples(query) {
+            const sidebar = document.getElementById('sample-sidebar');
+            const items = sidebar.querySelectorAll('.sample-item');
+            const lowerQuery = query.toLowerCase();
+            let visibleCount = 0;
+
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(lowerQuery)) {
+                    item.style.display = '';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // Update sample count
+            const countLabel = document.getElementById('sidebar-sample-count');
+            if (countLabel) {
+                countLabel.textContent = visibleCount + ' / ' + items.length + ' samples';
+            }
+
+            // Show/hide clear button
+            const clearBtn = document.getElementById('sidebar-search-clear');
+            if (clearBtn) {
+                clearBtn.classList.toggle('hidden', query.length === 0);
+            }
+        }
+
+        function clearSidebarSearch() {
+            const input = document.getElementById('sidebar-search');
+            if (input) {
+                input.value = '';
+                filterSidebarSamples('');
+                input.focus();
+            }
+        }
+
+        function highlightGene(key, contig) {
+            g_highlightedGeneKey = (g_highlightedGeneKey === key) ? null : key;
+
+            // Auto-select contig if needed
+            const select = document.getElementById('annotation-contig-select');
+            if (key && select && select.value !== contig) {
+                select.value = contig;
+                g_selectedContigs = [contig];
+                // Exit compare mode if active
+                const compareCheck = document.getElementById('annotation-compare-mode');
+                if (compareCheck && compareCheck.checked) {
+                    compareCheck.checked = false;
+                    toggleCompareMode(false);
+                }
+            }
+
+            // Update table row highlights
+            document.querySelectorAll('#annotation-table-body tr').forEach(tr => {
+                tr.classList.toggle('bg-teal-50', tr.dataset.geneKey === g_highlightedGeneKey);
+            });
+
+            // Re-render viewer
+            updateAnnotationViewer();
+        }
+
+        function clearGeneHighlightOnOutsideClick(event) {
+            if (!g_highlightedGeneKey) return;
+            // Don't clear if clicking on a gene row (these have stopPropagation)
+            const row = event.target.closest('#annotation-table-body tr');
+            if (row) return;
+
+            g_highlightedGeneKey = null;
+            document.querySelectorAll('#annotation-table-body tr').forEach(tr => {
+                tr.classList.remove('bg-teal-50');
+            });
+            updateAnnotationViewer();
         }
 
         function toggleSidebar() {
