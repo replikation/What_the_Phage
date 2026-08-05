@@ -2,12 +2,20 @@ name: Syntax check
 
 on:
   push:
-    branches: [main]
+    branches: ['**']   # every branch, not just main; tag pushes excluded
   pull_request:
 
 concurrency:
-  group: syntax-check-${{ github.ref }}
+  # Include event_name so push and PR runs on the same ref don't cancel each other
+  group: syntax-check-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
   pipeline-help:
@@ -17,13 +25,14 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Nextflow
         run: |
+          set -o pipefail
           wget -qO- https://get.nextflow.io | bash
           ./nextflow -version
       - name: Pipeline help / manifest
         run: ./nextflow run phage.nf --help
 
   stub-tests:
-    needs: pipeline
+    needs: pipeline-help
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -55,10 +64,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install Nextflow
-        run: wget -qO- https://get.nextflow.io | bash
-      - name: Stub dry-run
         run: |
           set -o pipefail
+          wget -qO- https://get.nextflow.io | bash
+      - name: Stub dry-run
+        run: |
+          set -euo pipefail
           ./nextflow run phage.nf \
             --fasta ./test-data/stub_genome.fasta \
             -profile stub -stub \
