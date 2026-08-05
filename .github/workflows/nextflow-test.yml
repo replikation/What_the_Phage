@@ -1,26 +1,66 @@
-name: Syntax_check
+name: Syntax check
 
-on: [push]
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: syntax-check-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build:
+  pipeline-help:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-    - uses: actions/checkout@v1
-    - name: Help_test
-      run: curl -s https://get.nextflow.io | bash && NXF_EDGE=1 ./nextflow self-update && ./nextflow run phage.nf --help
-    - name: fasta dry run whole wf
-      run: |
-          ./nextflow run phage.nf --fasta ./test-data/stub_genome.fasta -stub -profile stub --cores 2 --max_cores 2
-    - name: fasta dry run identify only
-      run: |
-          ./nextflow run phage.nf --fasta ./test-data/stub_genome.fasta -stub -profile stub --cores 2 --max_cores 2 --identify
-    - name: fasta dry run annotate only
-      run: |
-          ./nextflow run phage.nf --fasta ./test-data/stub_genome.fasta -stub -profile stub --cores 2 --max_cores 2 --annotate
-    - name: fasta dry run remove some tools 1
-      run: |
-          ./nextflow run phage.nf --fasta ./test-data/stub_genome.fasta -stub -profile stub --cores 2 --max_cores 2 --dv --mp --pp --sm --vb
-    - name: fasta dry run remove some tools 2
-      run: |
-          ./nextflow run phage.nf --fasta ./test-data/stub_genome.fasta -stub -profile stub --cores 2 --max_cores 2 --vf --vn --vs --ph --vs2 --sk
+      - uses: actions/checkout@v4
+      - name: Install Nextflow
+        run: |
+          wget -qO- https://get.nextflow.io | bash
+          ./nextflow -version
+      - name: Pipeline help / manifest
+        run: ./nextflow run phage.nf --help
+
+  stub-tests:
+    needs: pipeline
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: end_to_end (all modes)
+            run: --end_to_end
+          - name: identify
+            run: --identify
+          - name: annotation
+            run: --annotation
+          - name: taxonomy
+            run: --taxonomy
+          - name: prophage
+            run: --prophage
+          - name: host
+            run: --host
+          - name: lifecycle
+            run: --lifecycle
+          - name: combined
+            run: --identify --taxonomy --prophage
+          - name: deactivate set 1
+            run: --identify --dv --ma --mp --pp --sm --vb
+          - name: deactivate set 2
+            run: --identify --vf --vn --vs --vs2 --ph --sk
+          - name: all_tools
+            run: --identify --all_tools
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Nextflow
+        run: wget -qO- https://get.nextflow.io | bash
+      - name: Stub dry-run
+        run: |
+          set -o pipefail
+          ./nextflow run phage.nf \
+            --fasta ./test-data/stub_genome.fasta \
+            -profile stub -stub \
+            --cores 2 --max_cores 2 \
+            ${{ matrix.run }}

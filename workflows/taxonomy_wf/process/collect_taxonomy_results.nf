@@ -128,29 +128,6 @@ process collect_taxonomy_results {
                     if src_type == "phabox2":
                         data[contig][out_col] = row.get(src_col, "NA")
 
-    # Read Taxmyphage
-    if os.path.exists(taxmyphage_f):
-        with open(taxmyphage_f, 'r') as f:
-            reader = csv.DictReader(f, delimiter='\\t')
-            for row in reader:
-                if not row: continue
-                # Taxmyphage key is 'Genome'. The file has a leading empty header
-                # column that holds the pandas row index (0,1,2,...); key strictly
-                # on 'Genome' and never the index fallback.
-                contig = row.get('Genome')
-                if not contig or contig.startswith('#') or contig[:1].isdigit(): continue
-
-                all_contigs.add(contig)
-                if contig not in data: data[contig] = {}
-
-                # Store Taxmyphage data, normalizing 'Not Defined Yet' to 'NA'
-                for out_col, src_type, src_col in requested_cols:
-                    if src_type == "taxmyphage":
-                        val = row.get(src_col, "NA")
-                        if val and val.strip() == "Not Defined Yet":
-                            val = "NA"
-                        data[contig][out_col] = val
-
     # Write Output
     output_headers = ["Contig"] + [col[0] for col in requested_cols]
 
