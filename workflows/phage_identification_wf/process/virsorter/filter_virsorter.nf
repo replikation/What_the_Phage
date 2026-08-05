@@ -36,4 +36,8 @@ process filter_virsorter {
 	 touch virsorter_\${PWD##*/}.tsv
 	fi
         """
+    stub:
+        """
+        touch virsorter_dummy.tsv
+        """
 }

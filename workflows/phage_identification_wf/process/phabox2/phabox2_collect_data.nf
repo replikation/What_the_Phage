@@ -11,4 +11,8 @@ process phabox2_identify_collect_data {
         cp ${raw_list} phabox2_phamer/
         tar -czf phabox2_phamer_results_${name}.tar.gz seeker
         """
+    stub:
+        """
+        touch seeker_results_${name}.tar.gz
+        """
 }

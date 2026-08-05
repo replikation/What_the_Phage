@@ -11,6 +11,10 @@ process filter_vibrant {
         awk 'BEGIN {OFS=FS="\\t"; IGNORECASE=1} {if(\$2) sub(/virus/,"1"); print}' > vibrant_\${PWD##*/}.tsv
         rm ${results}
         """
+    stub:
+        """
+        touch vibrant_dummy.tsv
+        """
 }
 
 

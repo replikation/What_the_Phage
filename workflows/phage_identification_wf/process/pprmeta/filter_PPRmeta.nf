@@ -8,4 +8,8 @@ process filter_PPRmeta {
         """
         tail -n+2 *.csv | awk -F, '{print \$1, \$3}' OFS="\\t" > PPRmeta_\${PWD##*/}.tsv
         """
+    stub:
+        """
+        touch PPRmeta_dummy.tsv
+        """
 }

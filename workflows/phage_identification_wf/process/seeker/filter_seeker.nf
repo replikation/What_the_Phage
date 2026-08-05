@@ -8,6 +8,10 @@ process filter_seeker {
         """
         tail -n+2 *.list | sort -gr -k3  | awk '{ print \$1, \$3}' OFS='\\t' > seeker_\${PWD##*/}.tsv
         """
+    stub:
+        """
+        touch seeker_dummy.tsv
+        """
 }
 
 /* 

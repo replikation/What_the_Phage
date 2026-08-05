@@ -9,6 +9,10 @@ process filter_virsorter2 {
         tail -n+2 *.tsv |  awk '{ print \$1, \$2 }' OFS='\\t' | awk '{ print \$1, \$2 }' OFS='||' | cut -d "|" -f1,5 | awk -F"|" '{ print \$1, \$2 }' OFS='\t' > virsorter2_\${PWD##*/}.tsv
         sed -i 's/nan/0/g' virsorter2_\${PWD##*/}.tsv
         """
+    stub:
+        """
+        touch virsorter2_dummy.tsv
+        """
 }
 
 //needs to be trimmed away( seqname)

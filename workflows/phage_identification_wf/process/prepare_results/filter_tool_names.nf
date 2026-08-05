@@ -14,4 +14,8 @@ process filter_tool_names {
             cat \${x} | cut -f1 > \${filename_simple}.txt
           done
         """
+    stub:
+        """
+        touch dummy.txt
+        """
 }

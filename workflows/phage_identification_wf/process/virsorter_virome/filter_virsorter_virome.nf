@@ -37,4 +37,8 @@ process filter_virsorter_virome {
 	   touch virsorter-virome_\${PWD##*/}.tsv
 	fi
         """
+    stub:
+        """
+        touch virsorter-virome_dummy.tsv
+        """
 }

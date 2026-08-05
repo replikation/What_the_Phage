@@ -8,6 +8,10 @@ process filter_phabox2_identify {
         """
         tail -n+2 *_phamer_prediction_*.tsv | sort -gr -k5  | awk '{ print \$1, \$5}' OFS='\\t' > phabox2_identify_\${PWD##*/}.tsv
         """
+    stub:
+        """
+        touch phabox2_identify_dummy.tsv
+        """
 }
 
 // sort for phamer score between 0 and 1.0

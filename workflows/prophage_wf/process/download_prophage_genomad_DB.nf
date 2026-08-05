@@ -11,6 +11,6 @@ process download_genomad_DB {
         """    
     stub:
         """
-        mkdir -p genomad_db
+        touch genomad_db_stub.tar.gz
         """
 }

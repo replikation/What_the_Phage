@@ -8,4 +8,8 @@ process filter_deepvirfinder {
         """
         tail -n+2 *.list | sort -g  -k4,4  | awk '{ print \$1, \$3 }' OFS='\\t' > deepvirfinder_\${PWD##*/}.tsv
         """
+    stub:
+        """
+        touch deepvirfinder_dummy.tsv
+        """
 }

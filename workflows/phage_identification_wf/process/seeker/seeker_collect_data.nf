@@ -11,4 +11,8 @@ process seeker_collect_data {
         cp ${raw_list} seeker/
         tar -czf seeker_results_${name}.tar.gz seeker
         """
+    stub:
+        """
+        touch seeker_results_${name}.tar.gz
+        """
 }

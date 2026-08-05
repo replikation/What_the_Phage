@@ -22,11 +22,11 @@ process virsorter2_prophage {
         tar -czf ${name}_virsorter2_prophage_output.tar.gz virsorter2.out
 
         """
-    stub:
+stub:
         """
-        mkdir virsorter2_\${PWD##*/}.out
-        echo "seqname    dsDNAphage    NCLDV    RNA    ssDNA    lavidaviridae" > virsorter2.out/final-viral-score.tsv
-        echo "pos_phage_0    1    0.133    0.005    0.14    0.04" >> virsorter2.out/final-viral-score.tsv   
+        mkdir -p virsorter2.out
+        echo "seqname    dsDNAphage    NCLDV    RNA    ssDNA    lavidaviridae" > virsorter2.out/${name}_final-viral-score_virsorter2.tsv
+        echo "pos_phage_0    1    0.133    0.005    0.14    0.04" >> virsorter2.out/${name}_final-viral-score_virsorter2.tsv
         """
 }
 

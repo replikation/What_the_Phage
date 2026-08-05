@@ -8,4 +8,8 @@ process filter_virfinder {
         """
         tail -q -n+2 *.list | awk '{ print \$2, \$4}' OFS='\\t' > virfinder_\${PWD##*/}.tsv
         """
+    stub:
+        """
+        touch virfinder_dummy.tsv
+        """
 }

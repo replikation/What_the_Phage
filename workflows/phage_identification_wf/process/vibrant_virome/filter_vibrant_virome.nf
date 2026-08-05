@@ -10,6 +10,10 @@ process filter_vibrant_virome {
         awk 'BEGIN {OFS=FS="\\t"} \$2 == "virus" { print \$1, \$2 }' | \
         awk 'BEGIN {OFS=FS="\\t"; IGNORECASE=1} {if(\$2) sub(/virus/,"1"); print}' > vibrant-virome_\${PWD##*/}.tsv
         """
+    stub:
+        """
+        touch vibrant-virome_dummy.tsv
+        """
 }
 
 // filter needs to be addet

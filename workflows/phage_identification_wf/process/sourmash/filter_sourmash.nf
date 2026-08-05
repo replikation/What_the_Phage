@@ -8,6 +8,10 @@ process filter_sourmash {
         """
         awk -F, '{print \$1, \$2}' OFS="\\t" *.list  > sourmash_\${PWD##*/}.tsv
         """
+    stub:
+        """
+        touch sourmash_dummy.tsv
+        """
 }
 
 // filter im tool (awk - remove there and put here)

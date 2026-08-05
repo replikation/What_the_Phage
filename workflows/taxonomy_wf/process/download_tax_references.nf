@@ -15,7 +15,8 @@ process download_references_NCBI {
         """
     stub:
         """
-        touch phage_references.fasta
+        touch refseq_phage_references.fa
+        touch refseq_phage_meta_data.tsv
         """        
 }
 //note - go to osf webpage project - click on tar.gz file to get the proper link , otherwise you will get a html
@@ -45,7 +46,8 @@ process download_references_phage_scope {
         """
     stub:
         """
-        touch phage_references.fasta
+        touch all_phagescope-phage_sequences.fasta
+        touch all_phagescope_metadata_V1.tsv
         """        
 }
 

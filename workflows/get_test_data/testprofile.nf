@@ -7,4 +7,9 @@ process testprofile {
         """
         git clone https://github.com/mult1fractal/WtP_test-data.git
         """
+    stub:
+        """
+        mkdir -p WtP_test-data/01.Phage_assemblies
+        touch WtP_test-data/01.Phage_assemblies/ERR000000.fasta.gz
+        """
 }
