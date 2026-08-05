@@ -115,15 +115,18 @@ workflow {
     // report_wf(identify_ch, annotate_taxonomy_ch, checkV_ch, prophage_ch, lifecycle_ch)
     report_wf(identify_ch, annotation_ch, taxonomy_ch, checkV_ch, prophage_ch, host_ch, lifecycle_ch)
 
-    
+
+
+
+
+
+// workflow bracket    
 }
 
-
-
-    if (!params.setup) {
-        workflow.onComplete { 
+    workflow.onComplete {
+        if (!params.setup) {
             progressBar(workflow)
             log.info ( workflow.success ? "\nDone! Results are stored here --> $params.output \nThank you for using What the Phage\n \nPlease cite us: https://doi.org/10.1101/2020.07.24.219899 \
-                                          \n\nPlease also cite the other tools we use in our workflow --> $params.output/literature \n" : "Oops .. something went wrong" )
+                                        \n\nPlease also cite the other tools we use in our workflow --> $params.output/literature \n" : "Oops .. something went wrong" )
         }
     }
