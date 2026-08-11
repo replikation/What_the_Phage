@@ -27,10 +27,9 @@ jobs:
         run: |
           set -o pipefail
           wget -qO- https://get.nextflow.io | bash
-          export NXF_VER=25.10.0
           ./nextflow -version
       - name: Pipeline help / manifest
-        run: ./nextflow run phage.nf --help
+        run: NXF_VER=25.10.0 ./nextflow run phage.nf --help
 
   stub-tests:
     needs: pipeline-help
