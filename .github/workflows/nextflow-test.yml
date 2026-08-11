@@ -70,7 +70,7 @@ jobs:
       - name: Stub dry-run
         run: |
           set -euo pipefail
-          ./nextflow run phage.nf \
+          NXF_VER=25.10.0 ./nextflow run phage.nf \
             --fasta ./test-data/stub_genome.fasta \
             -profile stub -stub \
             --cores 2 --max_cores 2 \
