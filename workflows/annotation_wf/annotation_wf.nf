@@ -9,6 +9,7 @@ include { download_genomad_DB } from './process/download_genomad_DB'
 include { genomad_annotation } from './process/genomad_annotation'
 include { compare_annotation } from './process/compare_annotation'
 include { annotation_tables_summary_report } from './process/annotation_tables_summary_report'
+include { filter_completeness } from './process/filter_completeness'
 
 
 
@@ -30,23 +31,26 @@ workflow annotation_wf {
                 pvog_DB()
                 vogtable_DB()
 
+                // Filter input contigs by CheckV completeness
+                filtered_fasta = filter_completeness(fasta.join(checkv)).filtered_fasta_ch
+
                 // prodigal-pvog annotation 
-                prodigal(fasta)
+                prodigal(filtered_fasta)
                 if (!params.annotation_db) {hmmscan(prodigal.out, pvog_DB.out)}
                 else {hmmscan(prodigal.out, annotation_custom_db_ch)}         
-                chromomap_parser(fasta.join(hmmscan.out), vogtable_DB.out)
+                chromomap_parser(filtered_fasta.join(hmmscan.out), vogtable_DB.out)
 
 
                 // pharokka annotation via 
-                if (!params.pharokka) {pharokka(fasta)}
+                if (!params.pharokka) {pharokka(filtered_fasta)}
                 
                 // phabox2 annotation 
-                phabox2_annotation(fasta)
+                phabox2_annotation(filtered_fasta)
                
 
                 //genomad annotation
                 download_genomad_DB()
-                genomad_annotation(fasta, download_genomad_DB.out)
+                genomad_annotation(filtered_fasta, download_genomad_DB.out)
 
                 collect_annotation_ch = chromomap_parser.out.annotationfile_combined_ch
                                          .mix( pharokka.out.pharokka_gff_ch)

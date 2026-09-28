@@ -80,6 +80,7 @@ def helpMSG() {
     ${c_pink}[:: VISUALIZATION ::]${c_reset}
     --pharokka          activate Pharokka Plot
     --plot_completeness plot contigs with CheckV completeness > 75.00 
+    --annotation_filter only annotate contigs with CheckV completeness >= ${params.annotation_filter} [default: 80.00]; samples without passing contigs are skipped and a _filter_too_strict.txt is written 
 
     ${c_pink}[:: DATABASES ::]${c_reset}
     ${c_dim}Default database: NCBI 4700 sequences + metadata${c_reset}

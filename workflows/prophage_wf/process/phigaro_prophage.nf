@@ -12,8 +12,8 @@ process phigaro_prophage {
         """
         phigaro -f ${fasta} -o ${name}_prophage_phigaro -t ${task.cpus} -d --config /root/.phigaro/config.yml -e html tsv
 
-        # zip for export
-        tar -czf ${name}_phigaro_prophage_output.tar.gz ${name}_prophage_phigaro.tsv ${name}_prophage_phigaro.html 
+        # zip for export (html is only written when phigaro finds prophages)
+        tar --ignore-failed-read -czf ${name}_phigaro_prophage_output.tar.gz ${name}_prophage_phigaro.tsv ${name}_prophage_phigaro.html 
         
         """
     stub:
