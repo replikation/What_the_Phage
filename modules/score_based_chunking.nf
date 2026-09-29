@@ -1,9 +1,5 @@
 process score_based_chunking {
     label 'samtools'
-        publishDir "${params.output}/${name}/phages-highly_likely", mode: 'copy', pattern: "contigs/highly_likely_contigs.fasta"
-        publishDir "${params.output}/${name}/phages-likely", mode: 'copy', pattern: "contigs/likely_contigs.fasta"
-        publishDir "${params.output}/${name}/phages-unlikely", mode: 'copy', pattern: "contigs/unlikely_contigs.fasta"
-        publishDir "${params.output}/${name}/phages-not_likely", mode: 'copy', pattern: "contigs/not_likely_contigs.fasta"
     input:
         tuple val(name), path(hmm_table), path(prodigal_out), path(fasta), path(tool_results)
         path(vog_table)

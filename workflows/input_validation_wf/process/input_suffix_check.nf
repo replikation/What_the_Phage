@@ -1,5 +1,4 @@
 process input_suffix_check {
-    publishDir "${params.output}/${name}/Input_fasta", mode: 'copy', pattern: "${name}.fa.gz"
     label 'ubuntu'
     input:
         tuple val(name), path(file) 

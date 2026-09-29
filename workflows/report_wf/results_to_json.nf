@@ -1,5 +1,4 @@
 process results_to_json {
-    publishDir "${params.output}/report", mode: 'copy'
     label 'python'
 
     input:

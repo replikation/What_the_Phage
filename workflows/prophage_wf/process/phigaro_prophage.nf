@@ -1,6 +1,4 @@
 process phigaro_prophage {
-    publishDir "${params.output}/${name}/prophage/phigaro", mode: 'copy'
-    publishDir "${params.output}/${name}/raw_data/", mode: 'copy', pattern: "${name}_phigaro_prophage_output.tar.gz"
     label 'phigaro'
     //errorStrategy 'ignore'
     input:

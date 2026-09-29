@@ -1,5 +1,4 @@
 process checkV {
-        publishDir "${params.output}/${name}/CheckV/", mode: 'copy' , pattern: "*.tsv"
         errorStrategy 'ignore'
         label 'checkV'
     input:

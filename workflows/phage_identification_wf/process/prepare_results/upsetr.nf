@@ -1,5 +1,4 @@
 process upsetr_plot {
-      publishDir "${params.output}/${name}", mode: 'copy', pattern: "upsetr.{svg,csv}"
       label 'upsetr'
       errorStrategy{task.exitStatus=1 ?'ignore':'terminate'}
     input:

@@ -1,5 +1,4 @@
 process prodigal {
-        publishDir "${params.output}/${name}/raw_data/prodigal_out", mode: 'copy'
         label 'prodigal'
     input:
         tuple val(name), path(positive_contigs) 

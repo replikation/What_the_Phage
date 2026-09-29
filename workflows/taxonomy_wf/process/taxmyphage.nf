@@ -1,6 +1,4 @@
 process taxmyphage {
-        publishDir "${params.output}/${name}/taxonomic-classification/taxmyphage", mode: 'copy', pattern: "${name}_Summary_taxonomy_taxmyphage.tsv"
-        publishDir "${params.output}/${name}/taxonomic-classification/taxmyphage", mode: 'copy', pattern: "*_taxmyphage.tar.gz"
         label 'taxmyphage'
         //  errorStrategy 'ignore'
         input:

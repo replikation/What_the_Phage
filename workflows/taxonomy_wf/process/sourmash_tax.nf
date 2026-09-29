@@ -1,5 +1,4 @@
 process sourmash_tax {
-        publishDir "${params.output}/${name}/taxonomic-classification/sourmash", mode: 'copy', pattern: "${name}_taxonomy_sourmash.tsv"
         label 'sourmash'
         //  errorStrategy 'ignore'
         input:

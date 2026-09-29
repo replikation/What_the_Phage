@@ -1,6 +1,4 @@
 process phabox2_taxonomy {
-        publishDir "${params.output}/${name}/taxonomic-classification/phabox2/", mode: 'copy' , pattern: "*.tsv"
-        publishDir "${params.output}/${name}/raw_data/", mode: 'copy', pattern: "${name}_phabox2_taxonomy_output.tar.gz"
         //errorStrategy 'ignore'
         label 'phabox2'
     input:

@@ -1,5 +1,4 @@
 process virsorter2_collect_data {
-    publishDir "${params.output}/${name}/raw_data", mode: 'copy', pattern: "virsorter2_results_${name}.tar.gz"
     label 'ubuntu'
     input:
         tuple val(name), path(rawdir)

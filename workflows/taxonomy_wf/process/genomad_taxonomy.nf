@@ -1,6 +1,4 @@
 process genomad_taxonomy {
-        publishDir "${params.output}/${name}/annotation_results/genomad/", mode: 'copy', pattern: "${name}_*.tsv"
-        publishDir "${params.output}/${name}/raw_data/", mode: 'copy', pattern: "${name}_genomad_taxonomy_output.tar.gz"
         errorStrategy 'ignore'
         label 'genomad'
     input:
@@ -20,9 +18,12 @@ process genomad_taxonomy {
         genomad annotate ${fasta} ${name}_genomad_output genomad_db
 
 
-        ## for taxonomy
-        cp ${name}_genomad_output/${name}_filtered_annotate/${name}_filtered_taxonomy.tsv .
-        mv ${name}_filtered_taxonomy.tsv ${name}_filtered_taxonomy_genomad.tsv
+        ## for taxonomy (genomad names outputs after the input fasta basename)
+        base=\$(basename ${fasta})
+        base=\${base%.fa.gz}
+        base=\${base%.fa}
+        cp ${name}_genomad_output/\${base}_annotate/\${base}_taxonomy.tsv .
+        mv \${base}_taxonomy.tsv ${name}_filtered_taxonomy_genomad.tsv
         
         # zip for export
         tar -czf ${name}_genomad_taxonomy_output.tar.gz ${name}_genomad_output

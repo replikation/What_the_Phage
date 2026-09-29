@@ -57,7 +57,8 @@ workflow report_wf {
             report(results_to_json.out.map { it -> it[1] }.collect(), "${projectDir}/libs/report_template.html")
 
     emit:   
-            report.out
+            report_html = report.out
+            json_report = results_to_json.out
 
             
 }

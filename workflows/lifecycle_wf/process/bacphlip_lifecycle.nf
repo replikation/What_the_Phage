@@ -1,6 +1,4 @@
 process bacphlip_lifecycle {
-        publishDir "${params.output}/${name}/host_lifecycle/bacphlip", mode: 'copy' , pattern: "*_bacphlip_results.tsv"
-        publishDir "${params.output}/${name}/host_lifecycle/bacphlip", mode: 'copy' , pattern: "*.tar.gz"
         //errorStrategy 'ignore'
         label 'bacphlip'
     input:

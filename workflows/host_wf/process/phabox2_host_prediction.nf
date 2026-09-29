@@ -1,6 +1,4 @@
 process phabox2_host {
-        publishDir "${params.output}/${name}/host_prediction/phabox2_host", mode: 'copy' , pattern: "*.tsv"
-        publishDir "${params.output}/${name}/raw_data/", mode: 'copy', pattern: "${name}_phabox2_host_output.tar.gz" 
         //errorStrategy 'ignore'
         label 'phabox2'
     input:

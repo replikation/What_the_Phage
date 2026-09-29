@@ -1,6 +1,4 @@
 process r_plot {
-    publishDir "${params.output}/${name}", mode: 'copy', pattern: "phage-distribution.pdf"
-    publishDir "${params.output}/${name}", mode: 'copy', pattern: "results.txt"
     label 'ggplot2'
     input:
         tuple val(name), file(files)

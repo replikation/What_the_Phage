@@ -1,5 +1,4 @@
 process genomad_prophage {
-        publishDir "${params.output}/${name}/prophage/genomad", mode: 'copy'
         // errorStrategy 'ignore'
         label 'genomad'
     input:

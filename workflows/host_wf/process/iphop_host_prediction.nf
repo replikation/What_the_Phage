@@ -1,5 +1,4 @@
 process iphop {
-        publishDir "${params.output}/${name}/prophage/genomad", mode: 'copy'
         // errorStrategy 'ignore'
         label 'iphop'
     input:

@@ -1,6 +1,4 @@
 process chromomap_parser {
-    publishDir "${params.output}/${name}/annotation_results", mode: 'copy', pattern: "*.tbl"
-    publishDir "${params.output}/${name}/raw_data/", mode: 'copy', pattern: "${name}_Prodigal_parser_output.tar.gz"
     label 'noDocker'
     //errorStrategy 'ignore'
     input:

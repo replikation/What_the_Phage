@@ -4,5 +4,7 @@ include { seqkit } from './process/seqkit'
 workflow input_validation_wf {
     take:   fasta
     main:   seqkit(input_suffix_check(fasta)) 
-    emit:   seqkit.out
+    emit:
+        fasta = seqkit.out
+        input_fasta = input_suffix_check.out
 }

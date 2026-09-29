@@ -1,6 +1,4 @@
 process virsorter2_prophage {
-    publishDir "${params.output}/${name}/prophage/virsorter2", mode: 'copy'
-    publishDir "${params.output}/${name}/raw_data/", mode: 'copy', pattern: "${name}_virsorter2_prophage_output.tar.gz" 
     label 'virsorter2'
     errorStrategy 'ignore'
     input:

@@ -1,5 +1,4 @@
 process samtools {
-        publishDir "${params.output}/${name}/phage_positive_contigs", mode: 'copy', pattern: "${name}_positive_contigs.fa"
         label 'samtools'
     input:
         tuple val(name), path(file), path(list)
@@ -29,7 +28,6 @@ process samtools {
 }
 
 process samtools_fastq {
-        publishDir "${params.output}/${name}/phage_positive_contigs", mode: 'copy', pattern: "${name}_positive_contigs.fa"
         label 'samtools'
     input:
         tuple val(name), path(file), path(list)

@@ -1,6 +1,4 @@
 process contigs_by_tools {
-    publishDir "${params.output}/${name}/tool_agreements_per_contig", mode: 'copy', pattern: "*.tsv"
-    publishDir "${params.output}/${name}/tool_agreements_per_contig", mode: 'copy', pattern: "tool_agreements/*"
     label 'ubuntu'
     input:
         tuple val(name), path(files)
