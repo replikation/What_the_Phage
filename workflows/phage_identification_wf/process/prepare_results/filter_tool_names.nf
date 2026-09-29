@@ -1,5 +1,4 @@
 process filter_tool_names {
-    publishDir "${params.output}/${name}/identified_contigs_by_tools/", mode: 'copy', pattern: "*.tsv"
     label 'ubuntu'
     input:
         tuple val(name), path(files)

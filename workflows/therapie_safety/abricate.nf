@@ -1,5 +1,4 @@
 process abricate {
-    publishDir "${params.output}/${name}/safety_prediction/", mode: 'copy' , pattern: "*.tsv"
     //errorStrategy 'ignore'
     label 'abricate'
     input:

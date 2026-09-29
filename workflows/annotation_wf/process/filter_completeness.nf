@@ -1,5 +1,4 @@
 process filter_completeness {
-        publishDir "${params.output}/${name}/annotation_results/", mode: 'copy', pattern: "*_filter_too_strict.txt"
         label 'seqkit'
     input:
         tuple val(name), path(fasta), path(quality_summary)

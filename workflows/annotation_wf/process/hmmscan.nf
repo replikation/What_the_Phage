@@ -1,5 +1,4 @@
 process hmmscan {
-        publishDir "${params.output}/${name}/raw_data/hmm/", mode: 'copy'
         label 'hmmscan'
     input:
         tuple val(name), path(faa) 

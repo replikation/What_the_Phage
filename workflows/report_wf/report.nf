@@ -1,5 +1,4 @@
 process report {
-    publishDir "${params.output}/report", mode: 'copy'
     label 'python'
 
     input:

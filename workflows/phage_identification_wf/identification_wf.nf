@@ -345,6 +345,23 @@ workflow identification_wf {
                     .filter { it != 'deactivated' } // removes deactivated tool channels
                     .groupTuple()
                 
+                // raw data channels (published to ${name}/raw_data)
+                raw_data_ch = ((!params.dv && params.all_tools) ? deepvirfinder_collect_data.out : Channel.empty())
+                    .mix((!params.mp && params.all_tools) ? metaphinder_collect_data_ownDB.out : Channel.empty())
+                    .mix((!params.mp) ? metaphinder_collect_data.out : Channel.empty())
+                    .mix((!params.pb2 && params.all_tools) ? phabox2_identify_collect_data.out : Channel.empty())
+                    .mix((!params.ph && params.all_tools) ? phigaro_collect_data.out : Channel.empty())
+                    .mix((!params.pp) ? pprmeta_collect_data.out : Channel.empty())
+                    .mix((!params.sk) ? seeker_collect_data.out : Channel.empty())
+                    .mix((!params.sm && params.all_tools) ? sourmash_collect_data.out : Channel.empty())
+                    .mix((!params.vb && !params.virome) ? vibrant_virome_collect_data.out : Channel.empty())
+                    .mix((!params.vb) ? vibrant_collect_data.out : Channel.empty())
+                    .mix((!params.vf) ? virfinder_collect_data.out : Channel.empty())
+                    .mix((!params.vn && params.all_tools) ? virnet_collect_data.out : Channel.empty())
+                    .mix((!params.vs && !params.virome) ? virsorter_virome_collect_data.out : Channel.empty())
+                    .mix((!params.vs) ? virsorter_collect_data.out : Channel.empty())
+                    .mix((!params.vs2) ? virsorter2_collect_data.out : Channel.empty())
+
             
                 //plotting overview
                     filter_tool_names(results)
@@ -359,6 +376,15 @@ workflow identification_wf {
 
                 identify_markdown_input= upsetr_plot_markdown_input.join(heatmap_table_markdown_input) // name, upsetr_plot_markdown_input heatmap_table_markdown_input
 
-        emit:   identify_markdown_input
+        emit:
+            identify_report_input = identify_markdown_input
+            identify_raw = raw_data_ch
+            identified_contigs = filter_tool_names.out[1]
+            upsetr = upsetr_plot.out.upsetr_svg.mix(upsetr_plot.out.upsetr_csv)
+            tool_agreements = contigs_by_tools.out.overview_ch
+                                .mix(contigs_by_tools.out.tools_used_ch)
+                                .mix(contigs_by_tools.out.tool_agreements_per_contig_ch)
+                                .mix(contigs_by_tools.out.tool_agreements_fasta_ch)
+            phabox2_identify = (!params.pb2 && params.all_tools) ? phabox2_identify.out.phabox2_results_ch : Channel.empty()
                 
 } 

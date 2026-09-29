@@ -1,5 +1,4 @@
 process virsorter_virome_collect_data {
-    publishDir "${params.output}/${name}/raw_data", mode: 'copy', pattern: "virsorter_virome_results_${name}.tar.gz"
     label 'ubuntu'
     input:
         tuple val(name), file(tar_files)

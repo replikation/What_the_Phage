@@ -1,5 +1,4 @@
 process compare_annotation {
-        publishDir "${params.output}/${name}/annotation_results/summary/", mode: 'copy'
         label 'ubuntu_minimal'
     input:
         tuple val(name), path(bed_files)

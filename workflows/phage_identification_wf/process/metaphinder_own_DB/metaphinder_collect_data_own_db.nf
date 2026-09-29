@@ -1,5 +1,4 @@
 process metaphinder_collect_data_ownDB {
-    publishDir "${params.output}/${name}/raw_data", mode: 'copy', pattern: "metaphinder_ownDB_results_${name}.tar.gz"
     label 'ubuntu'
     input:
         tuple val(name), path(output_lists), path(output_blasts)

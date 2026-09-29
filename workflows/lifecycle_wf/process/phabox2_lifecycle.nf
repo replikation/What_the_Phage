@@ -1,6 +1,4 @@
 process phabox2_lifecycle {
-        publishDir "${params.output}/${name}/host_lifecycle/phabox2", mode: 'copy' , pattern: "*.tsv"
-        publishDir "${params.output}/${name}/host_lifecycle/phabox2", mode: 'copy' , pattern: "*.tar.gz"
         //errorStrategy 'ignore'
         label 'phabox2'
     input:

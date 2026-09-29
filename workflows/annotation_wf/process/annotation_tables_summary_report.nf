@@ -1,5 +1,4 @@
 process annotation_tables_summary_report {
-    publishDir "${params.output}/${name}/annotation_results/", mode: 'copy'
     label 'template_r'
 
     input:

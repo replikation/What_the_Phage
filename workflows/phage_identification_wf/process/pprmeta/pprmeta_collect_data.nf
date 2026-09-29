@@ -1,5 +1,4 @@
 process pprmeta_collect_data {
-    publishDir "${params.output}/${name}/raw_data", mode: 'copy', pattern: "pprmeta_results_${name}.tar.gz"
     label 'ubuntu'
     input:
         tuple val(name), path(output_lists)

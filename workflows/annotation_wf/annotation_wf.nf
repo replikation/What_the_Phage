@@ -33,24 +33,31 @@ workflow annotation_wf {
 
                 // Filter input contigs by CheckV completeness
                 filtered_fasta = filter_completeness(fasta.join(checkv)).filtered_fasta_ch
+                filter_too_strict = filter_completeness.out.filter_too_strict_ch
 
                 // prodigal-pvog annotation 
                 prodigal(filtered_fasta)
+                prodigal_out = prodigal.out
                 if (!params.annotation_db) {hmmscan(prodigal.out, pvog_DB.out)}
                 else {hmmscan(prodigal.out, annotation_custom_db_ch)}         
                 chromomap_parser(filtered_fasta.join(hmmscan.out), vogtable_DB.out)
+                hmm_out = hmmscan.out
+                chromomap_out = chromomap_parser.out.annotationfile_combined_ch
 
 
                 // pharokka annotation via 
                 if (!params.pharokka) {pharokka(filtered_fasta)}
+                pharokka_out = pharokka.out.pharokka_gff_ch
                 
                 // phabox2 annotation 
                 phabox2_annotation(filtered_fasta)
+                phabox2_annotation_out = phabox2_annotation.out.phabox2_annotation_ch
                
 
                 //genomad annotation
                 download_genomad_DB()
                 genomad_annotation(filtered_fasta, download_genomad_DB.out)
+                genomad_annotation_out = genomad_annotation.out.genomad_annotation_ch
 
                 collect_annotation_ch = chromomap_parser.out.annotationfile_combined_ch
                                          .mix( pharokka.out.pharokka_gff_ch)
@@ -62,10 +69,21 @@ workflow annotation_wf {
                 // compare annotation tools
                 // prepare annotation files for markdown report
                 compare_annotation(collect_annotation_ch)
+                compare_out = compare_annotation.out.bedfile_ch
                 annotation_tables_summary_report(compare_annotation.out.bedfile_ch)    
+                annotation_tables_out = annotation_tables_summary_report.out
 
-               
-    emit:       annotation_report_input = annotation_tables_summary_report.out
+    emit:
+        annotation_report_input = annotation_tables_summary_report.out
+        annotation_filter_too_strict = filter_too_strict
+        annotation_hmm = hmm_out
+        annotation_prodigal = prodigal_out
+        annotation_chromomap = chromomap_out
+        annotation_pharokka = pharokka_out
+        annotation_phabox2 = phabox2_annotation_out
+        annotation_genomad = genomad_annotation_out
+        annotation_compare = compare_out
+        annotation_tables = annotation_tables_out
                 
 
 }

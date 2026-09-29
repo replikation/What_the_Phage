@@ -1,6 +1,4 @@
 process phabox2_prophage {
-        publishDir "${params.output}/${name}/prophage/phabox2", mode: 'copy'
-        publishDir "${params.output}/${name}/raw_data/", mode: 'copy', pattern: "${name}_phabox2_prophage_output.tar.gz"
         //errorStrategy 'ignore'
         label 'phabox2'
     input:

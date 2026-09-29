@@ -6,5 +6,7 @@ workflow safety_wf {
 
             abricate(fasta)
     
-    emit: safety_results
+    emit:
+        safety_results
+        safety_abricate = abricate.out.abricate_safety
 }   

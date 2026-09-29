@@ -35,27 +35,38 @@ workflow taxonomy_wf {
 
                 // sourmash taxonomic classification
                 sourmash_tax(split_multi_fasta_2(fasta), sourmash_tax_db_ch, sourmash_tax_metadata_ch)
+                sourmash_out = sourmash_tax.out.tax_class_ch
                
                 // phabox2 taxonomy
                 phabox2_taxonomy(fasta)
+                phabox2_tax_out = phabox2_taxonomy.out.phabox2_taxonomy_ch
              
                 //genomad taxonomic classification
                 download_genomad_DB()
                 genomad_taxonomy(fasta, download_genomad_DB.out)
+                genomad_tax_out = genomad_taxonomy.out.genomad_taxonomy_ch
 
                 // taxmyphage taxonomic classification
                 taxmyphage(fasta)
+                taxmyphage_out = taxmyphage.out.taxmyphage_ch
 
 
 
                 // collect the taxonomy results and prepare for report
                 collect_taxonomy_results(sourmash_tax.out.join(genomad_taxonomy.out).join(phabox2_taxonomy.out).join(taxmyphage.out)) // i need to adjust the taxonomy combination script
+                taxonomy_combined_out = collect_taxonomy_results.out.taxonomy_combined_ch
                 taxonomy_report_input = collect_taxonomy_results.out.taxonomy_combined_ch
                             .mix(sourmash_tax.out.tax_class_ch)
                             .mix(genomad_taxonomy.out.genomad_taxonomy_ch)
                             .mix(taxmyphage.out.taxmyphage_ch)
                 // taxonomy_combined_ch.view()
 
-        emit:   taxonomy_report_input = taxonomy_report_input
+        emit:
+            taxonomy_report_input = taxonomy_report_input
+            taxonomy_sourmash = sourmash_out
+            taxonomy_genomad = genomad_tax_out
+            taxonomy_phabox2 = phabox2_tax_out
+            taxonomy_taxmyphage = taxmyphage_out
+            taxonomy_combined = taxonomy_combined_out
 
 }

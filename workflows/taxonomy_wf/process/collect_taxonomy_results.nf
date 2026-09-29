@@ -1,5 +1,4 @@
 process collect_taxonomy_results {
-    publishDir "${params.output}/${name}/taxonomic-classification/taxonomy_results_combined/", mode: 'copy'
     label 'genomad' 
 
     input:

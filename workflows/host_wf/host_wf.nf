@@ -7,8 +7,8 @@ workflow host_wf {
     take:   fasta
     main:   
 
-
-            phabox2_host(fasta)
+phabox2_host(fasta)
+            host_phabox2 = phabox2_host.out.phabox2_annotation
 
             if (params.iphop) { 
 
@@ -17,8 +17,10 @@ workflow host_wf {
                         // host prediction
                         iphop(fasta, download_iphop_DB.out)
                         iphop_results = iphop.out
+                        iphop_out = iphop.out
                         }
-            else { iphop_results = Channel.from( [ 'deactivated', 'deactivated'] ) } 
+            else { iphop_results = Channel.from( [ 'deactivated', 'deactivated'] ) 
+                    iphop_out = Channel.empty() } 
 
     
             host_report_input = phabox2_host.out.concat(iphop_results)
@@ -28,7 +30,11 @@ workflow host_wf {
 
 
 
-  emit: host_report_input
+
+  emit:
+    host_report_input = host_report_input
+    phabox2_host_ch = host_phabox2
+    iphop_ch = iphop_out
 
     //host: https://www.biorxiv.org/content/10.1101/2020.12.06.413476v1
 }

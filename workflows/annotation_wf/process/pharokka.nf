@@ -1,6 +1,4 @@
 process pharokka {
-    publishDir "${params.output}/${name}/annotation_results/pharokka", mode: 'copy', pattern: "*.gff"
-    publishDir "${params.output}/${name}/raw_data/", mode: 'copy', pattern: "${name}_pharokka_annotation_out.tar.gz"
     errorStrategy 'ignore'
     label 'pharokka'
     input:

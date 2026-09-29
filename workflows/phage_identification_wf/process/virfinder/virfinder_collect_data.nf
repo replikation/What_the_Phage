@@ -1,5 +1,4 @@
 process virfinder_collect_data {
-    publishDir "${params.output}/${name}/raw_data", mode: 'copy', pattern: "virfinder_results_${name}.tar.gz"
     label 'ubuntu'
     input:
         tuple val(name), file(output_lists)

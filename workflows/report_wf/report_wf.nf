@@ -13,8 +13,6 @@ workflow report_wf {
             lifecycle_report_input
 
     main:                          
-        	prophages_report_input.view()
-
             // [all_pos_phage, /mnt/6tb_1/work/0a/9639ed58bf4af7beb3d217c6695fc6/upsetr.svg, /mnt/6tb_1/work/5b/a048465f3ee6c71181bc6240c7f66c/contig_tool_p-value_overview.tsv] 
             // identify_input.
            
@@ -29,15 +27,6 @@ workflow report_wf {
 
             // [all_pos_phage, /mnt/6tb_1/work/f1/ae80a6fbbcdfc75ab0c9c3b026c032/all_pos_phage_filtered_provirus.tsv, /mnt/6tb_1/work/59/f66399c3e94bf6ecbe26a8dfd299f0/all_pos_phage_contamination_prediction.tsv, /mnt/6tb_1/work/59/f66399c3e94bf6ecbe26a8dfd299f0/all_pos_phage_candidate_provirus.tsv, /mnt/6tb_1/work/c5/1e8dcda771d9fcf57c190e39900832/virsorter2.out/all_pos_phage_final-viral-score.tsv, /mnt/6tb_1/work/a9/2d6d932339b6b515437576828874cb/all_pos_phage_phigaro_prophage.tsv]
             // prophages
-
-            // logo_channel                    = Channel.fromPath(workflow.projectDir + "/figures/logo-wtp_small.png", checkIfExists: true)
-            // checkV_quality_table            = params.identify || params.annotate_taxonomy  ||  params.prophage ||  params.end_to_end : Channel.empty()
-            // upsetRreport                    = params.identify || params.end_to_end : Channel.empty()
-            // heatmap_tablereport             = params.identify || params.end_to_end : Channel.empty()
-            // annotation_table                = params.annotate_taxonomy ||  params.end_to_end : Channel.empty()
-            // taxonomic_classification_table  = params.annotate_taxonomy ||  params.end_to_end : Channel.empty()
-            // prophage_table                  = params.prophage          ||  params.end_to_end : Channel.empty()
-
 
           //  identify_raw = identify_input.map { it -> tuple(it[0], it[2]) }
             report_input = identify_report_input
@@ -57,7 +46,8 @@ workflow report_wf {
             report(results_to_json.out.map { it -> it[1] }.collect(), "${projectDir}/libs/report_template.html")
 
     emit:   
-            report.out
+            report_html = report.out
+            json_report = results_to_json.out
 
             
 }
