@@ -2,6 +2,7 @@
 include { pvog_DB; vogtable_DB } from './process/download_pvog_DB'
 include { prodigal } from './process/prodigal'
 include { hmmscan } from './process/hmmscan'
+include { prodigal_parser } from './process/prodigal_parser'
 include { pharokka } from './process/pharokka'
 include { phabox2_annotation } from './process/phabox2_annotation'
 include { download_genomad_DB } from './process/download_genomad_DB'
@@ -39,8 +40,10 @@ workflow annotation_wf {
                 prodigal_out = prodigal.out
                 if (!params.annotation_db) {hmmscan(prodigal.out, pvog_DB.out)}
                 else {hmmscan(prodigal.out, annotation_custom_db_ch)}         
+                prodigal_parser(filtered_fasta.join(hmmscan.out), vogtable_DB.out)
                 
                 hmm_out = hmmscan.out
+                prodigal_parser_out = prodigal_parser.out.annotationfile_combined_ch
                 
 
 
@@ -58,7 +61,8 @@ workflow annotation_wf {
                 genomad_annotation(filtered_fasta, download_genomad_DB.out)
                 genomad_annotation_out = genomad_annotation.out.genomad_annotation_ch
 
-                collect_annotation_ch = pharokka.out.pharokka_gff_ch
+                collect_annotation_ch = prodigal_parser.out.annotationfile_combined_ch
+                                         .mix( pharokka.out.pharokka_gff_ch)
                                          .mix( phabox2_annotation.out.phabox2_annotation_ch)
                                          .mix( genomad_annotation.out.genomad_annotation_ch)
                                          .groupTuple()
@@ -76,6 +80,7 @@ workflow annotation_wf {
         annotation_filter_too_strict = filter_too_strict
         annotation_hmm = hmm_out
         annotation_prodigal = prodigal_out
+        annotation_prodigal_parser = prodigal_parser_out
         annotation_pharokka = pharokka_out
         annotation_phabox2 = phabox2_annotation_out
         annotation_genomad = genomad_annotation_out

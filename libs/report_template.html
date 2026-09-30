@@ -591,6 +591,32 @@
                             </div>
                         </div>
 
+                        <!-- TOOL SCORE HEATMAP -->
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6 mt-8">
+                            <div
+                                class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                                <div>
+                                    <h3 class="font-bold text-slate-800">Tool Score Heatmap</h3>
+                                    <p class="text-xs text-slate-500">Phage identification scores per contig and tool
+                                        (0&ndash;1)</p>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-3">
+                                    <button onclick="exportChartPNG('heatmap-plot', 'tool_score_heatmap')"
+                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand hover:shadow-sm transition-all flex items-center gap-1.5 shadow-sm">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
+                                            </path>
+                                        </svg>
+                                        Export PNG
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="heatmap-plot" class="w-full overflow-x-auto">
+                                <!-- D3 Heatmap will be injected here -->
+                            </div>
+                        </div>
+
                         <!-- UPSET PLOT MOVED HERE -->
                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden p-6 mt-8">
                             <div class="mb-6">
@@ -664,64 +690,13 @@
 
                         <!-- Taxonomy Overview Sub-tab -->
                         <div id="tax-content-overview" class="tax-tab-content block">
-                            <!-- Stats Cards for Taxonomy -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                                <div
-                                    class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                                    <div>
-                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                                            Sourmash Hits</p>
-                                        <p id="tax-stat-sourmash" class="text-2xl font-bold text-slate-800">--</p>
-                                    </div>
-                                    <div
-                                        class="w-10 h-10 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
-                                            </path>
-                                        </svg>
-                                    </div>
-                                </div>
-                                <div
-                                    class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                                    <div>
-                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Genomad
-                                            Hits</p>
-                                        <p id="tax-stat-genomad" class="text-2xl font-bold text-slate-800">--</p>
-                                    </div>
-                                    <div
-                                        class="w-10 h-10 rounded-full bg-teal-50 text-teal-500 flex items-center justify-center">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
-                                            </path>
-                                        </svg>
-                                    </div>
-                                </div>
-                                <div
-                                    class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                                    <div>
-                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                                            Taxmyphage Hits</p>
-                                        <p id="tax-stat-taxmyphage" class="text-2xl font-bold text-slate-800">--</p>
-                                    </div>
-                                    <div
-                                        class="w-10 h-10 rounded-full bg-violet-50 text-violet-500 flex items-center justify-center">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z">
-                                            </path>
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
-
                             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                                 <div
                                     class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                     <div>
                                         <h3 class="font-bold text-slate-800">Combined Taxonomy Findings</h3>
-                                        <p class="text-xs text-slate-500">Comparison of Sourmash and GeNomad results</p>
+                                        <p class="text-xs text-slate-500">Comparison of Sourmash, GeNomad and Taxmyphage
+                                            results</p>
                                     </div>
                                     <div class="flex items-center gap-3">
                                         <button
@@ -767,12 +742,28 @@
                                                     onclick="sortTable('taxonomy-overview-table', 4)">Genomad Lineage
                                                 </th>
                                                 <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
-                                                    onclick="sortTable('taxonomy-overview-table', 5)">Taxmyphage Lineage
+                                                    onclick="sortTable('taxonomy-overview-table', 5)">Taxmyphage Genus
                                                 </th>
                                             </tr>
                                         </thead>
                                         <tbody id="taxonomy-overview-body" class="divide-y divide-slate-100"></tbody>
                                     </table>
+                                </div>
+                                <div
+                                    class="bg-teal-50/50 border-t border-teal-100 p-4 w-full flex flex-col gap-3 text-xs text-teal-800">
+                                    <div><span class="font-bold">Tool algorithms</span></div>
+                                    <div class="flex flex-col md:flex-row gap-x-8 gap-y-2">
+                                        <div class="flex flex-col gap-1.5">
+                                            <div class="flex items-center gap-1.5">
+                                                Sourmash: k-mer based similarity to a reference genome</div>
+                                            <div class="flex items-center gap-1.5">
+                                                Genomad: marker-gene based agreement and lineage</div>
+                                        </div>
+                                        <div class="flex flex-col gap-1.5">
+                                            <div class="flex items-center gap-1.5">
+                                                Taxmyphage: predicted genus from ICTV-based genome clustering</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1157,8 +1148,12 @@
                 <div id="content-prophage" class="tab-content">
                     <!-- Sub-tabs Navigation -->
                     <div class="flex gap-2 mb-6 border-b border-slate-200 pb-2">
-                        <button onclick="switchProphageTab('phabox2-cand')" id="prophage-tab-phabox2-cand"
+                        <button onclick="switchProphageTab('overview')" id="prophage-tab-overview"
                             class="px-4 py-2 text-sm font-semibold rounded-lg transition-all bg-white text-brand shadow-sm border border-slate-200">
+                            Overview
+                        </button>
+                        <button onclick="switchProphageTab('phabox2-cand')" id="prophage-tab-phabox2-cand"
+                            class="px-4 py-2 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-brand hover:bg-white/50">
                             PhaBOX2 Cand
                         </button>
                         <button onclick="switchProphageTab('phabox2-contam')" id="prophage-tab-phabox2-contam"
@@ -1180,7 +1175,69 @@
                     </div>
 
                     <!-- Data Containers -->
-                    <div id="prophage-content-phabox2-cand" class="prophage-tab-content block">
+                    <div id="prophage-content-overview" class="prophage-tab-content block">
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                            <div
+                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div>
+                                    <h3 class="font-bold text-slate-800">Prophage Overview</h3>
+                                    <p class="text-xs text-slate-500 mt-1">Consolidated prophage predictions per contig
+                                        across tools</p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <button
+                                        onclick="exportTableToCSV('prophage-overview-body', 'prophage_overview.csv')"
+                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand hover:shadow-sm transition-all flex items-center gap-1.5 shadow-sm">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
+                                            </path>
+                                        </svg>
+                                        Export CSV
+                                    </button>
+                                    <div class="relative">
+                                        <input type="text" placeholder="Search..."
+                                            onkeyup="filterTable('prophage-overview-body', this.value)"
+                                            class="pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand w-48 transition-all shadow-sm">
+                                        <svg class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table id="prophage-overview-table" class="w-full text-left border-collapse text-xs">
+                                    <thead id="prophage-overview-table-head"></thead>
+                                    <tbody id="prophage-overview-table-body" class="divide-y divide-slate-100"></tbody>
+                                </table>
+                            </div>
+                            <div
+                                class="bg-teal-50/50 border-t border-teal-100 p-4 w-full flex flex-col gap-3 text-xs text-teal-800">
+                                <div><span class="font-bold">How to interpret this table:</span></div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-6 gap-y-2">
+                                    <div class="flex items-center gap-1.5"><span
+                                            class="w-2.5 h-2.5 rounded bg-amber-500 border border-amber-200"></span>
+                                        PhaBOX2 Cand = number of candidate provirus regions</div>
+                                    <div class="flex items-center gap-1.5"><span
+                                            class="w-2.5 h-2.5 rounded bg-emerald-500 border border-emerald-200"></span>
+                                        PhaBOX2 Contam = provirus status (Yes / No) + purity classification</div>
+                                    <div class="flex items-center gap-1.5"><span
+                                            class="w-2.5 h-2.5 rounded bg-teal-500 border border-teal-200"></span>
+                                        VirSorter2 = best viral score group + confidence</div>
+                                    <div class="flex items-center gap-1.5"><span
+                                            class="w-2.5 h-2.5 rounded bg-teal-500 border border-teal-200"></span>
+                                        Phigaro / Genomad Regions = prophage regions detected</div>
+                                    <div class="flex items-center gap-1.5"><span
+                                            class="w-2.5 h-2.5 rounded bg-slate-500 border border-slate-200"></span>
+                                        Total Regions = sum of PhaBOX2 Cand + Phigaro + Genomad</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="prophage-content-phabox2-cand" class="prophage-tab-content hidden">
                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                             <div
                                 class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -1514,7 +1571,7 @@
                         </button>
                         <button onclick="switchHostTab('cherry')" id="host-tab-cherry"
                             class="px-4 py-2 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-brand hover:bg-white/50">
-                            CHERRY
+                            Phabox2
                         </button>
                         <button onclick="switchHostTab('iphop')" id="host-tab-iphop"
                             class="px-4 py-2 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-brand hover:bg-white/50">
@@ -1529,7 +1586,7 @@
                                 class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                 <div>
                                     <h3 class="font-bold text-slate-800">Combined Host Predictions</h3>
-                                    <p class="text-xs text-slate-500 mt-1">CHERRY and iPHoP predictions per contig</p>
+                                    <p class="text-xs text-slate-500 mt-1">Phabox2 and iPHoP predictions per contig</p>
                                 </div>
                                 <div class="flex items-center gap-3">
                                     <button
@@ -1563,13 +1620,13 @@
                         </div>
                     </div>
 
-                    <!-- CHERRY Sub-tab -->
+                    <!-- Phabox2 Sub-tab -->
                     <div id="host-content-cherry" class="host-tab-content hidden">
                         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                             <div
                                 class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                 <div>
-                                    <h3 class="font-bold text-slate-800">CHERRY Host Prediction</h3>
+                                    <h3 class="font-bold text-slate-800">Phabox2 Host Prediction</h3>
                                     <p class="text-xs text-slate-500 mt-1">Predicted host organisms based on genomic
                                         similarity</p>
                                 </div>
@@ -1607,7 +1664,7 @@
                                 <div><span class="font-bold">How to interpret this table:</span></div>
                                 <div class="flex flex-col md:flex-row gap-4 md:items-center">
                                     <div class="flex flex-col gap-2">
-                                        <div class="font-semibold text-teal-700">CHERRY Score</div>
+                                        <div class="font-semibold text-teal-700">Phabox2 Score</div>
                                         <div class="flex flex-wrap gap-4 items-center">
                                             <div class="flex items-center gap-1.5"><span
                                                     class="w-2.5 h-2.5 rounded bg-emerald-500 border border-emerald-200"></span>
@@ -1623,8 +1680,7 @@
                                     <div class="flex flex-col gap-2">
                                         <div class="font-semibold text-teal-700">Lineage</div>
                                         <div class="flex flex-wrap gap-4 items-center">
-                                            <div class="flex items-center gap-1.5"><span
-                                                    class="w-2.5 h-2.5 rounded bg-teal-500 border border-teal-200"></span>
+                                            <div class="flex items-center gap-1.5">
                                                 Host NCBI / GTDB lineage shown from domain to species</div>
                                         </div>
                                     </div>
@@ -1684,14 +1740,6 @@
                                     <div class="flex items-center gap-1.5"><span
                                             class="w-2.5 h-2.5 rounded bg-rose-500 border border-rose-200"></span>
                                         Confidence &lt; 60% (low)</div>
-                                    <div class="flex items-center gap-1.5"><span
-                                            class="w-2.5 h-2.5 rounded bg-teal-500 border border-teal-200"></span>
-                                        AAI to closest RaFAH reference = average amino acid identity (%) to the closest
-                                        reference host</div>
-                                    <div class="flex items-center gap-1.5"><span
-                                            class="w-2.5 h-2.5 rounded bg-teal-500 border border-teal-200"></span>
-                                        List of methods = prediction approaches and their confidence (blast /
-                                        phylogenetic)</div>
                                 </div>
                             </div>
                         </div>
@@ -1965,6 +2013,24 @@
 
             // Read Taxonomy
             const overviewTaxFile = Object.keys(g_currentSample.files).find(f => f.includes('taxonomy_overview.tsv'));
+            // Taxmyphage genus lookup from the taxmyphage summary file (fallback)
+            const taxmyphageGenus = {};
+            const tpxSumFile = Object.keys(g_currentSample.files).find(f => f.includes('_Summary_taxonomy_taxmyphage.tsv'));
+            if (tpxSumFile) {
+                const tpxData = g_currentSample.files[tpxSumFile];
+                if (tpxData && tpxData.length > 1) {
+                    const th = tpxData[0];
+                    const gIdx = th.indexOf('Genus');
+                    const genomeIdx = th.indexOf('Genome');
+                    tpxData.slice(1).forEach(r => {
+                        const cid = r[genomeIdx];
+                        if (cid && gIdx >= 0) {
+                            const genus = r[gIdx];
+                            if (genus && genus !== 'NA' && genus !== 'Not Defined Yet') taxmyphageGenus[cid] = genus;
+                        }
+                    });
+                }
+            }
             if (overviewTaxFile) {
                 const taxData = g_currentSample.files[overviewTaxFile];
                 if (taxData.length > 1) {
@@ -1972,21 +2038,23 @@
                     const cIdx = h.indexOf('Contig');
                     const smTaxIdx = h.indexOf('Sourmash_Taxonomy');
                     const gmLinIdx = h.indexOf('Genomad_lineage');
-                    const txgTaxIdx = h.indexOf('Taxmyphage_Taxonomy');
+                    const txgGenIdx = h.indexOf('Taxmyphage_Genus');
                     const txgAgIdx = h.indexOf('Taxmyphage_agreement');
                     taxData.slice(1).forEach(row => {
                         const cid = row[cIdx];
                         if (cid && contigObjects[cid]) {
                             contigObjects[cid].taxonomy.sourmash = row[smTaxIdx] || 'N/A';
                             contigObjects[cid].taxonomy.genomad = row[gmLinIdx] || 'N/A';
-                            contigObjects[cid].taxonomy.taxmyphage = row[txgTaxIdx] || 'N/A';
+                            let genus = (txgGenIdx >= 0 ? row[txgGenIdx] : '') || '';
+                            if (genus === 'NA' || genus === 'Not Defined Yet') genus = taxmyphageGenus[cid] || '';
+                            contigObjects[cid].taxonomy.taxmyphage = genus || 'N/A';
                             contigObjects[cid].taxonomy.taxmyphage_agreement = txgAgIdx >= 0 ? (row[txgAgIdx] || '') : '';
                         }
                     });
                 }
             }
 
-            // Read Host Prediction (CHERRY)
+            // Read Host Prediction (Phabox2 CHERRY)
             const overviewHostFile = Object.keys(g_currentSample.files).find(f => f.includes('cherry_host_prediction.tsv'));
             if (overviewHostFile) {
                 const hostData = g_currentSample.files[overviewHostFile];
@@ -2117,6 +2185,7 @@
                         <div class="flex flex-col gap-0.5 text-xs">
                             <div class="flex gap-1 items-center"><span class="font-bold text-slate-700">Sourmash:</span> ${formatTax(c.taxonomy.sourmash)}</div>
                             <div class="flex gap-1 items-center"><span class="font-bold text-slate-700">GeNomad:</span> ${formatTax(c.taxonomy.genomad)}</div>
+                            <div class="flex gap-1 items-center"><span class="font-bold text-slate-700">Taxmyphage:</span> ${formatTax(c.taxonomy.taxmyphage)}</div>
                         </div>`;
 
                     // Annotations
@@ -2427,6 +2496,7 @@
             });
 
             // Render UpsetR inside the ID Overview view as well
+            renderToolHeatmap();
             renderUpsetR();
         }
 
@@ -2462,11 +2532,6 @@
             const tableBody = document.getElementById('taxonomy-overview-body');
             tableBody.innerHTML = '';
 
-            // Clear stats
-            document.getElementById('tax-stat-sourmash').textContent = '--';
-            document.getElementById('tax-stat-genomad').textContent = '--';
-            document.getElementById('tax-stat-taxmyphage').textContent = '--';
-
             if (!g_currentSample) return;
 
             const tFile = Object.keys(g_currentSample.files).find(f => f.includes('taxonomy_overview.tsv'));
@@ -2478,6 +2543,25 @@
             const data = g_currentSample.files[tFile];
             if (data.length <= 1) return;
 
+            // Build taxmyphage genus lookup from the taxmyphage summary file (fallback)
+            const taxmyphageGenus = {};
+            const tpxFile = Object.keys(g_currentSample.files).find(f => f.includes('_Summary_taxonomy_taxmyphage.tsv'));
+            if (tpxFile) {
+                const tpxData = g_currentSample.files[tpxFile];
+                if (tpxData && tpxData.length > 1) {
+                    const th = tpxData[0];
+                    const gIdx = th.indexOf('Genus');
+                    const genomeIdx = th.indexOf('Genome');
+                    tpxData.slice(1).forEach(r => {
+                        const contig = r[genomeIdx];
+                        if (contig && gIdx >= 0) {
+                            const genus = r[gIdx];
+                            if (genus && genus !== 'NA' && genus !== 'Not Defined Yet') taxmyphageGenus[contig] = genus;
+                        }
+                    });
+                }
+            }
+
             const h = data[0];
             const idx = {
                 contig: h.indexOf('Contig'),
@@ -2485,23 +2569,11 @@
                 sm_tax: h.indexOf('Sourmash_Taxonomy'),
                 agree: h.indexOf('Genomad_agreement'),
                 lineage: h.indexOf('Genomad_lineage'),
-                tpx_tax: h.indexOf('Taxmyphage_Taxonomy'),
+                tpx_tax: h.indexOf('Taxmyphage_Genus'),
                 tpx_msg: h.indexOf('Taxmyphage_agreement')
             };
 
-            // Calculate Stats
-            let classifiedCount = 0;
-            let smCount = 0;
-            let gmCount = 0;
-            let tpxCount = 0;
-
             data.slice(1).forEach(row => {
-                const hasSm = row[idx.sm_tax] && row[idx.sm_tax] !== 'no match found';
-                const hasGm = row[idx.lineage] && row[idx.lineage] !== 'no match found' && row[idx.lineage] !== 'NA';
-                const hasTpx = idx.tpx_tax >= 0 && row[idx.tpx_tax] && row[idx.tpx_tax] !== 'NA';
-                if (hasSm) smCount++;
-                if (hasGm) gmCount++;
-                if (hasTpx) tpxCount++;
 
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50/50 transition-colors';
@@ -2534,9 +2606,11 @@
                     lineageDisplay = `<span class="text-slate-400 italic">No match</span>`;
                 }
 
-                // Taxmyphage lineage badge (full lineage)
-                let tpxDisplay = (idx.tpx_tax >= 0 && row[idx.tpx_tax]) ? row[idx.tpx_tax] : '';
-                if (tpxDisplay && tpxDisplay !== 'NA') {
+                // Taxmyphage genus badge
+                let tpxDisplay = (idx.tpx_tax >= 0 && row[idx.tpx_tax] && row[idx.tpx_tax] !== 'NA' && row[idx.tpx_tax] !== 'Not Defined Yet')
+                    ? row[idx.tpx_tax]
+                    : (taxmyphageGenus[row[idx.contig]] || '');
+                if (tpxDisplay) {
                     tpxDisplay = `<span class="font-medium text-slate-700">${tpxDisplay}</span>`;
                 } else {
                     tpxDisplay = `<span class="text-slate-400 italic">No match</span>`;
@@ -2552,10 +2626,6 @@
                 `;
                 tableBody.appendChild(tr);
             });
-
-            document.getElementById('tax-stat-sourmash').textContent = smCount;
-            document.getElementById('tax-stat-genomad').textContent = gmCount;
-            document.getElementById('tax-stat-taxmyphage').textContent = tpxCount;
         }
 
         function renderTaxonomySourmash() {
@@ -3925,11 +3995,180 @@
         }
 
         function renderProphage() {
+            renderProphageOverview();
             renderGenericTable('candidate_provirus_phabox2.tsv', 'prophage-phabox2-cand-head', 'prophage-phabox2-cand-body');
             renderGenericTable('contamination_prediction_phabox2.tsv', 'prophage-phabox2-contam-head', 'prophage-phabox2-contam-body');
             renderGenericTable('final-viral-score_virsorter2.tsv', 'prophage-virsorter2-head', 'prophage-virsorter2-body');
             renderGenericTable('prophage_phigaro.tsv', 'prophage-phigaro-head', 'prophage-phigaro-body');
             renderGenericTable('filtered_provirus_genomad.tsv', 'prophage-genomad-head', 'prophage-genomad-body');
+        }
+
+        function renderProphageOverview() {
+            const head = document.getElementById('prophage-overview-table-head');
+            const body = document.getElementById('prophage-overview-table-body');
+            if (!head || !body) return;
+            head.innerHTML = '';
+            body.innerHTML = '';
+            if (!g_currentSample) return;
+
+            const files = g_currentSample.files;
+            const getFile = (suffix) => Object.keys(files).find(f => f.includes(suffix));
+
+            const rows = {}; // contig -> summary
+            const ensure = (cid) => {
+                if (!rows[cid]) rows[cid] = { contig: cid, cand: 0, contam: null, virsorter: null, phigaro: 0, genomad: 0 };
+                return rows[cid];
+            };
+
+            // PhaBOX2 Candidate Provirus (count of regions)
+            const candFile = getFile('candidate_provirus_phabox2.tsv');
+            if (candFile && files[candFile].length > 1) {
+                const h = files[candFile][0];
+                const accIdx = h.indexOf('Accession');
+                files[candFile].slice(1).forEach(r => {
+                    const cid = r[accIdx];
+                    if (cid) ensure(cid).cand++;
+                });
+            }
+
+            // PhaBOX2 Contamination / Purity
+            const contFile = getFile('contamination_prediction_phabox2.tsv');
+            if (contFile && files[contFile].length > 1) {
+                const h = files[contFile][0];
+                const accIdx = h.indexOf('Accession');
+                const contIdx = h.indexOf('Contamination');
+                const provIdx = h.indexOf('Provirus');
+                const pureIdx = h.indexOf('Pure_viral');
+                files[contFile].slice(1).forEach(r => {
+                    const cid = r[accIdx];
+                    if (cid) {
+                        ensure(cid).contam = {
+                            contamination: contIdx >= 0 ? r[contIdx] : '',
+                            provirus: provIdx >= 0 ? r[provIdx] : '',
+                            pure: pureIdx >= 0 ? r[pureIdx] : ''
+                        };
+                    }
+                });
+            }
+
+            // VirSorter2 final viral score
+            const vsFile = getFile('final-viral-score_virsorter2.tsv');
+            if (vsFile && files[vsFile].length > 1) {
+                const h = files[vsFile][0];
+                const seqIdx = h.indexOf('seqname');
+                const grpIdx = h.indexOf('max_score_group');
+                const scoreIdx = h.indexOf('max_score');
+                files[vsFile].slice(1).forEach(r => {
+                    const cid = (r[seqIdx] || '').split('||')[0];
+                    if (cid) {
+                        ensure(cid).virsorter = {
+                            group: grpIdx >= 0 ? r[grpIdx] : '',
+                            score: parseFloat(r[scoreIdx])
+                        };
+                    }
+                });
+            }
+
+            // Phigaro prophage regions
+            const phigaroFile = getFile('prophage_phigaro.tsv');
+            if (phigaroFile && files[phigaroFile].length > 1) {
+                const h = files[phigaroFile][0];
+                const scIdx = h.indexOf('scaffold');
+                files[phigaroFile].slice(1).forEach(r => {
+                    const cid = r[scIdx];
+                    if (cid) ensure(cid).phigaro++;
+                });
+            }
+
+            // GeNomad filtered provirus regions
+            const gmFile = getFile('filtered_provirus_genomad.tsv');
+            if (gmFile && files[gmFile].length > 1) {
+                const h = files[gmFile][0];
+                const scIdx = h.indexOf('source_seq');
+                files[gmFile].slice(1).forEach(r => {
+                    const cid = r[scIdx];
+                    if (cid) ensure(cid).genomad++;
+                });
+            }
+
+            const entries = Object.values(rows);
+            if (entries.length === 0) {
+                body.innerHTML = '<tr><td colspan="7" class="px-6 py-10 text-center text-slate-400">No prophage data found</td></tr>';
+                return;
+            }
+
+            const tableId = 'prophage-overview-table';
+            const cols = [
+                { name: 'Contig', key: 'contig' },
+                { name: 'PhaBOX2 Cand', key: 'cand' },
+                { name: 'PhaBOX2 Contam', key: 'contam' },
+                { name: 'VirSorter2', key: 'virsorter' },
+                { name: 'Phigaro Regions', key: 'phigaro' },
+                { name: 'Genomad Regions', key: 'genomad' },
+                { name: 'Total Regions', key: 'total' }
+            ];
+            let headInner = `<tr class="bg-slate-50 text-slate-500 uppercase text-[9px] font-bold tracking-wider">`;
+            cols.forEach((c, i) => {
+                headInner += `<th class="px-4 py-3 border-b border-slate-100 cursor-pointer" onclick="sortTable('${tableId}', ${i})">${c.name}</th>`;
+            });
+            headInner += `</tr>`;
+            head.innerHTML = headInner;
+
+            entries.forEach(o => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50/50 transition-colors';
+                const total = o.cand + o.phigaro + o.genomad;
+
+                const candHtml = o.cand > 0
+                    ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">${o.cand}</span>`
+                    : '<span class="text-slate-400 italic text-xs">None</span>';
+
+                let contamHtml = '<span class="text-slate-400 italic text-xs">No data</span>';
+                if (o.contam) {
+                    const provirusVal = (o.contam.provirus || '').trim();
+                    const provirusCls = provirusVal.toLowerCase() === 'yes'
+                        ? 'bg-rose-100 text-rose-700'
+                        : provirusVal.toLowerCase() === 'no'
+                            ? 'bg-emerald-100 text-emerald-700'
+                            : 'bg-slate-100 text-slate-600';
+                    const bits = [`<span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${provirusCls}">${provirusVal || 'N/A'}</span>`];
+                    if (o.contam.pure) bits.push(`<span class="text-slate-500">${o.contam.pure}</span>`);
+                    contamHtml = `<div class="flex flex-col gap-0.5 text-[10px]">${bits.join('')}</div>`;
+                }
+
+                let vsHtml = '<span class="text-slate-400 italic text-xs">No data</span>';
+                if (o.virsorter) {
+                    const grp = o.virsorter.group || '';
+                    const scoreTxt = !isNaN(o.virsorter.score) ? o.virsorter.score.toFixed(2) : '';
+                    const isViral = grp && !isNaN(o.virsorter.score) && o.virsorter.score >= 0.5;
+                    const badgeCls = isViral ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600';
+                    vsHtml = `<div class="flex flex-col gap-0.5 text-[10px]">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${badgeCls}">${grp || 'n/a'}</span>
+                        <span class="text-slate-500">${scoreTxt ? 'score ' + scoreTxt : ''}</span>
+                    </div>`;
+                }
+
+                const phigaroHtml = o.phigaro > 0
+                    ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-700">${o.phigaro}</span>`
+                    : '<span class="text-slate-400 italic text-xs">None</span>';
+                const genomadHtml = o.genomad > 0
+                    ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-700">${o.genomad}</span>`
+                    : '<span class="text-slate-400 italic text-xs">None</span>';
+                const totalHtml = total > 0
+                    ? `<span class="font-bold text-slate-800">${total}</span>`
+                    : '<span class="text-slate-400 italic text-xs">0</span>';
+
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-mono text-slate-600 font-medium">${o.contig}</td>
+                    <td class="px-4 py-3">${candHtml}</td>
+                    <td class="px-4 py-3">${contamHtml}</td>
+                    <td class="px-4 py-3">${vsHtml}</td>
+                    <td class="px-4 py-3">${phigaroHtml}</td>
+                    <td class="px-4 py-3">${genomadHtml}</td>
+                    <td class="px-4 py-3">${totalHtml}</td>
+                `;
+                body.appendChild(tr);
+            });
         }
 
         function renderGenericTable(fileSuffix, headId, bodyId) {
@@ -4404,7 +4643,7 @@
 
             const rows = {}; // contig -> { cherry: {...}, iphop: {...} }
 
-            // CHERRY
+            // Phabox2 CHERRY host counts
             const cFile = Object.keys(g_currentSample.files).find(f => f.includes('cherry_host_prediction.tsv'));
             if (cFile) {
                 const data = g_currentSample.files[cFile];
@@ -4455,8 +4694,8 @@
             const tableId = 'host-overview-table';
             const cols = [
                 { name: 'Contig', key: 'contig' },
-                { name: 'CHERRY Host', key: 'cherryHost' },
-                { name: 'CHERRY Score', key: 'cherryScore' },
+                { name: 'Phabox2 Host', key: 'cherryHost' },
+                { name: 'Phabox2 Score', key: 'cherryScore' },
                 { name: 'iPHoP Host', key: 'iphopHost' },
                 { name: 'iPHoP Confidence', key: 'iphopScore' },
                 { name: 'iPHoP Method', key: 'iphopMethod' }
@@ -4476,7 +4715,7 @@
                 const cherryScore = r.cherry && !isNaN(r.cherry.score)
                     ? `<span class="${r.cherry.score >= 0.8 ? 'text-emerald-600' : r.cherry.score >= 0.6 ? 'text-amber-600' : 'text-rose-600'} font-bold">${r.cherry.score.toFixed(2)}</span>`
                     : '<span class="text-slate-400 italic text-xs">N/A</span>';
-                const iphopHost = r.iphop ? `<span class="font-semibold text-slate-700" title="${r.iphop.fulltax}">${r.iphop.tax}</span>` : '<span class="text-slate-400 italic text-xs">No match</span>';
+                const iphopHost = r.iphop ? `<span class="font-semibold text-slate-700" title="${r.iphop.fulltax}">${r.iphop.tax}</span>` : '<span class="text-slate-400 italic text-xs">N/A</span>';
                 const iphopScore = r.iphop && !isNaN(r.iphop.score)
                     ? `<span class="${r.iphop.score >= 80 ? 'text-emerald-600' : r.iphop.score >= 60 ? 'text-amber-600' : 'text-rose-600'} font-bold">${r.iphop.score.toFixed(2)}%</span>`
                     : '<span class="text-slate-400 italic text-xs">N/A</span>';
@@ -4492,6 +4731,220 @@
                 `;
                 body.appendChild(tr);
             });
+        }
+
+        // ===== GENERIC SVG -> PNG (600 DPI) EXPORT =====
+        function exportChartPNG(containerId, filename) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            const svgElement = container.querySelector('svg');
+            if (!svgElement) {
+                alert('No visualization available to export.');
+                return;
+            }
+
+            const clonedSvg = svgElement.cloneNode(true);
+            if (!clonedSvg.getAttribute('xmlns')) clonedSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+            if (!clonedSvg.getAttribute('xmlns:xlink')) clonedSvg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+
+            const originalWidth = parseFloat(svgElement.getAttribute('width') || svgElement.getBoundingClientRect().width);
+            const originalHeight = parseFloat(svgElement.getAttribute('height') || svgElement.getBoundingClientRect().height);
+            clonedSvg.setAttribute('viewBox', `0 0 ${originalWidth} ${originalHeight}`);
+
+            // 600 DPI = 6.25x of the 96 DPI web default
+            const scaleFactor = 6.25;
+            const targetWidth = Math.round(originalWidth * scaleFactor);
+            const targetHeight = Math.round(originalHeight * scaleFactor);
+            clonedSvg.setAttribute('width', targetWidth);
+            clonedSvg.setAttribute('height', targetHeight);
+            clonedSvg.style.width = targetWidth + 'px';
+            clonedSvg.style.height = targetHeight + 'px';
+            clonedSvg.style.fontFamily = "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif";
+
+            const svgData = new XMLSerializer().serializeToString(clonedSvg);
+            const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const DOMURL = window.URL || window.webkitURL || window;
+            const url = DOMURL.createObjectURL(blob);
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            img.onload = function () {
+                canvas.width = targetWidth;
+                canvas.height = targetHeight;
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                DOMURL.revokeObjectURL(url);
+                const link = document.createElement('a');
+                const curSample = g_currentSample ? g_currentSample.sample : 'report';
+                link.download = `${filename}_${curSample}_600dpi.png`;
+                link.href = canvas.toDataURL('image/png', 1.0);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+            img.onerror = function () {
+                console.error('Error creating image for export');
+                alert('Failed to export image.');
+            };
+            img.src = url;
+        }
+
+        // ===== TOOL SCORE HEATMAP =====
+        function renderToolHeatmap() {
+            const container = document.getElementById('heatmap-plot');
+            if (!container) return;
+            if (!g_currentSample) return;
+
+            const idFile = Object.keys(g_currentSample.files).find(f => f.includes('_contig_tool_p-value_overview.tsv'));
+            container.innerHTML = '';
+            if (!idFile) {
+                container.innerHTML = '<p class="text-center text-slate-400 py-10">No identification data for heatmap</p>';
+                return;
+            }
+            const dataRows = g_currentSample.files[idFile];
+            if (dataRows.length <= 1) {
+                container.innerHTML = '<p class="text-center text-slate-400 py-10">No identification data for heatmap</p>';
+                return;
+            }
+
+            const headers = dataRows[0];
+            const nameIdx = headers.indexOf('contig_name');
+            const pValIdx = headers.indexOf('p_value');
+            const toolIdx = headers.indexOf('toolname');
+
+            const tools = [...new Set(dataRows.slice(1).map(r => r[toolIdx]))].sort();
+            const contigs = [...new Set(dataRows.slice(1).map(r => r[nameIdx]))];
+            const pivot = {};
+            dataRows.slice(1).forEach(row => {
+                const c = row[nameIdx];
+                const t = row[toolIdx];
+                const p = parseFloat(row[pValIdx]);
+                if (!pivot[c]) pivot[c] = {};
+                pivot[c][t] = isNaN(p) ? null : p;
+            });
+
+            // Fixed cell size so cells never shrink and tool labels stay readable
+            const cellW = 28;
+            const cellH = 24;
+            const maxToolLen = Math.max(...tools.map(t => t.length), 4);
+            const maxContigLen = Math.max(...contigs.map(c => c.length), 4);
+            const margin = {
+                top: Math.max(100, maxToolLen * 7 + 50),
+                right: 24,
+                bottom: 50,
+                left: Math.max(140, maxContigLen * 7 + 20)
+            };
+            const innerW = tools.length * cellW;
+            const innerH = contigs.length * cellH;
+            const width = margin.left + innerW + margin.right;
+            const height = margin.top + innerH + margin.bottom;
+
+            const svg = d3.select(container)
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .style('font-family', "ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif");
+
+            const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`);
+
+            const x = d3.scaleBand().domain(tools).range([0, innerW]).padding(0.15);
+            const y = d3.scaleBand().domain(contigs).range([0, innerH]).padding(0.15);
+            const color = d3.scaleLinear()
+                .domain([0, 0.5, 1])
+                .range(['#fda4af', '#fcd34d', '#34d399']);
+
+            // Row labels (contigs)
+            g.selectAll('.row-label')
+                .data(contigs)
+                .enter().append('text')
+                .attr('class', 'row-label')
+                .attr('x', -8)
+                .attr('y', d => y(d) + y.bandwidth() / 2)
+                .attr('dy', '0.32em')
+                .attr('text-anchor', 'end')
+                .attr('font-size', '11px')
+                .attr('fill', '#334155')
+                .text(d => d);
+
+            // Column labels (tools) - vertical, sitting fully above the plot
+            g.selectAll('.col-label')
+                .data(tools)
+                .enter().append('text')
+                .attr('class', 'col-label')
+                .attr('x', d => x(d) + x.bandwidth() / 2)
+                .attr('y', d => -(d.length * 7) / 2 - 4)
+                .attr('text-anchor', 'middle')
+                .attr('transform', d => `rotate(-90, ${x(d) + x.bandwidth() / 2}, ${-(d.length * 7) / 2 - 4})`)
+                .attr('font-size', '11px')
+                .attr('fill', '#334155')
+                .text(d => d);
+
+            // Cells
+            contigs.forEach(c => {
+                tools.forEach(t => {
+                    const val = pivot[c] ? pivot[c][t] : null;
+                    g.append('rect')
+                        .attr('x', x(t))
+                        .attr('y', y(c))
+                        .attr('width', x.bandwidth())
+                        .attr('height', y.bandwidth())
+                        .attr('rx', 2)
+                        .attr('fill', val === null ? '#f1f5f9' : color(val))
+                        .attr('stroke', '#ffffff')
+                        .attr('stroke-width', 1)
+                        .on('mouseover', function (event, d) {
+                            tooltip.style('opacity', 1)
+                                .html(`<strong>${c}</strong><br/>${t}<br/>score: ${val === null ? 'N/A' : val.toFixed(3)}`)
+                                .style('left', (event.pageX + 12) + 'px')
+                                .style('top', (event.pageY - 28) + 'px');
+                        })
+                        .on('mousemove', function (event) {
+                            tooltip.style('left', (event.pageX + 12) + 'px')
+                                .style('top', (event.pageY - 28) + 'px');
+                        })
+                        .on('mouseout', function () {
+                            tooltip.style('opacity', 0);
+                        });
+                });
+            });
+
+            // Color legend (below plot)
+            const legendW = 180;
+            const legend = svg.append('g')
+                .attr('transform', `translate(${width / 2 - legendW / 2}, ${height - 26})`);
+            const defs = svg.append('defs');
+            const linGrad = defs.append('linearGradient').attr('id', 'heatmap-grad');
+            linGrad.attr('x1', '0%').attr('x2', '100%').attr('y1', '0%').attr('y2', '0%');
+            linGrad.selectAll('stop').data([
+                { offset: '0%', color: '#fda4af' },
+                { offset: '50%', color: '#fcd34d' },
+                { offset: '100%', color: '#34d399' }
+            ]).enter().append('stop')
+                .attr('offset', d => d.offset)
+                .attr('stop-color', d => d.color);
+            legend.append('rect')
+                .attr('width', legendW)
+                .attr('height', 10)
+                .attr('rx', 4)
+                .style('fill', 'url(#heatmap-grad)');
+            legend.append('text').attr('x', 0).attr('y', -4).attr('font-size', '10px').attr('fill', '#475569').text('score 0');
+            legend.append('text').attr('x', legendW).attr('y', -4).attr('text-anchor', 'end').attr('font-size', '10px').attr('fill', '#475569').text('score 1');
+
+            // Tooltip
+            const tooltip = d3.select(container)
+                .append('div')
+                .style('position', 'absolute')
+                .style('opacity', 0)
+                .style('pointer-events', 'none')
+                .style('background', '#0f172a')
+                .style('color', '#e2e8f0')
+                .style('padding', '6px 10px')
+                .style('border-radius', '6px')
+                .style('font-size', '11px')
+                .style('z-index', 50)
+                .style('white-space', 'nowrap');
         }
 
         // Initialization logic
