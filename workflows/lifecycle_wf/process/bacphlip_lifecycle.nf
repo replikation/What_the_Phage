@@ -19,6 +19,13 @@ process bacphlip_lifecycle {
         mv ${name}*bacphlip ${name}_lifecycle_bacphlip.tsv
         mv ${name}*hmmsearch.tsv ${name}_bacphlip_hmmsearch.tsv
 
+        # Single-sequence mode: BACPHLIP names the contig "0"; restore the real header
+        if [ "\$(grep -c '^>' ${fasta} || true)" -eq 1 ]; then
+            contig_id="\$(grep -m1 '^>' ${fasta} | sed 's/^>//' | awk '{print \$1}')"
+            if [ -n "\${contig_id}" ]; then
+                sed -i "s/^0\\([[:space:]]\\)/\${contig_id}\\1/" ${name}_lifecycle_bacphlip.tsv
+            fi
+        fi
 
         """
     stub:

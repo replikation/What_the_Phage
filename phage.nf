@@ -120,7 +120,9 @@ workflow {
         params.identify || params.annotation || params.end_to_end ? checkV_wf.out.checkv : Channel.empty(),
         params.prophage || params.end_to_end ? prophage_wf.out.prophage_report_input : Channel.empty(),
         params.host || params.end_to_end ? host_wf.out.host_report_input : Channel.empty(),
-        params.lifecycle || params.end_to_end ? lifecycle_wf.out.lifecycle_results : Channel.empty()
+params.lifecycle || params.end_to_end ? lifecycle_wf.out.lifecycle_results
+                                                        .mix(lifecycle_wf.out.lifecycle_phabox2_ch)
+                                                        .mix(lifecycle_wf.out.lifecycle_bacphlip_ch) : Channel.empty()
     )
 
     publish:
@@ -135,7 +137,6 @@ workflow {
     annotation_filter_too_strict = params.annotation || params.end_to_end ? annotation_wf.out.annotation_filter_too_strict : Channel.empty()
     annotation_hmm              = params.annotation || params.end_to_end ? annotation_wf.out.annotation_hmm : Channel.empty()
     annotation_prodigal         = params.annotation || params.end_to_end ? annotation_wf.out.annotation_prodigal : Channel.empty()
-    annotation_chromomap        = params.annotation || params.end_to_end ? annotation_wf.out.annotation_chromomap : Channel.empty()
     annotation_pharokka         = params.annotation || params.end_to_end ? annotation_wf.out.annotation_pharokka : Channel.empty()
     annotation_phabox2          = params.annotation || params.end_to_end ? annotation_wf.out.annotation_phabox2 : Channel.empty()
     annotation_genomad          = params.annotation || params.end_to_end ? annotation_wf.out.annotation_genomad : Channel.empty()
@@ -152,7 +153,7 @@ workflow {
     prophage_phigaro            = params.prophage || params.end_to_end ? prophage_wf.out.prophage_phigaro_ch : Channel.empty()
     prophage_virsorter2         = params.prophage || params.end_to_end ? prophage_wf.out.prophage_virsorter2_ch : Channel.empty()
     host_phabox2                = params.host || params.end_to_end ? host_wf.out.phabox2_host_ch : Channel.empty()
-    iphop                       = params.host || params.end_to_end ? host_wf.out.iphop_ch : Channel.empty()
+    iphop_out                   = params.host || params.end_to_end ? host_wf.out.iphop_out_ch : Channel.empty()
     lifecycle_phabox2           = params.lifecycle || params.end_to_end ? lifecycle_wf.out.lifecycle_phabox2_ch : Channel.empty()
     lifecycle_bacphlip          = params.lifecycle || params.end_to_end ? lifecycle_wf.out.lifecycle_bacphlip_ch : Channel.empty()
     lifecycle_tables            = params.lifecycle || params.end_to_end ? lifecycle_wf.out.lifecycle_results : Channel.empty()
@@ -173,36 +174,35 @@ workflow {
 output {
     input_fasta { path { name, f -> "${name}/Input_fasta/" } }
     checkv { path { name, f -> "${name}/CheckV/" } }
-    checkv_raw { path { name, f -> "${name}/raw_data/" } }
+    checkv_raw { path { name, f -> "${name}/CheckV/" } }
     identify_raw { path { name, f -> "${name}/raw_data/" } }
     identified_contigs { path { name, f -> "${name}/identified_contigs_by_tools/" } }
-    upsetr { path { name, f -> "${name}/" } }
+    upsetr { path { name, f -> "${name}/UpsetR_plot" } }
     tool_agreements { path { name, f -> "${name}/tool_agreements_per_contig/" } }
-    phabox2_identify { path { name, f -> "${name}/phabox2/" } }
-    annotation_filter_too_strict { path { name, f -> "${name}/annotation_results/" } }
-    annotation_hmm { path { name, f1, f2 -> "${name}/raw_data/hmm/" } }
-    annotation_prodigal { path { name, f -> "${name}/raw_data/prodigal_out/" } }
-    annotation_chromomap { path { name, f -> "${name}/annotation_results/" } }
-    annotation_pharokka { path { name, f -> "${name}/annotation_results/pharokka/" } }
-    annotation_phabox2 { path { name, f -> "${name}/annotation_results/phabox2/" } }
-    annotation_genomad { path { name, f -> "${name}/annotation_results/genomad/" } }
-    annotation_compare { path { name, f -> "${name}/annotation_results/summary/" } }
-    annotation_tables { path { name, f -> "${name}/annotation_results/" } }
+    phabox2_identify { path { name, f -> "${name}/identified_contigs_by_tools/phabox2" } }
+    annotation_filter_too_strict { path { name, f -> "${name}/annotation/" } }
+    annotation_hmm { path { name, f1, f2 -> "${name}/annotation/hmm/" } }
+    annotation_prodigal { path { name, f -> "${name}/annotation/prodigal_out/" } }
+    annotation_pharokka { path { name, f -> "${name}/annotation/pharokka/" } }
+    annotation_phabox2 { path { name, f -> "${name}/annotation/phabox2/" } }
+    annotation_genomad { path { name, f -> "${name}/annotation/genomad/" } }
+    annotation_compare { path { name, f -> "${name}/annotation/summary/" } }
+    annotation_tables { path { name, f -> "${name}/annotation/" } }
     taxonomy_sourmash { path { name, f -> "${name}/taxonomic-classification/sourmash/" } }
-    taxonomy_genomad { path { name, f -> "${name}/annotation_results/genomad/" } }
+    taxonomy_genomad { path { name, f -> "${name}/taxonomic-classification/genomad/" } }
     taxonomy_phabox2 { path { name, f -> "${name}/taxonomic-classification/phabox2/" } }
     taxonomy_taxmyphage { path { name, f -> "${name}/taxonomic-classification/taxmyphage/" } }
-    taxonomy_combined { path { name, f -> "${name}/taxonomic-classification/taxonomy_results_combined/" } }
+    taxonomy_combined { path { name, f -> "${name}/taxonomic-classification/" } }
     prophage_genomad { path { name, f -> "${name}/prophage/genomad/" } }
     prophage_phabox2_tables { path { name, f1, f2 -> "${name}/prophage/phabox2/" } }
     prophage_phabox2_fa { path { name, f -> "${name}/prophage/phabox2/" } }
     prophage_phigaro { path { name, f -> "${name}/prophage/phigaro/" } }
     prophage_virsorter2 { path { name, f -> "${name}/prophage/virsorter2/" } }
     host_phabox2 { path { name, f -> "${name}/host_prediction/phabox2_host/" } }
-    iphop { path { name, f -> "${name}/prophage/genomad/" } }
-    lifecycle_phabox2 { path { name, f -> "${name}/host_lifecycle/phabox2/" } }
-    lifecycle_bacphlip { path { name, f -> "${name}/host_lifecycle/bacphlip/" } }
-    lifecycle_tables { path { name, f -> "${name}/annotation_results/" } }
+    iphop_out { path { name, f -> "${name}/host_prediction/iphop/" } }
+    lifecycle_phabox2 { path { name, f -> "${name}/lifecycle/phabox2/" } }
+    lifecycle_bacphlip { path { name, f -> "${name}/lifecycle/bacphlip/" } }
+    lifecycle_tables { path { name, f -> "${name}/lifecycle/" } }
     report_html { path 'report' }
     json_report { path { name, f -> 'report' } }
 test_files { path 'test-git' }

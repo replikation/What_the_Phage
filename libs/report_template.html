@@ -229,6 +229,10 @@
                         class="px-4 py-1.5 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-slate-700 whitespace-nowrap">
                         Lifecycle
                     </button>
+                    <button onclick="switchTab('host')" id="tab-host"
+                        class="px-4 py-1.5 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-slate-700 whitespace-nowrap">
+                        Host
+                    </button>
                 </div>
             </div>
         </header>
@@ -256,7 +260,7 @@
 
                     <!-- OVERVIEW TAB -->
                     <div id="content-overview" class="tab-content active">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
                             <div
                                 class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-default">
                                 <p class="text-xs font-bold text-brand uppercase tracking-wider mb-1">Total Contigs
@@ -274,6 +278,12 @@
                                 <p class="text-xs font-bold text-brand uppercase tracking-wider mb-1">Longest
                                     Sequence</p>
                                 <p id="stat-max-seq" class="text-3xl font-bold text-slate-900 tracking-tight">--</p>
+                            </div>
+                            <div
+                                class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-default">
+                                <p class="text-xs font-bold text-brand uppercase tracking-wider mb-1">Predicted
+                                    Hosts</p>
+                                <p id="stat-hosts" class="text-3xl font-bold text-slate-900 tracking-tight">--</p>
                             </div>
                         </div>
 
@@ -332,6 +342,8 @@
                                                 onclick="sortTable('overview-table', 2)">Quality (Completeness)</th>
                                             <th class="px-4 py-3 border-b border-slate-100">Identification overview</th>
                                             <th class="px-4 py-3 border-b border-slate-100">Taxonomy</th>
+                                            <th class="px-4 py-3 border-b border-slate-100 cursor-pointer"
+                                                onclick="sortTable('overview-table', 5)">Host</th>
                                             <th class="px-4 py-3 border-b border-slate-100">Annotation</th>
                                         </tr>
                                     </thead>
@@ -949,8 +961,7 @@
                                                     onclick="sortTable('taxonomy-taxmyphage-table', 11)">Message</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="taxonomy-taxmyphage-body"
-                                            class="divide-y divide-slate-100"></tbody>
+                                        <tbody id="taxonomy-taxmyphage-body" class="divide-y divide-slate-100"></tbody>
                                     </table>
                                 </div>
                             </div>
@@ -1309,73 +1320,378 @@
 
                 <!-- LIFECYCLE TAB -->
                 <div id="content-lifecycle" class="tab-content">
-                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div
-                            class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                            <div>
-                                <h3 class="font-bold text-slate-800">Phage lifecycle prediction</h3>
-                                <p class="text-xs text-slate-500 mt-1">BACPHLIP and PHASTER(t)-based lifecycle
-                                    prediction</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <button
-                                    onclick="exportTableToCSV('lifecycle-table-body', 'lifecycle_report_summary.csv')"
-                                    class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand hover:shadow-sm transition-all flex items-center gap-1.5 shadow-sm">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
-                                        </path>
-                                    </svg>
-                                    Export CSV
-                                </button>
-                            </div>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table id="lifecycle-table" class="w-full text-left border-collapse text-xs">
-                                <thead id="lifecycle-table-head"></thead>
-                                <tbody id="lifecycle-table-body" class="divide-y divide-slate-100"></tbody>
-                            </table>
-                        </div>
-                        <div
-                            class="bg-teal-50/50 border-t border-teal-100 p-4 w-full flex flex-col gap-3 text-xs text-teal-800">
-                            <div><span class="font-bold">How to interpret this table:</span></div>
-                            <div class="flex flex-col md:flex-row gap-4 md:items-center">
-                                <div class="flex flex-col gap-2">
-                                    <div class="font-semibold text-teal-700">BACPHLIP</div>
-                                    <div class="flex flex-wrap gap-4 items-center">
-                                        <div class="flex items-center gap-1.5"><span
-                                                class="w-2.5 h-2.5 rounded bg-teal-500 border border-teal-200"></span>
-                                            bacphlip_Virulent &amp; bacphlip_Temperate = classifier probabilities
-                                            (0&ndash;1)</div>
-                                        <div class="flex items-center gap-1.5"><span
-                                                class="w-2.5 h-2.5 rounded bg-teal-500 border border-teal-200"></span>
-                                            bacphlip_prediction = predicted class (virulent / temperate)</div>
+                    <!-- Sub-tabs Navigation -->
+                    <div class="flex gap-2 mb-6 border-b border-slate-200 pb-2">
+                        <button onclick="switchLifecycleTab('overview')" id="lc-tab-overview"
+                            class="px-4 py-2 text-sm font-semibold rounded-lg transition-all bg-white text-brand shadow-sm border border-slate-200">
+                            Overview
+                        </button>
+                        <button onclick="switchLifecycleTab('bacphlip')" id="lc-tab-bacphlip"
+                            class="px-4 py-2 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-brand hover:bg-white/50">
+                            BACPHLIP
+                        </button>
+                        <button onclick="switchLifecycleTab('phatyp')" id="lc-tab-phatyp"
+                            class="px-4 py-2 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-brand hover:bg-white/50">
+                            PhaTYP
+                        </button>
+                    </div>
+
+                    <!-- Lifecycle Overview Sub-tab -->
+                    <div id="lc-content-overview" class="lc-tab-content block">
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                            <div
+                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div>
+                                    <h3 class="font-bold text-slate-800">Phage lifecycle prediction</h3>
+                                    <p class="text-xs text-slate-500 mt-1">BACPHLIP and PhaBOX PhaTYP-based lifecycle
+                                        prediction</p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <button
+                                        onclick="exportTableToCSV('lifecycle-overview-table-body', 'lifecycle_report_summary.csv')"
+                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand hover:shadow-sm transition-all flex items-center gap-1.5 shadow-sm">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
+                                            </path>
+                                        </svg>
+                                        Export CSV
+                                    </button>
+                                    <div class="relative">
+                                        <input type="text" placeholder="Search..."
+                                            onkeyup="filterTable('lifecycle-overview-table-body', this.value)"
+                                            class="pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand w-48 transition-all shadow-sm">
+                                        <svg class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        </svg>
                                     </div>
                                 </div>
-                                <div class="flex flex-col gap-2">
-                                    <div class="font-semibold text-teal-700">PhaBOX PhaTYP</div>
-                                    <div class="flex flex-wrap gap-4 items-center">
-                                        <div class="flex items-center gap-1.5"><span
-                                                class="w-2.5 h-2.5 rounded bg-teal-500 border border-teal-200"></span>
-                                            phatyp_TYPE = predicted lifecycle (virulent / temperate / ambiguous)</div>
-                                        <div class="flex items-center gap-1.5"><span
-                                                class="w-2.5 h-2.5 rounded bg-teal-500 border border-teal-200"></span>
-                                            phatyp_PhaTYPScore = confidence score (0&ndash;1)</div>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table id="lifecycle-overview-table" class="w-full text-left border-collapse text-xs">
+                                    <thead id="lifecycle-overview-table-head"></thead>
+                                    <tbody id="lifecycle-overview-table-body" class="divide-y divide-slate-100"></tbody>
+                                </table>
+                            </div>
+                            <div
+                                class="bg-teal-50/50 border-t border-teal-100 p-4 w-full flex flex-col gap-3 text-xs text-teal-800">
+                                <div><span class="font-bold">How to interpret this table:</span></div>
+                                <div class="flex flex-col md:flex-row gap-4 md:items-center">
+                                    <div class="flex flex-col gap-2">
+                                        <div class="font-semibold text-teal-700">BACPHLIP</div>
+                                        <div class="flex flex-wrap gap-4 items-center">
+                                            <div class="flex items-center gap-1.5"><span
+                                                    class="w-2.5 h-2.5 rounded bg-teal-500 border border-teal-200"></span>
+                                                bacphlip_Virulent &amp; bacphlip_Temperate = classifier probabilities
+                                                (0&ndash;1)</div>
+                                            <div class="flex items-center gap-1.5"><span
+                                                    class="w-2.5 h-2.5 rounded bg-teal-500 border border-teal-200"></span>
+                                                bacphlip_prediction = predicted class (virulent / temperate)</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="font-semibold text-teal-700">PhaBOX PhaTYP</div>
+                                        <div class="flex flex-wrap gap-4 items-center">
+                                            <div class="flex items-center gap-1.5"><span
+                                                    class="w-2.5 h-2.5 rounded bg-teal-500 border border-teal-200"></span>
+                                                phatyp_TYPE = predicted lifecycle (virulent / temperate / ambiguous)
+                                            </div>
+                                            <div class="flex items-center gap-1.5"><span
+                                                    class="w-2.5 h-2.5 rounded bg-teal-500 border border-teal-200"></span>
+                                                phatyp_PhaTYPScore = confidence score (0&ndash;1)</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="font-semibold text-teal-700">Consensus</div>
+                                        <div class="flex flex-wrap gap-3 items-center">
+                                            <div class="flex items-center gap-1.5"><span
+                                                    class="w-2.5 h-2.5 rounded bg-emerald-500 border border-emerald-200"></span>
+                                                virulent</div>
+                                            <div class="flex items-center gap-1.5"><span
+                                                    class="w-2.5 h-2.5 rounded bg-amber-500 border border-amber-200"></span>
+                                                temperate</div>
+                                            <div class="flex items-center gap-1.5"><span
+                                                    class="w-2.5 h-2.5 rounded bg-rose-500 border border-rose-200"></span>
+                                                disagree</div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="flex flex-col gap-2">
-                                    <div class="font-semibold text-teal-700">Consensus</div>
-                                    <div class="flex flex-wrap gap-3 items-center">
-                                        <div class="flex items-center gap-1.5"><span
-                                                class="w-2.5 h-2.5 rounded bg-emerald-500 border border-emerald-200"></span>
-                                            virulent</div>
-                                        <div class="flex items-center gap-1.5"><span
-                                                class="w-2.5 h-2.5 rounded bg-amber-500 border border-amber-200"></span>
-                                            temperate</div>
-                                        <div class="flex items-center gap-1.5"><span
-                                                class="w-2.5 h-2.5 rounded bg-rose-500 border border-rose-200"></span>
-                                            disagree</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BACPHLIP Sub-tab -->
+                    <div id="lc-content-bacphlip" class="lc-tab-content hidden">
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                            <div
+                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div>
+                                    <h3 class="font-bold text-slate-800">BACPHLIP Lifecycle</h3>
+                                    <p class="text-xs text-slate-500 mt-1">Random forest classifier probabilities</p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <button
+                                        onclick="exportTableToCSV('lifecycle-bacphlip-table-body', 'lifecycle_bacphlip.csv')"
+                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand hover:shadow-sm transition-all flex items-center gap-1.5 shadow-sm">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
+                                            </path>
+                                        </svg>
+                                        Export CSV
+                                    </button>
+                                    <div class="relative">
+                                        <input type="text" placeholder="Search..."
+                                            onkeyup="filterTable('lifecycle-bacphlip-table-body', this.value)"
+                                            class="pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand w-48 transition-all shadow-sm">
+                                        <svg class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        </svg>
                                     </div>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table id="lifecycle-bacphlip-table" class="w-full text-left border-collapse text-xs">
+                                    <thead id="lifecycle-bacphlip-table-head"></thead>
+                                    <tbody id="lifecycle-bacphlip-table-body" class="divide-y divide-slate-100"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PhaTYP Sub-tab -->
+                    <div id="lc-content-phatyp" class="lc-tab-content hidden">
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                            <div
+                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div>
+                                    <h3 class="font-bold text-slate-800">PhaBOX PhaTYP Lifecycle</h3>
+                                    <p class="text-xs text-slate-500 mt-1">Deep learning based lifecycle prediction</p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <button
+                                        onclick="exportTableToCSV('lifecycle-phatyp-table-body', 'lifecycle_phatyp.csv')"
+                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand hover:shadow-sm transition-all flex items-center gap-1.5 shadow-sm">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
+                                            </path>
+                                        </svg>
+                                        Export CSV
+                                    </button>
+                                    <div class="relative">
+                                        <input type="text" placeholder="Search..."
+                                            onkeyup="filterTable('lifecycle-phatyp-table-body', this.value)"
+                                            class="pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand w-48 transition-all shadow-sm">
+                                        <svg class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table id="lifecycle-phatyp-table" class="w-full text-left border-collapse text-xs">
+                                    <thead id="lifecycle-phatyp-table-head"></thead>
+                                    <tbody id="lifecycle-phatyp-table-body" class="divide-y divide-slate-100"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- HOST TAB -->
+                <div id="content-host" class="tab-content">
+                    <!-- Sub-tabs Navigation -->
+                    <div class="flex gap-2 mb-6 border-b border-slate-200 pb-2">
+                        <button onclick="switchHostTab('overview')" id="host-tab-overview"
+                            class="px-4 py-2 text-sm font-semibold rounded-lg transition-all bg-white text-brand shadow-sm border border-slate-200">
+                            Overview
+                        </button>
+                        <button onclick="switchHostTab('cherry')" id="host-tab-cherry"
+                            class="px-4 py-2 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-brand hover:bg-white/50">
+                            CHERRY
+                        </button>
+                        <button onclick="switchHostTab('iphop')" id="host-tab-iphop"
+                            class="px-4 py-2 text-sm font-semibold rounded-lg transition-all text-slate-500 hover:text-brand hover:bg-white/50">
+                            iPHoP
+                        </button>
+                    </div>
+
+                    <!-- Host Overview Sub-tab -->
+                    <div id="host-content-overview" class="host-tab-content block">
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                            <div
+                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div>
+                                    <h3 class="font-bold text-slate-800">Combined Host Predictions</h3>
+                                    <p class="text-xs text-slate-500 mt-1">CHERRY and iPHoP predictions per contig</p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <button
+                                        onclick="exportTableToCSV('host-overview-table-body', 'host_prediction_overview.csv')"
+                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand hover:shadow-sm transition-all flex items-center gap-1.5 shadow-sm">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
+                                            </path>
+                                        </svg>
+                                        Export CSV
+                                    </button>
+                                    <div class="relative">
+                                        <input type="text" placeholder="Search..."
+                                            onkeyup="filterTable('host-overview-table-body', this.value)"
+                                            class="pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand w-48 transition-all shadow-sm">
+                                        <svg class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table id="host-overview-table" class="w-full text-left border-collapse text-xs">
+                                    <thead id="host-overview-table-head"></thead>
+                                    <tbody id="host-overview-table-body" class="divide-y divide-slate-100"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CHERRY Sub-tab -->
+                    <div id="host-content-cherry" class="host-tab-content hidden">
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                            <div
+                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div>
+                                    <h3 class="font-bold text-slate-800">CHERRY Host Prediction</h3>
+                                    <p class="text-xs text-slate-500 mt-1">Predicted host organisms based on genomic
+                                        similarity</p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <button
+                                        onclick="exportTableToCSV('host-cherry-table-body', 'cherry_host_prediction.csv')"
+                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand hover:shadow-sm transition-all flex items-center gap-1.5 shadow-sm">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
+                                            </path>
+                                        </svg>
+                                        Export CSV
+                                    </button>
+                                    <div class="relative">
+                                        <input type="text" placeholder="Search..."
+                                            onkeyup="filterTable('host-cherry-table-body', this.value)"
+                                            class="pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand w-48 transition-all shadow-sm">
+                                        <svg class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table id="host-cherry-table" class="w-full text-left border-collapse text-xs">
+                                    <thead id="host-cherry-table-head"></thead>
+                                    <tbody id="host-cherry-table-body" class="divide-y divide-slate-100"></tbody>
+                                </table>
+                            </div>
+                            <div
+                                class="bg-teal-50/50 border-t border-teal-100 p-4 w-full flex flex-col gap-3 text-xs text-teal-800">
+                                <div><span class="font-bold">How to interpret this table:</span></div>
+                                <div class="flex flex-col md:flex-row gap-4 md:items-center">
+                                    <div class="flex flex-col gap-2">
+                                        <div class="font-semibold text-teal-700">CHERRY Score</div>
+                                        <div class="flex flex-wrap gap-4 items-center">
+                                            <div class="flex items-center gap-1.5"><span
+                                                    class="w-2.5 h-2.5 rounded bg-emerald-500 border border-emerald-200"></span>
+                                                Score &ge; 0.8 (high confidence)</div>
+                                            <div class="flex items-center gap-1.5"><span
+                                                    class="w-2.5 h-2.5 rounded bg-amber-500 border border-amber-200"></span>
+                                                0.6 &le; Score &lt; 0.8 (moderate confidence)</div>
+                                            <div class="flex items-center gap-1.5"><span
+                                                    class="w-2.5 h-2.5 rounded bg-rose-500 border border-rose-200"></span>
+                                                Score &lt; 0.6 (low confidence)</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="font-semibold text-teal-700">Lineage</div>
+                                        <div class="flex flex-wrap gap-4 items-center">
+                                            <div class="flex items-center gap-1.5"><span
+                                                    class="w-2.5 h-2.5 rounded bg-teal-500 border border-teal-200"></span>
+                                                Host NCBI / GTDB lineage shown from domain to species</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- iPHoP Sub-tab -->
+                    <div id="host-content-iphop" class="host-tab-content hidden">
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                            <div
+                                class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                <div>
+                                    <h3 class="font-bold text-slate-800">iPHoP Host Prediction</h3>
+                                    <p class="text-xs text-slate-500 mt-1">Host prediction to genome (m90) database</p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <button
+                                        onclick="exportTableToCSV('host-iphop-table-body', 'iphop_host_prediction.csv')"
+                                        class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-slate-200 text-slate-600 hover:text-brand hover:border-brand hover:shadow-sm transition-all flex items-center gap-1.5 shadow-sm">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M12 15V3m0 12l-4-4m4 4l4-4">
+                                            </path>
+                                        </svg>
+                                        Export CSV
+                                    </button>
+                                    <div class="relative">
+                                        <input type="text" placeholder="Search..."
+                                            onkeyup="filterTable('host-iphop-table-body', this.value)"
+                                            class="pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-brand w-48 transition-all shadow-sm">
+                                        <svg class="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table id="host-iphop-table" class="w-full text-left border-collapse text-xs">
+                                    <thead id="host-iphop-table-head"></thead>
+                                    <tbody id="host-iphop-table-body" class="divide-y divide-slate-100"></tbody>
+                                </table>
+                            </div>
+                            <div
+                                class="bg-teal-50/50 border-t border-teal-100 p-4 w-full flex flex-col gap-3 text-xs text-teal-800">
+                                <div><span class="font-bold">How to interpret this table:</span></div>
+                                <div class="flex flex-wrap gap-4 items-center">
+                                    <div class="flex items-center gap-1.5"><span
+                                            class="w-2.5 h-2.5 rounded bg-emerald-500 border border-emerald-200"></span>
+                                        Confidence &ge; 80% (high)</div>
+                                    <div class="flex items-center gap-1.5"><span
+                                            class="w-2.5 h-2.5 rounded bg-amber-500 border border-amber-200"></span> 60%
+                                        &le; Confidence &lt; 80% (moderate)</div>
+                                    <div class="flex items-center gap-1.5"><span
+                                            class="w-2.5 h-2.5 rounded bg-rose-500 border border-rose-200"></span>
+                                        Confidence &lt; 60% (low)</div>
+                                    <div class="flex items-center gap-1.5"><span
+                                            class="w-2.5 h-2.5 rounded bg-teal-500 border border-teal-200"></span>
+                                        AAI to closest RaFAH reference = average amino acid identity (%) to the closest
+                                        reference host</div>
+                                    <div class="flex items-center gap-1.5"><span
+                                            class="w-2.5 h-2.5 rounded bg-teal-500 border border-teal-200"></span>
+                                        List of methods = prediction approaches and their confidence (blast /
+                                        phylogenetic)</div>
                                 </div>
                             </div>
                         </div>
@@ -1564,6 +1880,8 @@
                 renderProphage();
             } else if (g_activeTab === 'lifecycle') {
                 renderLifecycle();
+            } else if (g_activeTab === 'host') {
+                renderHost();
             }
 
             g_renderedTabs.add(g_activeTab);
@@ -1667,6 +1985,41 @@
                     });
                 }
             }
+
+            // Read Host Prediction (CHERRY)
+            const overviewHostFile = Object.keys(g_currentSample.files).find(f => f.includes('cherry_host_prediction.tsv'));
+            if (overviewHostFile) {
+                const hostData = g_currentSample.files[overviewHostFile];
+                if (hostData.length > 1) {
+                    const h = hostData[0];
+                    const accIdx = h.indexOf('Accession');
+                    const hostIdx = h.indexOf('Host');
+                    const scoreIdx = h.indexOf('CHERRYScore');
+                    const methodIdx = h.indexOf('Method');
+                    hostData.slice(1).forEach(row => {
+                        const cid = row[accIdx];
+                        if (cid && contigObjects[cid]) {
+                            const rawHost = (row[hostIdx] || '').replace(/^species:/, '').trim();
+                            contigObjects[cid].host = {
+                                name: rawHost || 'N/A',
+                                score: parseFloat(row[scoreIdx]),
+                                method: row[methodIdx] || ''
+                            };
+                        }
+                    });
+                }
+            }
+
+            // Compute host stats
+            let hostCount = 0;
+            let hostNames = new Set();
+            Object.values(contigObjects).forEach(c => {
+                if (c.host && c.host.name && c.host.name !== 'N/A') {
+                    hostCount++;
+                    hostNames.add(c.host.name);
+                }
+            });
+            document.getElementById('stat-hosts').textContent = hostCount > 0 ? hostNames.size : '--';
 
             // Read Annotations -calculation for overview table
             const overviewAnnFile = Object.keys(g_currentSample.files).find(f => f.includes('annotation_report_summary.tsv'));
@@ -1805,12 +2158,29 @@
                     }
                     const annDisplay = annDisplayHtml;
 
+                    // Host
+                    let hostDisplay = '<span class="text-slate-400 italic text-xs">N/A</span>';
+                    if (c.host && c.host.name && c.host.name !== 'N/A') {
+                        const score = c.host.score;
+                        let scoreHtml = '';
+                        if (!isNaN(score)) {
+                            const scoreCls = score >= 0.8 ? 'text-emerald-600' : score >= 0.6 ? 'text-amber-600' : 'text-rose-600';
+                            scoreHtml = `<span class="${scoreCls} font-bold">(${score.toFixed(2)})</span>`;
+                        }
+                        hostDisplay = `
+                            <div class="flex flex-col gap-0.5 text-xs">
+                                <span class="font-semibold text-slate-700 italic">${c.host.name}</span>
+                                <span class="text-[10px] text-slate-400">${scoreHtml}${c.host.method ? ' ' + c.host.method : ''}</span>
+                            </div>`;
+                    }
+
                     tr.innerHTML = `
                         <td class="px-4 py-3 font-mono text-slate-600 text-xs font-medium">${c.id}</td>
                         <td class="px-4 py-3 text-slate-500">${lenDisplay}</td>
                         <td class="px-4 py-3">${qualDisplay}</td>
                         <td class="px-4 py-3">${toolsDisplay}</td>
                         <td class="px-4 py-3">${taxDisplay}</td>
+                        <td class="px-4 py-3">${hostDisplay}</td>
                         <td class="px-4 py-3">${annDisplay}</td>
                     `;
                     overviewTbody.appendChild(tr);
@@ -2183,9 +2553,9 @@
                 tableBody.appendChild(tr);
             });
 
-document.getElementById('tax-stat-sourmash').textContent = smCount;
-                document.getElementById('tax-stat-genomad').textContent = gmCount;
-                document.getElementById('tax-stat-taxmyphage').textContent = tpxCount;
+            document.getElementById('tax-stat-sourmash').textContent = smCount;
+            document.getElementById('tax-stat-genomad').textContent = gmCount;
+            document.getElementById('tax-stat-taxmyphage').textContent = tpxCount;
         }
 
         function renderTaxonomySourmash() {
@@ -3605,19 +3975,522 @@ document.getElementById('tax-stat-sourmash').textContent = smCount;
             });
         }
 
+        function switchLifecycleTab(subTabId) {
+            // Update buttons
+            document.querySelectorAll('button[id^="lc-tab-"]').forEach(btn => {
+                btn.classList.remove('bg-white', 'text-brand', 'shadow-sm', 'border', 'border-slate-200');
+                btn.classList.add('text-slate-500', 'hover:text-brand', 'hover:bg-white/50');
+            });
+            const activeBtn = document.getElementById(`lc-tab-${subTabId}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-500', 'hover:text-brand', 'hover:bg-white/50');
+                activeBtn.classList.add('bg-white', 'text-brand', 'shadow-sm', 'border', 'border-slate-200');
+            }
+
+            // Update content
+            document.querySelectorAll('.lc-tab-content').forEach(content => {
+                content.classList.add('hidden');
+                content.classList.remove('block');
+            });
+            const target = document.getElementById(`lc-content-${subTabId}`);
+            if (target) {
+                target.classList.remove('hidden');
+                target.classList.add('block');
+            }
+        }
+
+        function getLifecycleData() {
+            if (!g_currentSample) return null;
+            const lcFile = Object.keys(g_currentSample.files).find(f => f.includes('lifecycle_report_summary.tsv'));
+            if (!lcFile) return null;
+            const data = g_currentSample.files[lcFile];
+            if (!data || data.length <= 1) return null;
+            return data;
+        }
+
+        function getLifecycleToolFile(suffix) {
+            if (!g_currentSample) return null;
+            const lcFile = Object.keys(g_currentSample.files).find(f => f.includes(suffix));
+            if (!lcFile) return null;
+            const data = g_currentSample.files[lcFile];
+            if (!data || data.length <= 1) return null;
+            return data;
+        }
+
+        function lifecycleBadge(val) {
+            const lower = (val || '').trim().toLowerCase();
+            let cls = 'bg-slate-100 text-slate-600';
+            if (lower === 'virulent') cls = 'bg-emerald-100 text-emerald-700';
+            else if (lower === 'temperate') cls = 'bg-amber-100 text-amber-700';
+            else if (lower === 'disagree') cls = 'bg-rose-100 text-rose-700';
+            return `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${cls}">${(val || '').trim()}</span>`;
+        }
+
         function renderLifecycle() {
-            renderGenericTable('lifecycle_report_summary.tsv', 'lifecycle-table-head', 'lifecycle-table-body');
-            const body = document.getElementById('lifecycle-table-body');
+            renderLifecycleOverview();
+            renderLifecycleBacphlip();
+            renderLifecyclePhatyp();
+        }
+
+        function renderLifecycleOverview() {
+            const head = document.getElementById('lifecycle-overview-table-head');
+            const body = document.getElementById('lifecycle-overview-table-body');
+            if (!head || !body) return;
+            head.innerHTML = '';
+            body.innerHTML = '';
+
+            const data = getLifecycleData();
+            if (!data) {
+                body.innerHTML = '<tr><td colspan="100" class="px-6 py-10 text-center text-slate-400">No lifecycle data found</td></tr>';
+                return;
+            }
+
+            const headers = data[0];
+            const tableId = 'lifecycle-overview-table';
+            let headInner = `<tr class="bg-slate-50 text-slate-500 uppercase text-[9px] font-bold tracking-wider">`;
+            headers.forEach((h, i) => {
+                headInner += `<th class="px-4 py-3 border-b border-slate-100 cursor-pointer" onclick="sortTable('${tableId}', ${i})">${h.replace(/_/g, ' ')}</th>`;
+            });
+            headInner += `</tr>`;
+            head.innerHTML = headInner;
+
+            data.slice(1).forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50/50 transition-colors';
+                let rowInner = '';
+                headers.forEach((h, i) => {
+                    const val = row[i] || '';
+                    if (h === 'Consensus') {
+                        rowInner += `<td class="px-4 py-3">${lifecycleBadge(val)}</td>`;
+                    } else {
+                        rowInner += `<td class="px-4 py-3 text-slate-600">${val}</td>`;
+                    }
+                });
+                tr.innerHTML = rowInner;
+                body.appendChild(tr);
+            });
+        }
+
+        function renderLifecycleBacphlip() {
+            const head = document.getElementById('lifecycle-bacphlip-table-head');
+            const body = document.getElementById('lifecycle-bacphlip-table-body');
+            if (!head || !body) return;
+            head.innerHTML = '';
+            body.innerHTML = '';
+
+            // Prefer the raw BACPHLIP output file; fall back to the merged summary
+            let rows = null;
+            const raw = getLifecycleToolFile('_lifecycle_bacphlip.tsv');
+            if (raw) {
+                const h = raw[0];
+                const vIdx = h.indexOf('Virulent');
+                const tIdx = h.indexOf('Temperate');
+                rows = raw.slice(1).map(r => ({
+                    contig: r[0] || 'contig',
+                    virulent: vIdx >= 0 ? r[vIdx] : '',
+                    temperate: tIdx >= 0 ? r[tIdx] : '',
+                    length: ''
+                }));
+            } else {
+                const data = getLifecycleData();
+                if (data) {
+                    const h = data[0];
+                    const cIdx = h.indexOf('Contig');
+                    const lIdx = h.indexOf('Length');
+                    const vIdx = h.indexOf('bacphlip_Virulent');
+                    const tIdx = h.indexOf('bacphlip_Temperate');
+                    rows = data.slice(1).map(r => ({
+                        contig: cIdx >= 0 ? r[cIdx] : '',
+                        virulent: vIdx >= 0 ? r[vIdx] : '',
+                        temperate: tIdx >= 0 ? r[tIdx] : '',
+                        length: lIdx >= 0 ? r[lIdx] : ''
+                    }));
+                }
+            }
+
+            if (!rows || rows.length === 0) {
+                body.innerHTML = '<tr><td colspan="100" class="px-6 py-10 text-center text-slate-400">No BACPHLIP data found</td></tr>';
+                return;
+            }
+
+            const cols = [
+                { name: 'Contig', key: 'contig' },
+                { name: 'Virulent', key: 'virulent' },
+                { name: 'Temperate', key: 'temperate' }
+            ];
+            if (rows.some(r => r.length !== '')) cols.splice(1, 0, { name: 'Length', key: 'length' });
+
+            const tableId = 'lifecycle-bacphlip-table';
+            let headInner = `<tr class="bg-slate-50 text-slate-500 uppercase text-[9px] font-bold tracking-wider">`;
+            cols.forEach((c, i) => {
+                headInner += `<th class="px-4 py-3 border-b border-slate-100 cursor-pointer" onclick="sortTable('${tableId}', ${i})">${c.name}</th>`;
+            });
+            headInner += `<th class="px-4 py-3 border-b border-slate-100 cursor-pointer" onclick="sortTable('${tableId}', ${cols.length})">Prediction</th>`;
+            headInner += `</tr>`;
+            head.innerHTML = headInner;
+
+            rows.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50/50 transition-colors';
+                let rowInner = '';
+                cols.forEach(c => {
+                    rowInner += `<td class="px-4 py-3 text-slate-600">${r[c.key] || ''}</td>`;
+                });
+                const v = parseFloat(r.virulent);
+                const t = parseFloat(r.temperate);
+                let pred = '';
+                if (!isNaN(v) && !isNaN(t)) pred = v >= t ? 'virulent' : 'temperate';
+                else if (!isNaN(v)) pred = 'virulent';
+                rowInner += `<td class="px-4 py-3">${lifecycleBadge(pred)}</td>`;
+                tr.innerHTML = rowInner;
+                body.appendChild(tr);
+            });
+        }
+
+        function renderLifecyclePhatyp() {
+            const head = document.getElementById('lifecycle-phatyp-table-head');
+            const body = document.getElementById('lifecycle-phatyp-table-body');
+            if (!head || !body) return;
+            head.innerHTML = '';
+            body.innerHTML = '';
+
+            // Prefer the raw PhaTYP (Phabox2) output file; fall back to the merged summary
+            let rows = null;
+            const raw = getLifecycleToolFile('_phatyp_prediction_lifecycle_phabox2.tsv');
+            if (raw) {
+                const h = raw[0];
+                const aIdx = h.indexOf('Accession');
+                const lIdx = h.indexOf('Length');
+                const tIdx = h.indexOf('TYPE');
+                const sIdx = h.indexOf('PhaTYPScore');
+                rows = raw.slice(1).map(r => ({
+                    contig: aIdx >= 0 ? r[aIdx] : r[0],
+                    length: lIdx >= 0 ? r[lIdx] : '',
+                    type: tIdx >= 0 ? r[tIdx] : '',
+                    score: sIdx >= 0 ? r[sIdx] : ''
+                }));
+            } else {
+                const data = getLifecycleData();
+                if (data) {
+                    const h = data[0];
+                    const cIdx = h.indexOf('Contig');
+                    const lIdx = h.indexOf('Length');
+                    const tIdx = h.indexOf('phatyp_TYPE');
+                    const sIdx = h.indexOf('phatyp_PhaTYPScore');
+                    rows = data.slice(1).map(r => ({
+                        contig: cIdx >= 0 ? r[cIdx] : '',
+                        length: lIdx >= 0 ? r[lIdx] : '',
+                        type: tIdx >= 0 ? r[tIdx] : '',
+                        score: sIdx >= 0 ? r[sIdx] : ''
+                    }));
+                }
+            }
+
+            if (!rows || rows.length === 0) {
+                body.innerHTML = '<tr><td colspan="100" class="px-6 py-10 text-center text-slate-400">No PhaTYP data found</td></tr>';
+                return;
+            }
+
+            const cols = [
+                { name: 'Contig', key: 'contig' },
+                { name: 'Length', key: 'length' },
+                { name: 'TYPE', key: 'type' },
+                { name: 'PhaTYPScore', key: 'score' }
+            ];
+            const tableId = 'lifecycle-phatyp-table';
+            let headInner = `<tr class="bg-slate-50 text-slate-500 uppercase text-[9px] font-bold tracking-wider">`;
+            cols.forEach((c, i) => {
+                headInner += `<th class="px-4 py-3 border-b border-slate-100 cursor-pointer" onclick="sortTable('${tableId}', ${i})">${c.name}</th>`;
+            });
+            headInner += `</tr>`;
+            head.innerHTML = headInner;
+
+            rows.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50/50 transition-colors';
+                const num = parseFloat(r.score);
+                const scoreDisplay = isNaN(num) ? (r.score || '') : num.toFixed(2);
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-mono text-slate-600">${r.contig}</td>
+                    <td class="px-4 py-3 text-slate-600">${r.length}</td>
+                    <td class="px-4 py-3">${lifecycleBadge(r.type)}</td>
+                    <td class="px-4 py-3 text-slate-600 font-medium">${scoreDisplay}</td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        function switchHostTab(subTabId) {
+            // Update buttons
+            document.querySelectorAll('button[id^="host-tab-"]').forEach(btn => {
+                btn.classList.remove('bg-white', 'text-brand', 'shadow-sm', 'border', 'border-slate-200');
+                btn.classList.add('text-slate-500', 'hover:text-brand', 'hover:bg-white/50');
+            });
+            const activeBtn = document.getElementById(`host-tab-${subTabId}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-500', 'hover:text-brand', 'hover:bg-white/50');
+                activeBtn.classList.add('bg-white', 'text-brand', 'shadow-sm', 'border', 'border-slate-200');
+            }
+
+            // Update content
+            document.querySelectorAll('.host-tab-content').forEach(content => {
+                content.classList.add('hidden');
+                content.classList.remove('block');
+            });
+            const target = document.getElementById(`host-content-${subTabId}`);
+            if (target) {
+                target.classList.remove('hidden');
+                target.classList.add('block');
+            }
+        }
+
+        function renderHost() {
+            renderHostOverview();
+            renderHostCherry();
+            renderHostIphop();
+        }
+
+        function renderHostCherry() {
+            renderGenericTable('cherry_host_prediction.tsv', 'host-cherry-table-head', 'host-cherry-table-body');
+            const body = document.getElementById('host-cherry-table-body');
             if (!body) return;
+
+            const head = document.getElementById('host-cherry-table-head');
+            let hostColIdx = -1;
+            let scoreColIdx = -1;
+            let ncbiColIdx = -1;
+            let gtdbColIdx = -1;
+            if (head) {
+                const headers = head.querySelectorAll('th');
+                headers.forEach((th, i) => {
+                    const label = (th.textContent || '').trim().toLowerCase();
+                    if (label === 'host') hostColIdx = i;
+                    else if (label === 'cherryscore') scoreColIdx = i;
+                    else if (label === 'host ncbi lineage') ncbiColIdx = i;
+                    else if (label === 'host gtdb lineage') gtdbColIdx = i;
+                });
+            }
+
             body.querySelectorAll('tr').forEach(tr => {
-                const cell = tr.children[7];
-                if (!cell) return;
-                const val = (cell.textContent || '').trim().toLowerCase();
-                let cls = 'bg-slate-100 text-slate-600';
-                if (val === 'virulent') cls = 'bg-emerald-100 text-emerald-700';
-                else if (val === 'temperate') cls = 'bg-amber-100 text-amber-700';
-                else if (val === 'disagree') cls = 'bg-rose-100 text-rose-700';
-                cell.innerHTML = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${cls}">${cell.textContent.trim()}</span>`;
+                if (hostColIdx !== -1) {
+                    const cell = tr.children[hostColIdx];
+                    if (cell) {
+                        let val = (cell.textContent || '').trim();
+                        if (val.startsWith('species:')) val = val.substring('species:'.length);
+                        cell.innerHTML = `<span class="font-semibold text-slate-800 italic">${val || 'N/A'}</span>`;
+                    }
+                }
+                if (scoreColIdx !== -1) {
+                    const cell = tr.children[scoreColIdx];
+                    if (cell) {
+                        const val = parseFloat((cell.textContent || '').trim());
+                        let cls = 'bg-slate-100 text-slate-600';
+                        if (!isNaN(val)) {
+                            if (val >= 0.8) cls = 'bg-emerald-100 text-emerald-700';
+                            else if (val >= 0.6) cls = 'bg-amber-100 text-amber-700';
+                            else cls = 'bg-rose-100 text-rose-700';
+                        }
+                        cell.innerHTML = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${cls}">${cell.textContent.trim()}</span>`;
+                    }
+                }
+                [ncbiColIdx, gtdbColIdx].forEach(idx => {
+                    if (idx === -1) return;
+                    const cell = tr.children[idx];
+                    if (cell) {
+                        const val = (cell.textContent || '').trim();
+                        if (val && val !== '-' && val !== 'NA') {
+                            cell.innerHTML = `<span class="text-slate-600 max-w-[300px] break-words block" title="${val}">${val.replace(/;/g, ' > ')}</span>`;
+                        } else {
+                            cell.innerHTML = '<span class="text-slate-400 italic">No match</span>';
+                        }
+                    }
+                });
+            });
+        }
+
+        function renderHostIphop() {
+            const head = document.getElementById('host-iphop-table-head');
+            const body = document.getElementById('host-iphop-table-body');
+            if (!head || !body) return;
+            head.innerHTML = '';
+            body.innerHTML = '';
+
+            if (!g_currentSample) {
+                body.innerHTML = '<tr><td colspan="6" class="px-6 py-10 text-center text-slate-400">No iPHoP data found</td></tr>';
+                return;
+            }
+            const ipFile = Object.keys(g_currentSample.files).find(f => f.includes('Host_prediction_to_genus_m90.csv'))
+                || Object.keys(g_currentSample.files).find(f => f.includes('Host_prediction_to_genome_m90.csv'));
+            if (!ipFile) {
+                body.innerHTML = '<tr><td colspan="6" class="px-6 py-10 text-center text-slate-400">No iPHoP data found</td></tr>';
+                return;
+            }
+            const data = g_currentSample.files[ipFile];
+            if (!data || data.length <= 1) {
+                body.innerHTML = '<tr><td colspan="6" class="px-6 py-10 text-center text-slate-400">No iPHoP data found</td></tr>';
+                return;
+            }
+
+            const h = data[0];
+            const idx = {
+                virus: h.indexOf('Virus'),
+                aai: h.indexOf('AAI to closest RaFAH reference'),
+                hostTax: h.indexOf('Host genus'),
+                score: h.indexOf('Confidence score'),
+                methods: h.indexOf('List of methods')
+            };
+            if (idx.hostTax === -1) idx.hostTax = h.indexOf('Host taxonomy');
+            if (idx.methods === -1) idx.methods = h.indexOf('Main method');
+            if (idx.methods === -1) idx.methods = h.indexOf('Additional methods');
+
+            const tableId = 'host-iphop-table';
+            const cols = [];
+            if (idx.virus !== -1) cols.push({ name: 'Virus', idx: idx.virus });
+            if (idx.aai !== -1) cols.push({ name: 'AAI to closest RaFAH reference', idx: idx.aai });
+            if (idx.hostTax !== -1) cols.push({ name: 'Host genus', idx: idx.hostTax });
+            if (idx.score !== -1) cols.push({ name: 'Confidence score', idx: idx.score });
+            if (idx.methods !== -1) cols.push({ name: 'List of methods', idx: idx.methods });
+            if (cols.length === 0) {
+                body.innerHTML = '<tr><td colspan="6" class="px-6 py-10 text-center text-slate-400">No iPHoP data found</td></tr>';
+                return;
+            }
+            let headInner = `<tr class="bg-slate-50 text-slate-500 uppercase text-[9px] font-bold tracking-wider">`;
+            cols.forEach((c, i) => {
+                headInner += `<th class="px-4 py-3 border-b border-slate-100 cursor-pointer" onclick="sortTable('${tableId}', ${i})">${c.name}</th>`;
+            });
+            headInner += `</tr>`;
+            head.innerHTML = headInner;
+
+            data.slice(1).forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50/50 transition-colors';
+                let rowInner = '';
+                cols.forEach(c => {
+                    const val = row[c.idx] || '';
+                    if (c.name === 'Virus') {
+                        rowInner += `<td class="px-4 py-3 font-mono text-slate-600">${val}</td>`;
+                    } else if (c.name === 'Host genus' || c.name === 'Host taxonomy') {
+                        rowInner += `<td class="px-4 py-3 text-xs text-slate-600 max-w-[300px] break-words" title="${val}">${val.replace(/;/g, ' > ') || '<span class="text-slate-400 italic">N/A</span>'}</td>`;
+                    } else if (c.name === 'Confidence score') {
+                        const num = parseFloat(val);
+                        let display = val || '';
+                        let cls = 'text-slate-600 font-medium';
+                        if (!isNaN(num)) {
+                            display = num.toFixed(2) + '%';
+                            if (num >= 80) cls = 'text-emerald-600 font-bold';
+                            else if (num >= 60) cls = 'text-amber-600 font-bold';
+                            else cls = 'text-rose-600 font-bold';
+                        }
+                        rowInner += `<td class="px-4 py-3 ${cls}">${display}</td>`;
+                    } else {
+                        rowInner += `<td class="px-4 py-3 text-slate-600">${val}</td>`;
+                    }
+                });
+                tr.innerHTML = rowInner;
+                body.appendChild(tr);
+            });
+        }
+
+        function renderHostOverview() {
+            const head = document.getElementById('host-overview-table-head');
+            const body = document.getElementById('host-overview-table-body');
+            if (!head || !body) return;
+            head.innerHTML = '';
+            body.innerHTML = '';
+            if (!g_currentSample) {
+                body.innerHTML = '<tr><td colspan="6" class="px-6 py-10 text-center text-slate-400">No host data found</td></tr>';
+                return;
+            }
+
+            const rows = {}; // contig -> { cherry: {...}, iphop: {...} }
+
+            // CHERRY
+            const cFile = Object.keys(g_currentSample.files).find(f => f.includes('cherry_host_prediction.tsv'));
+            if (cFile) {
+                const data = g_currentSample.files[cFile];
+                if (data && data.length > 1) {
+                    const h = data[0];
+                    const accIdx = h.indexOf('Accession');
+                    const hostIdx = h.indexOf('Host');
+                    const scoreIdx = h.indexOf('CHERRYScore');
+                    data.slice(1).forEach(r => {
+                        const cid = r[accIdx];
+                        if (!cid) return;
+                        if (!rows[cid]) rows[cid] = {};
+                        let host = (r[hostIdx] || '').replace(/^species:/, '').trim();
+                        rows[cid].cherry = { host: host || 'N/A', score: parseFloat(r[scoreIdx]) };
+                    });
+                }
+            }
+
+            // iPHoP
+            const ipFile = Object.keys(g_currentSample.files).find(f => f.includes('Host_prediction_to_genus_m90.csv'))
+                || Object.keys(g_currentSample.files).find(f => f.includes('Host_prediction_to_genome_m90.csv'));
+            if (ipFile) {
+                const data = g_currentSample.files[ipFile];
+                if (data && data.length > 1) {
+                    const h = data[0];
+                    let taxIdx = h.indexOf('Host genus');
+                    if (taxIdx === -1) taxIdx = h.indexOf('Host taxonomy');
+                    const virusIdx = h.indexOf('Virus');
+                    const scoreIdx = h.indexOf('Confidence score');
+                    let methodIdx = h.indexOf('List of methods');
+                    if (methodIdx === -1) methodIdx = h.indexOf('Main method');
+                    data.slice(1).forEach(r => {
+                        const cid = r[virusIdx];
+                        if (!cid) return;
+                        if (!rows[cid]) rows[cid] = {};
+                        const fulltax = r[taxIdx] || '';
+                        const tax = fulltax.split(';').filter(Boolean).pop() || fulltax || 'N/A';
+                        rows[cid].iphop = { tax: tax, fulltax: fulltax, score: parseFloat(r[scoreIdx]), method: r[methodIdx] || '' };
+                    });
+                }
+            }
+
+            if (Object.keys(rows).length === 0) {
+                body.innerHTML = '<tr><td colspan="6" class="px-6 py-10 text-center text-slate-400">No host data found</td></tr>';
+                return;
+            }
+
+            const tableId = 'host-overview-table';
+            const cols = [
+                { name: 'Contig', key: 'contig' },
+                { name: 'CHERRY Host', key: 'cherryHost' },
+                { name: 'CHERRY Score', key: 'cherryScore' },
+                { name: 'iPHoP Host', key: 'iphopHost' },
+                { name: 'iPHoP Confidence', key: 'iphopScore' },
+                { name: 'iPHoP Method', key: 'iphopMethod' }
+            ];
+            let headInner = `<tr class="bg-slate-50 text-slate-500 uppercase text-[9px] font-bold tracking-wider">`;
+            cols.forEach((c, i) => {
+                headInner += `<th class="px-4 py-3 border-b border-slate-100 cursor-pointer" onclick="sortTable('${tableId}', ${i})">${c.name}</th>`;
+            });
+            headInner += `</tr>`;
+            head.innerHTML = headInner;
+
+            Object.entries(rows).forEach(([cid, r]) => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50/50 transition-colors';
+
+                const cherryHost = r.cherry ? `<span class="font-semibold text-slate-800 italic">${r.cherry.host}</span>` : '<span class="text-slate-400 italic text-xs">No match</span>';
+                const cherryScore = r.cherry && !isNaN(r.cherry.score)
+                    ? `<span class="${r.cherry.score >= 0.8 ? 'text-emerald-600' : r.cherry.score >= 0.6 ? 'text-amber-600' : 'text-rose-600'} font-bold">${r.cherry.score.toFixed(2)}</span>`
+                    : '<span class="text-slate-400 italic text-xs">N/A</span>';
+                const iphopHost = r.iphop ? `<span class="font-semibold text-slate-700" title="${r.iphop.fulltax}">${r.iphop.tax}</span>` : '<span class="text-slate-400 italic text-xs">No match</span>';
+                const iphopScore = r.iphop && !isNaN(r.iphop.score)
+                    ? `<span class="${r.iphop.score >= 80 ? 'text-emerald-600' : r.iphop.score >= 60 ? 'text-amber-600' : 'text-rose-600'} font-bold">${r.iphop.score.toFixed(2)}%</span>`
+                    : '<span class="text-slate-400 italic text-xs">N/A</span>';
+                const iphopMethod = r.iphop ? r.iphop.method : '<span class="text-slate-400 italic text-xs">N/A</span>';
+
+                tr.innerHTML = `
+                    <td class="px-4 py-3 font-mono text-slate-600 font-medium">${cid}</td>
+                    <td class="px-4 py-3 text-xs">${cherryHost}</td>
+                    <td class="px-4 py-3 text-xs">${cherryScore}</td>
+                    <td class="px-4 py-3 text-xs">${iphopHost}</td>
+                    <td class="px-4 py-3 text-xs">${iphopScore}</td>
+                    <td class="px-4 py-3 text-xs text-slate-500">${iphopMethod}</td>
+                `;
+                body.appendChild(tr);
             });
         }
 

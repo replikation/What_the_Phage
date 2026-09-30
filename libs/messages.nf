@@ -106,7 +106,8 @@ def defaultMSG() {
     def c_disabled = "${c_dim}[ DISABLED ]${c_reset}"
 
     def idStatus     = (params.identify || params.end_to_end) ? c_enabled : c_disabled
-    def annTaxStatus = (params.annotate_taxonomy || params.end_to_end) ? c_enabled : c_disabled
+    def annStatus    = (params.annotation || params.end_to_end) ? c_enabled : c_disabled
+    def taxStatus    = (params.taxonomy || params.end_to_end) ? c_enabled : c_disabled
     def propStatus   = (params.prophage || params.end_to_end) ? c_enabled : c_disabled
     def hostStatus   = (params.host || params.end_to_end) ? c_enabled : c_disabled
     def lifeStatus   = (params.lifecycle || params.end_to_end) ? c_enabled : c_disabled
@@ -142,7 +143,8 @@ ${c_yellow}» Singularity Cache:${c_reset} ${params.cachedir}""" : "") +
 
 ${c_cyan}[:: WORKFLOW STEPS ::]${c_reset}
 ${c_dim}» Identification:......${c_reset}  ${idStatus}
-${c_dim}» Annotation/Taxonomy:.${c_reset}  ${annTaxStatus}
+${c_dim}» Annotation:..........${c_reset}  ${annStatus}
+${c_dim}» Taxonomy:............${c_reset}  ${taxStatus}
 ${c_dim}» Prophage:............${c_reset}  ${propStatus}
 ${c_dim}» Host:................${c_reset}  ${hostStatus}
 ${c_dim}» Lifecycle:...........${c_reset}  ${lifeStatus}
