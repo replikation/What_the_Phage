@@ -15,7 +15,7 @@
 [![Publication](https://img.shields.io/badge/Publication-Gigascience-blueviolet.svg?style=flat-square)](https://doi.org/10.1093/gigascience/giac110)
 [![Webpage](https://img.shields.io/badge/WtP_v2.0-webpage-purple.svg?style=flat-square)](https://mult1fractal.github.io/WtP_v2_0_webpage/)
 
-[Webpage](https://mult1fractal.github.io/WtP_v2_0_webpage/) · [Releases](https://github.com/replikation/What_the_Phage/releases) · [Issues](https://github.com/replikation/What_the_Phage/issues)
+[Webpage](https://mult1fractal.github.io/WtP_v2_0_webpage/) · [Live report](https://replikation.github.io/What_the_Phage/) · [Releases](https://github.com/replikation/What_the_Phage/releases) · [Issues](https://github.com/replikation/What_the_Phage/issues)
 
 </div>
 
@@ -23,7 +23,7 @@ What the Phage is a scalable, containerized Nextflow workflow for phage identifi
 
 - **16 established phage-identification tools** whose scores are normalized and combined per contig
 - **7 analysis modules** that run independently or chained end-to-end (quality, identification, annotation, taxonomy, prophage, host, lifecycle)
-- **1 self-contained interactive HTML report** per sample, plus per-sample JSON for downstream use
+- **1 self-contained interactive HTML report** per sample, plus per-sample JSON for downstream use — [open a live example](https://replikation.github.io/What_the_Phage/)
 
 WtP is under active development. For a stable experience, use a release, e.g. `nextflow run replikation/What_the_Phage -r v2.0 ...`.
 
@@ -47,7 +47,7 @@ Installation guide, full run options, database sizes, expected runtimes and a li
 | Google Cloud (`-profile ukj_cloud`) | Tested |
 | `slurm`, `lsf`, `ebi` executors, `singularity` engine | Not tested yet |
 
-> The `slurm`, `lsf`, `ebi` and `singularity` setups are not actively tested by the maintainers — here we depend on community feedback. If you run WtP on any of them, please share how it went via [Issues](https://github.com/replikation/What_the_Phage/issues). Thanks!
+> The `slurm`, `lsf`, `ebi` and `singularity` setups are not actively tested.. here I depend on community feedback. If you run WtP on any of them, please share how it went via [Issues](https://github.com/replikation/What_the_Phage/issues). Thanks!
 
 
 ## Workflow
