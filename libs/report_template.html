@@ -260,7 +260,7 @@
 
                     <!-- OVERVIEW TAB -->
                     <div id="content-overview" class="tab-content active">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
                             <div
                                 class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-default">
                                 <p class="text-xs font-bold text-brand uppercase tracking-wider mb-1">Total Contigs
@@ -278,12 +278,6 @@
                                 <p class="text-xs font-bold text-brand uppercase tracking-wider mb-1">Longest
                                     Sequence</p>
                                 <p id="stat-max-seq" class="text-3xl font-bold text-slate-900 tracking-tight">--</p>
-                            </div>
-                            <div
-                                class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-default">
-                                <p class="text-xs font-bold text-brand uppercase tracking-wider mb-1">Predicted
-                                    Hosts</p>
-                                <p id="stat-hosts" class="text-3xl font-bold text-slate-900 tracking-tight">--</p>
                             </div>
                         </div>
 
@@ -2077,17 +2071,6 @@
                     });
                 }
             }
-
-            // Compute host stats
-            let hostCount = 0;
-            let hostNames = new Set();
-            Object.values(contigObjects).forEach(c => {
-                if (c.host && c.host.name && c.host.name !== 'N/A') {
-                    hostCount++;
-                    hostNames.add(c.host.name);
-                }
-            });
-            document.getElementById('stat-hosts').textContent = hostCount > 0 ? hostNames.size : '--';
 
             // Read Annotations -calculation for overview table
             const overviewAnnFile = Object.keys(g_currentSample.files).find(f => f.includes('annotation_report_summary.tsv'));
