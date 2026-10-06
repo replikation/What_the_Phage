@@ -1,5 +1,7 @@
 nextflow-autodownload-databases/
 cfg
+report
+test-data
 *.log*
 wip/
 db_auto-build/
@@ -8,3 +10,4 @@ work/
 results/
 .Rhistory
 singularity_images/
+dev/

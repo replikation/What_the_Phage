@@ -1,17 +1,18 @@
-include { setup_container } from './process/setup/setup_container'
-include { download_references } from './process/sourmash/download_references' // phage references
-include { phage_references_blastDB } from './process/metaphinder_own_DB/phage_references_blastDB' // methaphinder own db
-include { ppr_download_dependencies } from './process/pprmeta/ppr_download_dependencies' 
-include { sourmash_download_DB } from './process/sourmash/sourmash_download_DB'
-include { vibrant_download_DB } from './process/vibrant/vibrant_download_DB'
-include { virsorter_download_DB } from './process/virsorter/virsorter_download_DB'
-include { virsorter2_download_DB } from './process/virsorter2/virsorter2_download_DB'
-include { pvog_DB; vogtable_DB } from './process/phage_annotation/download_pvog_DB'
-include { download_checkV_DB } from './process/checkV/download_checkV_DB'
+include { setup_container } from './setup/setup_container'
+include { download_references_NCBI_identify } from './phage_identification_wf/process/sourmash/download_references' // phage references
+include { phage_references_blastDB } from './phage_identification_wf/process/metaphinder_own_DB/phage_references_blastDB' // methaphinder own db
+include { ppr_download_dependencies } from './phage_identification_wf/process/pprmeta/ppr_download_dependencies' 
+include { sourmash_identify_DB_build } from './phage_identification_wf/process/sourmash/sourmash_identify_DB_build'
+include { vibrant_download_DB } from './phage_identification_wf/process/vibrant/vibrant_download_DB'
+include { virsorter_download_DB } from './phage_identification_wf/process/virsorter/virsorter_download_DB'
+include { virsorter2_download_DB } from './phage_identification_wf/process/virsorter2/virsorter2_download_DB'
+include { pvog_DB; vogtable_DB } from './annotation_wf/process/download_pvog_DB.nf'
+include { download_checkV_DB } from './quality_control_wf/process/download_checkV_DB'
+include { download_genomad_DB } from './annotation_wf/process/download_genomad_DB'
 
 
 workflow setup_wf {
-    take:   
+      
     main:       
         // docker
         if (workflow.profile.contains('docker')) {
@@ -26,10 +27,10 @@ workflow setup_wf {
 
         // databases
         if (!params.annotate) {
-            download_references() // phage_references()
-            ref_phages_DB = phage_references_blastDB (download_references.out)
+            download_references_NCBI_identify() // phage_references()
+            ref_phages_DB = phage_references_blastDB (download_references_NCBI_identify.out)
             ppr_deps = ppr_download_dependencies()
-            sourmash_DB = sourmash_download_DB (download_references.out)
+            sourmash_DB = sourmash_identify_DB_build (download_references_NCBI_identify.out)
             vibrant_DB = vibrant_download_DB()
             virsorter_DB = virsorter_download_DB()
             virsorter2_DB = virsorter2_download_DB()
@@ -38,11 +39,12 @@ workflow setup_wf {
             pvog_DB = pvog_DB()
             vogtable_DB = vogtable_DB()
             checkV_DB = download_checkV_DB()
+            genomad_db = download_genomad_DB()
         }
 } 
 /* 
         if (!params.annotate) {
-            download_references() // phage_references()
+            download_references_NCBI_identify() // phage_references()
             ref_phages_DB = phage_references_blastDB (phage_references.out)
             ppr_deps = ppr_download_dependencies()
             sourmash_DB = sourmash_download_DB (phage_references.out)

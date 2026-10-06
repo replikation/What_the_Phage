@@ -1,0 +1,22 @@
+process phigaro_prophage {
+    label 'phigaro'
+    //errorStrategy 'ignore'
+    input:
+        tuple val(name), path(fasta) 
+    output:
+        tuple val(name), path("${name}_prophage_phigaro.tsv"), emit: phigaro_prophage_ch, optional: true
+        tuple val(name), path("${name}_prophage_phigaro.html"), emit: phigaro_prophage_ch_html, optional: true
+    script:
+        """
+        phigaro -f ${fasta} -o ${name}_prophage_phigaro -t ${task.cpus} -d --config /root/.phigaro/config.yml -e html tsv
+
+        # zip for export (html is only written when phigaro finds prophages)
+        tar --ignore-failed-read -czf ${name}_phigaro_prophage_output.tar.gz ${name}_prophage_phigaro.tsv ${name}_prophage_phigaro.html 
+        
+        """
+    stub:
+        """
+        touch ${name}_prophage_phigaro.tsv
+        touch ${name}_prophage_phigaro.html
+        """
+}

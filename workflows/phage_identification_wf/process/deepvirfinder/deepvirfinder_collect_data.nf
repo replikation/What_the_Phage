@@ -1,0 +1,19 @@
+process deepvirfinder_collect_data {
+    label 'ubuntu'
+    input:
+        tuple val(name), file(output_lists)
+    output:
+        tuple val(name), file("deepvirfinder_results_${name}.tar.gz")
+    script:
+        """
+        mkdir -p deepvirfinder
+        cat ${output_lists} | head -1 > deepvirfinder/${name}_overview.txt
+        tail -q -n+2 ${output_lists} >> deepvirfinder/${name}_overview.txt
+        tar -czf deepvirfinder_results_${name}.tar.gz deepvirfinder
+        """
+    stub:
+        """
+        mkdir deepvirfinder
+        tar -czf deepvirfinder_results_${name}.tar.gz deepvirfinder
+        """
+}
